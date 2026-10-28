@@ -3,6 +3,8 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 const pkg = JSON.parse(await readFile("package.json", "utf8"));
+const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
+assert.equal(lock.version, pkg.version); assert.equal(lock.packages[""].version, pkg.version);
 assert.equal(pkg.dsh.bundle.patch, "./cordis.patch.yml"); assert.equal(pkg.engines.dsh, "0.2.1-rc.3");
 for (const range of Object.values(pkg.peerDependencies)) assert.equal(range, pkg.engines.dsh);
 const bundle = await readFile("dist/client.js", "utf8"); assert.ok(bundle.startsWith('window.__ModuleLoader__.load({id:"dsh-mail",factory(require)')); assert.ok(!bundle.includes('chunk:"client.js"'));

@@ -12,6 +12,7 @@ import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount } from "./settings.m
 import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses } from "./util.mjs";
+import packageInfo from "../package.json" with { type: "json" };
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
 const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color"]);
@@ -112,7 +113,7 @@ export class MailService {
   }
   state() {
     const resource = (kind) => publicValue(this.store.list(kind).filter((x) => !x.deleted));
-    return { version: "0.1.0", mailVersion: this.store.mailVersion(), accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
+    return { version: packageInfo.version, mailVersion: this.store.mailVersion(), accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
   }
   settings() { return { ...DEFAULT_SETTINGS, ...this.store.get("settings", "general") }; }
   saveSettings(input) {

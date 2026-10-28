@@ -53,6 +53,11 @@ async function draft(service) { return service.invoke({ action: "drafts.save", d
 async function queued(service) { const d = await draft(service), p = await service.invoke({ action: "send.preview", id: d.id }, AGENT); await service.invoke({ action: "preview.confirm", id: p.id }, HUMAN); return d.id; }
 async function drain(service) { await Promise.all([...service.work.values()]); }
 
+test("runtime version matches the package version", async (t) => {
+  const { service } = await fixture(t), pkg = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+  assert.equal((await service.invoke({ action: "state" })).version, pkg.version);
+});
+
 test("FTS searches Chinese/Japanese; UID identity is scoped; unchanged refresh preserves revision", async (t) => {
   const { service } = await fixture(t); const s = service.store;
   const m = s.upsertMessage({ accountId: "me", folderId: "a", uidValidity: "1", uid: 1, subject: "项目报价", text: "日本語の見積書", from: [{ address: "client@example.com" }], flags: [], bodyLoaded: true });

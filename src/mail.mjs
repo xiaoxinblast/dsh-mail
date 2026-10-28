@@ -5,6 +5,7 @@ import { simpleParser } from "mailparser";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { addresses, cleanFilename, digest, headerSafe, id, now, requireValue, validateAddresses } from "./util.mjs";
+import packageInfo from "../package.json" with { type: "json" };
 
 export const PROVIDERS = {
   "163.com": { imapHost: "imap.163.com", smtpHost: "smtp.163.com" },
@@ -31,7 +32,7 @@ export class MailTransport {
     let client = this.clients.get(account.id);
     if (client?.usable) return client;
     const password = await this.getPassword(account.id);
-    client = new ImapFlow({ host: account.imapHost, port: account.imapPort, secure: account.imapSecure, ...(account.imapSecure ? {} : { doSTARTTLS: true }), auth: { user: account.username, pass: password }, logger: false, connectionTimeout: 20000, greetingTimeout: 20000, socketTimeout: 120000, maxIdleTime: 60000, clientInfo: { name: "DSH Mail", version: "0.1.0", vendor: "xiaoxinblast", "support-url": "https://github.com/xiaoxinblast/dsh-mail" } });
+    client = new ImapFlow({ host: account.imapHost, port: account.imapPort, secure: account.imapSecure, ...(account.imapSecure ? {} : { doSTARTTLS: true }), auth: { user: account.username, pass: password }, logger: false, connectionTimeout: 20000, greetingTimeout: 20000, socketTimeout: 120000, maxIdleTime: 60000, clientInfo: { name: "DSH Mail", version: packageInfo.version, vendor: "xiaoxinblast", "support-url": "https://github.com/xiaoxinblast/dsh-mail" } });
     client.on("error", () => {});
     client.on("close", () => { if (this.clients.get(account.id) === client) this.clients.delete(account.id); });
     client.on("exists", () => this.onChange(account.id));

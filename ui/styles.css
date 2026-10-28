@@ -204,7 +204,7 @@
 .dsh-mail .dm-rail button svg{transition:transform .15s ease}
 .dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}
 .dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}
-.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:15px;height:15px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}
+.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:18px;height:18px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}
 .dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}
 .dsh-mail .dm-reader-title h2{margin:0;min-width:0}
 .dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}

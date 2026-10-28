@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { MailService } from "../src/service.mjs";
 import { Store } from "../src/store.mjs";
 import { reconcileState } from "../ui/state.mjs";
+import { messageFolderLocations, FOLDER_COLORS, senderAppearance } from "../ui/folder-appearance.mjs";
 
 const HUMAN = { kind: "human" };
 const raw = Buffer.from("From: Client <client@example.invalid>\r\nTo: me@example.invalid\r\nMessage-ID: <locations@example.invalid>\r\nSubject: Location test\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nSynthetic folder membership fixture.\r\n");
@@ -43,6 +44,34 @@ test("missing Message-ID never groups by subject or thread; missing folders are 
   assert.deepEqual((await service.invoke({ action: "message.read", id: current.id })).locations, [{ id: current.id, folderId: current.folderId }]);
   service.store.put("folders", { ...service.folder(source.folderId), missing: true });
   assert.deepEqual((await service.invoke({ action: "message.read", id: current.id })).locations, []);
+});
+
+test("inbox search rows include all actual same-account locations before opening, and update after transfers", async (t) => {
+  const { service, source } = await fixture(t);
+  service.store.put("folders", { ...service.folder(source.folderId), role: "\\Inbox" });
+  const a = await service.folderOperation({ operation: "create", accountId: "local", path: "项目 A" }, HUMAN), b = await service.folderOperation({ operation: "create", accountId: "local", path: "项目 B" }, HUMAN);
+  const first = await service.messageAction(source.id, { operation: "copy", destinationId: a.id });
+  await service.messageAction(source.id, { operation: "copy", destinationId: b.id });
+  service.store.put("folders", { id: "other-account-folder", accountId: "other", path: "Other" });
+  service.store.upsertMessage({ ...source, id: "other-account-copy", accountId: "other", folderId: "other-account-folder", uid: 81 });
+  service.store.upsertMessage({ ...source, id: "different-mid", messageId: "<different@example.invalid>", folderId: a.id, uid: 82 });
+  const row = async () => { const result = await service.invoke({ action: "search", inbox: true }); assert.equal(result.total, 1); assert.equal(result.items[0].html, undefined); return result.items[0]; };
+  assert.deepEqual((await row()).locations, (await service.invoke({ action: "message.read", id: source.id })).locations);
+  assert.deepEqual(messageFolderLocations(await row(), service.state().folders).map(({ folder }) => folder.id), [a.id, b.id]);
+  const filtered = await service.invoke({ action: "search", inbox: true, q: "Synthetic", limit: 1 }); assert.deepEqual(filtered.items[0].locations, (await row()).locations); assert.equal(filtered.total, 1);
+  service.store.put("folders", { ...a, missing: true }); assert.deepEqual(messageFolderLocations(await row(), service.state().folders).map(({ folder }) => folder.id), [b.id]);
+  service.store.deleteMessage(first.messageId); service.store.put("folders", { ...b, deleted: true }); assert.deepEqual(messageFolderLocations(await row(), service.state().folders), []);
+  service.store.upsertMessage({ ...source, messageId: null }); assert.deepEqual((await row()).locations, [{ id: source.id, folderId: source.folderId }]);
+});
+
+test("folder indicators exclude inbox, deduplicate positions and keep a stable order; expanded colors preserve sender colors", () => {
+  const folders = [{ id: "i", path: "INBOX" }, { id: "b", path: "项目 B", color: "#d97706" }, { id: "a", path: "项目 A", color: "#15803d" }, { id: "gone", path: "已移除", missing: true }];
+  const message = { id: "inbox-instance", folderId: "i", locations: [{ id: "inbox-instance", folderId: "i" }, { id: "b-copy", folderId: "b" }, { id: "a-copy", folderId: "a" }, { id: "a-copy-2", folderId: "a" }, { id: "gone-copy", folderId: "gone" }] };
+  const positions = messageFolderLocations(message, folders); assert.deepEqual(positions.map(({ id, folder }) => [id, folder.id]), [["a-copy", "a"], ["b-copy", "b"]]);
+  assert.deepEqual(messageFolderLocations({ id: "i", folderId: "i" }, folders), []);
+  assert.equal(messageFolderLocations({ id: "b-copy", folderId: "b" }, folders)[0].folder.id, "b");
+  assert.equal(FOLDER_COLORS.length, 24); assert.equal(new Set(FOLDER_COLORS.map(([, color]) => color)).size, 24); assert.ok(FOLDER_COLORS.every(([, color]) => /^#[0-9a-f]{6}$/i.test(color)));
+  for (const name of ["Yeung Sin Hang", "项目团队", "佐藤 美咲"]) { const hash = [...name].reduce((n, c) => (n * 31 + c.codePointAt(0)) >>> 0, 0); assert.equal(senderAppearance({ from: [{ name }] }).color, FOLDER_COLORS[hash % 8][1]); }
 });
 
 test("remote-image preference validates and persists across restart and backup", async (t) => {

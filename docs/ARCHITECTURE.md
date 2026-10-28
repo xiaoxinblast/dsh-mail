@@ -37,6 +37,8 @@ backup.create/restore, jobs.cancel/retry, notifications.dismiss
 
 `message.read` 返回 `locations: [{id, folderId}]`，按同账号与相同 RFC Message-ID 查询实际缓存位置，排除失效文件夹；无 Message-ID 时只返回当前实例。单封整理弹窗调用现有 `messages.action` 队列，完成并确认结果后关闭，失败或结果未知时显示核查提示。跨账号副本通过各自账号查看，不合并成跨账号位置标签。
 
+`search.items` 同样携带 `locations`，只针对本页 ID 通过一次批量查询获得；查询使用消息 ID、账号/Message-ID 和文件夹实体的既有索引，列表不逐封调用 `message.read`。列表角标和阅读标签共同过滤 INBOX、失效与重复位置，按名称稳定排列；多个项目以分色角标显示。颜色从当前文件夹实体读取，修改颜色后同步更新；24 色板扩充保留原有头像用色。
+
 `settings.save` 的 `loadRemoteImages` 仅接受布尔值，默认 `false`，随现有实体与备份持久化。正文仍在 sandbox iframe 内进行 DOMPurify 清理与 CSP 限制；设置开启时只允许 HTTPS 远程图片，CID 图片继续通过附件接口按需读取。单封覆盖值仅在当前 Reader 内保存。
 
 UI 复用未变化的资源对象引用，邮件查询按 `mailVersion`、账号、文件夹及筛选变化刷新。`mailVersion` 包括本连接邮件变动计数、SQLite `data_version` 及最近的未到期延后时间，兼顾外部写入和延后到期。隐藏邮件页暂停查询；正文只在 HTML、图片附件或加载策略改变时重新准备。索引覆盖统计按版本缓存，FTS 子查询直接返回对应消息的 rowid。

@@ -124,3 +124,19 @@
 - 43 项测试通过：新增 `\Inbox` 角色、中英文路径、INBOX 大小写及子文件夹/相似名称边界测试；构建、检查和 `git diff --check` 通过。
 - 先在真实隔离 DSH/Edge 复现旧界面仍出现收件箱入口，再运行修正后的完整 `scripts/verify-message-ui.mjs`，全部通过且无页面异常。实际确认统一收件箱可读邮件、收件箱角标/标签消失、复制后仅显示项目标签、移动到项目 B 后其角标保留，以及收件箱仍在目标选项中。
 - 已查看 `.cache/screenshots/followup-locations-copy-light.png` 和 `followup-locations-move-light.png`；截图和验收 JSON 保留本机，不进入发行包。更新本地源码与客户端构建，未修改日常安装。
+
+## 本地待发布：收件箱关联项目角标与 24 色板（2026-10-29）
+
+- 先通过真实界面复现：正文已显示项目 A 标签，但收件箱原邮件没有角标。修正为列表也批量返回相同账号、相同 Message-ID 的实际位置，UI 与正文共用过滤/去重规则，只排除 INBOX 本身，多个项目位置以分色三角角标表示。
+- 45 项测试通过，新增列表关联、搜索/分页、跨账号隔离、缺失 Message-ID、删除与失效位置更新、稳定排列、24 色唯一性与头像颜色保护测试。
+- `scripts/verify-message-ui.mjs` 通过：复制后原邮件立即出现项目角标、修改文件夹颜色同步更新、两个位置分色显示、24 色板可选；真实浅色/深色截图已查看，原有图片设置、复制移动和日历检查继续通过，无页面异常。
+- 同一隔离 Host 停止重开后，用 INBOX 原邮件及 A/B 两个项目副本验证首次列表渲染：尚未打开邮件、`message.read` 请求为 0 时已有两色角标，随后打开正文显示相同 A/B 标签。新选的 `#10b981` 颜色保留；390px 抽屉内 24 色板无横向溢出。
+- 查询记录确认本页只有一次位置批量查询，`EXPLAIN QUERY PLAN` 使用消息 ID、`messages_mid` 和文件夹实体主键索引，不逐封获取正文。
+- `npm run build`、`npm run check`、`git diff --check` 通过。截图为 `.cache/screenshots/associated-inbox-*.png`、`followup-expanded-folder-colors-*.png` 和 `followup-locations-move-light.png`；记录为 `.cache/associated-inbox-ui-verification.json` 及 `.cache/message-ui-verification.json`。本轮更新本地源码和构建，未更新日常安装。
+
+## 0.1.6 版本同步验收（2026-10-29）
+
+- `package.json` 和锁文件更新到 0.1.6；运行状态及 IMAP 客户端标识从包元数据读取，修正“关于”页一直显示 0.1.0 的问题。
+- 新增运行版本与包版本一致性测试；`npm run check` 同时核对锁文件两处根版本。46 项测试通过，构建、检查、`git diff --check` 及 0.1.6 打包内容预检通过。
+- 真实隔离 DSH Host 执行完整邮件/日历 UI 脚本通过，页面异常为 0；已查看“设置 → 关于”截图，实际显示 DSH Mail 0.1.6。截图为 `.cache/screenshots/followup-about-version-0.1.6.png`。
+- 项目根目录 `AGENTS.md` 记录后续每轮递增版本、同步元数据/更新说明、验证后提交推送及远端核对流程。此次包含项目角标及 24 色板改动，未修改日常安装。

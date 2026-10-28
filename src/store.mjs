@@ -45,8 +45,17 @@ export class Store {
   message(key) { const row = this.db.prepare("SELECT data FROM messages WHERE id=?").get(key); return row ? JSON.parse(row.data) : null; }
   mailVersion(at = now()) { const next = this.db.prepare("SELECT snoozed_until FROM message_attributes WHERE snoozed_until>? ORDER BY snoozed_until LIMIT 1").get(at)?.snoozed_until || ""; return `${this.messageVersion || 0}:${this.db.prepare("PRAGMA data_version").get().data_version}:${next}`; }
   messageLocations(message) {
-    const rows = message.messageId ? this.db.prepare("SELECT id,folder_id FROM messages WHERE account_id=? AND message_id=? ORDER BY id=? DESC,folder_id,id").all(message.accountId, message.messageId, message.id) : [{ id: message.id, folder_id: message.folderId }];
-    return rows.filter((row) => { const folder = this.get("folders", row.folder_id); return folder && !folder.missing && !folder.deleted; }).map((row) => ({ id: row.id, folderId: row.folder_id }));
+    return this.messageLocationMap([message.id]).get(message.id) || [];
+  }
+  messageLocationMap(ids) {
+    const result = new Map(ids.map((key) => [key, []])); if (!ids.length) return result;
+    const rows = this.db.prepare(`SELECT source.id AS source_id,coalesce(related.id,source.id) AS id,coalesce(related.folder_id,source.folder_id) AS folder_id
+      FROM messages source LEFT JOIN messages related ON source.message_id<>'' AND related.account_id=source.account_id AND related.message_id=source.message_id
+      JOIN entities folder ON folder.kind='folders' AND folder.id=coalesce(related.folder_id,source.folder_id)
+      WHERE source.id IN (${ids.map(() => "?").join(",")}) AND coalesce(json_extract(folder.data,'$.missing'),0)=0 AND coalesce(json_extract(folder.data,'$.deleted'),0)=0
+      ORDER BY source.id,related.id=source.id DESC,related.folder_id,related.id`).all(...ids);
+    for (const row of rows) result.get(row.source_id).push({ id: row.id, folderId: row.folder_id });
+    return result;
   }
   location(account, folder, validity, uid) { const r = this.db.prepare("SELECT data FROM messages WHERE account_id=? AND folder_id=? AND uid_validity=? AND uid=?").get(account, folder, String(validity), Number(uid)); return r ? JSON.parse(r.data) : null; }
   upsertMessage(value) {
@@ -98,7 +107,8 @@ export class Store {
     const version = this.mailVersion();
     if (this.coverageCache?.version !== version) this.coverageCache = { version, value: { ...this.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed FROM messages").get() } };
     const coverage = this.coverageCache.value;
-    return { items: rows.map((r) => { const { html, text, rawHeaders, ...m } = JSON.parse(r.data); return { ...m, snippet: (text || "").slice(0, 180) }; }), total, offset, limit, nextOffset: offset + limit < total ? offset + limit : null, coverage };
+    const items = rows.map((r) => { const { html, text, rawHeaders, ...m } = JSON.parse(r.data); return { ...m, snippet: (text || "").slice(0, 180) }; }), locations = this.messageLocationMap(items.map((m) => m.id));
+    return { items: items.map((m) => ({ ...m, locations: locations.get(m.id) })), total, offset, limit, nextOffset: offset + limit < total ? offset + limit : null, coverage };
   }
   folderMessages(folderId) { return this.db.prepare("SELECT data FROM messages WHERE folder_id=? ORDER BY uid").all(folderId).map((r) => JSON.parse(r.data)); }
   async backup(path) { await backup(this.db, path); return path; }

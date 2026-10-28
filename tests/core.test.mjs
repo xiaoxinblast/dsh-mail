@@ -162,3 +162,8 @@ test("cross-account copy keeps a readable raw source and attachments after sourc
   service.store.put("accounts", { id: "other", local: true, enabled: true }); const folder = service.store.put("folders", { accountId: "other", path: "target", delimiter: "/" });
   const copied = await service.messageAction(source.id, { operation: "copy", destinationId: folder.id }); service.store.deleteMessage(source.id); assert.deepEqual(await service.ensureRaw(copied.messageId), raw);
 });
+
+test("missing special folder mapping is actionable and never changes the message", async (t) => {
+  const { service } = await fixture(t), imported = await service.importMail({ base64: raw.toString("base64") }); const original = service.message(imported.ids[0]);
+  await assert.rejects(service.messageAction(original.id, { operation: "archive" }), { code: "FOLDER_MAPPING_REQUIRED" }); assert.deepEqual(service.message(original.id), original);
+});

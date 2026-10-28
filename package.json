@@ -1,6 +1,6 @@
 {
   "name": "dsh-mail",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "DSH Mail — 本地多账号邮箱、日历、待办和 AI 邮箱助手",
   "license": "MIT",
   "type": "module",

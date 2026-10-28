@@ -10,7 +10,7 @@ import { normalizeAccount, composeDraft, parseMessage, MailTransport } from "../
 import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation } from "../src/calendar.mjs";
 import { validateRule } from "../src/rules.mjs";
 import JSZip from "jszip";
-import { eventAppearance } from "../ui/event-color.mjs";
+import { EVENT_COLORS, eventAppearance, eventColor } from "../ui/event-color.mjs";
 
 const HUMAN = { kind: "human", sessionId: "human-test" }, AGENT = { kind: "agent", sessionId: "agent-test" };
 test("event colors override calendar, choose readable text and reject invalid input", () => {
@@ -18,9 +18,15 @@ test("event colors override calendar, choose readable text and reject invalid in
   assert.throws(() => normalizeEvent({ ...base, start: "2026-10-28T10:00:00", end: "2026-10-28T11:00:00" }), { code: "INVALID_EVENT_RANGE" });
   for (const color of ["red", "#123", "url(https://example.com)", 123]) assert.throws(() => normalizeEvent({ ...base, color }), { code: "INVALID_EVENT_COLOR" });
   const calendars = [{ id: "default", color: "#15803d" }];
-  assert.equal(eventAppearance(normalizeEvent(base), calendars).backgroundColor, "#15803d");
-  assert.deepEqual(eventAppearance(normalizeEvent({ ...base, color: "#ffffff" }), calendars), { backgroundColor: "#ffffff", borderColor: "#ffffff", textColor: "#000000" });
-  assert.equal(eventAppearance({ color: "#000000" }, []).textColor, "#ffffff");
+  assert.equal(eventColor(normalizeEvent(base), calendars), "#15803d");
+  assert.equal(eventAppearance({ color: "#ffead7" }, calendars).backgroundColor, "#ffead7");
+  assert.notEqual(eventAppearance({ color: "#15803d" }, []).backgroundColor, "#15803d");
+  const luminance = (hex) => { const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4); return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722; };
+  for (const color of [...EVENT_COLORS.map(([, value]) => value), "#2563eb", "#155e75", "#15803d", "#7c3aed", "#be185d", "#dc2626", "#c2410c", "#475569", "#ffffff", "#000000"]) {
+    const event = { color }, style = eventAppearance(event, []);
+    assert.ok((luminance(style.backgroundColor) + 0.05) / (luminance(style.textColor) + 0.05) >= 4.5, `Readable text for ${color}`);
+    assert.equal(event.color, color);
+  }
 });
 test("event color persists through update, recurrence exceptions and database reopen", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "dsh-mail-colors-"));
@@ -32,7 +38,7 @@ test("event color persists through update, recurrence exceptions and database re
   const events = await service.invoke({ action: "events.list", start: "2026-10-28", end: "2026-11-01" });
   assert.deepEqual(events.map((e) => e.color), ["#7c3aed", "#dc2626", "#7c3aed"]);
   const restored = await service.invoke({ action: "events.save", event: { id: base.id, color: "" } }, HUMAN);
-  assert.equal(eventAppearance(restored, service.state().calendars).backgroundColor, "#155e75");
+  assert.equal(eventColor(restored, service.state().calendars), "#155e75");
 });
 const raw = Buffer.from("From: Client <client@example.com>\r\nTo: me@163.com\r\nSubject: =?UTF-8?B?5oql5Lu3?=\r\nMessage-ID: <quote-1@example.com>\r\nDate: Tue, 27 Oct 2026 10:00:00 +0800\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n项目报价。日本語の見積書。\r\nFrom original line\r\n");
 async function fixture(t, overrides = {}) {

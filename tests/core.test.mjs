@@ -19,12 +19,12 @@ test("event colors override calendar, choose readable text and reject invalid in
   for (const color of ["red", "#123", "url(https://example.com)", 123]) assert.throws(() => normalizeEvent({ ...base, color }), { code: "INVALID_EVENT_COLOR" });
   const calendars = [{ id: "default", color: "#15803d" }];
   assert.equal(eventColor(normalizeEvent(base), calendars), "#15803d");
-  assert.equal(eventAppearance({ color: "#ffead7" }, calendars).backgroundColor, "#ffead7");
-  assert.notEqual(eventAppearance({ color: "#15803d" }, []).backgroundColor, "#15803d");
+  assert.equal(eventAppearance({ color: "#ffead7" }, calendars).backgroundColor, "#ffb878");
+  assert.equal(eventAppearance({ color: "#15803d" }, []).backgroundColor, "#15803d");
   const luminance = (hex) => { const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4); return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722; };
   for (const color of [...EVENT_COLORS.map(([, value]) => value), "#2563eb", "#155e75", "#15803d", "#7c3aed", "#be185d", "#dc2626", "#c2410c", "#475569", "#ffffff", "#000000"]) {
     const event = { color }, style = eventAppearance(event, []);
-    assert.ok((luminance(style.backgroundColor) + 0.05) / (luminance(style.textColor) + 0.05) >= 4.5, `Readable text for ${color}`);
+    assert.ok((Math.max(luminance(style.backgroundColor), luminance(style.textColor)) + 0.05) / (Math.min(luminance(style.backgroundColor), luminance(style.textColor)) + 0.05) >= 4.5, `Readable text for ${color}`);
     assert.equal(event.color, color);
   }
 });

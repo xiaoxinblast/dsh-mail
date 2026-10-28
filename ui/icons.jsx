@@ -25,6 +25,7 @@ const paths = {
   reply: <><path d="m9 5-7 7 7 7M2 12h12a7 7 0 0 1 7 7" /></>,
   forward: <><path d="m15 5 7 7-7 7M22 12H10a7 7 0 0 0-7 7" /></>,
   back: <path d="m14 5-7 7 7 7" />,
+  next: <path d="m10 5 7 7-7 7" />,
   sparkle: <><path d="m12 3 3 6 6 3-6 3-3 6-3-6-6-3 6-3ZM20 2v4M18 4h4" /></>,
   attachment: <path d="m8 13 7-7a3 3 0 0 1 4 4L9 20a5 5 0 0 1-7-7L13 2" />,
   export: <><path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6" /></>,

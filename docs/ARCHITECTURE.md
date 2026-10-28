@@ -35,6 +35,14 @@ backup.create/restore, jobs.cancel/retry, notifications.dismiss
 
 `settings.save` 增加 `folderSort`，允许 `name-asc`、`name-desc`、`count-desc`，默认 `name-asc`。设置与颜色沿用 SQLite 实体和现有备份，不需要新增表或迁移。UI 在排序保存失败时恢复原选择；显示排序不依赖实体更新时间。
 
+`message.read` 返回 `locations: [{id, folderId}]`，按同账号与相同 RFC Message-ID 查询实际缓存位置，排除失效文件夹；无 Message-ID 时只返回当前实例。单封整理弹窗调用现有 `messages.action` 队列，完成并确认结果后关闭，失败或结果未知时显示核查提示。跨账号副本通过各自账号查看，不合并成跨账号位置标签。
+
+`settings.save` 的 `loadRemoteImages` 仅接受布尔值，默认 `false`，随现有实体与备份持久化。正文仍在 sandbox iframe 内进行 DOMPurify 清理与 CSP 限制；设置开启时只允许 HTTPS 远程图片，CID 图片继续通过附件接口按需读取。单封覆盖值仅在当前 Reader 内保存。
+
+UI 复用未变化的资源对象引用，邮件查询按 `mailVersion`、账号、文件夹及筛选变化刷新。`mailVersion` 包括本连接邮件变动计数、SQLite `data_version` 及最近的未到期延后时间，兼顾外部写入和延后到期。隐藏邮件页暂停查询；正文只在 HTML、图片附件或加载策略改变时重新准备。索引覆盖统计按版本缓存，FTS 子查询直接返回对应消息的 rowid。
+
+日历使用容器高度、ResizeObserver、小月历与多个可见日历选择；无数据变化时不重新获取事件。事件结束状态按 occurrence 的结束时间判断，全天结束边界使用显示时区，每 30 秒本地更新显示；配色转换不改写事件记录。
+
 发信审批绑定草稿版本、发件身份/SMTP 配置和发送时间。预览期限 30 分钟；确认只能通过 UI。草稿的 `status`、`approvalId`、`sendAt` 不接受草稿保存输入。不可逆操作的远程结果未知时，不自动重试。文件夹复制逐封保存 pending/running/done/unknown 检查点；中断后继续未开始项目，未知项目保留以供核查。
 
 本地规则不创建网易网页过滤器。垃圾邮件动作只移动文件夹。彩色标签只保存本地状态。日历邀请/回复先生成 MIME 草稿，之后走相同发送预览，不直接发信。邮箱正文不授予外部工具权限，邮箱助手预设不附带 shell。

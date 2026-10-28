@@ -19,6 +19,7 @@ try {
   await page.getByText("DSH Mail", { exact: true }).click();
   const root = page.locator(".dsh-mail"), rail = root.getByRole("navigation", { name: "功能导航" });
   await expect(root.locator(".dm-message-row").first()).toBeVisible();
+  const inboxCount = await root.locator(".dm-message-row").count();
   await expect(root.locator(".dm-account-folders").filter({ hasText: "工作邮箱 · 界面验收" })).toBeVisible();
   const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "900px"; el.style.flex = "none"; }, width); assert.equal(await root.evaluate((el) => el.clientWidth), width); };
   const shot = async (name) => { await page.waitForTimeout(180); await root.screenshot({ path: `.cache/screenshots/navigation-${name}.png` }); };
@@ -65,7 +66,7 @@ try {
   assert.ok((await root.locator(".dm-message h3").allTextContents()).every((text) => text.startsWith("已发送 ·")));
   await shot("sent-light");
   await root.locator(".dm-folders>button").filter({ hasText: "统一收件箱" }).click();
-  await expect(root.locator(".dm-message-row")).toHaveCount(14);
+  await expect(root.locator(".dm-message-row")).toHaveCount(inboxCount);
   const row = root.locator(".dm-message-row").filter({ hasText: "十月项目交付计划与报价确认" });
   await row.hover();
   await expect(row.locator(".dm-row-quick")).toHaveCSS("opacity", "1");

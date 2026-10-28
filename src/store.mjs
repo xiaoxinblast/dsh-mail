@@ -9,6 +9,7 @@ export class Store {
     mkdirSync(directory, { recursive: true });
     this.path = join(directory, "mail.sqlite");
     this.db = new DatabaseSync(this.path);
+    this.messageVersion = 0;
     this.db.exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;");
     const version = this.db.prepare("PRAGMA user_version").get().user_version;
     requireValue(version <= 2, "DATABASE_NEWER", "数据库由更新版本创建，请恢复匹配版本备份。");
@@ -42,6 +43,11 @@ export class Store {
   log(kind, data) { this.db.prepare("INSERT INTO logs(time,kind,data) VALUES(?,?,?)").run(now(), kind, JSON.stringify(data)); }
   logs(limit = 100) { return this.db.prepare("SELECT * FROM logs ORDER BY id DESC LIMIT ?").all(bounded(limit)).map((r) => ({ ...r, data: JSON.parse(r.data) })); }
   message(key) { const row = this.db.prepare("SELECT data FROM messages WHERE id=?").get(key); return row ? JSON.parse(row.data) : null; }
+  mailVersion(at = now()) { const next = this.db.prepare("SELECT snoozed_until FROM message_attributes WHERE snoozed_until>? ORDER BY snoozed_until LIMIT 1").get(at)?.snoozed_until || ""; return `${this.messageVersion || 0}:${this.db.prepare("PRAGMA data_version").get().data_version}:${next}`; }
+  messageLocations(message) {
+    const rows = message.messageId ? this.db.prepare("SELECT id,folder_id FROM messages WHERE account_id=? AND message_id=? ORDER BY id=? DESC,folder_id,id").all(message.accountId, message.messageId, message.id) : [{ id: message.id, folder_id: message.folderId }];
+    return rows.filter((row) => { const folder = this.get("folders", row.folder_id); return folder && !folder.missing && !folder.deleted; }).map((row) => ({ id: row.id, folderId: row.folder_id }));
+  }
   location(account, folder, validity, uid) { const r = this.db.prepare("SELECT data FROM messages WHERE account_id=? AND folder_id=? AND uid_validity=? AND uid=?").get(account, folder, String(validity), Number(uid)); return r ? JSON.parse(r.data) : null; }
   upsertMessage(value) {
     const old = this.location(value.accountId, value.folderId, value.uidValidity, value.uid) || (value.id ? this.message(value.id) : null);
@@ -64,9 +70,10 @@ export class Store {
       const addressText = (items) => (items || []).map((a) => `${a.address || ""} ${a.name || ""}`).join(" ").toLowerCase();
       this.db.prepare("INSERT INTO message_attributes VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET snoozed_until=excluded.snoozed_until,from_text=excluded.from_text,to_text=excluded.to_text,cc_text=excluded.cc_text").run(next.id, next.snoozedUntil || null, addressText(next.from), addressText(next.to), addressText(next.cc));
     });
+    this.messageVersion++;
     return next;
   }
-  deleteMessage(key) { this.transaction(() => { this.db.prepare("DELETE FROM message_search WHERE rowid=(SELECT rowid FROM messages WHERE id=?)").run(key); this.db.prepare("DELETE FROM messages WHERE id=?").run(key); }); }
+  deleteMessage(key) { this.transaction(() => { this.db.prepare("DELETE FROM message_search WHERE rowid=(SELECT rowid FROM messages WHERE id=?)").run(key); if (this.db.prepare("DELETE FROM messages WHERE id=?").run(key).changes) this.messageVersion++; }); }
   search(query = {}) {
     const clauses = [], params = [];
     const add = (sql, value) => { clauses.push(sql); params.push(value); };
@@ -79,7 +86,7 @@ export class Store {
     if (query.starred !== undefined) add("m.starred=?", +!!query.starred);
     if (query.hasAttachment !== undefined) add("m.has_attachment=?", +!!query.hasAttachment);
     if (query.folderIds?.length) { clauses.push(`m.folder_id IN (${query.folderIds.map(() => "?").join(",")})`); params.push(...query.folderIds); }
-    if (query.q) { const q = queryTokens(query.q); if (q) add("m.id IN (SELECT message_id FROM message_search WHERE message_search MATCH ?)", q); }
+    if (query.q) { const q = queryTokens(query.q); if (q) add("m.rowid IN (SELECT rowid FROM message_search WHERE message_search MATCH ?)", q); }
     for (const field of ["from", "to", "cc"]) if (query[field]) add(`m.id IN (SELECT id FROM message_attributes WHERE ${field}_text LIKE ? ESCAPE '\\')`, `%${String(query[field]).toLowerCase().replace(/[\\%_]/g, "\\$&")}%`);
     if (query.subject) add("lower(m.subject) LIKE ? ESCAPE '\\'", `%${query.subject.toLowerCase().replace(/[\\%_]/g, "\\$&")}%`);
     if (query.label) add("EXISTS(SELECT 1 FROM json_each(m.data,'$.labels') l WHERE l.value=?)", query.label);
@@ -88,7 +95,9 @@ export class Store {
     const total = this.db.prepare("SELECT count(*) AS n FROM messages m" + where).get(...params).n;
     const limit = bounded(query.limit), offset = Math.max(0, Math.trunc(Number(query.offset) || 0));
     const rows = this.db.prepare("SELECT m.data FROM messages m" + where + " ORDER BY m.date DESC,m.id LIMIT ? OFFSET ?").all(...params, limit, offset);
-    const coverage = this.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed FROM messages").get();
+    const version = this.mailVersion();
+    if (this.coverageCache?.version !== version) this.coverageCache = { version, value: { ...this.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed FROM messages").get() } };
+    const coverage = this.coverageCache.value;
     return { items: rows.map((r) => { const { html, text, rawHeaders, ...m } = JSON.parse(r.data); return { ...m, snippet: (text || "").slice(0, 180) }; }), total, offset, limit, nextOffset: offset + limit < total ? offset + limit : null, coverage };
   }
   folderMessages(folderId) { return this.db.prepare("SELECT data FROM messages WHERE folder_id=? ORDER BY uid").all(folderId).map((r) => JSON.parse(r.data)); }

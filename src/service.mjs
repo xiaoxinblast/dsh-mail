@@ -63,7 +63,7 @@ export class MailService {
       if ((args.inbox || args.sent) && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
       return publicValue(this.store.search(args));
     }
-    if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue(m); }
+    if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue({ ...m, locations: this.store.messageLocations(m) }); }
     if (action === "thread.read") { const m = this.message(args.id); return publicValue(this.store.search({ accountId: m.accountId, threadId: m.threadId, limit: args.limit || 50, includeSnoozed: true })); }
     if (action === "drafts.save") return this.saveDraft(args.draft);
     if (action === "drafts.reply") return this.replyDraft(args);
@@ -112,7 +112,7 @@ export class MailService {
   }
   state() {
     const resource = (kind) => publicValue(this.store.list(kind).filter((x) => !x.deleted));
-    return { version: "0.1.0", accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
+    return { version: "0.1.0", mailVersion: this.store.mailVersion(), accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
   }
   settings() { return { ...DEFAULT_SETTINGS, ...this.store.get("settings", "general") }; }
   saveSettings(input) {
@@ -124,6 +124,7 @@ export class MailService {
     requireValue(Number.isInteger(next.firstDay) && next.firstDay >= 0 && next.firstDay <= 6, "INVALID_FIRST_DAY", "每周起始日必须为 0–6。");
     requireValue(Number.isInteger(next.syncIntervalMinutes) && next.syncIntervalMinutes >= 1 && next.syncIntervalMinutes <= 60, "INVALID_SYNC_INTERVAL", "同步间隔必须为 1–60 分钟的整数。");
     requireValue(typeof next.markReadOnOpen === "boolean", "INVALID_READ_PREFERENCE", "自动已读设置无效。");
+    requireValue(typeof next.loadRemoteImages === "boolean", "INVALID_IMAGE_PREFERENCE", "图片加载设置无效。");
     requireValue(FOLDER_SORTS.some(([sort]) => sort === next.folderSort), "INVALID_FOLDER_SORT", "请选择有效的文件夹排序方式。");
     requireValue(typeof next.defaultAccountId === "string", "INVALID_DEFAULT_ACCOUNT", "默认发件账号无效。");
     if (next.defaultAccountId && next.defaultAccountId !== previous.defaultAccountId) { const account = this.account(next.defaultAccountId); requireValue(account.enabled && !account.local && !account.deleted, "INVALID_DEFAULT_ACCOUNT", "请选择已启用的邮箱作为默认发件账号。"); }

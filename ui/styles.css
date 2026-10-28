@@ -198,3 +198,76 @@
 }
 @media (hover:none){.dsh-mail .dm-row-quick{opacity:1;pointer-events:auto}}
 @media (prefers-reduced-motion:reduce){.dsh-mail *,.dsh-mail *::before{transition:none!important;animation:none!important}}
+
+.dsh-mail .dm-rail button:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 16%,var(--dm-bg));color:var(--dm-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
+.dsh-mail .dm-rail button[aria-current]:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 25%,var(--dm-bg));box-shadow:inset 3px 0 var(--dm-accent),inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
+.dsh-mail .dm-rail button svg{transition:transform .15s ease}
+.dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}
+.dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}
+.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:15px;height:15px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}
+.dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}
+.dsh-mail .dm-reader-title h2{margin:0;min-width:0}
+.dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
+.dsh-mail .dm-location-chip{padding:3px 7px;border:0;border-radius:12px;background:color-mix(in srgb,var(--folder-color) 16%,var(--dm-bg));color:color-mix(in srgb,var(--folder-color) 60%,var(--dsw-alias-label-primary));font-size:11px;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.dsh-mail .dm-location-chip:not(:disabled):hover{background:color-mix(in srgb,var(--folder-color) 27%,var(--dm-bg))}
+.dsh-mail .dm-add-location{padding:4px 6px;border:0;background:transparent;color:var(--dm-muted);gap:1px}
+.dsh-mail .dm-transfer-mode{display:flex;flex-wrap:wrap;gap:14px;border:1px solid var(--dm-border);border-radius:8px;padding:12px;min-width:0}
+.dsh-mail .dm-transfer-mode legend{padding:0 5px;font-size:12px}
+.dsh-mail .dm-transfer-mode label{display:flex;align-items:center;gap:6px;font-size:12px}
+
+.dsh-mail .dm-calendar-page{position:relative;display:grid;grid-template-columns:220px minmax(0,1fr);height:100%;min-height:0;min-width:0;overflow:hidden}
+.dsh-mail .dm-calendar-sidebar{display:flex;flex-direction:column;min-width:0;gap:14px;padding:18px 14px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto;scrollbar-width:thin}
+.dsh-mail .dm-calendar-sidebar-actions{display:flex;gap:6px;align-items:center}
+.dsh-mail .dm-calendar-sidebar-actions>.primary{flex:1;min-height:36px}
+.dsh-mail .dm-calendar-panel-close,.dsh-mail .dm-calendar-backdrop,.dsh-mail .dm-calendar-mobile-actions{display:none}
+.dsh-mail .dm-mini-calendar header{display:flex;align-items:center;gap:4px;margin:6px 0 12px}
+.dsh-mail .dm-mini-calendar header strong{flex:1;font-size:12px;font-weight:600}
+.dsh-mail .dm-mini-calendar header button{border:0;background:transparent;padding:4px}
+.dsh-mail .dm-mini-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px 0;align-items:center;text-align:center}
+.dsh-mail .dm-mini-grid .dm-mini-weekday{font-size:10px;color:var(--dm-muted);padding:4px 0 8px}
+.dsh-mail .dm-mini-grid button{border:0;background:transparent;padding:0;font-size:11px;width:26px;height:26px;justify-self:center;border-radius:50%}
+.dsh-mail .dm-mini-grid button.outside{color:var(--dm-muted);opacity:.5}
+.dsh-mail .dm-mini-grid button.chosen{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 0 0 0 1px var(--dm-blue)}
+.dsh-mail .dm-mini-grid button[aria-current=date]{background:#2563eb;color:#fff;opacity:1}
+.dsh-mail .dm-calendar-sidebar .dm-section-label{margin:4px 0 0;border-top:1px solid var(--dm-border);padding-top:14px}
+.dsh-mail .dm-calendar-list{display:grid;gap:10px}
+.dsh-mail .dm-calendar-list label{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0}
+.dsh-mail .dm-calendar-list label>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsh-mail .dm-calendar-color{width:9px;height:9px;border-radius:3px;flex:none}
+.dsh-mail .dm-calendar-legend{font-size:10px;color:var(--dm-muted)}
+.dsh-mail .dm-calendar-tools{display:grid;gap:7px;margin-top:auto;padding-top:16px}
+.dsh-mail .dm-calendar-tools :is(button,label){font-size:11px;justify-content:flex-start;border-color:transparent;background:transparent;padding:6px 8px}
+.dsh-mail .dm-calendar-tools>span{font-size:9px;overflow-wrap:anywhere;padding:4px 8px}
+.dsh-mail .dm-calendar-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:16px 18px 12px}
+.dsh-mail .dm-calendar-main>.dm-calendar{flex:1;min-height:0;margin:0;width:100%}
+.dsh-mail .dm-calendar .fc-header-toolbar{margin-bottom:14px;gap:10px}
+.dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{display:flex;align-items:center;gap:10px;min-width:0}
+.dsh-mail .dm-calendar .fc-toolbar-title{font-size:20px;font-weight:600;white-space:nowrap;margin:0}
+.dsh-mail .dm-calendar .fc-button{padding:6px 9px;border-radius:6px}
+.dsh-mail .dm-calendar .fc-col-header-cell-cushion{padding:9px 6px;font-size:12px;font-weight:500}
+.dsh-mail .dm-calendar .fc-col-header-cell{text-align:left}
+.dsh-mail .dm-calendar .fc-daygrid-day-top{flex-direction:row}
+.dsh-mail .dm-calendar .fc-daygrid-day-number{padding:5px 8px;font-size:12px}
+.dsh-mail .dm-calendar .fc-day-today{background:color-mix(in srgb,#3b82f6 4%,var(--dm-bg))}
+.dsh-mail .dm-calendar .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number{border-radius:50%;background:#2563eb;color:#fff;min-width:24px;height:24px;padding:2px 5px;margin:4px;text-align:center}
+.dsh-mail .dm-calendar .fc-h-event .fc-event-main{padding:2px 7px;min-height:24px;font-size:12px}
+.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:0}
+@container (max-width:999px){
+  .dsh-mail .dm-calendar-page{grid-template-columns:minmax(0,1fr)}
+  .dsh-mail .dm-calendar-sidebar{display:none}
+  .dsh-mail .dm-calendar-mobile-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  .dsh-mail .calendar-panel-open .dm-calendar-sidebar{display:flex;position:absolute;inset:0 auto 0 0;width:240px;z-index:6;background:var(--dm-bg);box-shadow:12px 0 30px #0003}
+  .dsh-mail .dm-calendar-panel-close{display:inline-flex;border:0;background:transparent;padding:5px}
+  .dsh-mail .dm-calendar-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;background:#0005;z-index:5}
+  .dsh-mail .dm-calendar-backdrop:not(:disabled):hover{background:#0005}
+}
+@container (max-width:759px){
+  .dsh-mail .dm-calendar-main{padding:12px 8px 8px}
+  .dsh-mail .dm-calendar .fc-header-toolbar{flex-wrap:wrap;gap:10px}
+  .dsh-mail .dm-calendar .fc-toolbar-title{font-size:17px}
+  .dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{gap:7px}
+  .dsh-mail .dm-calendar .fc-button{font-size:10px;padding:5px 7px}
+  .dsh-mail .dm-calendar .fc-col-header-cell-cushion{font-size:10px;padding:7px 2px}
+  .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}
+}
+@media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}

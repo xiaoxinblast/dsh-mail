@@ -270,7 +270,9 @@ export class MailService {
     if (operation === "purge") { if (!account.local) requireValue(await this.transport.purge(account, folder, m), "PURGE_FAILED", "服务器未确认永久删除。"); this.store.deleteMessage(m.id); return { deleted: true }; }
     requireValue(["copy", "move", "archive", "trash", "junk", "restore"].includes(operation), "INVALID_MAIL_ACTION", "邮件操作无效。");
     const role = { archive: "archive", trash: "trash", junk: "junk" }[operation];
-    const target = this.folder(destinationId || (operation === "restore" ? m.previousFolderId : account.folders?.[role]));
+    const targetId = destinationId || (operation === "restore" ? m.previousFolderId : account.folders?.[role]);
+    requireValue(targetId, "FOLDER_MAPPING_REQUIRED", "请先在账号设置中选择目标文件夹；恢复邮件需要原文件夹记录，也可手动选择目标。");
+    const target = this.folder(targetId);
     requireValue(target.id !== folder.id, "SAME_FOLDER", "目标与来源文件夹相同。");
     const targetAccount = this.account(target.accountId), move = operation !== "copy";
     if (move) for (const a of m.attachments || []) await this.ensureAttachment(a.id);

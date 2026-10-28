@@ -46252,9 +46252,6 @@ function Title({ useTabInfo }) {
 function MailIcon({ size = 18 }) {
   return /* @__PURE__ */ import_react2.default.createElement("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.6", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, /* @__PURE__ */ import_react2.default.createElement("rect", { x: "3", y: "5", width: "18", height: "14", rx: "2" }), /* @__PURE__ */ import_react2.default.createElement("path", { d: "m3 7 9 6 9-6" }));
 }
-function Main(props) {
-  return /* @__PURE__ */ import_react2.default.createElement(App, { ...props });
-}
 var plugin_default = {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],
   async apply(ctx) {
@@ -46280,7 +46277,7 @@ var plugin_default = {
       const globalPrompt = async (_sessionId, text2) => {
         const workspaces = ctx2.workspaces.list.getSnapshot();
         if (workspaces.phase !== "ready" || !workspaces.items.length) throw new Error("\u8BF7\u5148\u5728 DSH \u5DE6\u4FA7\u6DFB\u52A0\u5DE5\u4F5C\u533A\uFF0C\u518D\u4EA4\u7ED9\u90AE\u7BB1\u52A9\u624B\u3002");
-        ctx2.uiWorkspace.startSession(void 0, { agentPreset: "dsh-mail", prompt: text2, whenDraftExists: "keep" });
+        ctx2.uiWorkspace.startSession(void 0, { agentPreset: "dsh-mail", prompt: text2, whenDraftExists: "append" });
         return "\u8BF7\u5728\u90AE\u7BB1\u52A9\u624B\u4F1A\u8BDD\u4E2D\u6838\u5BF9\u8F93\u5165\u6846\u7684\u5185\u5BB9\uFF0C\u7136\u540E\u53D1\u9001\u3002";
       };
       const prompt = async (sessionId, text2) => {
@@ -46299,7 +46296,7 @@ var plugin_default = {
         } else ctx2.sidebarRight.openTab("dsh-mail");
       };
       ctx2.effect(() => ctx2.sidebarRightTabs.register({ id: "dsh-mail", kind: "dsh-mail", title: () => "DSH Mail", keepMounted: true }));
-      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, Main));
+      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, App));
       ctx2.slots.inject("sidebar.panellist", () => ctx2.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
       ctx2.slots.inject("sidebar.right.pane.tab", () => ctx2.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call, prompt }) }, Tab));
       ctx2.slots.inject("sidebar.right.pane.tab.title", () => ctx2.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));

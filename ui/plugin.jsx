@@ -6,7 +6,6 @@ function Presence({ useMailMounted, useSessions, open }) { const sessionId = use
 function Tab(props) { const { tab } = props.useTabInfo(); return <App {...props} visible={tab.visible} />; }
 function Title({ useTabInfo }) { const { tab } = useTabInfo(); return <span>✉ {tab.title}</span>; }
 function MailIcon({ size = 18 }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }
-function Main(props) { return <App {...props} />; }
 export default {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],
   async apply(ctx) {
@@ -18,11 +17,11 @@ export default {
     await ctx.inject(["remote.mailUi"], (ctx) => {
       const call = async (sessionId, operation) => { const r = await ctx.remote.mailUi.invoke(sessionId, operation); if (!r.ok) throw new Error(r.error.message); return r.value; };
       const globalCall = async (_sessionId, operation) => { const r = await ctx.remote.mailUi.invokeGlobal(operation); if (!r.ok) throw new Error(r.error.message); return r.value; };
-      const globalPrompt = async (_sessionId, text) => { const workspaces = ctx.workspaces.list.getSnapshot(); if (workspaces.phase !== "ready" || !workspaces.items.length) throw new Error("请先在 DSH 左侧添加工作区，再交给邮箱助手。"); ctx.uiWorkspace.startSession(undefined, { agentPreset: "dsh-mail", prompt: text, whenDraftExists: "keep" }); return "请在邮箱助手会话中核对输入框的内容，然后发送。"; };
+      const globalPrompt = async (_sessionId, text) => { const workspaces = ctx.workspaces.list.getSnapshot(); if (workspaces.phase !== "ready" || !workspaces.items.length) throw new Error("请先在 DSH 左侧添加工作区，再交给邮箱助手。"); ctx.uiWorkspace.startSession(undefined, { agentPreset: "dsh-mail", prompt: text, whenDraftExists: "append" }); return "请在邮箱助手会话中核对输入框的内容，然后发送。"; };
       const prompt = async (sessionId, text) => { const preset = ctx.sessions.list.getSnapshot().byId[sessionId]?.projectionValues?.agentPreset; if (preset !== "dsh-mail") throw new Error("请先新建使用 DSH Mail 邮箱助手的会话。"); const r = await ctx.remote.session.prompt({ requestId: crypto.randomUUID(), sessionId, mode: "queue", content: [{ type: "text", text }] }); if (!r.ok) throw new Error(r.error.message); return r.value; };
       const open = (sessionId) => { if (!sessionId || ctx.sidebarRight.mounted.getSnapshot() !== sessionId) return; const existing = ctx.sidebarRight.openTabs.getSnapshot().find((t) => t.sessionId === sessionId && t.kind === "dsh-mail"); if (existing) { ctx.sidebarRight.focus(existing.tabId); if (!ctx.sidebarRight.isExpanded()) ctx.sidebarRight.toggleExpanded(); } else ctx.sidebarRight.openTab("dsh-mail"); };
       ctx.effect(() => ctx.sidebarRightTabs.register({ id: "dsh-mail", kind: "dsh-mail", title: () => "DSH Mail", keepMounted: true }));
-      ctx.slots.inject("main", () => ctx.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, Main));
+      ctx.slots.inject("main", () => ctx.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, App));
       ctx.slots.inject("sidebar.panellist", () => ctx.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
       ctx.slots.inject("sidebar.right.pane.tab", () => ctx.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call, prompt }) }, Tab));
       ctx.slots.inject("sidebar.right.pane.tab.title", () => ctx.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));

@@ -14,7 +14,7 @@
 github:xiaoxinblast/dsh-mail#main
 ```
 
-安装后启用 DSH Mail，按管理器提示重新载入或重启 DSH。仓库已包含 `dist/client.js`，正常安装无需手动构建。点击左侧“自动化任务”下方的 **DSH Mail** 可直接打开完整工作台，无需先进入会话。全局面板的“交给助手”会打开邮箱助手预设并准备输入内容，由你核对后发送。新建会话也可选择 **DSH Mail 邮箱助手**，继续使用会话右侧工作台。
+安装后启用 DSH Mail，按管理器提示重新载入或重启 DSH。仓库已包含 `dist/client.js`，正常安装无需手动构建。点击左侧“自动化任务”下方的 **DSH Mail** 可直接打开完整工作台，无需先进入会话；对话起始页移除重复的邮件图标，会话顶部的快捷入口保留。全局面板的“交给助手”会打开邮箱助手预设并准备输入内容，由你核对后发送。新建会话也可选择 **DSH Mail 邮箱助手**，继续使用会话右侧工作台。
 
 `main` 为安装来源；正式版本另外使用 `vX.Y.Z` 标签固定。不要使用版本豁免强行安装到未经测试的 DSH 版本。
 
@@ -75,6 +75,8 @@ github:xiaoxinblast/dsh-mail#main
 
 搜索先返回摘要与索引覆盖情况，正文按需提供给当前 DSH 模型。不自动上传完整邮箱或创建云端向量索引。邮件文字和附件是待处理资料，不能扩大工具权限。
 
+邮箱助手操作会自动打开当前会话右侧工作台：搜索和筛选展示结果列表，读信定位正文，写信和回复打开可编辑草稿，待办与联系人定位并高亮记录，日历跳到事件日期并显示对应日历，规则显示命中预览或已保存规则，附件打开预览，导出触发浏览器下载。已完成待办也会展示；已有编辑或弹窗会暂缓切换，关闭后再显示助手结果。内部分析可使用 `display:false` 避免频繁切页，最终操作保持默认展示。
+
 发送、对外日历邀请/回复和永久删除通过服务器保存的具体预览确认；修改草稿后旧预览失效。Agent 没有确认入口，`confirmed: true` 无效。规则保存后停用，用户在界面启用后才自动执行。
 
 ## 发送、回执与故障恢复
@@ -108,7 +110,10 @@ npm run benchmark
 
 `npm test` 包含真实本机 IMAP/SMTP 测试服务器，需允许回环网络。Windows 额外验证 DPAPI。`benchmark` 生成 3 个账号、10 万封合成邮件并将结果写入 `.cache/benchmark.json`，不使用真实邮件。
 
-界面验收脚本使用仓库 `.cache/dsh-home` 中的隔离 DSH Host。首次初始化基础数据运行 `node scripts/seed-fixtures.mjs`，再运行 `node scripts/seed-navigation-fixtures.mjs` 添加导航合成数据。启动该隔离 Host 后，用 `node scripts/verify-ui.mjs "<隔离 Host 的完整回环 URL>"` 执行 Edge 截图与交互验收。脚本覆盖主面板、会话侧栏、排序、查找、颜色、已发送、回复预览及明暗主题；截图和结果写入 `.cache/`。此流程不会确认发送邮件。
+界面验收脚本使用仓库 `.cache/dsh-home` 中的隔离 DSH Host。首次初始化基础数据运行 `node scripts/seed-fixtures.mjs`，再运行 `node scripts/seed-navigation-fixtures.mjs` 添加导航合成数据。启动该隔离 Host 后，用 `node scripts/verify-ui.mjs "<隔离 Host 的完整回环 URL>"` 执行 Edge 截图与交互验收。脚本覆盖左侧入口、对话重复入口排除、主面板、排序、查找、颜色、已发送、回复预览及明暗主题；截图和结果写入 `.cache/`。此流程不会确认发送邮件。
+
+
+Agent 联动的隔离界面验收：运行 `node scripts/prepare-agent-ui.mjs "<DSH rc.3 node_modules 目录>"`，把输出的测试插件 insert 加到 **`.cache/dsh-home/profiles/web/cordis.patch.yml`** 后启动该隔离 Host，再运行 `node scripts/verify-agent-ui.mjs "<完整回环 URL>"`。测试插件强制核对仓库隔离 `DSH_HOME`，通过原始 `dsh/agent.mjs` 和该 SDK 的 `defineTool` 执行真实工具回调，连接同一 Host 内的邮件服务；测试后停止 Host 并移除该 insert。此验收不调用真实模型、不确认发送，截图和下载文件仅存 `.cache/`。
 
 前端使用 DSH 提供的 React；IMAP/SMTP/MIME 使用 ImapFlow、Nodemailer 和 MailParser，日历使用 FullCalendar Standard、ICAL.js 和打包时区数据，富文本使用 Tiptap 开源组件。运行与依赖说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 

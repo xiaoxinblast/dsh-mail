@@ -15,7 +15,7 @@ import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounde
 import packageInfo from "../package.json" with { type: "json" };
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
-const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color"]);
+const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read"]);
 const PRIVATE_FIELDS = new Set(["ciphertext", "password", "secret", "rawPath"]);
 function publicValue(value) { return JSON.parse(JSON.stringify(value, function (key, item) { return PRIVATE_FIELDS.has(key) || (key === "path" && (this.contentType || this.rawPath)) ? undefined : item; })); }
 function draftView(draft) { return publicValue(draft); }
@@ -25,6 +25,7 @@ export class MailService {
   constructor({ directory, vault = new WindowsVault(), transport, clock = () => Date.now(), notify = () => {} }) {
     this.store = new Store(directory); this.directory = directory; this.vault = vault; this.clock = clock; this.notify = notify;
     this.abort = new AbortController(); this.syncing = new Map(); this.work = new Map(); this.sending = false; this.stopped = false;
+    this.workbenchViews = new Map(); this.viewEpoch = id(); this.viewSequence = 0;
     this.transport = transport || new MailTransport({ getPassword: (key) => this.password(key), onChange: (key) => { const a = this.store.get("accounts", key); if (a?.enabled) this.scheduleSync(a); } });
     if (!this.store.get("calendars", "default")) this.store.put("calendars", { id: "default", name: "我的日历", color: "#155e75" });
     this.recover();
@@ -42,14 +43,87 @@ export class MailService {
   folder(key) { const f = this.store.get("folders", key); requireValue(f, "FOLDER_NOT_FOUND", "文件夹不存在，请同步后重试。"); return f; }
   message(key) { const m = this.store.message(key); requireValue(m, "MESSAGE_NOT_FOUND", "邮件不存在或已被移动，请刷新。"); return m; }
   assertHuman(context) { requireValue(context.kind === "human", "USER_ACTION_REQUIRED", "此操作需要在 DSH Mail 界面中由用户完成。"); }
+  workbenchView(sessionId) {
+    const view = this.workbenchViews.get(sessionId);
+    if (view && view.expiresAt <= this.clock()) { this.workbenchViews.delete(sessionId); return null; }
+    return view || null;
+  }
+  queueWorkbenchView(target, context) {
+    requireValue(typeof context.sessionId === "string" && context.sessionId, "WORKBENCH_SESSION_REQUIRED", "此操作需要当前邮箱助手会话。");
+    const query = this.workbenchQuery(target.query ?? {});
+    for (const [key, view] of this.workbenchViews) if (view.expiresAt <= this.clock()) this.workbenchViews.delete(key);
+    const view = { ...target, page: target.page || "mail", id: id(), epoch: this.viewEpoch, sequence: ++this.viewSequence, sessionId: context.sessionId, query: target.query ? query : null, expiresAt: this.clock() + 5 * 60000 };
+    this.workbenchViews.set(context.sessionId, view); return { id: view.id, status: "queued" };
+  }
+  workbenchQuery(input) {
+    requireValue(input && typeof input === "object" && !Array.isArray(input), "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。");
+    const query = {};
+    for (const key of ["q", "accountId", "folderId", "threadId", "from", "to", "cc", "subject", "after", "before", "label"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "string" && input[key].length <= 2048, "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
+    for (const key of ["inbox", "sent", "seen", "starred", "hasAttachment", "includeSnoozed"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "boolean", "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
+    if (input.folderIds !== undefined) { requireValue(Array.isArray(input.folderIds) && input.folderIds.length <= 200 && input.folderIds.every((key) => typeof key === "string" && key.length <= 2048), "INVALID_WORKBENCH_QUERY", "工作台文件夹范围无效。"); query.folderIds = [...new Set(input.folderIds)]; }
+    for (const key of ["offset", "limit"]) if (input[key] !== undefined) { requireValue(Number.isSafeInteger(input[key]) && input[key] >= (key === "limit" ? 1 : 0), "INVALID_WORKBENCH_QUERY", "工作台分页条件无效。"); query[key] = key === "limit" ? bounded(input[key]) : input[key]; }
+    return query;
+  }
   async invoke(operation, context = { kind: "agent" }) {
+    if (operation?.action === "search" && context.kind === "agent" && context.sessionId && operation.display !== false) this.workbenchQuery(operation);
+    const result = await this.invokeBusiness(operation, context);
+    if (context.kind === "agent" && context.sessionId && operation.display !== false) {
+      // A presentation failure must not turn an already saved draft/task into a retryable business failure.
+      let workbench;
+      try { const target = this.workbenchTarget(operation, result); if (target) workbench = this.queueWorkbenchView(target, context); }
+      catch (e) { workbench = { status: "unavailable", error: errorInfo(e) }; }
+      if (workbench && result && typeof result === "object" && !Array.isArray(result)) return { ...result, workbench };
+    }
+    return result;
+  }
+  workbenchTarget(args, result) {
+    const action = args.action;
+    if (action === "search") return { page: "mail", query: args };
+    if (action === "message.read" || action === "thread.read") { const m = this.message(args.id); return { page: "mail", messageId: m.id, query: action === "thread.read" ? { accountId: m.accountId, threadId: m.threadId, includeSnoozed: true } : { accountId: m.accountId, folderId: m.folderId } }; }
+    if (["drafts.save", "drafts.reply", "drafts.cancel", "events.invite", "events.rsvp"].includes(action)) return { page: "mail", draftId: result.id };
+    if (action === "drafts.delete") return { page: "mail", section: "drafts" };
+    if (result?.kind && result?.details && result?.status === "pending") return { page: action.startsWith("rules.") ? "rules" : "mail", previewId: result.id };
+    if (action === "messages.action") return { page: "mail", activity: true, selectedIds: [...new Set(args.ids || [])] };
+    if (action === "folders.action") return result.kind === "folder-copy" ? { page: "mail", activity: true } : { page: "mail", query: { accountId: result.accountId, folderId: result.id } };
+    if (action === "rules.preview") return { page: "rules", rule: validateRule(args.rule), rulePreview: result };
+    if (action === "rules.save") return { page: "rules", entityId: result.id };
+    if (["mail.export", "attachments.export", "events.export", "contacts.export"].includes(action)) return { page: action === "events.export" ? "calendar" : action === "contacts.export" ? "contacts" : "mail", exportId: result.id };
+    if (action === "attachments.read") return { page: "mail", attachmentId: args.id };
+    if (action === "events.save" || action === "events.delete") return { page: "calendar", entityId: result.id, date: result.start, calendarId: result.calendarId };
+    if (action === "events.list") return { page: "calendar", date: args.start, calendarId: args.calendarId };
+    if (action === "events.import") { const e = result.find((item) => item.event)?.event; return { page: "calendar", date: e?.start, calendarId: args.calendarId, entityId: e?.id }; }
+    if (action === "resources.save" || action === "resources.delete") {
+      if (args.kind === "calendars") return { page: "calendar", calendarId: result.id };
+      if (args.kind === "tasks" || args.kind === "contacts") return { page: args.kind, entityId: result.id };
+      if (args.kind === "saved-searches" && action === "resources.save") return { page: "mail", query: result.query };
+      return { page: "settings", entityId: result.id, resourceKind: args.kind, resourceId: args.kind === "labels" && action === "resources.save" ? result.id : undefined, settingsSection: ["signatures", "templates"].includes(args.kind) ? "签名与模板" : "数据管理" };
+    }
+    if (action === "contacts.import") return { page: "contacts" };
+    if (action === "sync") return { page: "mail" };
+    if (action === "accounts.test") return { page: "settings", settingsSection: "邮箱账号" };
+    if (action.startsWith("jobs.") || action === "notifications.dismiss") return { page: "mail", activity: true };
+    return null;
+  }
+  async invokeBusiness(operation, context) {
     requireValue(operation && typeof operation.action === "string", "ACTION_REQUIRED", "缺少 action。");
     requireValue(!this.stopped, "STOPPED", "邮箱服务已停止。");
     const { action, ...args } = operation;
     if (HUMAN_ONLY.has(action)) this.assertHuman(context);
     // Credential entry never exists on the agent tool surface, even in arbitrary nested JSON.
     if (context.kind !== "human") requireValue(!/"(?:password|ciphertext|secret)"\s*:/.test(JSON.stringify(args)), "SECRET_INPUT_FORBIDDEN", "请通过设置界面输入凭据。");
-    if (action === "state") return this.state();
+    if (action === "state") return { ...this.state(), workbench: context.kind === "human" ? publicValue(this.workbenchView(context.sessionId)) : null };
+    if (action === "workbench.state") return publicValue(this.workbenchView(context.sessionId));
+    if (action === "workbench.ack") { const current = this.workbenchView(context.sessionId); if (!current || current.id !== args.id) return { acknowledged: false }; this.workbenchViews.delete(context.sessionId); return { acknowledged: true }; }
+    if (action === "workbench.show") {
+      const page = args.page || "mail"; requireValue(["mail", "drafts", "calendar", "tasks", "contacts", "rules", "settings", "activity"].includes(page), "INVALID_WORKBENCH_PAGE", "请选择有效的工作台页面。");
+      if (page === "mail" && args.id) { const m = this.message(args.id); return this.queueWorkbenchView({ page, query: { accountId: m.accountId, folderId: m.folderId }, messageId: m.id }, context); }
+      if (page === "drafts" && args.id) { const draft = this.store.get("drafts", args.id); requireValue(draft && draft.status !== "discarded", "DRAFT_NOT_FOUND", "草稿不存在。"); return this.queueWorkbenchView({ page: "mail", draftId: draft.id }, context); }
+      if (page === "drafts" || page === "activity") return this.queueWorkbenchView({ page: "mail", section: page === "drafts" ? "drafts" : undefined, activity: page === "activity" }, context);
+      const entity = args.id && ["calendar", "tasks", "contacts", "rules"].includes(page) ? this.store.get(page === "calendar" ? "events" : page, args.id) : null;
+      if (args.id) requireValue(entity && !entity.deleted, "NOT_FOUND", "目标内容不存在。");
+      return this.queueWorkbenchView({ page, query: page === "mail" ? args.query || { inbox: true } : undefined, entityId: entity?.id, date: entity?.start, calendarId: entity?.calendarId }, context);
+    }
+    if (action === "exports.read") { const file = this.store.get("exports", args.id); requireValue(file, "FILE_NOT_FOUND", "导出文件不存在。"); return { id: file.id, filename: file.filename, contentType: file.contentType, size: file.size, localPath: file.path, base64: file.size <= 60 * 1024 * 1024 ? (await readFile(file.path)).toString("base64") : undefined }; }
     if (action === "accounts.save") return this.saveAccount(args);
     if (action === "accounts.test") {
       if (args.accountId) return this.transport.test(this.account(args.accountId));
@@ -392,7 +466,8 @@ export class MailService {
     if (kind === "tasks") { requireValue(value.title?.trim(), "TITLE_REQUIRED", "请填写待办名称。"); if (value.due) requireValue(Number.isFinite(Date.parse(value.due)), "INVALID_DATE", "截止日期无效。"); }
     if (kind === "contacts") validateAddresses(value.email, true);
     if (value.sourceMessageId) this.message(value.sourceMessageId);
-    return this.store.put(kind, value, value.revision);
+    const { workbench, ...resource } = value;
+    return this.store.put(kind, resource, value.revision);
   }
   saveEvent(input) { const previous = input.id ? this.store.get("events", input.id) : null; const event = normalizeEvent({ timeZone: this.settings().eventTimeZone, ...previous, ...input, uid: previous?.uid || input.uid, sequence: previous ? previous.sequence + 1 : 0 }); return this.store.put("events", event, input.revision); }
   inviteDraft(action, args) {

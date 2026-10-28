@@ -3,7 +3,16 @@ import { App } from "./workbench.jsx";
 import { Icon } from "./icons.jsx";
 
 function Opener({ sessionId, open }) { return <button type="button" title="打开 DSH Mail" aria-label="打开 DSH Mail" onClick={() => open(sessionId)} style={{ border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 }}><Icon name="mail" /></button>; }
-function Presence({ useMailMounted, useSessions, open }) { const sessionId = useMailMounted((x) => x), preset = useSessions((s) => s.byId[sessionId]?.projectionValues?.agentPreset); useEffect(() => { if (preset === "dsh-mail") open(sessionId); }, [sessionId, preset, open]); return null; }
+function Presence({ useMailMounted, useSessions, open, call }) {
+  const sessionId = useMailMounted((x) => x), preset = useSessions((s) => s.byId[sessionId]?.projectionValues?.agentPreset);
+  useEffect(() => {
+    if (preset !== "dsh-mail" || !sessionId) return; open(sessionId);
+    let cancelled = false, running = false, lastId;
+    const poll = async () => { if (running) return; running = true; try { const view = await call(sessionId, { action: "workbench.state" }); if (!cancelled && view && view.id !== lastId) { lastId = view.id; open(sessionId); window.dispatchEvent(new CustomEvent("dsh-mail:workbench", { detail: { sessionId } })); } } catch {} finally { running = false; } };
+    poll(); const timer = setInterval(poll, 1000); return () => { cancelled = true; clearInterval(timer); };
+  }, [sessionId, preset, open, call]);
+  return null;
+}
 function Tab(props) { const { tab } = props.useTabInfo(); return <App {...props} visible={tab.visible} />; }
 function Title({ useTabInfo }) { const { tab } = useTabInfo(); return <span><Icon name="mail" size={16} /> {tab.title}</span>; }
 function MailIcon({ size = 18 }) { return <Icon name="mail" size={size} />; }
@@ -26,8 +35,8 @@ export default {
       ctx.slots.inject("sidebar.panellist", () => ctx.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
       ctx.slots.inject("sidebar.right.pane.tab", () => ctx.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call, prompt }) }, Tab));
       ctx.slots.inject("sidebar.right.pane.tab.title", () => ctx.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));
-      ctx.slots.inject("shell.overlay", () => ctx.slots.register({ name: "shell.overlay", id: "dsh-mail-auto-open", inject: () => ({ hooks: { mailMounted: ctx.sidebarRight.mounted }, open }) }, Presence));
-      for (const name of ["conversation.hero.options", "conversation.session.header.utilities"]) ctx.slots.inject(name, () => ctx.slots.register({ name, id: "dsh-mail-open", locale: "dsh-mail", inject: () => ({ open }) }, Opener));
+      ctx.slots.inject("shell.overlay", () => ctx.slots.register({ name: "shell.overlay", id: "dsh-mail-auto-open", inject: () => ({ hooks: { mailMounted: ctx.sidebarRight.mounted }, open, call }) }, Presence));
+      ctx.slots.inject("conversation.session.header.utilities", () => ctx.slots.register({ name: "conversation.session.header.utilities", id: "dsh-mail-open", locale: "dsh-mail", inject: () => ({ open }) }, Opener));
     });
   }
 };

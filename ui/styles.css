@@ -271,3 +271,5 @@
   .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}
 }
 @media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}
+
+.dsh-mail [data-agent-selected="true"] { outline: 2px solid var(--dm-primary, #2563eb); outline-offset: -2px; }

@@ -2,6 +2,7 @@
 import { chromium, expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
+import packageInfo from "../package.json" with { type: "json" };
 
 const url = process.argv[2];
 if (!url || new URL(url).hostname !== "127.0.0.1") throw new Error("Pass the isolated Host's 127.0.0.1 URL, including its temporary token.");
@@ -12,12 +13,14 @@ try {
   page = await browser.newPage({ viewport: { width: 1920, height: 1000 } });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(url);
-  await page.getByText("DSH Mail", { exact: true }).waitFor();
+  await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).waitFor();
   await page.getByText("开始使用", { exact: true }).waitFor();
   await page.keyboard.press("Escape");
   await expect(page.getByText("开始使用", { exact: true })).toBeHidden();
-  await page.getByText("DSH Mail", { exact: true }).click();
-  const root = page.locator(".dsh-mail"), rail = root.getByRole("navigation", { name: "功能导航" });
+  await expect(page.locator("[class*=heroOptions]").getByRole("button", { name: "打开 DSH Mail", exact: true })).toHaveCount(0);
+  await page.screenshot({ path: ".cache/screenshots/navigation-conversation-no-entry.png" });
+  await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
+  const root = page.locator(".dsh-mail:visible"), rail = root.getByRole("navigation", { name: "功能导航" });
   await expect(root.locator(".dm-message-row").first()).toBeVisible();
   const inboxCount = await root.locator(".dm-message-row").count();
   await expect(root.locator(".dm-account-folders").filter({ hasText: "工作邮箱 · 界面验收" })).toBeVisible();
@@ -131,6 +134,7 @@ try {
   for (const name of ["邮箱账号", "邮件与日历偏好", "签名与模板", "数据管理", "关于"]) {
     await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name, exact: true }).click();
     await expect(root.locator(".dm-settings-main>.dm-page-heading h2")).toHaveText(name);
+    if (name === "关于") { await expect(root.locator(".dm-settings-card p").filter({ hasText: `DSH Mail ${packageInfo.version} ·` })).toBeVisible(); await shot(`about-version-${packageInfo.version}`); }
   }
   await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click();
   await resize(390); await noOverflow(); await shot("settings-light-390");
@@ -174,10 +178,10 @@ try {
   await root.getByRole("combobox", { name: "文件夹排序" }).selectOption("count-desc");
   await expect(root.getByRole("combobox", { name: "文件夹排序" })).toBeEnabled();
   await page.reload();
-  await page.getByText("DSH Mail", { exact: true }).waitFor();
+  await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).waitFor();
   await page.waitForTimeout(2500);
   if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape");
-  if (!await root.isVisible()) await page.getByText("DSH Mail", { exact: true }).click();
+  if (!await root.isVisible()) await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   await resize(1440);
   await expect(root.getByRole("combobox", { name: "文件夹排序" })).toHaveValue("count-desc");
   await account.getByLabel("管理文件夹 Altagram", { exact: true }).click();
@@ -191,13 +195,13 @@ try {
     await root.getByRole("combobox", { name: "文件夹排序" }).selectOption("count-desc");
     await expect(root.getByRole("combobox", { name: "文件夹排序" })).toBeEnabled();
   }
-  await page.getByText("新会话", { exact: true }).last().click();
-  const opener = page.getByRole("button", { name: "打开 DSH Mail", exact: true }).first();
-  await expect(opener).toBeVisible(); await opener.click();
-  const sidebar = page.locator(".dsh-mail:visible").last();
-  await expect(sidebar.getByRole("button", { name: "打开文件夹列表", exact: true })).toBeVisible();
-  await sidebar.screenshot({ path: ".cache/screenshots/navigation-session-sidebar.png" });
-  checks.push("actual session sidebar entry renders the same workspace");
+  await page.getByRole("button", { name: "新建会话", exact: true }).first().click();
+  await expect(page.locator("[data-phase=hero]")).toBeVisible();
+  await expect(page.locator("[class*=heroOptions]").getByRole("button", { name: "打开 DSH Mail", exact: true })).toHaveCount(0);
+  await page.screenshot({ path: ".cache/screenshots/navigation-new-conversation-no-entry.png" });
+  await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
+  await expect(root).toBeVisible(); await resize(1440); await root.screenshot({ path: ".cache/screenshots/navigation-left-entry.png" });
+  checks.push("conversation heroes omit the duplicate mail shortcut; left sidebar still opens the workspace");
   assert.deepEqual(errors, []);
   await writeFile(".cache/navigation-ui-verification.json", JSON.stringify({ checks, pageErrors: errors }, null, 2));
   console.log(JSON.stringify({ checks, pageErrors: errors }, null, 2));

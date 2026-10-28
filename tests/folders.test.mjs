@@ -5,9 +5,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MailService } from "../src/service.mjs";
 import { normalizeAccount } from "../src/mail.mjs";
-import { visibleFolders, sentFolders } from "../src/folders.mjs";
+import { visibleFolders, sentFolders, isInboxFolder } from "../src/folders.mjs";
 
 const HUMAN = { kind: "human" };
+test("inbox identity uses its role or exact case-insensitive path, preserving nested and similarly named folders", () => {
+  for (const folder of [{ role: "\\Inbox", path: "收件箱" }, { path: "INBOX" }, { path: "Inbox" }, { path: "inbox" }]) assert.equal(isInboxFolder(folder), true);
+  for (const folder of [undefined, {}, { name: "INBOX", path: "项目" }, { path: "INBOX/项目" }, { path: "项目/INBOX" }, { path: "INBOX Archive" }, { role: "\\Sent", path: "Sent" }]) assert.equal(isInboxFolder(folder), false);
+});
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), "dsh-mail-folders-")), calls = [];
   const transport = { close: async () => {}, folders: async () => [], folderAction: async (...args) => { calls.push(args); return true; } };

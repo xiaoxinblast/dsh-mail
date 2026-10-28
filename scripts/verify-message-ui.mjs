@@ -21,16 +21,19 @@ try {
   const subject = "[验收] 文件夹位置与图片加载";
   await root.locator(".dm-message-row").filter({ hasText: subject }).locator("button.dm-message").click();
   const locations = root.getByLabel("邮件所在文件夹", { exact: true }), body = () => root.frameLocator('iframe[title="邮件正文"]');
-  await expect(locations.getByRole("button", { name: "[验收] 收件箱", exact: true })).toBeVisible();
+  await expect(root.locator(".dm-folder-row>button").filter({ hasText: "[验收] 收件箱" })).toHaveCount(0);
+  await expect(locations.getByRole("button", { name: "[验收] 收件箱", exact: true })).toHaveCount(0);
+  await expect(root.locator(".dm-message-row").filter({ hasText: subject }).locator(".dm-folder-corner")).toHaveCount(0);
   await expect(body().getByAltText("内嵌图片")).toHaveAttribute("src", /^data:image/);
   await expect(body().getByAltText("外部图片")).not.toHaveAttribute("src", /.+/); assert.equal(imageRequests, 0);
   await root.getByRole("button", { name: "添加或移动到文件夹", exact: true }).click();
   let dialog = root.getByRole("dialog"); await expect(dialog.getByRole("radio", { name: "复制，保留原邮件", exact: true })).toBeChecked();
+  await expect(dialog.getByRole("option", { name: "[验收] 收件箱（已在此文件夹）", exact: true })).toHaveJSProperty("disabled", true);
   await dialog.getByRole("textbox", { name: "查找目标文件夹", exact: true }).fill("[验收] 项目 A");
   await dialog.getByRole("combobox", { name: "目标文件夹", exact: true }).selectOption({ label: "[验收] 项目 A" }); await shot("transfer-dialog-light");
   await dialog.getByRole("button", { name: "复制邮件", exact: true }).click(); await expect(dialog).toBeHidden({ timeout: 15000 });
   await expect(locations.getByRole("button", { name: "[验收] 项目 A", exact: true })).toBeVisible();
-  await expect(locations.getByRole("button", { name: "[验收] 收件箱", exact: true })).toBeVisible(); await shot("locations-copy-light");
+  await expect(locations.getByRole("button", { name: "[验收] 收件箱", exact: true })).toHaveCount(0); await shot("locations-copy-light");
   await root.getByRole("button", { name: "添加或移动到文件夹", exact: true }).click(); dialog = root.getByRole("dialog");
   await dialog.getByRole("radio", { name: "移动，离开原位置", exact: true }).check();
   await dialog.getByRole("combobox", { name: "目标文件夹", exact: true }).selectOption({ label: "[验收] 项目 B" });
@@ -39,6 +42,8 @@ try {
   await expect(locations.getByRole("button", { name: "[验收] 项目 B", exact: true })).toBeVisible();
   await locations.getByRole("button", { name: "[验收] 项目 B", exact: true }).click();
   await expect(root.getByRole("img", { name: "所在文件夹：[验收] 项目 B", exact: true })).toBeVisible(); await shot("locations-move-light");
+  await root.getByRole("button", { name: "添加或移动到文件夹", exact: true }).click(); dialog = root.getByRole("dialog"); await expect(dialog.getByRole("option", { name: "[验收] 收件箱", exact: true })).toHaveJSProperty("disabled", false); await dialog.getByRole("button", { name: "取消", exact: true }).click();
+  checks.push("inbox is omitted from account folders, title chips and mail corners, while unified inbox and transfer targets remain available");
   checks.push("real UI copies preserve source, moves change current location, same-message chips and list corner agree");
 
   const imagePreference = async (enabled) => { await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click(); const checkbox = root.getByRole("checkbox", { name: "默认加载外部图片（HTTPS）", exact: true }); await checkbox.setChecked(enabled); const save = root.getByRole("button", { name: "保存偏好", exact: true }); if (await save.isEnabled()) { await save.click(); await expect(save).toBeDisabled(); } };

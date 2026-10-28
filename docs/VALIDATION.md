@@ -117,3 +117,10 @@
 上述三个静置场景前后均未捕获超过 50ms 的浏览器长任务；5 次打开邮件的测量中位数从 46.96ms 变为 57.97ms，本轮未证明单封打开更快。以上只能证明减少无变化重查和改善合成数据库查询，不能据此断言真实邮箱的所有卡顿已解决。
 
 截图在 `.cache/screenshots/followup-*.png`；界面、重启和性能记录分别为 `.cache/message-ui-verification.json`、`.cache/followup-restart-verification.json`、`.cache/mail-ui-profile-before.json`、`.cache/mail-ui-profile-final.json`、`.cache/search-comparison.json`。这些本机产物不进入发行包。本轮交付本地源码、构建和验收记录，未发布版本，也未修改日常 `desktop` 安装。
+
+## 本地待发布：排除 INBOX 文件夹标色（2026-10-29）
+
+- 按用户确认移除账号下重复收件箱入口，保留顶部统一收件箱；收件箱不生成邮件角标和标题彩色标签，数据与复制/移动目标保留。
+- 43 项测试通过：新增 `\Inbox` 角色、中英文路径、INBOX 大小写及子文件夹/相似名称边界测试；构建、检查和 `git diff --check` 通过。
+- 先在真实隔离 DSH/Edge 复现旧界面仍出现收件箱入口，再运行修正后的完整 `scripts/verify-message-ui.mjs`，全部通过且无页面异常。实际确认统一收件箱可读邮件、收件箱角标/标签消失、复制后仅显示项目标签、移动到项目 B 后其角标保留，以及收件箱仍在目标选项中。
+- 已查看 `.cache/screenshots/followup-locations-copy-light.png` 和 `followup-locations-move-light.png`；截图和验收 JSON 保留本机，不进入发行包。更新本地源码与客户端构建，未修改日常安装。

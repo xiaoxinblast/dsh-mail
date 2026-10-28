@@ -19,7 +19,7 @@ const descriptions = {
   mail_organize: "整理邮件：messages.action 使用 ids、operation=star|read|label|snooze|copy|move|archive|trash|junk|restore|purge、value、destinationId。folders.action 使用 operation=create|rename|move|copy|delete、id、accountId、path、structureOnly。永久操作仅产生预览。",
   mail_rules: "rules.preview/save 接收 rule:{name,accountId?,match:all|any,conditions:[{field,operator,value}],actions:[{action,value?,destinationId?,title?}],priority,stop}。规则默认停用，用户界面批准后启用。rules.apply(id) 生成历史应用预览。",
   mail_files: "附件读取使用 attachments.read(id)。导出邮件使用 mail.export(ids 或 folderId,format=eml|mbox)，返回本机文件路径。禁止自动打开外链或执行附件。",
-  mail_calendar: "本地事件增删查与 ICS。events.save 接收 event:{id?,revision?,title,start,end,timeZone,allDay,rrule?,calendarId?,reminderMinutes?,sourceMessageId?,description?}；events.list(start,end,calendarId?)；events.import(ics,sourceMessageId?)；events.invite/rsvp(id,accountId,attendees 或 response) 只产生草稿。日期歧义先询问。",
+  mail_calendar: "本地事件增删查与 ICS。events.save 接收 event:{id?,revision?,title,start,end,timeZone,allDay,rrule?,calendarId?,color?,reminderMinutes?,sourceMessageId?,description?}；events.list(start,end,calendarId?)；events.import(ics,sourceMessageId?)；events.invite/rsvp(id,accountId,attendees 或 response) 只产生草稿。color 使用 #RRGGBB，留空则跟随日历颜色。日期歧义先询问。",
   mail_resources: "管理 tasks|contacts|calendars|signatures|templates|saved-searches|labels。resources.save(kind,value)，修改带 id/revision；tasks 使用 title,due,priority,done,sourceMessageId,evidence；contacts 使用 name,email,group。resources.delete(kind,id) 为可恢复软删除。",
   mail_jobs: "查看后台任务、待确认操作与提醒；jobs.cancel/retry(id)。状态未知的远程修改不能盲目重试。"
 };

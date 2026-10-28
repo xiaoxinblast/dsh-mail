@@ -55,8 +55,10 @@ export function exportEvents(events, method = "PUBLISH") {
 }
 export function normalizeEvent(input) {
   requireValue(String(input.title || "").trim(), "TITLE_REQUIRED", "请填写事件名称。");
+  requireValue(input.color === undefined || input.color === null || input.color === "" || /^#[0-9a-f]{6}$/i.test(input.color), "INVALID_EVENT_COLOR", "事件颜色必须是 #RRGGBB 格式；留空则跟随日历颜色。");
   const timeZone = input.timeZone || "Asia/Hong_Kong"; zoneFor(timeZone);
-  const start = DateTime.fromISO(input.start || "", { zone: timeZone }), end = DateTime.fromISO(input.end || "", { zone: timeZone });
+  const parse = (value) => { const date = DateTime.fromISO(value || "", { zone: timeZone }); return input.allDay ? date.startOf("day") : date; };
+  const start = parse(input.start), end = parse(input.end);
   requireValue(start.isValid && end.isValid && end > start, "INVALID_EVENT_RANGE", "结束时间必须晚于开始时间；全天事件的结束日期不包含当天。");
   if (input.rrule) ICAL.Recur.fromString(input.rrule.replace(/^RRULE:/i, ""));
   return { ...input, id: input.id || id(), uid: input.uid || id(), calendarId: input.calendarId || "default", title: input.title.trim(), timeZone, allDay: !!input.allDay, start: input.allDay ? start.toISODate() : start.toISO(), end: input.allDay ? end.toISODate() : end.toISO(), reminderMinutes: Math.max(0, Number(input.reminderMinutes ?? 15)), sequence: Number(input.sequence || 0) };

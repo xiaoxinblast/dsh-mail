@@ -44,7 +44,7 @@ export class Store {
   message(key) { const row = this.db.prepare("SELECT data FROM messages WHERE id=?").get(key); return row ? JSON.parse(row.data) : null; }
   location(account, folder, validity, uid) { const r = this.db.prepare("SELECT data FROM messages WHERE account_id=? AND folder_id=? AND uid_validity=? AND uid=?").get(account, folder, String(validity), Number(uid)); return r ? JSON.parse(r.data) : null; }
   upsertMessage(value) {
-    const old = this.location(value.accountId, value.folderId, value.uidValidity, value.uid);
+    const old = this.location(value.accountId, value.folderId, value.uidValidity, value.uid) || (value.id ? this.message(value.id) : null);
     const next = { ...old, ...value, id: old?.id || value.id || id(), uidValidity: String(value.uidValidity), revision: (old?.revision || 0) + 1 };
     const flags = next.flags || [];
     next.seen = flags.includes("\\Seen"); next.starred = flags.includes("\\Flagged");
@@ -55,7 +55,7 @@ export class Store {
     const indexText = (m) => [m.subject, m.text, ...(m.from || []).map((x) => `${x.name || ""} ${x.address}`), ...(m.to || []).map((x) => `${x.name || ""} ${x.address}`), ...(m.attachments || []).map((x) => x.filename)].join(" ");
     const content = indexText(next), indexChanged = !old || indexText(old) !== content;
     this.transaction(() => {
-      this.db.prepare(`INSERT INTO messages VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET message_id=excluded.message_id,thread_id=excluded.thread_id,date=excluded.date,subject=excluded.subject,seen=excluded.seen,starred=excluded.starred,has_attachment=excluded.has_attachment,body_loaded=excluded.body_loaded,data=excluded.data`).run(next.id, next.accountId, next.folderId, next.uidValidity, Number(next.uid), next.messageId || null, next.threadId, next.date, next.subject, +next.seen, +next.starred, +(next.attachments?.length > 0), +!!next.bodyLoaded, JSON.stringify(next));
+      this.db.prepare(`INSERT INTO messages VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET account_id=excluded.account_id,folder_id=excluded.folder_id,uid_validity=excluded.uid_validity,uid=excluded.uid,message_id=excluded.message_id,thread_id=excluded.thread_id,date=excluded.date,subject=excluded.subject,seen=excluded.seen,starred=excluded.starred,has_attachment=excluded.has_attachment,body_loaded=excluded.body_loaded,data=excluded.data`).run(next.id, next.accountId, next.folderId, next.uidValidity, Number(next.uid), next.messageId || null, next.threadId, next.date, next.subject, +next.seen, +next.starred, +(next.attachments?.length > 0), +!!next.bodyLoaded, JSON.stringify(next));
       if (indexChanged) {
         const rowid = this.db.prepare("SELECT rowid FROM messages WHERE id=?").get(next.id).rowid;
         if (old) this.db.prepare("DELETE FROM message_search WHERE rowid=?").run(rowid);

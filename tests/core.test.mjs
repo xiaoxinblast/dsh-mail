@@ -144,3 +144,21 @@ test("MDN received is reported; no MDN remains unknown", async (t) => {
   const report = Buffer.from('From: receiver@example.com\r\nTo: me@163.com\r\nSubject: receipt\r\nMIME-Version: 1.0\r\nContent-Type: multipart/report; report-type=disposition-notification; boundary="receipt"\r\n\r\n--receipt\r\nContent-Type: text/plain\r\n\r\nDisplayed\r\n--receipt\r\nContent-Type: message/disposition-notification\r\n\r\nFinal-Recipient: rfc822;receiver@example.com\r\nOriginal-Message-ID: <sent@example.com>\r\nDisposition: manual-action/MDN-sent-manually; displayed\r\n\r\n--receipt--\r\n');
   const imported = await service.importMail({ base64: report.toString("base64") }); assert.equal(service.store.get("drafts", d.id).receipt, undefined); await service.inspectReceipts(service.message(imported.ids[0])); assert.match(service.store.get("drafts", d.id).receipt.disposition, /displayed/);
 });
+
+test("move preserves stable links and attachment cache; copies have independent lazy attachment identities", async (t) => {
+  const fetched = [], { service } = await fixture(t, { attachment: async (account, folder, message) => { fetched.push([folder.id, message.uid]); return Buffer.from("attachment"); }, move: async () => ({ uidMap: new Map([[1, 22]]), uidValidity: 2n }), copy: async () => ({ uidMap: new Map([[22, 33]]), uidValidity: 3n }) });
+  for (const [id, path] of [["source", "INBOX"], ["target", "Archive"], ["copy", "Copy"]]) service.store.put("folders", { id, path, accountId: "me" });
+  const m = service.store.upsertMessage({ accountId: "me", folderId: "source", uid: 1, uidValidity: "1", subject: "attachment", flags: [], attachments: [{ id: "lazy", part: "2", filename: "a.txt" }] }); service.store.put("attachments", { ...m.attachments[0], messageId: m.id });
+  service.scheduleSync = () => {};
+  const moved = await service.messageAction(m.id, { operation: "move", destinationId: "target" }); assert.equal(moved.messageId, m.id); assert.equal(service.store.location("me", "source", "1", 1), null); assert.equal(service.store.search({ folderId: "target" }).items[0].id, m.id); assert.deepEqual(fetched, [["source", 1]]);
+  const a = service.store.get("attachments", "lazy"); service.store.put("attachments", { ...a, path: undefined });
+  const copied = await service.messageAction(m.id, { operation: "copy", destinationId: "copy" }); const copy = service.message(copied.messageId); assert.notEqual(copy.attachments[0].id, "lazy"); service.store.deleteMessage(m.id);
+  service.store.put("attachments", { ...service.store.get("attachments", copy.attachments[0].id), path: undefined });
+  await service.ensureAttachment(copy.attachments[0].id); assert.deepEqual(fetched.at(-1), ["copy", 33]);
+});
+
+test("cross-account copy keeps a readable raw source and attachments after source deletion", async (t) => {
+  const { service } = await fixture(t); const imported = await service.importMail({ base64: raw.toString("base64") }); const source = service.message(imported.ids[0]);
+  service.store.put("accounts", { id: "other", local: true, enabled: true }); const folder = service.store.put("folders", { accountId: "other", path: "target", delimiter: "/" });
+  const copied = await service.messageAction(source.id, { operation: "copy", destinationId: folder.id }); service.store.deleteMessage(source.id); assert.deepEqual(await service.ensureRaw(copied.messageId), raw);
+});

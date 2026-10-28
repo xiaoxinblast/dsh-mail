@@ -273,26 +273,35 @@ export class MailService {
     const target = this.folder(destinationId || (operation === "restore" ? m.previousFolderId : account.folders?.[role]));
     requireValue(target.id !== folder.id, "SAME_FOLDER", "目标与来源文件夹相同。");
     const targetAccount = this.account(target.accountId), move = operation !== "copy";
+    if (move) for (const a of m.attachments || []) await this.ensureAttachment(a.id);
+    let destination;
+    const saveDestination = (uid, uidValidity) => {
+      const key = move ? m.id : id(), attachments = (m.attachments || []).map((a) => ({ ...a, ...this.store.get("attachments", a.id), id: move ? a.id : id(), messageId: key }));
+      return this.store.transaction(() => { for (const a of attachments) this.store.put("attachments", a); return this.store.upsertMessage({ ...m, id: key, accountId: targetAccount.id, folderId: target.id, uid, uidValidity: String(uidValidity), attachments, previousFolderId: move ? folder.id : undefined }); });
+    };
     if (!account.local && !targetAccount.local && target.accountId === account.id) {
+      // Retain attachment bytes before a destructive transfer even when a server omits COPYUID.
       const transferred = await (move ? this.transport.move(account, folder, m, target) : this.transport.copy(account, folder, m, target));
       requireValue(transferred, "TRANSFER_FAILED", "服务器未确认操作完成。");
       const targetUid = transferred.uidMap?.get(m.uid);
-      if (targetUid && transferred.uidValidity) this.store.upsertMessage({ ...m, id: id(), folderId: target.id, uid: targetUid, uidValidity: String(transferred.uidValidity), previousFolderId: move ? folder.id : undefined });
+      if (!targetUid || !transferred.uidValidity) { this.scheduleSync(account, true); return { status: "verify-required", unknown: 1, operation, destinationId: target.id, message: "服务器已接受操作但未返回目标 UID，请同步并核查目标，不要直接重试。" }; }
+      destination = saveDestination(targetUid, transferred.uidValidity);
     } else {
       m = await this.loadMessage(m.id); const raw = await this.ensureRaw(m.id);
-      if (targetAccount.local) { const uid = this.nextLocalUid(target.id); this.store.upsertMessage({ ...m, id: id(), folderId: target.id, accountId: targetAccount.id, uid, uidValidity: "1", previousFolderId: move ? folder.id : undefined }); }
+      const parsed = await parseMessage(raw, join(this.directory, "blobs")); m = { ...this.message(m.id), ...parsed };
+      if (targetAccount.local) { if (move && !account.local) requireValue(await this.transport.purge(account, folder, m), "SOURCE_RETAINED", "原邮件未确认删除；本地原始副本已保留，请核查后再处理。"); destination = saveDestination(this.nextLocalUid(target.id), "1"); }
       else {
         const appended = await this.transport.append(targetAccount, target, raw, m.flags, m.date);
         requireValue(appended?.uid && appended.uidValidity, "COPY_VERIFICATION_REQUIRED", "目标服务器未返回完整 APPENDUID；原邮件保留，请同步目标文件夹确认后再处理。");
         // A returned APPENDUID is the server's durable acknowledgement of the copied instance.
-        this.store.upsertMessage({ ...m, id: id(), accountId: targetAccount.id, folderId: target.id, uid: appended.uid, uidValidity: String(appended.uidValidity), previousFolderId: move ? folder.id : undefined });
+        // Keep source identity until its removal is acknowledged.
+        if (move && !account.local) requireValue(await this.transport.purge(account, folder, m), "SOURCE_RETAINED", "复制已完成，原邮件尚未删除，请核查目标；不要重试复制。");
+        destination = saveDestination(appended.uid, appended.uidValidity);
       }
-      if (move && !account.local) requireValue(await this.transport.purge(account, folder, m), "SOURCE_RETAINED", "复制已完成，原邮件尚未删除。");
     }
-    if (move) this.store.deleteMessage(m.id);
     if (!account.local) this.scheduleSync(account, true);
     if (!targetAccount.local && targetAccount.id !== account.id) this.scheduleSync(targetAccount, true);
-    return { status: "completed", operation, destinationId: target.id };
+    return { status: "completed", operation, destinationId: target.id, messageId: destination.id };
   }
   async folderOperation(args, context) {
     const { operation } = args;
@@ -316,7 +325,8 @@ export class MailService {
     const targetAccount = this.account(args.accountId || source.accountId), path = String(args.path || "").trim();
     requireValue(path && !(targetAccount.id === source.accountId && (path === source.path || path.startsWith(source.path + source.delimiter))), "INVALID_FOLDER_DESTINATION", "请选择来源之外的新目标文件夹。");
     const tree = this.store.list("folders").filter((f) => f.accountId === source.accountId && (f.id === source.id || f.path.startsWith(source.path + source.delimiter))).sort((a, b) => a.path.length - b.path.length);
-    const entries = tree.map((f) => ({ sourceId: f.id, path: path + f.path.slice(source.path.length), messageIds: args.structureOnly ? [] : this.store.folderMessages(f.id).map((m) => m.id) }));
+    const delimiter = this.store.list("folders").find((f) => f.accountId === targetAccount.id)?.delimiter || "/";
+    const entries = tree.map((f) => ({ sourceId: f.id, path: path + f.path.slice(source.path.length).split(source.delimiter || "/").join(delimiter), delimiter, messageIds: args.structureOnly ? [] : this.store.folderMessages(f.id).map((m) => m.id) }));
     requireValue(!entries.some((e) => this.store.list("folders").some((f) => f.accountId === targetAccount.id && f.path === e.path)), "FOLDER_EXISTS", "目标中存在同名文件夹，请指定新的名称。");
     return this.createJob("folder-copy", entries.map((e) => e.sourceId), { targetAccountId: targetAccount.id, entries });
   }
@@ -328,14 +338,14 @@ export class MailService {
     if (!folder) {
       requireValue(!read().creatingFolder, "FOLDER_CREATE_UNKNOWN", "创建目标文件夹时中断，请同步并核查后重新选择目标，避免重复或合并。");
       checkpoint({ creatingFolder: true });
-      folder = await this.folderOperation({ operation: "create", accountId: args.targetAccountId, path: entry.path }, { kind: "background" });
+      folder = await this.folderOperation({ operation: "create", accountId: args.targetAccountId, path: entry.path, delimiter: entry.delimiter }, { kind: "background" });
       checkpoint({ targetFolderId: folder.id, creatingFolder: false, copies: entry.messageIds.map((id) => ({ id, status: "pending" })) });
     }
     for (let index = 0; index < read().copies.length; index++) {
       this.abort.signal.throwIfAborted(); requireValue(!this.store.get("jobs", jobId).cancelRequested, "CANCELLED", "复制已停止，可继续未开始项目。");
       let copies = read().copies; if (copies[index].status !== "pending") continue;
       copies[index].status = "running"; checkpoint({ copies });
-      try { const result = await this.messageAction(copies[index].id, { operation: "copy", destinationId: folder.id }); copies = read().copies; copies[index] = { ...copies[index], status: "done", result }; }
+      try { const result = await this.messageAction(copies[index].id, { operation: "copy", destinationId: folder.id }); copies = read().copies; copies[index] = { ...copies[index], status: result.unknown ? "unknown" : "done", result }; }
       catch (error) { copies = read().copies; copies[index] = { ...copies[index], status: "unknown", error: errorInfo(error) }; }
       checkpoint({ copies }); await new Promise((r) => setImmediate(r));
     }

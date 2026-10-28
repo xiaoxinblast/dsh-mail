@@ -115,13 +115,25 @@ try {
   await expect(root.locator(".dm-composer")).toBeVisible();
   await root.locator(".dm-composer").getByRole("textbox", { name: "主题", exact: true }).fill("[验收] 界面回复预览");
   await root.getByRole("button", { name: "保存草稿", exact: true }).click();
+  const composeToolbar = root.locator(".dm-compose-toolbar");
+  for (const width of [1440, 1024, 768, 390]) {
+    await resize(width); await noOverflow();
+    for (const name of ["预览并发送 →", "保存草稿", "丢弃草稿"]) await expect(composeToolbar.getByRole("button", { name, exact: true })).toBeVisible();
+    assert.ok(await composeToolbar.evaluate((el) => { const box = el.getBoundingClientRect(); return [...el.querySelectorAll("button")].every((button) => { const b = button.getBoundingClientRect(); return b.left >= box.left && b.right <= box.right && b.top >= box.top && b.bottom <= box.bottom; }); }), "Draft actions fit inside the top toolbar");
+    await root.locator(".dm-detail-pane").evaluate((el) => { el.scrollTop = el.scrollHeight; });
+    assert.ok(Math.abs(await composeToolbar.evaluate((el) => el.getBoundingClientRect().top - el.closest(".dm-detail-pane").getBoundingClientRect().top)) < 2, "Draft toolbar stays at the top while scrolling");
+    await shot(`compose-toolbar-light-${width}`);
+  }
+  await resize(1440); await root.locator(".dm-detail-pane").evaluate((el) => { el.scrollTop = 0; });
   await shot("reply-light");
   await root.getByRole("button", { name: "预览并发送 →", exact: true }).click();
   await expect(root.getByRole("dialog")).toBeVisible();
   await expect(root.getByRole("dialog")).toContainText("[验收] 界面回复预览");
   await shot("reply-preview-light");
   await root.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
-  await root.getByRole("button", { name: "← 关闭", exact: true }).click();
+  await composeToolbar.getByRole("button", { name: "丢弃草稿", exact: true }).click();
+  await expect(root.locator(".dm-composer")).toBeHidden();
+  checks.push("draft actions in sticky top toolbar at four widths; save, preview and discard remain usable");
   await root.getByRole("checkbox", { name: "选择 十月项目交付计划与报价确认", exact: true }).check();
   await expect(root.getByRole("button", { name: "移动", exact: true })).toBeVisible();
   await shot("bulk-light");
@@ -148,6 +160,9 @@ try {
   await expect(page.locator("body")).toHaveAttribute("data-ds-dark-theme", "");
   await page.getByRole("button", { name: "关闭", exact: true }).last().click();
   await rail.getByRole("button", { name: "邮件", exact: true }).click();
+  await root.getByRole("button", { name: "回复", exact: true }).click();
+  for (const width of [1440, 390]) { await resize(width); await noOverflow(); await expect(composeToolbar.getByRole("button", { name: "预览并发送 →", exact: true })).toBeVisible(); await shot(`compose-toolbar-dark-${width}`); }
+  await composeToolbar.getByRole("button", { name: "← 关闭", exact: true }).click();
   for (const width of [1440, 1024, 768, 390]) {
     await resize(width); await noOverflow(); await shot(`reader-dark-${width}`);
     if (width < 760) {

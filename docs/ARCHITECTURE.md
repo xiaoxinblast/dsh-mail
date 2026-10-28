@@ -23,13 +23,17 @@
 state, accounts.save/test/remove, sync
 search, message.read, thread.read
 drafts.save/reply/delete/cancel, send.preview, preview.confirm/reject
-messages.action, folders.action
+messages.action, folders.action, folders.color
 rules.preview/save/enable/apply
 events.save/list/delete/import/export/invite/rsvp
 resources.save/delete, contacts.import/export
 attachments.upload/read, mail.import/export, files.save
 backup.create/restore, jobs.cancel/retry, notifications.dismiss
 ```
+
+`search` 支持 `sent: true`：按账号优先使用 `account.folders.sent`，无手动映射时使用有效的 `\Sent` 标识；范围为空时直接返回空结果。`folders.color` 仅接受 human UI 调用，字段为文件夹 `id` 与六位十六进制 `color`，空字符串恢复默认。颜色保存在已有文件夹实体中，同步写回计数时保留最新本机颜色，重命名保留、复制使用默认色。上述偏好不触发 IMAP 操作。
+
+`settings.save` 增加 `folderSort`，允许 `name-asc`、`name-desc`、`count-desc`，默认 `name-asc`。设置与颜色沿用 SQLite 实体和现有备份，不需要新增表或迁移。UI 在排序保存失败时恢复原选择；显示排序不依赖实体更新时间。
 
 发信审批绑定草稿版本、发件身份/SMTP 配置和发送时间。预览期限 30 分钟；确认只能通过 UI。草稿的 `status`、`approvalId`、`sendAt` 不接受草稿保存输入。不可逆操作的远程结果未知时，不自动重试。文件夹复制逐封保存 pending/running/done/unknown 检查点；中断后继续未开始项目，未知项目保留以供核查。
 

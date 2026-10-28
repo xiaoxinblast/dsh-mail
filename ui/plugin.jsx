@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { App } from "./workbench.jsx";
+import { Icon } from "./icons.jsx";
 
-function Opener({ sessionId, open }) { return <button type="button" title="打开 DSH Mail" aria-label="打开 DSH Mail" onClick={() => open(sessionId)} style={{ border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 }}>✉</button>; }
+function Opener({ sessionId, open }) { return <button type="button" title="打开 DSH Mail" aria-label="打开 DSH Mail" onClick={() => open(sessionId)} style={{ border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 }}><Icon name="mail" /></button>; }
 function Presence({ useMailMounted, useSessions, open }) { const sessionId = useMailMounted((x) => x), preset = useSessions((s) => s.byId[sessionId]?.projectionValues?.agentPreset); useEffect(() => { if (preset === "dsh-mail") open(sessionId); }, [sessionId, preset, open]); return null; }
 function Tab(props) { const { tab } = props.useTabInfo(); return <App {...props} visible={tab.visible} />; }
-function Title({ useTabInfo }) { const { tab } = useTabInfo(); return <span>✉ {tab.title}</span>; }
-function MailIcon({ size = 18 }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>; }
+function Title({ useTabInfo }) { const { tab } = useTabInfo(); return <span><Icon name="mail" size={16} /> {tab.title}</span>; }
+function MailIcon({ size = 18 }) { return <Icon name="mail" size={size} />; }
 export default {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],
   async apply(ctx) {

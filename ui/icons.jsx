@@ -1,0 +1,32 @@
+import React from "react";
+
+const paths = {
+  mail: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3 7 9 6 9-6" /></>,
+  inbox: <><path d="m5 4-3 9v7h20v-7l-3-9Z" /><path d="M2 13h6l2 3h4l2-3h6" /></>,
+  sent: <><path d="m22 2-7 20-4-9-9-4Z" /><path d="m11 13 5-5" /></>,
+  star: <path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z" />,
+  draft: <><path d="M14 2H5v20h14V7Z" /><path d="M14 2v6h5M8 13h8M8 17h5" /></>,
+  folder: <path d="M3 7V5h6l2 2h10v13H3Z" />,
+  calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 11h18M7 15h2M15 15h2" /></>,
+  task: <><rect x="3" y="3" width="18" height="18" rx="4" /><path d="m7 12 3 3 7-7" /></>,
+  contacts: <><circle cx="10" cy="8" r="4" /><path d="M2 21v-3a7 7 0 0 1 14 0v3M19 8a3 3 0 0 1 0 6M22 21v-3a4 4 0 0 0-3-4" /></>,
+  rules: <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="8" cy="6" r="2" /><circle cx="16" cy="12" r="2" /><circle cx="10" cy="18" r="2" /></>,
+  settings: <><path d="m9 3-1 3-3 1-2 4 2 3 1 4 4 1 3 2 4-2 1-4 3-3-2-4-3-1-2-3Z" /><circle cx="12" cy="12" r="3" /></>,
+  bell: <><path d="M5 17h14l-2-4V8a5 5 0 0 0-10 0v5ZM10 21h4" /></>,
+  search: <><circle cx="10" cy="10" r="6" /><path d="m15 15 6 6" /></>,
+  sync: <><path d="M20 8a8 8 0 0 0-14-3L3 8M3 3v5h5M4 16a8 8 0 0 0 14 3l3-3M21 21v-5h-5" /></>,
+  plus: <path d="M12 5v14M5 12h14" />,
+  close: <path d="m6 6 12 12M6 18 18 6" />,
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
+  more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
+  archive: <><path d="M4 8h16v13H4ZM2 3h20v5H2M9 12h6" /></>,
+  trash: <><path d="M3 6h18M8 6V3h8v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></>,
+  read: <><path d="m3 10 9-7 9 7v11H3Z" /><path d="m3 10 9 6 9-6" /></>,
+  reply: <><path d="m9 5-7 7 7 7M2 12h12a7 7 0 0 1 7 7" /></>,
+  forward: <><path d="m15 5 7 7-7 7M22 12H10a7 7 0 0 0-7 7" /></>,
+  back: <path d="m14 5-7 7 7 7" />,
+  sparkle: <><path d="m12 3 3 6 6 3-6 3-3 6-3-6-6-3 6-3ZM20 2v4M18 4h4" /></>,
+  attachment: <path d="m8 13 7-7a3 3 0 0 1 4 4L9 20a5 5 0 0 1-7-7L13 2" />,
+  export: <><path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6" /></>,
+};
+export function Icon({ name, size = 18 }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{paths[name] || paths.folder}</svg>; }

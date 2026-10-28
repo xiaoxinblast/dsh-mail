@@ -9,11 +9,12 @@ import { WindowsVault } from "./vault.mjs";
 import { MailTransport, normalizeAccount, parseMessage, composeDraft } from "./mail.mjs";
 import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation, zoneFor } from "./calendar.mjs";
 import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount } from "./settings.mjs";
+import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses } from "./util.mjs";
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
-const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save"]);
+const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color"]);
 const PRIVATE_FIELDS = new Set(["ciphertext", "password", "secret", "rawPath"]);
 function publicValue(value) { return JSON.parse(JSON.stringify(value, function (key, item) { return PRIVATE_FIELDS.has(key) || (key === "path" && (this.contentType || this.rawPath)) ? undefined : item; })); }
 function draftView(draft) { return publicValue(draft); }
@@ -58,7 +59,8 @@ export class MailService {
     if (action === "sync") { const accounts = args.accountId ? [this.account(args.accountId)] : this.store.list("accounts").filter((a) => a.enabled && !a.local); return accounts.map((a) => { this.scheduleSync(a, true); return { accountId: a.id, status: "queued" }; }); }
     if (action === "search") {
       if (args.inbox) args.folderIds = this.store.list("folders").filter((f) => f.role === "\\Inbox" || f.path.toUpperCase() === "INBOX").map((f) => f.id);
-      if (args.inbox && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
+      if (args.sent) args.folderIds = sentFolders(this.store.list("accounts"), this.store.list("folders")).map((f) => f.id);
+      if ((args.inbox || args.sent) && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
       return publicValue(this.store.search(args));
     }
     if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue(m); }
@@ -76,6 +78,10 @@ export class MailService {
       return this.createJob("messages", ids, { ...args, ids: undefined });
     }
     if (action === "folders.action") return this.folderOperation(args, context);
+    if (action === "folders.color") {
+      requireValue(typeof args.color === "string" && (args.color === "" || /^#[0-9a-f]{6}$/i.test(args.color)), "INVALID_FOLDER_COLOR", "请选择有效的六位十六进制颜色。");
+      return publicValue(this.store.put("folders", { ...this.folder(args.id), color: args.color.toLowerCase() }));
+    }
     if (action === "rules.preview") { const rule = validateRule(args.rule); const matched = this.store.db.prepare("SELECT data FROM messages").all().map((r) => JSON.parse(r.data)).filter((m) => matches(rule, m)); return { count: matched.length, samples: publicValue(matched.slice(0, 10).map(({ id, subject, from, date }) => ({ id, subject, from, date }))) }; }
     if (action === "rules.save") { const rule = validateRule(args.rule), previous = rule.id ? this.store.get("rules", rule.id) : null; return this.store.put("rules", { ...rule, enabled: false, previouslyEnabled: previous?.enabled || false }, args.rule.revision); }
     if (action === "rules.enable") { const rule = this.store.get("rules", args.id); requireValue(rule, "RULE_NOT_FOUND", "规则不存在。"); return this.store.put("rules", { ...validateRule(rule), enabled: !!args.enabled, approvedAt: now() }); }
@@ -118,6 +124,7 @@ export class MailService {
     requireValue(Number.isInteger(next.firstDay) && next.firstDay >= 0 && next.firstDay <= 6, "INVALID_FIRST_DAY", "每周起始日必须为 0–6。");
     requireValue(Number.isInteger(next.syncIntervalMinutes) && next.syncIntervalMinutes >= 1 && next.syncIntervalMinutes <= 60, "INVALID_SYNC_INTERVAL", "同步间隔必须为 1–60 分钟的整数。");
     requireValue(typeof next.markReadOnOpen === "boolean", "INVALID_READ_PREFERENCE", "自动已读设置无效。");
+    requireValue(FOLDER_SORTS.some(([sort]) => sort === next.folderSort), "INVALID_FOLDER_SORT", "请选择有效的文件夹排序方式。");
     requireValue(typeof next.defaultAccountId === "string", "INVALID_DEFAULT_ACCOUNT", "默认发件账号无效。");
     if (next.defaultAccountId && next.defaultAccountId !== previous.defaultAccountId) { const account = this.account(next.defaultAccountId); requireValue(account.enabled && !account.local && !account.deleted, "INVALID_DEFAULT_ACCOUNT", "请选择已启用的邮箱作为默认发件账号。"); }
     return this.store.transaction(() => {
@@ -167,7 +174,7 @@ export class MailService {
       }, this.abort.signal);
       const uids = new Set(result.uids);
       for (const m of known) if (m.uidValidity !== result.uidValidity || !uids.has(m.uid)) this.store.deleteMessage(m.id);
-      this.store.put("folders", { ...folder, uidValidity: result.uidValidity, highestModseq: result.highestModseq, count: result.uids.length, syncedAt: now() });
+      this.store.put("folders", { ...folder, color: this.folder(folder.id).color, uidValidity: result.uidValidity, highestModseq: result.highestModseq, count: result.uids.length, syncedAt: now() });
       const pending = this.store.folderMessages(folder.id).filter((m) => !m.bodyLoaded).sort((a, b) => b.uid - a.uid);
       for (const message of pending) { this.abort.signal.throwIfAborted(); try { await this.loadMessage(message.id); } catch (error) { if (this.abort.signal.aborted) throw error; this.store.log("body-sync-error", { messageId: message.id, ...errorInfo(error) }); } await new Promise((r) => setImmediate(r)); }
     }

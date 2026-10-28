@@ -10,8 +10,30 @@ import { normalizeAccount, composeDraft, parseMessage, MailTransport } from "../
 import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation } from "../src/calendar.mjs";
 import { validateRule } from "../src/rules.mjs";
 import JSZip from "jszip";
+import { eventAppearance } from "../ui/event-color.mjs";
 
 const HUMAN = { kind: "human", sessionId: "human-test" }, AGENT = { kind: "agent", sessionId: "agent-test" };
+test("event colors override calendar, choose readable text and reject invalid input", () => {
+  const base = { title: "Color", start: "2026-10-28", end: "2026-10-29", allDay: true };
+  assert.throws(() => normalizeEvent({ ...base, start: "2026-10-28T10:00:00", end: "2026-10-28T11:00:00" }), { code: "INVALID_EVENT_RANGE" });
+  for (const color of ["red", "#123", "url(https://example.com)", 123]) assert.throws(() => normalizeEvent({ ...base, color }), { code: "INVALID_EVENT_COLOR" });
+  const calendars = [{ id: "default", color: "#15803d" }];
+  assert.equal(eventAppearance(normalizeEvent(base), calendars).backgroundColor, "#15803d");
+  assert.deepEqual(eventAppearance(normalizeEvent({ ...base, color: "#ffffff" }), calendars), { backgroundColor: "#ffffff", borderColor: "#ffffff", textColor: "#000000" });
+  assert.equal(eventAppearance({ color: "#000000" }, []).textColor, "#ffffff");
+});
+test("event color persists through update, recurrence exceptions and database reopen", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "dsh-mail-colors-"));
+  let service = new MailService({ directory }); t.after(() => service.close());
+  const base = await service.invoke({ action: "events.save", event: { title: "颜色事件", start: "2026-10-28", end: "2026-10-29", allDay: true, color: "#7c3aed", rrule: "FREQ=DAILY;COUNT=3" } }, HUMAN);
+  await service.invoke({ action: "events.save", event: { id: base.id, title: "改名保留颜色" } }, AGENT);
+  await service.invoke({ action: "events.save", event: { ...base, id: undefined, revision: undefined, recurrenceId: "2026-10-29", start: "2026-10-29", end: "2026-10-30", color: "#dc2626", rrule: "" } }, HUMAN);
+  await service.close(); service = new MailService({ directory });
+  const events = await service.invoke({ action: "events.list", start: "2026-10-28", end: "2026-11-01" });
+  assert.deepEqual(events.map((e) => e.color), ["#7c3aed", "#dc2626", "#7c3aed"]);
+  const restored = await service.invoke({ action: "events.save", event: { id: base.id, color: "" } }, HUMAN);
+  assert.equal(eventAppearance(restored, service.state().calendars).backgroundColor, "#155e75");
+});
 const raw = Buffer.from("From: Client <client@example.com>\r\nTo: me@163.com\r\nSubject: =?UTF-8?B?5oql5Lu3?=\r\nMessage-ID: <quote-1@example.com>\r\nDate: Tue, 27 Oct 2026 10:00:00 +0800\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n项目报价。日本語の見積書。\r\nFrom original line\r\n");
 async function fixture(t, overrides = {}) {
   const directory = await mkdtemp(join(tmpdir(), "dsh-mail-test-")); let clock = Date.parse("2026-10-28T08:00:00Z");

@@ -7,7 +7,8 @@ import ICAL from "ical.js";
 import { Store } from "./store.mjs";
 import { WindowsVault } from "./vault.mjs";
 import { MailTransport, normalizeAccount, parseMessage, composeDraft } from "./mail.mjs";
-import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation } from "./calendar.mjs";
+import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation, zoneFor } from "./calendar.mjs";
+import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount } from "./settings.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses } from "./util.mjs";
 
@@ -100,12 +101,30 @@ export class MailService {
     if (action === "jobs.cancel") { const j = this.store.get("jobs", args.id); requireValue(j, "JOB_NOT_FOUND", "任务不存在。"); this.store.put("jobs", { ...j, cancelRequested: true }); return { id: j.id, status: "cancel-requested" }; }
     if (action === "jobs.retry") return this.retryJob(args.id);
     if (action === "notifications.dismiss") { const n = this.store.get("notifications", args.id); if (n) this.store.put("notifications", { ...n, dismissed: true }); return { ok: true }; }
-    if (action === "settings.save") return this.store.put("settings", { ...args.value, id: "general" });
+    if (action === "settings.save") return this.saveSettings(args.value);
     throw Object.assign(new Error(`不支持的操作：${action}`), { code: "UNKNOWN_ACTION" });
   }
   state() {
     const resource = (kind) => publicValue(this.store.list(kind).filter((x) => !x.deleted));
-    return { version: "0.1.0", accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.store.get("settings", "general") || {}, ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
+    return { version: "0.1.0", accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
+  }
+  settings() { return { ...DEFAULT_SETTINGS, ...this.store.get("settings", "general") }; }
+  saveSettings(input) {
+    requireValue(input && typeof input === "object" && !Array.isArray(input), "INVALID_SETTINGS", "设置无效。");
+    const previous = this.settings(), next = { ...previous };
+    for (const key of Object.keys(DEFAULT_SETTINGS)) if (input[key] !== undefined) next[key] = input[key];
+    for (const key of ["calendarTimeZone", "eventTimeZone"]) { requireValue(typeof next[key] === "string" && next[key].length > 0, "INVALID_TIMEZONE", "请选择有效时区。"); zoneFor(next[key]); }
+    requireValue(CALENDAR_VIEWS.some(([view]) => view === next.calendarView), "INVALID_CALENDAR_VIEW", "请选择有效日历视图。");
+    requireValue(Number.isInteger(next.firstDay) && next.firstDay >= 0 && next.firstDay <= 6, "INVALID_FIRST_DAY", "每周起始日必须为 0–6。");
+    requireValue(Number.isInteger(next.syncIntervalMinutes) && next.syncIntervalMinutes >= 1 && next.syncIntervalMinutes <= 60, "INVALID_SYNC_INTERVAL", "同步间隔必须为 1–60 分钟的整数。");
+    requireValue(typeof next.markReadOnOpen === "boolean", "INVALID_READ_PREFERENCE", "自动已读设置无效。");
+    requireValue(typeof next.defaultAccountId === "string", "INVALID_DEFAULT_ACCOUNT", "默认发件账号无效。");
+    if (next.defaultAccountId && next.defaultAccountId !== previous.defaultAccountId) { const account = this.account(next.defaultAccountId); requireValue(account.enabled && !account.local && !account.deleted, "INVALID_DEFAULT_ACCOUNT", "请选择已启用的邮箱作为默认发件账号。"); }
+    return this.store.transaction(() => {
+      const saved = this.store.put("settings", { ...next, id: "general" });
+      if (next.syncIntervalMinutes !== previous.syncIntervalMinutes) for (const account of this.store.list("accounts")) if (!account.local && account.enabled && !account.authFailed && account.status !== "error") this.store.put("accounts", { ...account, nextSyncAt: this.clock() + next.syncIntervalMinutes * 60000 });
+      return saved;
+    });
   }
   async saveAccount({ account: input, password }) {
     const previous = input.id ? this.store.get("accounts", input.id) : null, account = normalizeAccount({ ...previous, ...input });
@@ -152,7 +171,7 @@ export class MailService {
       const pending = this.store.folderMessages(folder.id).filter((m) => !m.bodyLoaded).sort((a, b) => b.uid - a.uid);
       for (const message of pending) { this.abort.signal.throwIfAborted(); try { await this.loadMessage(message.id); } catch (error) { if (this.abort.signal.aborted) throw error; this.store.log("body-sync-error", { messageId: message.id, ...errorInfo(error) }); } await new Promise((r) => setImmediate(r)); }
     }
-    this.store.put("accounts", { ...this.account(account.id), status: "connected", initialSynced: true, lastSyncedAt: now(), nextSyncAt: this.clock() + 120000, failures: 0, error: null });
+    this.store.put("accounts", { ...this.account(account.id), status: "connected", initialSynced: true, lastSyncedAt: now(), nextSyncAt: this.clock() + this.settings().syncIntervalMinutes * 60000, failures: 0, error: null });
     const inbox = mapped.find((f) => f.role === "\\Inbox"); if (inbox && this.transport.idleInbox) await this.transport.idleInbox(account, inbox);
     if (added && wasSynced) this.addNotification("new-mail", `${account.name} 收到 ${added} 封新邮件`, { accountId: account.id });
   }
@@ -190,9 +209,12 @@ export class MailService {
     requireValue(input && typeof input === "object", "INVALID_DRAFT", "草稿无效。");
     const previous = input.id ? this.store.get("drafts", input.id) : null;
     requireValue(!previous || ["draft", "failed", "needs-confirmation", "discarded"].includes(previous.status), "DRAFT_LOCKED", "请先取消排队；已发送或状态未知的邮件不能直接编辑重发。");
-    this.account(input.accountId || previous?.accountId);
-    const allowed = ["accountId", "to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt"];
-    const next = { ...previous, id: input.id || id(), status: "draft" };
+    const accountId = input.accountId || previous?.accountId || preferredAccount(this.store.list("accounts"), this.settings())?.id;
+    requireValue(accountId, "ACCOUNT_REQUIRED", "请先连接并启用邮箱。");
+    const account = this.account(accountId), signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
+    const allowed = ["to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt"];
+    const next = { ...previous, accountId, id: input.id || id(), status: "draft" };
+    if (!previous && input.text === undefined && input.html === undefined) { next.text = !signature?.deleted ? signature?.text || "" : ""; next.html = !signature?.deleted ? signature?.html || "" : ""; }
     for (const key of allowed) if (input[key] !== undefined) next[key] = input[key];
     next.attachments = (next.attachments || []).map((a) => { const stored = this.store.get("attachments", a.id); requireValue(stored, "ATTACHMENT_NOT_FOUND", "附件不存在，请重新选择。"); return { id: stored.id, filename: cleanFilename(a.filename || stored.filename), size: stored.size, contentType: stored.contentType, cid: a.cid || null }; });
     return draftView(this.store.put("drafts", next, input.revision));
@@ -201,7 +223,8 @@ export class MailService {
     const m = await this.loadMessage(messageId), account = this.account(accountId || m.accountId), allMine = new Set(this.store.list("accounts").map((a) => a.email));
     const to = mode === "forward" ? [] : m.replyTo?.length ? m.replyTo : m.from;
     const cc = mode === "replyAll" ? [...m.to, ...m.cc].filter((a) => !allMine.has(a.address) && !to.some((t) => t.address === a.address)) : [];
-    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `\n\n—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——\n${m.text}`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: mode === "forward" ? m.attachments.map(({ id, filename, cid }) => ({ id, filename, cid })) : [] });
+    const signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
+    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${!signature?.deleted ? signature?.text || "" : ""}\n\n—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——\n${m.text}`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: mode === "forward" ? m.attachments.map(({ id, filename, cid }) => ({ id, filename, cid })) : [] });
   }
   previewFingerprint(kind, payload) {
     if (kind === "send") { const d = this.store.get("drafts", payload.draftId); requireValue(d, "DRAFT_NOT_FOUND", "草稿不存在。"); return digest({ draft: d, account: sendIdentity(this.account(d.accountId)), scheduledAt: payload.scheduledAt }); }
@@ -362,7 +385,7 @@ export class MailService {
     if (value.sourceMessageId) this.message(value.sourceMessageId);
     return this.store.put(kind, value, value.revision);
   }
-  saveEvent(input) { const previous = input.id ? this.store.get("events", input.id) : null; const event = normalizeEvent({ ...previous, ...input, uid: previous?.uid || input.uid, sequence: previous ? previous.sequence + 1 : 0 }); return this.store.put("events", event, input.revision); }
+  saveEvent(input) { const previous = input.id ? this.store.get("events", input.id) : null; const event = normalizeEvent({ timeZone: this.settings().eventTimeZone, ...previous, ...input, uid: previous?.uid || input.uid, sequence: previous ? previous.sequence + 1 : 0 }); return this.store.put("events", event, input.revision); }
   inviteDraft(action, args) {
     const event = this.store.get("events", args.id); requireValue(event, "EVENT_NOT_FOUND", "事件不存在。"); const account = this.account(args.accountId);
     let content = { ...event }, method = "REQUEST", to;

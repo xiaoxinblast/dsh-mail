@@ -1,0 +1,13 @@
+node_modules/
+.cache/
+coverage/
+*.log
+*.tgz
+.env*
+!.env.example
+*.sqlite*
+*.db*
+data/
+mail-attachments/
+playwright-report/
+test-results/

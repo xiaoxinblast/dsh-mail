@@ -1,0 +1,104 @@
+{
+  "name": "dsh-mail",
+  "version": "0.1.0",
+  "description": "DSH Mail — 本地多账号邮箱、日历、待办和 AI 邮箱助手",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dsh/index.mjs",
+  "engines": {
+    "node": ">=24.2",
+    "dsh": "0.2.1-rc.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaoxinblast/dsh-mail.git"
+  },
+  "exports": {
+    ".": "./dsh/index.mjs",
+    "./agent": "./dsh/agent.mjs",
+    "./client": "./dist/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./agent/locale/*.json": "./locale/*.json",
+    "./agent/icon": "./icon.svg"
+  },
+  "files": [
+    "dsh/",
+    "src/",
+    "dist/",
+    "locale/",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "benchmark": "node scripts/benchmark.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-session"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-home-paths": "0.2.1-rc.3",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.3",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.3"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-home-paths": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-typert-protocol": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@fullcalendar/core": "6.1.22",
+    "@fullcalendar/daygrid": "6.1.22",
+    "@fullcalendar/interaction": "6.1.22",
+    "@fullcalendar/list": "6.1.22",
+    "@fullcalendar/luxon3": "6.1.22",
+    "@fullcalendar/timegrid": "6.1.22",
+    "@tiptap/core": "3.32.0",
+    "@tiptap/extension-image": "3.32.0",
+    "@tiptap/extension-text-style": "3.32.0",
+    "@tiptap/starter-kit": "3.32.0",
+    "@touch4it/ical-timezones": "1.9.0",
+    "csv-parse": "7.0.3",
+    "csv-stringify": "6.9.0",
+    "dompurify": "3.4.17",
+    "ical.js": "2.2.1",
+    "imapflow": "2.9.1",
+    "jszip": "3.10.2",
+    "luxon": "3.7.2",
+    "mailparser": "3.12.4",
+    "nodemailer": "10.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "esbuild": "0.28.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "smtp-server": "3.21.1"
+  }
+}

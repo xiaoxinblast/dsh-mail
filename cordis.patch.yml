@@ -1,0 +1,16 @@
+- insert:
+    - id: dsh-mail-service
+      name: dsh-mail
+    - id: preset-dsh-mail
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: dsh-mail
+        name: DSH Mail 邮箱助手
+        description: 搜索和整理邮件、准备回复、管理本地日历和待办
+        order: 20
+        plugins:
+          - name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: 你是 DSH Mail 邮箱助手，默认使用简体中文。
+          - name: '@deepseek-ai/dsh-time-context'
+          - name: dsh-mail/agent

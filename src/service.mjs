@@ -15,7 +15,7 @@ import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounde
 import packageInfo from "../package.json" with { type: "json" };
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
-const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read"]);
+const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test"]);
 const PRIVATE_FIELDS = new Set(["ciphertext", "password", "secret", "rawPath"]);
 function publicValue(value) { return JSON.parse(JSON.stringify(value, function (key, item) { return PRIVATE_FIELDS.has(key) || (key === "path" && (this.contentType || this.rawPath)) ? undefined : item; })); }
 function draftView(draft) { return publicValue(draft); }
@@ -26,6 +26,7 @@ export class MailService {
     this.store = new Store(directory); this.directory = directory; this.vault = vault; this.clock = clock; this.notify = notify;
     this.abort = new AbortController(); this.syncing = new Map(); this.work = new Map(); this.sending = false; this.stopped = false;
     this.workbenchViews = new Map(); this.viewEpoch = id(); this.viewSequence = 0;
+    this.notificationWork = new Set();
     this.transport = transport || new MailTransport({ getPassword: (key) => this.password(key), onChange: (key) => { const a = this.store.get("accounts", key); if (a?.enabled) this.scheduleSync(a); } });
     if (!this.store.get("calendars", "default")) this.store.put("calendars", { id: "default", name: "我的日历", color: "#155e75" });
     this.recover();
@@ -182,6 +183,7 @@ export class MailService {
     if (action === "jobs.cancel") { const j = this.store.get("jobs", args.id); requireValue(j, "JOB_NOT_FOUND", "任务不存在。"); this.store.put("jobs", { ...j, cancelRequested: true }); return { id: j.id, status: "cancel-requested" }; }
     if (action === "jobs.retry") return this.retryJob(args.id);
     if (action === "notifications.dismiss") { const n = this.store.get("notifications", args.id); if (n) this.store.put("notifications", { ...n, dismissed: true }); return { ok: true }; }
+    if (action === "notifications.test") return this.notify({ kind: "test", title: "这是一条 DSH Mail 测试通知，使用 Windows 默认提示音。" });
     if (action === "settings.save") return this.saveSettings(args.value);
     throw Object.assign(new Error(`不支持的操作：${action}`), { code: "UNKNOWN_ACTION" });
   }
@@ -200,6 +202,8 @@ export class MailService {
     requireValue(Number.isInteger(next.syncIntervalMinutes) && next.syncIntervalMinutes >= 1 && next.syncIntervalMinutes <= 60, "INVALID_SYNC_INTERVAL", "同步间隔必须为 1–60 分钟的整数。");
     requireValue(typeof next.markReadOnOpen === "boolean", "INVALID_READ_PREFERENCE", "自动已读设置无效。");
     requireValue(typeof next.loadRemoteImages === "boolean", "INVALID_IMAGE_PREFERENCE", "图片加载设置无效。");
+    requireValue(typeof next.desktopNotifications === "boolean", "INVALID_NOTIFICATION_PREFERENCE", "系统通知设置无效。");
+    for (const [key, min, max] of [["mailFolderWidth", 180, 480], ["mailListWidth", 260, 720]]) requireValue(Number.isInteger(next[key]) && next[key] >= min && next[key] <= max, "INVALID_PANE_WIDTH", "邮件栏宽度无效。");
     requireValue(FOLDER_SORTS.some(([sort]) => sort === next.folderSort), "INVALID_FOLDER_SORT", "请选择有效的文件夹排序方式。");
     requireValue(typeof next.defaultAccountId === "string", "INVALID_DEFAULT_ACCOUNT", "默认发件账号无效。");
     if (next.defaultAccountId && next.defaultAccountId !== previous.defaultAccountId) { const account = this.account(next.defaultAccountId); requireValue(account.enabled && !account.local && !account.deleted, "INVALID_DEFAULT_ACCOUNT", "请选择已启用的邮箱作为默认发件账号。"); }
@@ -242,7 +246,7 @@ export class MailService {
       const result = await this.transport.scan(account, folder, known, async (batch) => {
         for (const message of batch) {
           const previous = this.store.location(account.id, folder.id, message.uidValidity, message.uid);
-          if (!previous) added++;
+          if (!previous && folder.role === "\\Inbox" && folder.syncedAt && String(folder.uidValidity) === String(message.uidValidity)) added++;
           const saved = this.store.upsertMessage({ ...message, rulesPending: previous?.rulesPending || (!previous && wasSynced) });
           for (const attachment of saved.attachments || []) if (attachment.id && !this.store.get("attachments", attachment.id)) this.store.put("attachments", { ...attachment, messageId: saved.id });
         }
@@ -515,7 +519,14 @@ export class MailService {
       this.store.put("drafts", { ...this.store.get("drafts", sent.id), sentCopyStatus: "saved" });
     } catch (error) { this.store.put("drafts", { ...this.store.get("drafts", sent.id), sentCopyStatus: "failed", sentCopyError: errorInfo(error) }); }
   }
-  addNotification(kind, title, data) { const n = this.store.put("notifications", { kind, title, data, createdAt: now() }); this.notify(publicValue(n)); return n; }
+  addNotification(kind, title, data) {
+    const n = this.store.put("notifications", { kind, title, data, createdAt: now() });
+    if (this.settings().desktopNotifications) {
+      const work = Promise.resolve().then(() => this.notify(publicValue(n))).catch((error) => this.store.log("notification-error", { notificationId: n.id, ...errorInfo(error) })).finally(() => this.notificationWork.delete(work));
+      this.notificationWork.add(work);
+    }
+    return n;
+  }
   reminders() {
     const start = new Date(this.clock() - 7 * 86400000).toISOString(), end = new Date(this.clock() + 86400000).toISOString();
     for (const event of occurrences(this.store.list("events"), start, end)) { const when = Date.parse(event.start) - event.reminderMinutes * 60000; const key = `event:${event.id}`; if (when <= this.clock() && !this.store.get("reminder-deliveries", key)) { this.addNotification("event", event.title, { eventId: event.eventId, start: event.start }); this.store.put("reminder-deliveries", { id: key }); } }
@@ -580,5 +591,5 @@ export class MailService {
     });
     return { restored: restored.messages.length, reconnectRequired: true };
   }
-  async close() { this.stopped = true; clearInterval(this.timer); this.abort.abort(); await this.transport.close(); await Promise.allSettled([...this.syncing.values(), ...this.work.values(), this.ticking]); this.store.close(); }
+  async close() { this.stopped = true; clearInterval(this.timer); this.abort.abort(); await this.transport.close(); await Promise.allSettled([...this.syncing.values(), ...this.work.values(), this.ticking]); await Promise.allSettled([...this.notificationWork]); this.store.close(); }
 }

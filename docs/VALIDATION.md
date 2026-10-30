@@ -158,3 +158,13 @@
 - 真实隔离 DSH Host / Edge 验证 1440、1024、768、390px 容器：按钮在顶部栏内完整显示，无横向溢出；滚动到底后操作栏仍固定在写信区顶部。实际点击保存、发送预览和丢弃，未确认发送。
 - 完整导航界面回归通过，页面异常为 0。已查看宽屏浅色、窄屏浅色和窄屏深色截图；截图为 `.cache/screenshots/navigation-compose-toolbar-{light|dark}-{width}.png`，结果保存在 `.cache/navigation-ui-verification.json`。
 - 53 项测试、构建、源码检查及 `git diff --check` 通过。版本与客户端构建同步为 0.1.8；未修改日常安装。
+
+## 0.1.9 DSH rc.5、可调列宽与 Windows 通知验收（2026-10-30）
+
+- 从本机实际安装的 `D:\AI\DSH\resources\app.asar` 读取 DSH 0.2.1-rc.5 元数据，将其运行时解包到仓库 `.cache/dsh-sdk-rc5`，使用随 DSH 提供的 Node 24.21.0 启动隔离 Host。宿主及三个 DSH peerDependencies 同步到 rc.5，未启用版本豁免；未修改用户日常 profile 或安装。
+- 新增 9 项测试，覆盖实际 DSH 包加载和 UI bridge、列宽范围与持久化、系统提醒偏好、通知失败隔离、人类专属测试入口、XML 转义和默认提示音，以及收件箱新增、首次同步、已发送副本和 UIDVALIDITY 重建。完整 62 项测试通过，包括真实本机 IMAP/SMTP 回环；沙箱回环 EACCES 经允许本机测试连接后通过。
+- `scripts/verify-layout-ui.mjs` 在真实 rc.5 Host / Edge 中验证两条分隔线实际拖动、方向键/Home/End、双击复位、刷新持久化、拖动边界、1440/1100/1024/768/390px 下的列数和无横向溢出，以及明暗主题和减少动态效果。已查看对应截图。重启 Host 后，实际页面保持文件夹栏 310px、邮件列表 425px，记录为 `.cache/layout-restart-verification.json`。
+- 原有完整导航、阅读、草稿顶部保存/发送预览/丢弃、日历、设置和抽屉回归通过；实际关于页显示 0.1.9。原生 Agent 验收覆盖搜索和零结果、侧栏重新展开、正文、草稿编辑保护、待办、未来日历、联系人、规则、审批边界、附件及浏览器真实 ICS 下载。两个报告的页面异常均为 0；未调用外部模型，未确认发送邮件。
+- 通过真实 Host 的“测试系统通知”按钮提交 Windows 原生 Toast，并从 `ToastNotificationManager.History.GetHistory('com.deepseek.dsh')` 读回该通知。关闭验收浏览器后，使用同一 Host 的原生工具创建一条合成到期待办，Host 后台计时器产生一条提醒，Windows 通知历史确认恰好一条，且包含 `ms-winsoundevent:Notification.Default`。记录为 `.cache/native-notification-verification.json` 和 `.cache/background-notification-verification.json`。
+- 系统通知开关保存到本机，关闭后仍保留应用内提醒；历史通知不由页面挂载重放。系统音频字段及 Windows 接收已核查，未通过音频采集确认扬声器实际播放；通知声音仍受 Windows 音量、通知和免打扰设置控制。
+- 界面截图及运行时、数据库、合成邮件、测试令牌均保留在 `.cache/`，不进入发行包或 Git 提交。打包预检确认包含新通知适配器和客户端构建，不含运行数据。

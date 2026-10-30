@@ -1,13 +1,13 @@
 {
   "name": "dsh-mail",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "DSH Mail — 本地多账号邮箱、日历、待办和 AI 邮箱助手",
   "license": "MIT",
   "type": "module",
   "main": "./dsh/index.mjs",
   "engines": {
     "node": ">=24.2",
-    "dsh": "0.2.1-rc.3"
+    "dsh": "0.2.1-rc.5"
   },
   "repository": {
     "type": "git",
@@ -58,9 +58,9 @@
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-home-paths": "0.2.1-rc.3",
-    "@deepseek-ai/dsh-tools": "0.2.1-rc.3",
-    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.3"
+    "@deepseek-ai/dsh-home-paths": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.5",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.5"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/dsh-home-paths": {

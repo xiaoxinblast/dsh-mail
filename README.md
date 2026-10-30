@@ -6,7 +6,7 @@
 
 ## 安装
 
-环境：Windows，DeepSeek Harness **0.2.1-rc.3**。插件使用 DSH 自带 Node / SQLite，不另起常驻系统服务。
+环境：Windows，DeepSeek Harness **0.2.1-rc.5**。插件使用 DSH 自带 Node / SQLite，不另起常驻系统服务。
 
 打开 DSH → 插件 → 添加插件 → 安装第三方插件，填入：
 
@@ -58,6 +58,10 @@ github:xiaoxinblast/dsh-mail#main
 在“设置 → 邮件与日历偏好”选择日历显示时区、新建事件默认时区、默认视图和每周起始日。两个时区初始均为 `Asia/Hong_Kong`，每周从星期一开始。切换显示时区只转换时间显示，已有事件保留原时区和实际时间，全天事件保留原日期；事件编辑窗口也可单独选择时区。日历侧栏“日历偏好”可直达设置。
 
 在“设置 → 邮件与日历偏好”选择默认发件账号、自动同步间隔（1–60 分钟，初始为 2 分钟），以及打开邮件时是否自动标为已读（初始开启）。此处也可开启“默认加载外部图片（HTTPS）”，初始关闭；每封邮件的图片按钮可单独覆盖当前选择，换一封邮件后重新遵循默认值。CID 内嵌图片独立显示。默认账号用于新建邮件；账号不可用时自动选择其他已启用邮箱，回复沿用来源账号。每个邮箱的“配置 → 默认签名”可选择已创建的签名，新建、回复和转发时插入，已保存草稿保留原内容。修改后点击“保存偏好”；偏好保存在本机并包含在备份中。
+
+邮件页面两条竖向分隔线支持鼠标拖动：分别调整文件夹栏和邮件列表的宽度，正文占用剩余空间。列宽保存到本机，刷新和 DSH 重启后保留。双击分隔线恢复对应栏的默认宽度；聚焦分隔线后可用左右方向键微调，Shift 加速，Home/End 调整到可用范围的最小/最大值。窄窗口自动切换文件夹抽屉或单栏阅读，再次放大时恢复保存的宽度。
+
+“设置 → 邮件与日历偏好 → Windows 系统通知”可开启或关闭系统提醒，默认开启；点击“测试系统通知”可检查本机弹窗和声音。新邮件、日历、待办和跟进提醒由 Host 直接提交给 Windows 通知中心，使用系统默认提示音，跟随 Windows 的通知、音量和免打扰设置。邮件页面隐藏或 DSH 最小化后仍可提醒；首次同步历史邮件、已发送副本及 UIDVALIDITY 变化后的缓存重建不会触发新邮件通知。系统通知失败时保留应用内提醒；重新打开界面不重放历史提醒。
 
 普通提醒不调用模型。所有同步、定时发送和提醒仅在 DSH Host 运行期间执行。
 
@@ -111,6 +115,8 @@ npm run benchmark
 `npm test` 包含真实本机 IMAP/SMTP 测试服务器，需允许回环网络。Windows 额外验证 DPAPI。`benchmark` 生成 3 个账号、10 万封合成邮件并将结果写入 `.cache/benchmark.json`，不使用真实邮件。
 
 界面验收脚本使用仓库 `.cache/dsh-home` 中的隔离 DSH Host。首次初始化基础数据运行 `node scripts/seed-fixtures.mjs`，再运行 `node scripts/seed-navigation-fixtures.mjs` 添加导航合成数据。启动该隔离 Host 后，用 `node scripts/verify-ui.mjs "<隔离 Host 的完整回环 URL>"` 执行 Edge 截图与交互验收。脚本覆盖左侧入口、对话重复入口排除、主面板、排序、查找、颜色、已发送、回复预览及明暗主题；截图和结果写入 `.cache/`。此流程不会确认发送邮件。
+
+`node scripts/verify-layout-ui.mjs "<隔离 Host 的完整回环 URL>"` 验证分隔条拖动、键盘操作、复位、重载持久化及明暗主题和窄屏截图；加 `--notify` 会通过真实 Host 提交一条合成 Windows 测试通知。设置 `DSH_RUNTIME_MODULES` 为目标运行时的 `node_modules` 绝对路径后运行 `npm test`，可同时验证原生插件和 Agent 对实际 DSH 包的加载。
 
 
 Agent 联动的隔离界面验收：运行 `node scripts/prepare-agent-ui.mjs "<DSH rc.3 node_modules 目录>"`，把输出的测试插件 insert 加到 **`.cache/dsh-home/profiles/web/cordis.patch.yml`** 后启动该隔离 Host，再运行 `node scripts/verify-agent-ui.mjs "<完整回环 URL>"`。测试插件强制核对仓库隔离 `DSH_HOME`，通过原始 `dsh/agent.mjs` 和该 SDK 的 `defineTool` 执行真实工具回调，连接同一 Host 内的邮件服务；测试后停止 Host 并移除该 insert。此验收不调用真实模型、不确认发送，截图和下载文件仅存 `.cache/`。

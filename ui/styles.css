@@ -48,7 +48,12 @@
 @keyframes dm-spin{to{transform:rotate(360deg)}}
 .dsh-mail .dm-content{overflow:hidden}
 .dsh-mail .dm-content>.dm-page{height:100%;overflow:auto}
-.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:240px minmax(300px,340px) minmax(300px,1fr);height:100%;min-height:0}
+.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:var(--dm-folder-width,240px) 6px var(--dm-list-width,340px) 6px minmax(300px,1fr);height:100%;min-height:0}
+.dsh-mail .dm-pane-divider{position:relative;cursor:col-resize;touch-action:none;background:var(--dm-bg);outline-offset:-1px}
+.dsh-mail .dm-pane-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dm-border);transition:background .15s}
+.dsh-mail .dm-pane-divider:hover::after,.dsh-mail .dm-pane-divider:focus-visible::after,.dsh-mail .dm-resizing .dm-pane-divider::after{background:var(--dm-blue)}
+.dsh-mail .dm-resizing,.dsh-mail .dm-resizing *{cursor:col-resize!important;user-select:none!important}
+.dsh-mail .dm-resizing iframe{pointer-events:none}
 .dsh-mail .dm-folders{display:block;padding:16px 12px;background:var(--dm-soft);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
 .dsh-mail .dm-folders>button{gap:10px;padding:10px;border-radius:8px;margin-bottom:3px;font-size:12px}
 .dsh-mail .dm-folders>button>svg,.dsh-mail .dm-folder-row>button>svg{color:var(--folder-color,var(--dm-blue));fill:color-mix(in srgb,var(--folder-color,var(--dm-blue)) 12%,transparent)}
@@ -161,7 +166,7 @@
 .dsh-mail .dm-notice{background:color-mix(in srgb,#22c55e 9%,var(--dm-bg));border-left:3px solid #16a34a}
 .dsh-mail .dm-dialog{box-shadow:0 24px 80px #0005}
 @container (max-width:1099px){
-  .dsh-mail .dm-mail-layout{grid-template-columns:minmax(280px,40%) minmax(300px,60%)}
+  .dsh-mail .dm-mail-layout{grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr)}
   .dsh-mail .dm-folders{display:none}
   .dsh-mail .dm-mobile-folder{display:inline-flex;border:0;background:transparent;padding:5px}
   .dsh-mail .show-folders .dm-folders{display:block;position:absolute;inset:0 auto 0 0;width:min(280px,calc(100% - 24px));z-index:6;box-shadow:12px 0 30px #0003;background:var(--dm-bg)}

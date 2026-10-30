@@ -2,7 +2,7 @@
 import { readFile, writeFile, mkdir, realpath } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { pathToFileURL } from "node:url";
-if (!process.argv[2]) throw new Error("Pass the DSH rc.3 node_modules directory");
+if (!process.argv[2]) throw new Error("Pass the target DSH runtime node_modules directory");
 const modules = await realpath(process.argv[2]), cache = resolve(".cache");
 await mkdir(cache, { recursive: true });
 const tools = pathToFileURL(join(modules, "@deepseek-ai/dsh-tools/lib/index.js")).href, llm = pathToFileURL(join(modules, "@deepseek-ai/dsh-llm/lib/index.js")).href;

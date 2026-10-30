@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useId } from "react";
 import DOMPurify from "dompurify";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
@@ -18,6 +18,7 @@ import { FOLDER_SORTS, visibleFolders, sentFolders, isInboxFolder } from "../src
 import { FOLDER_COLORS, folderAppearance, senderAppearance, messageFolderLocations } from "./folder-appearance.mjs";
 import { Icon } from "./icons.jsx";
 import { reconcileState } from "./state.mjs";
+import { mailPaneSizes } from "./mail-layout.mjs";
 
 const Ctx = createContext(null);
 const useMail = () => useContext(Ctx);
@@ -103,12 +104,33 @@ function FolderColorMenu({ folder }) {
   const save = (color) => run(() => act({ action: "folders.color", id: folder.id, color }));
   return <Menu label={`管理文件夹 ${folder.path}`} className="dm-folder-actions"><Button onClick={(e) => { e.currentTarget.closest("details").open = false; setModal({ type: "folder", value: folder }); }}><Icon name="folder" size={16} />管理文件夹</Button><fieldset className="dm-folder-colors"><legend>文件夹颜色</legend><div className="dm-color-options">{FOLDER_COLORS.map(([name, color]) => <button key={color} type="button" className="dm-color-swatch" aria-label={`文件夹颜色：${name}`} title={name} aria-pressed={folder.color === color} style={{ background: color, color: eventAppearance({ color }, []).textColor }} disabled={busy > 0} onClick={() => save(color)}>{folder.color === color ? "✓" : ""}</button>)}</div><label className="dm-custom-color">自定义<input aria-label={`自定义文件夹颜色 ${folder.path}`} type="color" value={custom} onChange={(e) => setCustom(e.target.value)} /></label><div className="dm-inline"><Button disabled={busy > 0} onClick={() => save(custom)}>应用颜色</Button><Button disabled={busy > 0 || !folder.color} onClick={() => save("")}>恢复默认</Button></div><p className="dm-muted">仅在本机显示，包含在备份中。</p></fieldset></Menu>;
 }
+function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResizing, paneId, kind }) {
+  const drag = useRef(null);
+  useEffect(() => () => { if (drag.current) setResizing(false); }, [setResizing]);
+  const finish = (event, cancel = false) => {
+    const current = drag.current; if (!current || current.pointerId !== event.pointerId) return;
+    drag.current = null; setResizing(false);
+    if (cancel) onChange(current.width); else onSave(current.value);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  return <div role="separator" tabIndex={0} aria-label={name} aria-orientation="vertical" aria-controls={paneId} aria-valuemin={min} aria-valuemax={max} aria-valuenow={width} aria-valuetext={`${width} 像素`} title="拖动调整宽度；双击恢复默认；方向键微调" className={`dm-pane-divider dm-${kind}-divider`}
+    onPointerDown={(event) => { if (event.button !== 0 || drag.current) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); drag.current = { pointerId: event.pointerId, x: event.clientX, width, value: width }; setResizing(true); }}
+    onPointerMove={(event) => { const current = drag.current; if (!current || current.pointerId !== event.pointerId) return; current.value = Math.round(Math.max(min, Math.min(max, current.width + event.clientX - current.x))); onChange(current.value); }}
+    onPointerUp={(event) => finish(event)} onPointerCancel={(event) => finish(event, true)} onLostPointerCapture={(event) => finish(event, true)}
+    onDoubleClick={onReset} onKeyDown={(event) => { const step = event.shiftKey ? 50 : 10, next = ({ ArrowLeft: width - step, ArrowRight: width + step, Home: min, End: max })[event.key]; if (next === undefined) return; event.preventDefault(); const value = Math.max(min, Math.min(max, next)); onChange(value); onSave(value); }} />;
+}
 function MailView({ active, navigation }) {
   const { state, query, setQuery, selected, setSelected, compose, setCompose, setModal, act, run, request, download, setTab, setSettingsSection } = useMail();
   const [result, setResult] = useState({ items: [], total: 0 }), [checked, setChecked] = useState([]), [q, setQ] = useState(""), [advanced, setAdvanced] = useState(false), [folderMenu, setFolderMenu] = useState(false), [drafts, setDrafts] = useState(false), [destination, setDestination] = useState(""), [groupThreads, setGroupThreads] = useState(false);
   const activeQuery = JSON.stringify(query);
   const [folderQuery, setFolderQuery] = useState(""), [folderSort, setFolderSort] = useState(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [sorting, setSorting] = useState(false);
   const folderTrigger = useRef(null), folderPanel = useRef(null), folderSearch = useRef(null);
+  const layout = useRef(null), layoutId = useId(), [dimensions, setDimensions] = useState({ width: 1000, root: 1064 }), [paneWidths, setPaneWidths] = useState(DEFAULT_SETTINGS), [resizing, setResizing] = useState(false);
+  useEffect(() => { const element = layout.current, root = element.closest(".dsh-mail"), observer = new ResizeObserver(() => { if (element.clientWidth) setDimensions({ width: element.clientWidth, root: root.clientWidth }); }); observer.observe(element); observer.observe(root); return () => observer.disconnect(); }, []);
+  useEffect(() => setPaneWidths({ mailFolderWidth: state.settings?.mailFolderWidth ?? DEFAULT_SETTINGS.mailFolderWidth, mailListWidth: state.settings?.mailListWidth ?? DEFAULT_SETTINGS.mailListWidth }), [state.settings?.mailFolderWidth, state.settings?.mailListWidth]);
+  const sizes = mailPaneSizes(dimensions.width, dimensions.root, paneWidths);
+  const saveWidth = (key, width) => run(async () => { try { await act({ action: "settings.save", value: { [key]: width } }); } catch (error) { setPaneWidths((current) => ({ ...current, [key]: state.settings?.[key] ?? DEFAULT_SETTINGS[key] })); throw error; } });
+  const divider = (key, name, width, min, max, kind) => <PaneDivider name={name} width={width} min={min} max={max} paneId={`${layoutId}-${kind}`} kind={kind} setResizing={setResizing} onChange={(value) => setPaneWidths((current) => ({ ...current, [key]: value }))} onSave={(value) => saveWidth(key, value)} onReset={() => { setPaneWidths((current) => ({ ...current, [key]: DEFAULT_SETTINGS[key] })); saveWidth(key, DEFAULT_SETTINGS[key]); }} />;
   const closeFolders = () => { setFolderMenu(false); folderTrigger.current?.focus(); };
   useEffect(() => { if (navigation?.page !== "mail") return; setDrafts(navigation.section === "drafts"); setQ(query.q || ""); setChecked(navigation.selectedIds || []); setAdvanced(!!(query.from || query.after || query.before || query.seen === false || query.hasAttachment)); setFolderMenu(false); }, [navigation?.id]);
   useEffect(() => setFolderSort(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [state.settings?.folderSort]);
@@ -122,9 +144,9 @@ function MailView({ active, navigation }) {
   const operate = (operation, value) => run(async () => { const r = await act({ action: "messages.action", ids: checked, operation, value, destinationId: destination || undefined }); if (r.kind === "purge") setModal({ type: "preview", value: r }); setChecked([]); });
   const shown = groupThreads ? result.items.filter((m, i, all) => all.findIndex((x) => x.accountId === m.accountId && x.threadId === m.threadId) === i) : result.items;
   const source = query.folderId ? state.folders.find((f) => f.id === query.folderId)?.path : query.sent ? "已发送" : query.starred ? "星标邮件" : query.inbox ? "统一收件箱" : "搜索结果";
-  return <div className={`dm-mail-layout ${selected || compose ? "has-detail" : ""} ${folderMenu ? "show-folders" : ""}`}>
+  return <div ref={layout} style={{ "--dm-folder-width": `${sizes.folder}px`, "--dm-list-width": `${sizes.list}px` }} className={`dm-mail-layout ${selected || compose ? "has-detail" : ""} ${folderMenu ? "show-folders" : ""} ${resizing ? "dm-resizing" : ""}`}>
     {folderMenu && <button type="button" className="dm-folder-backdrop" aria-label="关闭文件夹列表" tabIndex={-1} onClick={closeFolders} />}
-    <aside ref={folderPanel} className="dm-folders" aria-label="邮箱与文件夹" role={folderMenu ? "dialog" : undefined} aria-modal={folderMenu || undefined}><div className="dm-section-label">收件箱<Button className="dm-folder-close" aria-label="关闭文件夹面板" onClick={closeFolders}><Icon name="close" size={16} /></Button></div>{[["inbox", "统一收件箱", "#2563eb", { inbox: true }], ["sent", "已发送", "#0891b2", { sent: true }], ["star", "星标邮件", "#d97706", { starred: true }]].map(([icon, label, color, next]) => <button type="button" key={icon} className={!drafts && query[Object.keys(next)[0]] ? "selected" : ""} style={{ "--folder-color": color }} aria-current={!drafts && query[Object.keys(next)[0]] ? "page" : undefined} onClick={() => filter(next)}><Icon name={icon} /><span>{label}</span></button>)}<button type="button" className={drafts ? "selected" : ""} style={{ "--folder-color": "#7c3aed" }} onClick={() => { setDrafts(true); setSelected(null); setCompose(null); if (folderMenu) closeFolders(); }}><Icon name="draft" /><span>草稿与发件箱</span><small>{state.drafts.filter((d) => d.status !== "sent").length}</small></button>
+    <aside id={`${layoutId}-folder`} ref={folderPanel} className="dm-folders" aria-label="邮箱与文件夹" role={folderMenu ? "dialog" : undefined} aria-modal={folderMenu || undefined}><div className="dm-section-label">收件箱<Button className="dm-folder-close" aria-label="关闭文件夹面板" onClick={closeFolders}><Icon name="close" size={16} /></Button></div>{[["inbox", "统一收件箱", "#2563eb", { inbox: true }], ["sent", "已发送", "#0891b2", { sent: true }], ["star", "星标邮件", "#d97706", { starred: true }]].map(([icon, label, color, next]) => <button type="button" key={icon} className={!drafts && query[Object.keys(next)[0]] ? "selected" : ""} style={{ "--folder-color": color }} aria-current={!drafts && query[Object.keys(next)[0]] ? "page" : undefined} onClick={() => filter(next)}><Icon name={icon} /><span>{label}</span></button>)}<button type="button" className={drafts ? "selected" : ""} style={{ "--folder-color": "#7c3aed" }} onClick={() => { setDrafts(true); setSelected(null); setCompose(null); if (folderMenu) closeFolders(); }}><Icon name="draft" /><span>草稿与发件箱</span><small>{state.drafts.filter((d) => d.status !== "sent").length}</small></button>
       <div className="dm-section-label">邮箱与文件夹<Button aria-label="新建文件夹" onClick={() => setModal({ type: "folder" })}>＋</Button></div>
       <div className="dm-folder-search"><Icon name="search" size={15} /><input ref={folderSearch} aria-label="查找文件夹" placeholder="查找文件夹…" value={folderQuery} onChange={(e) => setFolderQuery(e.target.value)} />{folderQuery && <Button aria-label="清空文件夹查找" onClick={() => { setFolderQuery(""); folderSearch.current.focus(); }}><Icon name="close" size={14} /></Button>}</div><select className="dm-folder-sort" aria-label="文件夹排序" value={folderSort} disabled={sorting} onChange={(e) => changeSort(e.target.value)}>{FOLDER_SORTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
       {folderQuery.trim() && <p className="dm-folder-matches" role="status">{folders.length ? `找到 ${folders.length} 个文件夹` : "没有匹配的文件夹"}</p>}
@@ -132,7 +154,8 @@ function MailView({ active, navigation }) {
       {state["saved-searches"].length > 0 && <><div className="dm-section-label">保存的搜索</div>{state["saved-searches"].map((s) => <button key={s.id} onClick={() => filter(s.query)}>⌕ {s.name}</button>)}</>}
       <Button onClick={() => setModal({ type: "account" })}>＋ 添加邮箱</Button>
     </aside>
-    <section className="dm-list-pane"><div className="dm-list-heading"><button type="button" ref={folderTrigger} className="dm-mobile-folder" title="打开文件夹列表" aria-label="打开文件夹列表" aria-expanded={folderMenu} onClick={() => folderMenu ? closeFolders() : setFolderMenu(true)}><Icon name="menu" /></button><h2 title={drafts ? "草稿与发件箱" : source}>{drafts ? "草稿与发件箱" : source}</h2><span className="dm-count">{drafts ? state.drafts.length : result.total}</span></div>
+    {sizes.folder > 0 && divider("mailFolderWidth", "调整文件夹栏宽度", sizes.folder, 180, sizes.folderMax, "folder")}
+    <section id={`${layoutId}-list`} className="dm-list-pane"><div className="dm-list-heading"><button type="button" ref={folderTrigger} className="dm-mobile-folder" title="打开文件夹列表" aria-label="打开文件夹列表" aria-expanded={folderMenu} onClick={() => folderMenu ? closeFolders() : setFolderMenu(true)}><Icon name="menu" /></button><h2 title={drafts ? "草稿与发件箱" : source}>{drafts ? "草稿与发件箱" : source}</h2><span className="dm-count">{drafts ? state.drafts.length : result.total}</span></div>
       {query.sent && !drafts && missingSent.length > 0 && <div className="dm-sent-warning" role="status"><span>{missingSent.map((a) => a.name).join("、")}尚未映射有效的已发送文件夹。</span><Button onClick={() => { setSettingsSection("邮箱账号"); setTab("设置"); }}>配置</Button></div>}
       {drafts ? <div className="dm-message-list">{state.drafts.length === 0 && <Empty title="还没有草稿">新建一封邮件，或让 AI 为你准备回复。</Empty>}{state.drafts.map((d) => <button className="dm-message" key={d.id} onClick={() => setCompose(d)}><div className="dm-message-top"><strong>{d.subject || "（无主题）"}</strong><small>{statusText[d.status]}</small></div><p>{addr(d.to) || "尚未填写收件人"}</p>{d.receipt && <small>收到回执 · {d.receipt.disposition}</small>}{d.replyReceivedAt && <small>已收到回复</small>}</button>)}</div> : <>
       <form className="dm-search" onSubmit={(e) => { e.preventDefault(); setQuery({ ...query, q, offset: 0 }); }}><Icon name="search" size={16} /><input aria-label="搜索邮件" placeholder="搜索主题、正文、联系人…" value={q} onChange={(e) => setQ(e.target.value)} /><button type="submit">搜索</button><button type="button" aria-expanded={advanced} onClick={() => setAdvanced(!advanced)}>筛选</button></form>
@@ -143,6 +166,7 @@ function MailView({ active, navigation }) {
       <footer className="dm-pagination"><Button disabled={!query.offset} onClick={() => setQuery({ ...query, offset: Math.max(0, (query.offset || 0) - 50) })}>上一页</Button><span>{result.total ? (query.offset || 0) + 1 : 0}–{Math.min((query.offset || 0) + 50, result.total)} / {result.total}</span><Button disabled={!result.nextOffset} onClick={() => setQuery({ ...query, offset: result.nextOffset })}>下一页</Button></footer>{result.coverage && result.coverage.indexed < result.coverage.total && <div className="dm-index-status">正文索引 {result.coverage.indexed} / {result.coverage.total} · 未完成部分不在正文搜索结果中</div>}
       </>}
     </section>
+    {sizes.handles > 0 && divider("mailListWidth", "调整邮件列表宽度", sizes.list, 260, sizes.listMax, "list")}
     <section className="dm-detail-pane">{compose ? <Composer key={`${compose.id}:${compose.revision}`} initial={compose} /> : selected ? <Reader key={selected} id={selected} active={active} /> : <Empty icon="✧" title="给每封邮件一个清晰的下一步">选择邮件开始阅读，或在下方让邮箱助手查找、总结和准备回复。</Empty>}</section>
   </div>;
 }
@@ -337,6 +361,7 @@ function PreferencesForm() {
     </div><label className="dm-check"><input type="checkbox" checked={form.markReadOnOpen} onChange={(e) => change("markReadOnOpen", e.target.checked)} />打开邮件时自动标为已读</label><label className="dm-check"><input type="checkbox" checked={form.loadRemoteImages} onChange={(e) => change("loadRemoteImages", e.target.checked)} />默认加载外部图片（HTTPS）</label><p className="dm-muted">开启后自动请求邮件中的 HTTPS 外部图片；每封邮件仍可单独允许或阻止。内嵌图片不受此开关影响。</p>
     <p className="dm-muted">默认账号用于新建邮件，回复沿用来源账号。每个账号的默认签名可在“邮箱账号 → 配置”中选择。</p>
     <p className="dm-muted">同步间隔为 1–60 分钟；服务器实时新邮件通知仍会触发同步。DSH 完全退出后暂停同步。</p></fieldset>
+    <fieldset><legend>Windows 系统通知</legend><label className="dm-check"><input type="checkbox" checked={form.desktopNotifications} onChange={(e) => change("desktopNotifications", e.target.checked)} />新邮件、日历与待办使用系统通知</label><p className="dm-muted">使用 Windows 默认提示音，跟随系统音量、通知和免打扰设置。切换页面或最小化后仍可提醒；DSH 完全退出后暂停。</p><Button disabled={busy > 0} onClick={() => run(() => act({ action: "notifications.test" }, "测试通知已提交给 Windows；请检查系统弹窗、通知中心和提示音。"))}>测试系统通知</Button></fieldset>
     <footer className="dm-inline"><button type="submit" className="primary" disabled={!dirty || busy > 0}>保存偏好</button><span className="dm-muted">{dirty ? "有未保存的修改" : "已保存；设置保存在本机"}</span></footer>
   </form>;
 }

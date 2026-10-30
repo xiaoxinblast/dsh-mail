@@ -124,6 +124,8 @@ npm run benchmark
 
 `node scripts/seed-conversation-fixtures.mjs` 添加本机合成往来与链接样本；`node scripts/verify-conversations-ui.mjs "<隔离 Host 的完整回环 URL>"` 在真实页面验证正文点击、独立目标页、往来去重与分页及明暗主题截图。目标网址由测试浏览器本机拦截，不访问真实邮件外链。
 
+在实际安装 DSH 的 Windows 上设置 `DSH_TEST_DESKTOP_IDENTITY=1` 后运行 `npm test`，会核对通知发送身份是否出现在 Windows 已注册的 DSH 应用中。Windows 通知接口返回成功或通知历史可读回，均不能代替横幅与声音的实际验收。
+
 
 Agent 联动的隔离界面验收：运行 `node scripts/prepare-agent-ui.mjs "<DSH rc.3 node_modules 目录>"`，把输出的测试插件 insert 加到 **`.cache/dsh-home/profiles/web/cordis.patch.yml`** 后启动该隔离 Host，再运行 `node scripts/verify-agent-ui.mjs "<完整回环 URL>"`。测试插件强制核对仓库隔离 `DSH_HOME`，通过原始 `dsh/agent.mjs` 和该 SDK 的 `defineTool` 执行真实工具回调，连接同一 Host 内的邮件服务；测试后停止 Host 并移除该 insert。此验收不调用真实模型、不确认发送，截图和下载文件仅存 `.cache/`。
 

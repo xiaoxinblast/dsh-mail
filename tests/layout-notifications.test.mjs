@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 import { MailService } from "../src/service.mjs";
 import { mailPaneSizes } from "../ui/mail-layout.mjs";
-import { toastXml } from "../src/notifications.mjs";
+import { toastXml, DSH_APP_ID } from "../src/notifications.mjs";
 
 const human = { kind: "human" };
 async function fixture(t, notify = async () => ({ status: "submitted" })) {
@@ -80,6 +81,13 @@ test("Windows toast escapes untrusted text and uses the default system sound", (
   assert.ok(!xml.includes("\u0000"));
   assert.ok(xml.includes('src="ms-winsoundevent:Notification.Default"'));
   assert.ok(!xml.includes('silent="true"'));
+});
+
+test("Windows notification identity matches the registered DSH desktop application", { skip: !process.env.DSH_TEST_DESKTOP_IDENTITY }, () => {
+  const script = "[Console]::OutputEncoding=[Text.Encoding]::UTF8; @(Get-StartApps | Where-Object { $_.Name -eq 'DeepSeek Harness' } | Select-Object -ExpandProperty AppID) | ConvertTo-Json -Compress";
+  const result = JSON.parse(execFileSync(join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe"), ["-NoProfile", "-NonInteractive", "-Command", script], { windowsHide: true, encoding: "utf8" }));
+  const identities = Array.isArray(result) ? result : [result];
+  assert.ok(identities.includes(DSH_APP_ID), `Notification identity ${DSH_APP_ID} is not registered for DSH: ${identities.join(", ")}`);
 });
 
 test("sync notifies only new inbox mail, skipping first sync, sent copies and UIDVALIDITY rebuilds", async (t) => {

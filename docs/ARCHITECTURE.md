@@ -17,6 +17,12 @@
 
 业务接口以 `{action,...fields}` 调用。Agent 工具分组限制可用 action；服务端再次区分 `human`/`agent`。`human` 来自受 DSH 连接保护的 UI bridge，不从工具 JSON 读取。此机制是插件业务权限边界，不是隔离同一 Windows 用户可运行的任意程序。
 
+`thread.read(id,limit?,offset?)` 使用 `src/conversations.mjs` 的引用关系连通分量，按账号及去除回复前缀后的主题隔离；连接 Message-ID、References 和 In-Reply-To，兼容原信缺失及只引用中间回复。相同 Message-ID 的文件夹副本在分页前去重，优先保留当前阅读实例；`current` 单独返回当前邮件摘要，使其不在当前分页时仍可标明当前位置。结果包含准确总数及下一页 offset，缺失/已删除文件夹不参与展示。
+
+分组索引只读取邮件标识、主题及引用头，按账号按需建立；真实引用元数据新增、修改、删除或外部数据库写入后失效，已读等标记变化复用缓存。普通搜索不强制构建索引，当前页聚合显式请求分组元数据。旧数据库无需迁移，既有 `thread_id` 筛选保留兼容；阅读区和 Agent 的 `thread.read` 使用新的往来查询。事务回滚清除分组缓存，防止未提交引用留下错误关联。
+
+阅读 HTML 的有效 HTTP/HTTPS 锚点保留 href，强制独立目标及 `noopener noreferrer`；iframe 仅增加弹出页面相关的 sandbox 权限，邮件自身仍没有脚本或同源权限。正文点击行为在隔离 Host/Edge 中以本机拦截的目标页验证，包含目标页可正常运行及 opener 为空；不自动访问邮件外链。
+
 主要动作：
 
 ```text

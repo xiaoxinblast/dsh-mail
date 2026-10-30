@@ -60,7 +60,7 @@ export class MailService {
     requireValue(input && typeof input === "object" && !Array.isArray(input), "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。");
     const query = {};
     for (const key of ["q", "accountId", "folderId", "threadId", "from", "to", "cc", "subject", "after", "before", "label"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "string" && input[key].length <= 2048, "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
-    for (const key of ["inbox", "sent", "seen", "starred", "hasAttachment", "includeSnoozed"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "boolean", "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
+    for (const key of ["inbox", "sent", "seen", "starred", "hasAttachment", "includeSnoozed", "groupThreads"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "boolean", "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
     if (input.folderIds !== undefined) { requireValue(Array.isArray(input.folderIds) && input.folderIds.length <= 200 && input.folderIds.every((key) => typeof key === "string" && key.length <= 2048), "INVALID_WORKBENCH_QUERY", "工作台文件夹范围无效。"); query.folderIds = [...new Set(input.folderIds)]; }
     for (const key of ["offset", "limit"]) if (input[key] !== undefined) { requireValue(Number.isSafeInteger(input[key]) && input[key] >= (key === "limit" ? 1 : 0), "INVALID_WORKBENCH_QUERY", "工作台分页条件无效。"); query[key] = key === "limit" ? bounded(input[key]) : input[key]; }
     return query;
@@ -80,7 +80,7 @@ export class MailService {
   workbenchTarget(args, result) {
     const action = args.action;
     if (action === "search") return { page: "mail", query: args };
-    if (action === "message.read" || action === "thread.read") { const m = this.message(args.id); return { page: "mail", messageId: m.id, query: action === "thread.read" ? { accountId: m.accountId, threadId: m.threadId, includeSnoozed: true } : { accountId: m.accountId, folderId: m.folderId } }; }
+    if (action === "message.read" || action === "thread.read") { const m = this.message(args.id); return { page: "mail", messageId: m.id, query: action === "thread.read" ? { accountId: m.accountId, threadId: result.threadId, includeSnoozed: true } : { accountId: m.accountId, folderId: m.folderId } }; }
     if (["drafts.save", "drafts.reply", "drafts.cancel", "events.invite", "events.rsvp"].includes(action)) return { page: "mail", draftId: result.id };
     if (action === "drafts.delete") return { page: "mail", section: "drafts" };
     if (result?.kind && result?.details && result?.status === "pending") return { page: action.startsWith("rules.") ? "rules" : "mail", previewId: result.id };
@@ -140,7 +140,7 @@ export class MailService {
       return publicValue(this.store.search(args));
     }
     if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue({ ...m, locations: this.store.messageLocations(m) }); }
-    if (action === "thread.read") { const m = this.message(args.id); return publicValue(this.store.search({ accountId: m.accountId, threadId: m.threadId, limit: args.limit || 50, includeSnoozed: true })); }
+    if (action === "thread.read") { const m = this.message(args.id); return publicValue(this.store.search({ accountId: m.accountId, threadId: this.store.conversationId(m), preferredId: m.id, limit: args.limit || 50, offset: args.offset, includeSnoozed: true })); }
     if (action === "drafts.save") return this.saveDraft(args.draft);
     if (action === "drafts.reply") return this.replyDraft(args);
     if (action === "drafts.delete") { const d = this.store.get("drafts", args.id); requireValue(d && !["sending", "sent"].includes(d.status), "DRAFT_LOCKED", "发送中的邮件不能删除。"); return draftView(this.store.put("drafts", { ...d, status: "discarded" })); }
@@ -311,7 +311,7 @@ export class MailService {
     const to = mode === "forward" ? [] : m.replyTo?.length ? m.replyTo : m.from;
     const cc = mode === "replyAll" ? [...m.to, ...m.cc].filter((a) => !allMine.has(a.address) && !to.some((t) => t.address === a.address)) : [];
     const signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
-    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${!signature?.deleted ? signature?.text || "" : ""}\n\n—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——\n${m.text}`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: mode === "forward" ? m.attachments.map(({ id, filename, cid }) => ({ id, filename, cid })) : [] });
+    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${!signature?.deleted ? signature?.text || "" : ""}\n\n—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——\n${m.text}`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: mode === "forward" ? [] : [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: mode === "forward" ? m.attachments.map(({ id, filename, cid }) => ({ id, filename, cid })) : [] });
   }
   previewFingerprint(kind, payload) {
     if (kind === "send") { const d = this.store.get("drafts", payload.draftId); requireValue(d, "DRAFT_NOT_FOUND", "草稿不存在。"); return digest({ draft: d, account: sendIdentity(this.account(d.accountId)), scheduledAt: payload.scheduledAt }); }

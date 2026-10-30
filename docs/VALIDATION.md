@@ -168,3 +168,14 @@
 - 通过真实 Host 的“测试系统通知”按钮提交 Windows 原生 Toast，并从 `ToastNotificationManager.History.GetHistory('com.deepseek.dsh')` 读回该通知。关闭验收浏览器后，使用同一 Host 的原生工具创建一条合成到期待办，Host 后台计时器产生一条提醒，Windows 通知历史确认恰好一条，且包含 `ms-winsoundevent:Notification.Default`。记录为 `.cache/native-notification-verification.json` 和 `.cache/background-notification-verification.json`。
 - 系统通知开关保存到本机，关闭后仍保留应用内提醒；历史通知不由页面挂载重放。系统音频字段及 Windows 接收已核查，未通过音频采集确认扬声器实际播放；通知声音仍受 Windows 音量、通知和免打扰设置控制。
 - 界面截图及运行时、数据库、合成邮件、测试令牌均保留在 `.cache/`，不进入发行包或 Git 提交。打包预检确认包含新通知适配器和客户端构建，不含运行数据。
+
+## 0.1.10 正文链接与邮件往来验收（2026-10-30）
+
+- 参考 [Gmail 官方线程条件](https://developers.google.com/workspace/gmail/api/guides/threads)中的回复引用头与主题，以及 [Outlook 官方往来视图](https://support.microsoft.com/en-us/outlook/mail/view-email-messages-by-conversation-in-outlook)的跨文件夹/已发送邮件阅读方式，落实经用户确认的账号隔离、完整引用链、主题变化分组、副本去重及最新优先规则。
+- 新增 8 项回归测试，先复现多文件夹副本计数重复、只引用中间邮件漏组、旧 threadId/相同标题误组、失效文件夹混入、去重前分页和转发继承引用头，再修正实现。覆盖当前副本选择、跨账号隔离、长往来总数/分页、晚到引用头、已读变化缓存复用、删除/重启和事务回滚。DSH 自带 Node 24.21.0 下完整 70 项测试通过，包括本机 IMAP/SMTP 回环。
+- 真实 DSH rc.5 Host/Edge 中，实际点击 HTML HTTP、HTTPS 及纯文本网址，检查完整查询参数、新目标页正常运行、opener 为空、阅读页保留。移除“邮件中的链接”列表；无效地址及脚本/data/file 地址不可点击，邮件自身没有脚本/表单或同源权限。测试目标页由浏览器本机拦截，不访问真实外链。
+- 合成收件箱原信、项目文件夹副本、已发送回复及仅引用中间回复的后续邮件，实际往来面板显示 3 封并正确切换和标记当前邮件；只有文件夹副本时不显示往来面板，主题实质更改时另起一组。61 封往来先显示最新分页及当前邮件，再加载更早邮件，副本不重复计数。
+- 已查看 1440/1024/768/390px 浅色、1440/390px 深色截图，无横向溢出，页面异常为 0。原有邮件位置/复制移动、CID/外部图片偏好及单封覆盖、重载持久化、日历与导航悬停回归通过，“关于”显示 0.1.10。记录为 `.cache/conversation-ui-verification.json`、`.cache/message-ui-verification.json`，截图为 `.cache/screenshots/conversation-*.png` 等。
+- 10 万封既有合成邮件实测普通列表查询为 14.16/8.58/8.82/9.57ms；往来索引按需对单一账号建立，首次约 243ms，复用后查询小于 1ms。记录为 `.cache/conversation-performance.json`；此为本机样本结果，不作为所有邮箱的耗时保证。
+- 本轮复用既有数据库，不迁移或改写历史邮件。仅更新仓库源码与可安装构建，未替换日常 DSH 插件安装。
+- 最终 Host 重启后再次通过正文点击及 61 封往来验收。原生 Agent 到界面的搜索、正文、草稿编辑保护、待办、日历、联系人、规则、审批边界、附件和实际 ICS 下载回归通过，页面异常为 0。构建、源码检查、diff 检查和打包预检通过，包中包含 `src/conversations.mjs`，不含运行数据。

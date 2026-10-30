@@ -50,7 +50,7 @@ test("opening a mail targets the correct folder without fetching or marking it r
 
 test("invalid UI filter values cannot queue commands, and auxiliary reads never open a mail", async (t) => {
   const { service } = await fixture(t);
-  for (const query of [{ q: {} }, { seen: "false" }, { offset: -1 }, { limit: Infinity }]) await assert.rejects(service.invoke({ action: "search", ...query }, agent), { code: "INVALID_WORKBENCH_QUERY" });
+  for (const query of [{ q: {} }, { seen: "false" }, { groupThreads: "true" }, { offset: -1 }, { limit: Infinity }]) await assert.rejects(service.invoke({ action: "search", ...query }, agent), { code: "INVALID_WORKBENCH_QUERY" });
   assert.equal(await service.invoke({ action: "workbench.state" }, human), null);
   await service.invoke({ action: "message.read", id: "m1", display: false }, agent); await service.invoke({ action: "thread.read", id: "m1", display: false }, agent);
   assert.equal(await service.invoke({ action: "workbench.state" }, human), null);

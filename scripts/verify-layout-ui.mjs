@@ -24,31 +24,29 @@ try {
   await open(); await resize(1440);
   await root.locator(".dm-message-row").filter({ hasText: "十月项目交付计划与报价确认" }).locator("button.dm-message").click();
   await expect(root.locator(".dm-reader h2")).toHaveText("十月项目交付计划与报价确认");
-  for (const name of ["调整文件夹栏宽度", "调整邮件列表宽度"]) await divider(name).dblclick();
-  await expect.poll(() => settings().mailFolderWidth).toBe(240); await expect.poll(() => settings().mailListWidth).toBe(340);
-  await drag("调整文件夹栏宽度", 70); await expect.poll(() => settings().mailFolderWidth).toBe(310);
+  for (const name of ["调整邮件列表宽度"]) await divider(name).dblclick();
+  await expect.poll(() => settings().mailListWidth).toBe(340);
   await drag("调整邮件列表宽度", 85); await expect.poll(() => settings().mailListWidth).toBe(425);
-  assert.equal(await width(".dm-folders"), 310); assert.equal(await width(".dm-list-pane"), 425);
+  await expect(root.locator(".dm-folders")).toBeHidden(); assert.equal(await width(".dm-list-pane"), 425);
   await noOverflow(); await shot("dragged-light-1440");
   await divider("调整邮件列表宽度").focus(); await page.keyboard.press("ArrowRight"); await expect.poll(() => settings().mailListWidth).toBe(435);
   await page.keyboard.press("Home"); await expect.poll(() => settings().mailListWidth).toBe(260);
   await page.keyboard.press("End"); await expect.poll(() => width(".dm-detail-pane")).toBeGreaterThanOrEqual(300);
   await divider("调整邮件列表宽度").dblclick(); await expect.poll(() => settings().mailListWidth).toBe(340);
   await drag("调整邮件列表宽度", 85); await expect.poll(() => settings().mailListWidth).toBe(425);
-  await open(); await resize(1440); assert.equal(await width(".dm-folders"), 310); assert.equal(await width(".dm-list-pane"), 425);
+  await open(); await resize(1440); await expect(root.locator(".dm-folders")).toBeHidden(); assert.equal(await width(".dm-list-pane"), 425);
   checks.push("mouse drag, keyboard arrows/Home/End, double-click reset and reload persistence");
   await root.locator(".dm-message-row").first().locator("button.dm-message").click();
-  for (const size of [1440, 1100, 1024, 768, 390]) { await resize(size); await noOverflow(); await expect(root.getByRole("separator")).toHaveCount(size >= 1100 ? 2 : size >= 760 ? 1 : 0); await shot(`reader-light-${size}`); }
-  await resize(1440); await drag("调整文件夹栏宽度", 1000); await noOverflow(); await drag("调整邮件列表宽度", 1000); await noOverflow(); assert.ok(await width(".dm-detail-pane") >= 300);
-  await drag("调整文件夹栏宽度", -1000); await expect.poll(() => settings().mailFolderWidth).toBe(180);
+  for (const size of [1440, 1100, 1024, 768, 390]) { await resize(size); await noOverflow(); await expect(root.getByRole("separator")).toHaveCount(size >= 760 ? 1 : 0); await shot(`reader-light-${size}`); }
+  await resize(1440); await drag("调整邮件列表宽度", 1000); await noOverflow(); assert.ok(await width(".dm-detail-pane") >= 300);
   await drag("调整邮件列表宽度", -1000); await expect.poll(() => settings().mailListWidth).toBe(260);
   await noOverflow(); checks.push("drag limits, narrow layout, no overflow at 1440/1100/1024/768/390");
   const interrupted = await divider("调整邮件列表宽度").boundingBox();
   await page.mouse.move(interrupted.x + 3, interrupted.y + 50); await page.mouse.down(); await expect(root.locator(".dm-mail-layout")).toHaveClass(/dm-resizing/);
   await resize(390); await page.mouse.up(); await expect(root.locator(".dm-mail-layout")).not.toHaveClass(/dm-resizing/); await resize(1440);
   checks.push("shrinking to single-column during a drag releases resizing state");
-  for (const name of ["调整文件夹栏宽度", "调整邮件列表宽度"]) await divider(name).dblclick();
-  await expect.poll(() => settings().mailFolderWidth).toBe(240); await expect.poll(() => settings().mailListWidth).toBe(340);
+  for (const name of ["调整邮件列表宽度"]) await divider(name).dblclick();
+  await expect.poll(() => settings().mailListWidth).toBe(340);
   const rail = root.getByRole("navigation", { name: "功能导航" });
   await rail.getByRole("button", { name: "设置", exact: true }).click();
   await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click();
@@ -60,11 +58,11 @@ try {
   await resize(390); await root.getByRole("button", { name: "测试系统通知", exact: true }).scrollIntoViewIfNeeded(); await noOverflow(); await shot("notification-settings-light-390");
   await page.getByText("更多", { exact: true }).last().click(); await page.getByText("设置", { exact: true }).last().click(); await page.getByRole("button", { name: "深色", exact: true }).click(); await expect(page.locator("body")).toHaveAttribute("data-ds-dark-theme", ""); await page.getByRole("button", { name: "关闭", exact: true }).last().click();
   await rail.getByRole("button", { name: "邮件", exact: true }).click();
+  await root.locator(".dm-message-row").first().locator("button.dm-message").click();
   for (const size of [1440, 1024, 390]) { await resize(size); await noOverflow(); await shot(`reader-dark-${size}`); }
   await resize(1440); await divider("调整邮件列表宽度").focus(); await shot("divider-focus-dark");
   await page.emulateMedia({ reducedMotion: "reduce" }); await divider("调整邮件列表宽度").hover(); await expect(divider("调整邮件列表宽度")).toHaveCSS("cursor", "col-resize"); await shot("divider-hover-reduced-motion");
   await page.getByText("更多", { exact: true }).last().click(); await page.getByText("设置", { exact: true }).last().click(); await page.getByRole("button", { name: "浅色", exact: true }).click(); await page.getByRole("button", { name: "关闭", exact: true }).last().click();
-  await drag("调整文件夹栏宽度", 70); await expect.poll(() => settings().mailFolderWidth).toBe(310);
   await drag("调整邮件列表宽度", 85); await expect.poll(() => settings().mailListWidth).toBe(425);
   assert.deepEqual(errors, []); checks.push("notification preference persisted, light/dark and reduced-motion screenshots, no page errors");
   await writeFile(".cache/layout-ui-verification.json", JSON.stringify({ checks, pageErrors: errors, settings: settings() }, null, 2));

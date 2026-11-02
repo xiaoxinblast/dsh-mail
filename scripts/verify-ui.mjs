@@ -23,6 +23,7 @@ try {
   const root = page.locator(".dsh-mail:visible"), rail = root.getByRole("navigation", { name: "功能导航" });
   await expect(root.locator(".dm-message-row").first()).toBeVisible();
   const inboxCount = await root.locator(".dm-message-row").count();
+  await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
   await expect(root.locator(".dm-account-folders").filter({ hasText: "工作邮箱 · 界面验收" })).toBeVisible();
   const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "900px"; el.style.flex = "none"; }, width); assert.equal(await root.evaluate((el) => el.clientWidth), width); };
   const shot = async (name) => { await page.waitForTimeout(180); await root.screenshot({ path: `.cache/screenshots/navigation-${name}.png` }); };
@@ -63,12 +64,13 @@ try {
   await page.keyboard.press("Escape");
   checks.push("preset/custom/reset folder color via real UI");
 
-  await root.locator(".dm-folders>button").filter({ hasText: "已发送" }).click();
+  await rail.getByRole("button", { name: "已发送", exact: true }).click();
+  await root.getByRole("textbox", { name: "搜索邮件", exact: true }).fill("已发送 ·"); await root.getByRole("textbox", { name: "搜索邮件", exact: true }).press("Enter");
   await expect(root.locator(".dm-message-row")).toHaveCount(2);
   await expect(root.locator(".dm-sent-warning")).toBeVisible();
   assert.ok((await root.locator(".dm-message h3").allTextContents()).every((text) => text.startsWith("已发送 ·")));
   await shot("sent-light");
-  await root.locator(".dm-folders>button").filter({ hasText: "统一收件箱" }).click();
+  await rail.getByRole("button", { name: "邮件", exact: true }).click();
   await expect(root.locator(".dm-message-row")).toHaveCount(inboxCount);
   const row = root.locator(".dm-message-row").filter({ hasText: "十月项目交付计划与报价确认" });
   await row.hover();
@@ -94,14 +96,14 @@ try {
     await resize(width);
     await noOverflow();
     await shot(`reader-light-${width}`);
-    if (width < 1100) {
+    {
       if (width < 760) await root.getByRole("button", { name: "返回邮件列表", exact: true }).click();
-      await root.getByRole("button", { name: "打开文件夹列表", exact: true }).click();
+      await root.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
       await expect(root.getByRole("textbox", { name: "查找文件夹" })).toBeFocused();
       await shot(`drawer-light-${width}`);
       await page.keyboard.press("Escape");
-      await expect(root.getByRole("button", { name: "打开文件夹列表", exact: true })).toBeFocused();
-      await root.getByRole("button", { name: "打开文件夹列表", exact: true }).click();
+      await expect(root.getByRole("button", { name: "邮箱与文件夹", exact: true })).toBeFocused();
+      await root.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
       const backdrop = root.getByRole("button", { name: "关闭文件夹列表", exact: true });
       const box = await backdrop.boundingBox();
       await backdrop.click({ position: { x: box.width - 3, y: box.height - 3 } });
@@ -160,6 +162,7 @@ try {
   await expect(page.locator("body")).toHaveAttribute("data-ds-dark-theme", "");
   await page.getByRole("button", { name: "关闭", exact: true }).last().click();
   await rail.getByRole("button", { name: "邮件", exact: true }).click();
+  await row.locator("button.dm-message").click();
   await root.getByRole("button", { name: "回复", exact: true }).click();
   for (const width of [1440, 390]) { await resize(width); await noOverflow(); await expect(composeToolbar.getByRole("button", { name: "预览并发送 →", exact: true })).toBeVisible(); await shot(`compose-toolbar-dark-${width}`); }
   await composeToolbar.getByRole("button", { name: "← 关闭", exact: true }).click();
@@ -167,7 +170,7 @@ try {
     await resize(width); await noOverflow(); await shot(`reader-dark-${width}`);
     if (width < 760) {
       await root.getByRole("button", { name: "返回邮件列表", exact: true }).click();
-      await root.getByRole("button", { name: "打开文件夹列表", exact: true }).click();
+      await root.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
       await shot(`drawer-dark-${width}`);
       await page.keyboard.press("Escape");
     }
@@ -190,6 +193,7 @@ try {
   await row.locator("button.dm-message").click();
   const primary = root.getByRole("button", { name: "写邮件", exact: true }), background = await primary.evaluate((el) => getComputedStyle(el).backgroundColor);
   await primary.hover(); await expect(primary).not.toHaveCSS("background-color", background); await shot("button-hover-light");
+  await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
   await root.getByRole("combobox", { name: "文件夹排序" }).selectOption("count-desc");
   await expect(root.getByRole("combobox", { name: "文件夹排序" })).toBeEnabled();
   await page.reload();
@@ -198,15 +202,18 @@ try {
   if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape");
   if (!await root.isVisible()) await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   await resize(1440);
+  await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
   await expect(root.getByRole("combobox", { name: "文件夹排序" })).toHaveValue("count-desc");
   await account.getByLabel("管理文件夹 Altagram", { exact: true }).click();
   await expect(account.locator(".dm-folder-actions[open]").getByRole("button", { name: "文件夹颜色：紫色", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.keyboard.press("Escape");
   await root.getByRole("combobox", { name: "文件夹排序" }).selectOption("name-asc");
   await expect(root.getByRole("combobox", { name: "文件夹排序" })).toBeEnabled();
+  await root.getByRole("button", { name: "关闭文件夹面板", exact: true }).click();
   await row.locator("button.dm-message").click(); await shot("final-light-1440");
   checks.push("primary button hover and browser reload persistence of sort/color");
   if (process.argv.includes("--prepare-restart")) {
+    await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
     await root.getByRole("combobox", { name: "文件夹排序" }).selectOption("count-desc");
     await expect(root.getByRole("combobox", { name: "文件夹排序" })).toBeEnabled();
   }

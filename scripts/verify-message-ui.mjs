@@ -36,10 +36,11 @@ try {
   await expect(locations.getByRole("button", { name: "[验收] 项目 A", exact: true })).toBeVisible();
   const sourceRow = root.locator(".dm-message-row").filter({ hasText: subject });
   await expect(sourceRow.locator(".dm-folder-corner")).toHaveAttribute("aria-label", "所在文件夹：[验收] 项目 A");
+  await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
   await root.getByLabel("管理文件夹 [验收] 项目 A", { exact: true }).click();
   const palette = root.locator(".dm-folder-actions[open]"); await expect(palette.locator(".dm-color-swatch")).toHaveCount(24);
   await palette.getByRole("button", { name: "文件夹颜色：翡翠绿", exact: true }).click(); await expect(palette.getByRole("button", { name: "文件夹颜色：翡翠绿", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(sourceRow.locator(".dm-folder-corner")).toHaveCSS("background-image", /rgb\(16, 185, 129\)/); await shot("expanded-folder-colors-light"); await page.keyboard.press("Escape");
+  await expect(sourceRow.locator(".dm-folder-corner")).toHaveCSS("background-image", /rgb\(16, 185, 129\)/); await shot("expanded-folder-colors-light"); await page.keyboard.press("Escape"); await page.keyboard.press("Escape");
   await root.getByRole("button", { name: "返回邮件列表", exact: true }).click(); await expect(root.locator(".dm-reader")).toHaveCount(0); await expect(sourceRow.locator(".dm-folder-corner")).toHaveAttribute("aria-label", "所在文件夹：[验收] 项目 A"); await shot("inbox-project-indicator-before-open-light"); await sourceRow.locator("button.dm-message").click();
   await expect(locations.getByRole("button", { name: "[验收] 收件箱", exact: true })).toHaveCount(0); await shot("locations-copy-light");
   await root.getByRole("button", { name: "添加或移动到文件夹", exact: true }).click(); dialog = root.getByRole("dialog");
@@ -59,7 +60,7 @@ try {
 
   const imagePreference = async (enabled) => { await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click(); const checkbox = root.getByRole("checkbox", { name: "默认加载外部图片（HTTPS）", exact: true }); await checkbox.setChecked(enabled); const save = root.getByRole("button", { name: "保存偏好", exact: true }); if (await save.isEnabled()) { await save.click(); await expect(save).toBeDisabled(); } };
   await imagePreference(true); assert.equal(imageRequests, 0, "Hidden reader does not fetch external images"); await shot("image-preference-light");
-  await rail.getByRole("button", { name: "邮件", exact: true }).click(); await expect(body().getByAltText("外部图片")).toHaveAttribute("src", "https://mail-image.example.invalid/sample.png"); await expect.poll(() => imageRequests).toBeGreaterThan(0);
+  await rail.getByRole("button", { name: "邮件", exact: true }).click(); await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click(); await root.locator(".dm-folder-row>button").filter({ hasText: "[验收] 项目 B" }).click(); await root.locator(".dm-message-row").filter({ hasText: subject }).locator("button.dm-message").click(); await expect(body().getByAltText("外部图片")).toHaveAttribute("src", "https://mail-image.example.invalid/sample.png"); await expect.poll(() => imageRequests).toBeGreaterThan(0);
   await shot("images-allowed-light"); await root.getByRole("button", { name: "阻止图片", exact: true }).click(); await expect(body().getByAltText("外部图片")).not.toHaveAttribute("src", /.+/);
   await locations.getByRole("button", { name: "[验收] 项目 A", exact: true }).click(); await expect(body().getByAltText("外部图片")).toHaveAttribute("src", "https://mail-image.example.invalid/sample.png");
   await page.reload(); await page.getByText("DSH Mail", { exact: true }).waitFor(); await page.waitForTimeout(2500); if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape"); if (!await root.isVisible()) await page.getByText("DSH Mail", { exact: true }).click(); await resize(1440);
@@ -69,7 +70,9 @@ try {
   await rail.getByRole("button", { name: "日历", exact: true }).click();
   if (await root.getByRole("status").getByRole("button", { name: "×", exact: true }).isVisible()) await root.getByRole("status").getByRole("button", { name: "×", exact: true }).click();
   const active = root.locator(".fc-event:visible").filter({ hasText: "进行中 · 本周翻译交付" }).first(), ended = root.locator(".fc-event:visible").filter({ hasText: "已结束 · 项目交付" }).first();
+  if (!await ended.count()) for (const more of await root.locator(".fc-more-link").all()) { await more.click(); if (await ended.count()) break; await root.locator(".fc-popover-close").click(); }
   await expect(active).toBeVisible(); await expect(active).toHaveCSS("background-color", "rgb(34, 219, 244)"); await expect(ended).toHaveCSS("background-color", "rgb(189, 244, 252)");
+  if (await root.locator(".fc-popover-close").isVisible()) await root.locator(".fc-popover-close").click();
   assert.ok((await root.locator(".fc-view-harness").boundingBox()).height >= 650, "Calendar uses the available height");
   await expect(root.locator(".dm-mini-calendar")).toBeVisible();
   const title = await root.locator(".fc-toolbar-title").innerText(); await root.getByRole("button", { name: "小月历下一月", exact: true }).click(); await expect(root.locator(".fc-toolbar-title")).not.toHaveText(title); await root.locator(".fc-today-button").click();
@@ -91,9 +94,10 @@ try {
   const hoverRail = async (theme) => { await resize(1440); for (const button of await rail.locator("button").all()) { const name = await button.getAttribute("aria-label"); await page.mouse.move(1850,950); await page.waitForTimeout(180); const before = await button.evaluate((el) => getComputedStyle(el).backgroundColor); await button.hover(); await expect(button).not.toHaveCSS("background-color", before); await shot(`rail-${theme}-${name}`); } };
   await hoverRail("light");
   await setTheme("深色"); await expect(page.locator("body")).toHaveAttribute("data-ds-dark-theme", "");
-  await rail.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator(".dm-folder-row>button").filter({ hasText: "[验收] 项目 A" }).click(); await root.locator(".dm-message-row").filter({ hasText: subject }).locator("button.dm-message").click();
+  await rail.getByRole("button", { name: "邮件", exact: true }).click(); await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click(); await root.locator(".dm-folder-row>button").filter({ hasText: "[验收] 项目 A" }).click(); await root.locator(".dm-message-row").filter({ hasText: subject }).locator("button.dm-message").click();
   await expect(indicator).toHaveAttribute("aria-label", "所在文件夹：[验收] 项目 A、[验收] 项目 B");
-  await root.getByLabel("管理文件夹 [验收] 项目 A", { exact: true }).click(); await expect(palette.locator(".dm-color-swatch")).toHaveCount(24); await palette.getByRole("button", { name: "恢复默认", exact: true }).scrollIntoViewIfNeeded(); await shot("expanded-folder-colors-dark"); await page.keyboard.press("Escape"); await shot("folder-indicators-dark");
+  await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click();
+  await root.getByLabel("管理文件夹 [验收] 项目 A", { exact: true }).click(); await expect(palette.locator(".dm-color-swatch")).toHaveCount(24); await palette.getByRole("button", { name: "恢复默认", exact: true }).scrollIntoViewIfNeeded(); await shot("expanded-folder-colors-dark"); await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); await shot("folder-indicators-dark");
   await rail.getByRole("button", { name: "日历", exact: true }).click();
   await hoverRail("dark");
   for (const width of [1440, 768, 390]) { await resize(width); await noOverflow(); await shot(`calendar-dark-${width}`); }

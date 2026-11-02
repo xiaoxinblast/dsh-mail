@@ -15,7 +15,7 @@ try {
   await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   const root = page.locator(".dsh-mail:visible"), frame = () => root.frameLocator('iframe[title="邮件正文"]'), conversation = root.locator(".dm-conversation");
   const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "900px"; el.style.flex = "none"; }, width); };
-  const open = async (subject) => { await resize(1440); await root.locator(".dm-folders>button").filter({ hasText: "统一收件箱" }).click(); await root.locator(".dm-message-row").filter({ has: page.getByRole("heading", { name: subject, exact: true }) }).locator("button.dm-message").first().click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); await expect(frame().getByRole("heading", { name: "确认交付安排" })).toBeVisible(); };
+  const open = async (subject) => { await resize(1440); await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "邮件", exact: true }).click(); await root.locator(".dm-message-row").filter({ has: page.getByRole("heading", { name: subject, exact: true }) }).locator("button.dm-message").first().click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); await expect(frame().getByRole("heading", { name: "确认交付安排" })).toBeVisible(); };
   const shot = (name) => root.screenshot({ path: `.cache/screenshots/conversation-${name}.png` });
   const openLink = async (link, expected) => { const popupPromise = page.waitForEvent("popup"); await link.click(); const popup = await popupPromise; await expect(popup).toHaveURL(expected); await expect(popup.getByRole("heading")).toHaveText("本机验收目标页"); assert.equal(await popup.evaluate(() => window.opener === null && window.destinationScriptRan === true), true); await popup.close(); await expect(root.locator(".dm-reader")).toBeVisible(); };
   await open("[验收] 交付计划与报价确认");
@@ -26,7 +26,8 @@ try {
   assert.equal(destinations.length, 0, "Reading mail never opens a destination");
   for (const name of ["脚本链接", "数据链接", "本地文件链接", "无效网页链接"]) await expect(frame().locator("a").filter({ hasText: name })).not.toHaveAttribute("href", /.+/);
   await expect(frame().locator("script,form,input,button")).toHaveCount(0);
-  assert.equal(await root.locator('iframe[title="邮件正文"]').evaluate((el) => { try { return !!el.contentWindow.document; } catch { return false; } }), false);
+  assert.equal(await root.locator('iframe[title="邮件正文"]').evaluate((el) => !el.sandbox.contains("allow-scripts") && !el.sandbox.contains("allow-forms") && !el.sandbox.contains("allow-top-navigation")), true);
+  assert.equal(await frame().locator("body").evaluate(() => window.mailScriptRan === undefined), true);
   await openLink(frame().getByRole("link", { name: "项目资料", exact: true }), "https://mail-links.example.invalid/project?a=1&b=2");
   await openLink(frame().getByRole("link", { name: "帮助页面", exact: true }), "http://mail-links.example.invalid/help");
   await expect(root.locator(".dm-reader h2")).toHaveText("[验收] 交付计划与报价确认");

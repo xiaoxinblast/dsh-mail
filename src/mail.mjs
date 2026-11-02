@@ -118,7 +118,8 @@ export class MailTransport {
 }
 function structureAttachments(node, result = []) {
   if (!node) return result;
-  if (node.disposition === "attachment" || node.dispositionParameters?.filename || node.parameters?.name || node.id || ["text/calendar", "message/disposition-notification", "message/delivery-status"].includes(node.type)) result.push({ part: node.part || "1", filename: cleanFilename(node.dispositionParameters?.filename || node.parameters?.name || (node.type === "text/calendar" ? "invitation.ics" : "attachment")), contentType: node.type, size: node.size || 0, cid: node.id?.replace(/^<|>$/g, "") || null, disposition: node.disposition || "attachment" });
+  if (!node.type?.startsWith("multipart/") && (node.disposition === "attachment" || node.dispositionParameters?.filename || node.parameters?.name || (node.id && node.type?.startsWith("image/")) || ["text/calendar", "message/disposition-notification", "message/delivery-status"].includes(node.type))) result.push({ part: node.part || "1", filename: cleanFilename(node.dispositionParameters?.filename || node.parameters?.name || (node.type === "text/calendar" ? "invitation.ics" : "attachment")), contentType: node.type, size: node.size || 0, cid: node.id?.replace(/^<|>$/g, "") || null, disposition: node.disposition || (node.id && node.type?.startsWith("image/") ? "inline" : "attachment") });
+  if (node.type === "message/rfc822") return result;
   for (const child of node.childNodes || []) structureAttachments(child, result);
   return result;
 }

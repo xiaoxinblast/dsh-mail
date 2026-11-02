@@ -23,7 +23,8 @@ test("pane widths stay within the available space without overwriting saved pref
     assert.ok(sizes.list >= 260);
     assert.ok(sizes.reader >= 300);
     assert.ok(sizes.folder + sizes.list + sizes.reader + sizes.handles <= width);
-    assert.equal(sizes.folder > 0, rootWidth >= 1100);
+    assert.equal(sizes.folder, 0);
+    assert.equal(sizes.handles, 6);
   }
   assert.equal(mailPaneSizes(338, 390, settings).handles, 0);
   assert.deepEqual(settings, { mailFolderWidth: 480, mailListWidth: 720 });

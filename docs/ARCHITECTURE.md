@@ -61,3 +61,12 @@ UI 复用未变化的资源对象引用，邮件查询按 `mailVersion`、账号
 Agent 操作成功后，`MailService.invoke` 按操作类型生成当前会话的工作台展示请求。请求只保存在 Host 内存中，包含 epoch/递增 sequence、目标页面、稳定实体 ID 或校验后的邮件查询，5 分钟过期，不写入数据库或备份。`display:false` 跳过自动展示；`workbench.show(page,id?,query?)` 显式定位已有邮件、草稿、事件、待办、联系人或规则。
 
 `workbench.state`、`workbench.ack` 和 `exports.read` 仅供 human UI 调用。请求会话来自实际 Agent 执行上下文；全局工作台和其他会话无法领取。旧 ID 的 ack 不删除新请求。当前邮箱助手会话每秒只轮询轻量请求状态，新请求展开并聚焦右侧工作台，由页面刷新业务状态后呈现、确认消费。页面保留已应用 sequence，避免轮询重复下载或重复打开弹窗。草稿开始编辑后及弹窗未关闭时暂缓展示；干净草稿按 revision 重新挂载以显示 Agent 修改。发送预览复用原服务端确认流程。展示失败返回独立 `workbench.status=unavailable`，不把已保存的业务操作报为失败，避免误重试。
+
+
+`search.participant` 接受一个有效邮箱，按归一化完整地址精确匹配缓存邮件的 From/To/Cc/Bcc，排除失效文件夹并与其他筛选取交集。联系人页及邮件内联系人卡使用 `{participant: email}` 清除原有 inbox/sent/from 和分页限制。
+
+主动发信联系人收集由同步、正文补齐和成功 SMTP 投递触发。有效已发送文件夹沿用手工映射优先的 `sentFolders`，并校验 From 为该账号；同 Message-ID 的本机发送记录存在时继续使用 accepted 限制，避免服务器副本重新收集已拒绝地址。联系人复用现有实体及软删除，内部 `settings/outgoing-contacts-v1` 保存回填指纹、rowid 游标和完成状态；后台每批只投影 200 封邮件头，轮询 state 不扫描历史。备份自动包含联系人墓碑和回填状态。
+
+`ai.generate({task,draftId?,revision?,messageId?,instruction?,language?})` 仅 human UI 可调用，task 为 compose/polish/translateDraft/translateMessage/summary/reply，返回 `{task,text,subject?,model,sourceId,sourceRevision,language}`。MailService 注入 AI runner，DSH 适配层使用 `llm.prepareCall`、`BlockAssembler` 和无工具流式请求；会话 pending 模型选择优先，其次最近 request/header，独立入口或无请求会话使用 agentDefaultModel。取消信号从客户端经 Typert bridge 贯穿请求，并与 Host 退出和 120 秒期限合并。输入限 96 KiB、输出限 8192 token；源正文截断和 max-tokens finish 拒绝作为完整结果交付。
+
+AI 不写草稿或创建任务，UI 显式应用时才复用既有保存/回复接口。Composer 等待串行保存后提交草稿版本，应用时同时核对编辑代数及 sourceRevision；新编辑不能被旧结果覆盖。模型只接收当前 source 的必要邮件头及纯文本，附件、其他邮件和聊天历史不加入输入，回复内容通过既有 replyDraft 保留回复地址/引用/签名。界面卸载、关闭和取消以请求序号屏蔽迟到结果。

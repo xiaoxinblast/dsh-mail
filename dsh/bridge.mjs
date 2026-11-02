@@ -7,6 +7,6 @@ export const TYPERT = { package: "dsh-mail", face: "host", schemas: [], invocati
 export class MailUiService extends TypertRemoteService {
   static inject = ["mailWorkbench"];
   constructor(ctx) { super(ctx, "mailUi"); }
-  async invoke(agent, operation, signal) { signal?.throwIfAborted(); return this.ctx.mailWorkbench.service.invoke(operation, { kind: "human", sessionId: agent.session.header.id }); }
-  async invokeGlobal(operation, signal) { signal?.throwIfAborted(); return this.ctx.mailWorkbench.service.invoke(operation, { kind: "human" }); }
+  async invoke(agent, operation, signal) { signal?.throwIfAborted(); return this.ctx.mailWorkbench.service.invoke(operation, { kind: "human", sessionId: agent.session.header.id, agent, signal }); }
+  async invokeGlobal(operation, signal) { signal?.throwIfAborted(); return this.ctx.mailWorkbench.service.invoke(operation, { kind: "human", signal }); }
 }

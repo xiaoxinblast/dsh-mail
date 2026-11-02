@@ -11,22 +11,23 @@ import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitatio
 import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount } from "./settings.mjs";
 import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
-import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses } from "./util.mjs";
+import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses, addresses } from "./util.mjs";
 import packageInfo from "../package.json" with { type: "json" };
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
-const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test"]);
+const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test", "ai.generate"]);
 const PRIVATE_FIELDS = new Set(["ciphertext", "password", "secret", "rawPath"]);
 function publicValue(value) { return JSON.parse(JSON.stringify(value, function (key, item) { return PRIVATE_FIELDS.has(key) || (key === "path" && (this.contentType || this.rawPath)) ? undefined : item; })); }
 function draftView(draft) { return publicValue(draft); }
 function sendIdentity(account) { const { id, email, name, username, smtpHost, smtpPort, smtpSecure, enabled } = account; return { id, email, name, username, smtpHost, smtpPort, smtpSecure, enabled }; }
 
 export class MailService {
-  constructor({ directory, vault = new WindowsVault(), transport, clock = () => Date.now(), notify = () => {} }) {
+  constructor({ directory, vault = new WindowsVault(), transport, clock = () => Date.now(), notify = () => {}, ai = null }) {
     this.store = new Store(directory); this.directory = directory; this.vault = vault; this.clock = clock; this.notify = notify;
     this.abort = new AbortController(); this.syncing = new Map(); this.work = new Map(); this.sending = false; this.stopped = false;
     this.workbenchViews = new Map(); this.viewEpoch = id(); this.viewSequence = 0;
     this.notificationWork = new Set();
+    this.ai = ai; this.aiWork = new Set();
     this.transport = transport || new MailTransport({ getPassword: (key) => this.password(key), onChange: (key) => { const a = this.store.get("accounts", key); if (a?.enabled) this.scheduleSync(a); } });
     if (!this.store.get("calendars", "default")) this.store.put("calendars", { id: "default", name: "我的日历", color: "#155e75" });
     this.recover();
@@ -38,7 +39,7 @@ export class MailService {
       else if (d.status === "queued" && Date.parse(d.sendAt) <= this.clock()) this.store.put("drafts", { ...d, status: "needs-confirmation", error: "错过发送时间，请重新预览并确认。" });
     }
   }
-  start() { const run = () => { if (this.ticking || this.stopped) return; this.ticking = this.tick().catch((e) => this.store.log("background-error", errorInfo(e))).finally(() => { this.ticking = null; }); }; run(); this.timer = setInterval(run, 1000); this.timer.unref?.(); }
+  start() { this.contactBackfill = this.backfillContacts().catch((e) => this.store.log("contact-backfill-error", errorInfo(e))); const run = () => { if (this.ticking || this.stopped) return; this.ticking = this.tick().catch((e) => this.store.log("background-error", errorInfo(e))).finally(() => { this.ticking = null; }); }; run(); this.timer = setInterval(run, 1000); this.timer.unref?.(); }
   async password(accountId) { const value = this.store.get("credentials", accountId); requireValue(value?.ciphertext, "CREDENTIAL_REQUIRED", "请在设置中重新输入账号授权码。"); return this.vault.open(value.ciphertext); }
   account(key) { const a = this.store.get("accounts", key); requireValue(a, "ACCOUNT_NOT_FOUND", "账号不存在。"); return a; }
   folder(key) { const f = this.store.get("folders", key); requireValue(f, "FOLDER_NOT_FOUND", "文件夹不存在，请同步后重试。"); return f; }
@@ -59,7 +60,7 @@ export class MailService {
   workbenchQuery(input) {
     requireValue(input && typeof input === "object" && !Array.isArray(input), "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。");
     const query = {};
-    for (const key of ["q", "accountId", "folderId", "threadId", "from", "to", "cc", "subject", "after", "before", "label"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "string" && input[key].length <= 2048, "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
+    for (const key of ["q", "accountId", "folderId", "threadId", "from", "to", "cc", "participant", "subject", "after", "before", "label"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "string" && input[key].length <= 2048, "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
     for (const key of ["inbox", "sent", "seen", "starred", "hasAttachment", "includeSnoozed", "groupThreads"]) if (input[key] !== undefined) { requireValue(typeof input[key] === "boolean", "INVALID_WORKBENCH_QUERY", "工作台筛选条件无效。"); query[key] = input[key]; }
     if (input.folderIds !== undefined) { requireValue(Array.isArray(input.folderIds) && input.folderIds.length <= 200 && input.folderIds.every((key) => typeof key === "string" && key.length <= 2048), "INVALID_WORKBENCH_QUERY", "工作台文件夹范围无效。"); query.folderIds = [...new Set(input.folderIds)]; }
     for (const key of ["offset", "limit"]) if (input[key] !== undefined) { requireValue(Number.isSafeInteger(input[key]) && input[key] >= (key === "limit" ? 1 : 0), "INVALID_WORKBENCH_QUERY", "工作台分页条件无效。"); query[key] = key === "limit" ? bounded(input[key]) : input[key]; }
@@ -134,6 +135,7 @@ export class MailService {
     if (action === "accounts.remove") { const account = this.account(args.id); await this.transport.reset(account.id); this.store.remove("credentials", account.id); return publicValue(this.store.put("accounts", { ...account, enabled: false, disconnected: true })); }
     if (action === "sync") { const accounts = args.accountId ? [this.account(args.accountId)] : this.store.list("accounts").filter((a) => a.enabled && !a.local); return accounts.map((a) => { this.scheduleSync(a, true); return { accountId: a.id, status: "queued" }; }); }
     if (action === "search") {
+      if (args.participant !== undefined) { const list = validateAddresses(args.participant, true); requireValue(list.length === 1, "INVALID_PARTICIPANT", "请选择一个往来邮箱地址。"); args.participant = list[0].address; }
       if (args.inbox) args.folderIds = this.store.list("folders").filter((f) => f.role === "\\Inbox" || f.path.toUpperCase() === "INBOX").map((f) => f.id);
       if (args.sent) args.folderIds = sentFolders(this.store.list("accounts"), this.store.list("folders")).map((f) => f.id);
       if ((args.inbox || args.sent) && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
@@ -142,6 +144,7 @@ export class MailService {
     if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue({ ...m, locations: this.store.messageLocations(m) }); }
     if (action === "thread.read") { const m = this.message(args.id); return publicValue(this.store.search({ accountId: m.accountId, threadId: this.store.conversationId(m), preferredId: m.id, limit: args.limit || 50, offset: args.offset, includeSnoozed: true })); }
     if (action === "drafts.save") return this.saveDraft(args.draft);
+    if (action === "ai.generate") { const work = this.generateAi(args, context); this.aiWork.add(work); try { return await work; } finally { this.aiWork.delete(work); } }
     if (action === "drafts.reply") return this.replyDraft(args);
     if (action === "drafts.delete") { const d = this.store.get("drafts", args.id); requireValue(d && !["sending", "sent"].includes(d.status), "DRAFT_LOCKED", "发送中的邮件不能删除。"); return draftView(this.store.put("drafts", { ...d, status: "discarded" })); }
     if (action === "drafts.cancel") { const d = this.store.get("drafts", args.id); requireValue(d?.status === "queued", "CANNOT_UNSEND", "投递已经开始，不能撤回。"); return draftView(this.store.put("drafts", { ...d, status: "draft", sendAt: null })); }
@@ -248,6 +251,7 @@ export class MailService {
           const previous = this.store.location(account.id, folder.id, message.uidValidity, message.uid);
           if (!previous && folder.role === "\\Inbox" && folder.syncedAt && String(folder.uidValidity) === String(message.uidValidity)) added++;
           const saved = this.store.upsertMessage({ ...message, rulesPending: previous?.rulesPending || (!previous && wasSynced) });
+          this.collectOutgoingContacts(saved);
           for (const attachment of saved.attachments || []) if (attachment.id && !this.store.get("attachments", attachment.id)) this.store.put("attachments", { ...attachment, messageId: saved.id });
         }
         await new Promise((r) => setImmediate(r));
@@ -276,6 +280,7 @@ export class MailService {
       await this.inspectReceipts(message);
     }
     if (message.rulesPending) { await this.applyRules(message); message = this.store.message(key) || message; if (this.store.message(key)) message = this.store.upsertMessage({ ...message, rulesPending: false }); }
+    this.collectOutgoingContacts(message);
     return message;
   }
   async inspectReceipts(message) {
@@ -468,7 +473,12 @@ export class MailService {
   saveResource(kind, value) {
     requireValue(value && typeof value === "object", "INVALID_VALUE", "记录无效。");
     if (kind === "tasks") { requireValue(value.title?.trim(), "TITLE_REQUIRED", "请填写待办名称。"); if (value.due) requireValue(Number.isFinite(Date.parse(value.due)), "INVALID_DATE", "截止日期无效。"); }
-    if (kind === "contacts") validateAddresses(value.email, true);
+    if (kind === "contacts") {
+      const list = validateAddresses(value.email, true); requireValue(list.length === 1, "INVALID_ADDRESS", "一个联系人只能填写一个邮箱地址。");
+      const old = this.store.list("contacts").find((c) => String(c.email).trim().toLowerCase() === list[0].address && c.id !== value.id);
+      requireValue(!value.id || !old || old.deleted, "CONTACT_EXISTS", "该邮箱已有联系人，请编辑已有记录。");
+      value = { ...(!value.id ? old : {}), ...value, email: list[0].address, deleted: false };
+    }
     if (value.sourceMessageId) this.message(value.sourceMessageId);
     const { workbench, ...resource } = value;
     return this.store.put(kind, resource, value.revision);
@@ -501,6 +511,7 @@ export class MailService {
       const accepted = (result.accepted || []).map((x) => typeof x === "string" ? x : x.address);
       requireValue(accepted.length > 0, "ALL_RECIPIENTS_REJECTED", "服务器拒绝所有收件人。");
       const sent = this.store.put("drafts", { ...sending, status: "sent", sentAt: now(), accepted, rejected: publicValue(result.rejected || []), sentCopyStatus: "pending" });
+      this.collectOutgoingContacts(sent);
       this.store.log("sent", { draftId: sent.id, messageId: sent.messageId, accepted, rejected: sent.rejected });
       await this.saveSentCopy(sent, account, compiled.raw);
     } catch (error) {
@@ -591,5 +602,76 @@ export class MailService {
     });
     return { restored: restored.messages.length, reconnectRequired: true };
   }
-  async close() { this.stopped = true; clearInterval(this.timer); this.abort.abort(); await this.transport.close(); await Promise.allSettled([...this.syncing.values(), ...this.work.values(), this.ticking]); await Promise.allSettled([...this.notificationWork]); this.store.close(); }
+  collectOutgoingContacts(message) {
+    try {
+      if (message.status !== undefined ? message.status !== "sent" : !sentFolders(this.store.list("accounts"), this.store.list("folders")).some((f) => f.id === message.folderId) || !addresses(message.from).some((a) => a.address === String(this.account(message.accountId).email).toLowerCase())) return true;
+      const record = message.status === undefined && message.messageId ? this.store.db.prepare("SELECT json_extract(data,'$.status') AS status,json_quote(json_extract(data,'$.accepted')) AS accepted FROM entities WHERE kind='drafts' AND json_extract(data,'$.accountId')=? AND json_extract(data,'$.messageId')=? LIMIT 1").get(message.accountId, message.messageId) : null;
+      const delivery = message.status !== undefined ? message : record && { status: record.status, accepted: JSON.parse(record.accepted || "null") };
+      if (delivery && delivery.status !== "sent") return true;
+      const mine = new Set(this.store.list("accounts").map((a) => String(a.email || "").trim().toLowerCase()));
+      const accepted = Array.isArray(delivery?.accepted) ? new Set(addresses(delivery.accepted).map((a) => a.address)) : null;
+      const contacts = new Map(this.store.list("contacts").map((c) => [String(c.email || "").trim().toLowerCase(), c]));
+      for (const person of addresses([message.to, message.cc, message.bcc])) {
+        if (mine.has(person.address) || (accepted && !accepted.has(person.address))) continue;
+        try { validateAddresses(person, true); } catch { continue; }
+        const old = contacts.get(person.address);
+        if (old?.deleted || (old && (old.name || !person.name))) continue;
+        contacts.set(person.address, this.store.put("contacts", { ...old, email: person.address, name: old?.name || person.name, group: old?.group || "", source: old?.source || "outgoing" }));
+      }
+      return true;
+    } catch (error) {
+      // Contact storage must never change an already successful SMTP outcome.
+      try { this.store.log("contact-collection-error", errorInfo(error)); } catch {}
+      return false;
+    }
+  }
+  async backfillContacts() {
+    const fingerprint = digest([this.store.list("accounts").map((a) => [a.id, a.email]).sort(), sentFolders(this.store.list("accounts"), this.store.list("folders")).map((f) => f.id).sort()]);
+    let progress = this.store.get("settings", "outgoing-contacts-v1");
+    if (progress?.fingerprint !== fingerprint) progress = { id: "outgoing-contacts-v1", fingerprint, cursor: 0 };
+    if (progress.complete) return;
+    let rows;
+    do {
+      if (this.stopped) return;
+      rows = this.store.db.prepare("SELECT rowid AS cursor,account_id AS accountId,folder_id AS folderId,message_id AS messageId,json_quote(json_extract(data,'$.from')) AS sender,json_quote(json_extract(data,'$.to')) AS recipients,json_quote(json_extract(data,'$.cc')) AS cc,json_quote(json_extract(data,'$.bcc')) AS bcc FROM messages WHERE rowid>? ORDER BY rowid LIMIT 200").all(progress.cursor);
+      this.store.transaction(() => {
+        for (const row of rows) requireValue(this.collectOutgoingContacts({ accountId: row.accountId, folderId: row.folderId, messageId: row.messageId, from: JSON.parse(row.sender || "[]"), to: JSON.parse(row.recipients || "[]"), cc: JSON.parse(row.cc || "[]"), bcc: JSON.parse(row.bcc || "[]") }), "CONTACT_BACKFILL_FAILED", "联系人历史整理失败，将在下次启动时重试。");
+        progress = this.store.put("settings", { ...progress, cursor: rows.at(-1)?.cursor || progress.cursor });
+      });
+      await new Promise((r) => setImmediate(r));
+    } while (rows.length === 200);
+    do {
+      if (this.stopped) return;
+      rows = this.store.db.prepare("SELECT rowid AS cursor,json_quote(json_extract(data,'$.to')) AS recipients,json_quote(json_extract(data,'$.cc')) AS cc,json_quote(json_extract(data,'$.bcc')) AS bcc,json_quote(json_extract(data,'$.accepted')) AS accepted FROM entities WHERE kind='drafts' AND json_extract(data,'$.status')='sent' AND rowid>? ORDER BY rowid LIMIT 200").all(progress.draftCursor || 0);
+      this.store.transaction(() => {
+        for (const row of rows) requireValue(this.collectOutgoingContacts({ status: "sent", to: JSON.parse(row.recipients || "[]"), cc: JSON.parse(row.cc || "[]"), bcc: JSON.parse(row.bcc || "[]"), accepted: JSON.parse(row.accepted || "null") }), "CONTACT_BACKFILL_FAILED", "联系人历史整理失败。");
+        progress = this.store.put("settings", { ...progress, draftCursor: rows.at(-1)?.cursor || progress.draftCursor || 0 });
+      });
+      await new Promise((r) => setImmediate(r));
+    } while (rows.length === 200);
+    if (!this.stopped) this.store.put("settings", { ...progress, complete: true });
+  }
+  async generateAi(args, context) {
+    const signal = AbortSignal.any([this.abort.signal, ...(context.signal ? [context.signal] : []), AbortSignal.timeout(120000)]);
+    signal.throwIfAborted();
+    requireValue(this.ai, "AI_UNAVAILABLE", "AI 暂不可用，请先在 DSH 设置中配置可用的默认模型。");
+    requireValue(["compose", "polish", "translateDraft", "translateMessage", "summary", "reply"].includes(args.task), "INVALID_AI_TASK", "请选择有效的 AI 操作。");
+    requireValue(args.instruction === undefined || (typeof args.instruction === "string" && args.instruction.length <= 8000), "INVALID_AI_INPUT", "AI 要求不能超过 8000 字。");
+    requireValue(args.language === undefined || (typeof args.language === "string" && args.language.trim() && args.language.length <= 80), "INVALID_AI_INPUT", "请填写有效的目标语言。");
+    const drafting = ["compose", "polish", "translateDraft"].includes(args.task);
+    const original = drafting ? this.store.get("drafts", args.draftId) : await this.loadMessage(args.messageId);
+    requireValue(original && (!drafting || ["draft", "failed", "needs-confirmation"].includes(original.status)), "DRAFT_LOCKED", "当前草稿不可编辑。");
+    if (drafting && args.revision !== undefined) requireValue(original.revision === args.revision, "CONFLICT", "草稿已经改变，请重新生成。");
+    requireValue(!original.bodyTruncated, "AI_SOURCE_TRUNCATED", "本机正文已截断，无法生成完整结果；请取得完整正文后重试。");
+    const source = { subject: original.subject || "", text: original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
+    requireValue(source.text.trim() || !original.html, "AI_TEXT_UNAVAILABLE", "此邮件只有 HTML 正文，请取得纯文本正文后再使用 AI。");
+    requireValue(args.task === "compose" || source.text.trim(), "AI_TEXT_REQUIRED", "当前正文为空。");
+    const language = args.language || (args.task === "polish" ? "preserve" : args.task === "reply" ? "original" : "简体中文");
+    const input = { task: args.task, language, instruction: args.instruction || "", source };
+    requireValue(Buffer.byteLength(JSON.stringify(input), "utf8") <= 96 * 1024, "AI_INPUT_TOO_LONG", "当前邮件过长，超过内置 AI 的 96 KiB 输入限制；请缩短草稿或处理较短邮件。");
+    const result = await this.ai({ ...input, context, signal }); signal.throwIfAborted();
+    requireValue(result && typeof result.text === "string" && result.text.trim() && (result.subject === undefined || typeof result.subject === "string"), "AI_INVALID_RESULT", "AI 没有返回有效内容，请重试。");
+    return { task: args.task, text: result.text, ...(result.subject === undefined ? {} : { subject: result.subject }), model: result.model, sourceId: original.id, sourceRevision: original.revision || null, language };
+  }
+  async close() { this.stopped = true; clearInterval(this.timer); this.abort.abort(); await this.transport.close(); await Promise.allSettled([...this.syncing.values(), ...this.work.values(), this.ticking, this.contactBackfill, ...this.aiWork]); await Promise.allSettled([...this.notificationWork]); this.store.close(); }
 }

@@ -11,7 +11,7 @@ await mkdir(".cache/screenshots", { recursive: true });
 let page;
 try {
   page = await browser.newPage({ viewport: { width: 2100, height: 1300 } }); page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(url); await page.getByText("开始使用", { exact: true }).waitFor(); await page.keyboard.press("Escape");
+  await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).waitFor(); await page.keyboard.press("Escape");
   await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   const root = page.locator(".dsh-mail:visible"), rail = root.getByRole("navigation", { name: "功能导航" }), folders = rail.getByRole("button", { name: "邮箱与文件夹", exact: true });
   const resize = async (width, height = 900) => { await root.evaluate((el, size) => { el.style.width = `${size.width}px`; el.style.height = `${size.height}px`; el.style.flex = "none"; }, { width, height }); await expect.poll(() => root.evaluate((el) => el.clientWidth)).toBe(width); };

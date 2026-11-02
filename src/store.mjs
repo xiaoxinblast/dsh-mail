@@ -100,6 +100,12 @@ export class Store {
     const clauses = [], params = [];
     const add = (sql, value) => { clauses.push(sql); params.push(value); };
     if (query.accountId) add("m.account_id=?", query.accountId);
+    if (query.participant) {
+      const participant = String(query.participant).trim().toLowerCase();
+      clauses.push("m.folder_id IN (SELECT id FROM entities WHERE kind='folders' AND coalesce(json_extract(data,'$.missing'),0)=0 AND coalesce(json_extract(data,'$.deleted'),0)=0)");
+      clauses.push("(" + ["from", "to", "cc", "bcc"].map((field) => `EXISTS(SELECT 1 FROM json_each(m.data,'$.${field}') p WHERE lower(trim(json_extract(p.value,'$.address')))=?)`).join(" OR ") + ")");
+      params.push(participant, participant, participant, participant);
+    }
     if (query.folderId) add("m.folder_id=?", query.folderId);
     const threadAccount = query.accountId || (query.threadId?.startsWith("conversation:") ? this.message(query.threadId.slice(13))?.accountId : undefined);
     const conversation = query.threadId?.startsWith("conversation:") && this.conversations(threadAccount).groups.get(query.threadId);

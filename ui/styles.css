@@ -326,3 +326,25 @@
   .dsh-mail .dm-conversation time{grid-row:1;grid-column:2}
   .dsh-mail .dm-conversation small{grid-row:3;grid-column:1 / -1}
 }
+
+.dsh-mail .dm-addresses{display:inline;overflow-wrap:anywhere}
+.dsh-mail button.dm-person{display:inline;border:0;background:transparent;color:var(--dm-blue);padding:1px 3px;font:inherit;text-align:left;overflow-wrap:anywhere;white-space:normal}
+.dsh-mail button.dm-person:hover{text-decoration:underline;background:var(--dm-soft)}
+.dsh-mail .dm-address-line{line-height:1.6}
+.dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}
+.dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}
+.dsh-mail .dm-person-card .dm-form{padding:16px 0 0}
+.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}
+.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}
+.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}
+.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}
+.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}
+.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}
+.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}
+.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}
+.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}
+.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}
+.dsh-mail .dm-ai-actions small{font-size:11px}
+@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}

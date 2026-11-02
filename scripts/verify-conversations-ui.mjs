@@ -11,11 +11,11 @@ try {
   const context = await browser.newContext({ viewport: { width: 1920, height: 1050 } });
   await context.route(/^https?:\/\/mail-links\.example\.invalid\//, async (route) => { destinations.push(route.request().url()); await route.fulfill({ contentType: "text/html; charset=utf-8", body: '<!doctype html><meta charset="utf-8"><h1>本机验收目标页</h1><script>window.destinationScriptRan=true</script>' }); });
   page = await context.newPage(); page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(url); await page.getByText("开始使用", { exact: true }).waitFor(); await page.keyboard.press("Escape");
+  await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).waitFor(); await page.keyboard.press("Escape");
   await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   const root = page.locator(".dsh-mail:visible"), frame = () => root.frameLocator('iframe[title="邮件正文"]'), conversation = root.locator(".dm-conversation");
   const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "900px"; el.style.flex = "none"; }, width); };
-  const open = async (subject) => { await resize(1440); await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "邮件", exact: true }).click(); await root.locator(".dm-message-row").filter({ has: page.getByRole("heading", { name: subject, exact: true }) }).locator("button.dm-message").first().click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); await expect(frame().getByRole("heading", { name: "确认交付安排" })).toBeVisible(); };
+  const open = async (subject) => { await resize(1440); await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "邮件", exact: true }).click(); await root.locator(".dm-message-row").filter({ has: page.getByRole("heading", { name: subject, exact: true }) }).locator("button.dm-message").first().click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); await expect(frame().getByRole("heading", { name: "确认交付安排" })).toBeVisible(); if (await conversation.count()) { await expect(conversation).not.toHaveAttribute("open"); await conversation.locator("summary").click(); } };
   const shot = (name) => root.screenshot({ path: `.cache/screenshots/conversation-${name}.png` });
   const openLink = async (link, expected) => { const popupPromise = page.waitForEvent("popup"); await link.click(); const popup = await popupPromise; await expect(popup).toHaveURL(expected); await expect(popup.getByRole("heading")).toHaveText("本机验收目标页"); assert.equal(await popup.evaluate(() => window.opener === null && window.destinationScriptRan === true), true); await popup.close(); await expect(root.locator(".dm-reader")).toBeVisible(); };
   await open("[验收] 交付计划与报价确认");
@@ -36,7 +36,7 @@ try {
   await root.getByLabel("更多邮件操作", { exact: true }).click(); await root.getByRole("button", { name: "显示 HTML", exact: true }).click();
   checks.push("direct HTTP/HTTPS and plain-text link clicks, decoded query parameters, separate destination with no opener, reader retained; unsafe URLs/scripts/forms stay blocked");
   const reply = conversation.locator(".dm-conversation-items>button").filter({ hasText: "我的回复" }); await reply.click();
-  await expect(root.locator(".dm-reader h2")).toHaveText("Re: [验收] 交付计划与报价确认"); await expect(conversation.locator('[aria-current="true"]')).toContainText("我的回复");
+  await expect(root.locator(".dm-reader h2")).toHaveText("Re: [验收] 交付计划与报价确认"); await expect(conversation.locator('[aria-current="true"]')).toContainText("我的回复"); await conversation.locator("summary").click();
   const times = await conversation.locator("time").evaluateAll((elements) => elements.map((el) => el.dateTime)); assert.deepEqual(times, [...times].sort().reverse());
   for (const width of [1440, 1024, 768, 390]) { await resize(width); await expect(conversation).toBeVisible(); assert.ok(await root.evaluate((el) => el.scrollWidth <= el.clientWidth && [...el.querySelectorAll(".dm-conversation,.dm-conversation-items")].every((item) => item.scrollWidth <= item.clientWidth))); await shot(`light-${width}`); }
   await page.getByText("更多", { exact: true }).last().click(); await page.getByText("设置", { exact: true }).last().click(); await page.getByRole("button", { name: "深色", exact: true }).click(); await page.getByRole("button", { name: "关闭", exact: true }).last().click();

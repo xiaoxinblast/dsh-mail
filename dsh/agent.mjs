@@ -14,7 +14,7 @@ const groups = {
 };
 const descriptions = {
   mail_accounts: "查看账号、文件夹、同步与待确认状态；测试已保存账号或触发同步。不接收凭据。",
-  mail_search: "搜索邮件或按稳定 id 阅读正文和线程。search 支持 q、accountId、folderId、inbox、sent、from、to、cc、subject、after、before、seen、starred、hasAttachment、label、offset、limit，默认将筛选同步到当前会话右侧邮件工作台；内部辅助查询可加 display:false。message.read/thread.read 默认打开对应正文或线程；workbench.show 接收 page=mail|drafts|calendar|tasks|contacts|rules|settings|activity、id?、query?，可直接定位已有内容。workbench.status=queued 表示界面请求已排队，不表示页面已完成加载。",
+  mail_search: "搜索邮件或按稳定 id 阅读正文和线程。search 支持 q、accountId、folderId、inbox、sent、from、to、cc、participant（完整邮箱，匹配双方收发）、subject、after、before、seen、starred、hasAttachment、label、offset、limit，默认将筛选同步到当前会话右侧邮件工作台；内部辅助查询可加 display:false。message.read/thread.read 默认打开对应正文或线程；workbench.show 接收 page=mail|drafts|calendar|tasks|contacts|rules|settings|activity、id?、query?，可直接定位已有内容。workbench.status=queued 表示界面请求已排队，不表示页面已完成加载。",
   mail_drafts: "新建/修改草稿（draft 字段：accountId,to,cc,bcc,subject,text,html,attachments,requestReceipt,followUpAt；修改带 id/revision）；回复用 id/mode=reply|replyAll|forward。发送只生成 send.preview(id,scheduledAt)，等待用户在界面确认。",
   mail_organize: "整理邮件：messages.action 使用 ids、operation=star|read|label|snooze|copy|move|archive|trash|junk|restore|purge、value、destinationId。folders.action 使用 operation=create|rename|move|copy|delete、id、accountId、path、structureOnly。永久操作仅产生预览。",
   mail_rules: "rules.preview/save 接收 rule:{name,accountId?,match:all|any,conditions:[{field,operator,value}],actions:[{action,value?,destinationId?,title?}],priority,stop}。规则默认停用，用户界面批准后启用。rules.apply(id) 生成历史应用预览。",

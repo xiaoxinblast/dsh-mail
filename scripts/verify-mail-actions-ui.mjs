@@ -1,0 +1,75 @@
+import { chromium, expect } from "@playwright/test";
+import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
+const url = process.argv[2];
+if (!url || new URL(url).hostname !== "127.0.0.1") throw new Error("Pass the isolated Host's loopback URL.");
+await mkdir(".cache/screenshots", { recursive: true });
+const browser = await chromium.launch({ channel: "msedge", headless: true }), errors = [], checks = [];
+const page = await browser.newPage({ permissions: ["clipboard-read", "clipboard-write"], viewport: { width: 2100, height: 1200 } });
+page.setDefaultTimeout(12000); page.on("pageerror", (e) => errors.push(e.message));
+let root;
+try {
+  await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).waitFor(); await page.keyboard.press("Escape");
+  await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
+  root = page.locator(".dsh-mail:visible");
+  const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "950px"; el.style.flex = "none"; }, width); };
+  const shot = (name) => root.screenshot({ path: `.cache/screenshots/actions-${name}.png` });
+  const open = async () => { await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "邮件", exact: true }).click(); const search = root.getByRole("textbox", { name: "搜索邮件", exact: true }); await search.fill("[验收] 联系人与内置 AI"); await search.press("Enter"); await root.locator(".dm-message-row").filter({ has: page.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }) }).locator("button.dm-message").click(); await expect(root.locator(".dm-reader h2")).toHaveText("[验收] 联系人与内置 AI"); };
+  const panel = () => root.getByRole("region", { name: "邮件内 AI", exact: true });
+  const result = () => panel().locator(".dm-ai-result");
+  const generate = async (instruction = "") => { await panel().locator("textarea").fill(instruction); await panel().getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(result()).toBeVisible(); };
+  const theme = async (name) => { await page.getByText("更多", { exact: true }).last().click(); await page.getByText("设置", { exact: true }).last().click(); await page.getByRole("button", { name, exact: true }).click(); await page.getByRole("button", { name: "关闭", exact: true }).last().click(); };
+  const noOverflow = async () => assert.ok(await root.evaluate((el) => el.scrollWidth <= el.clientWidth && [...el.querySelectorAll(".dm-ai-panel,.dm-reader,.dm-composer")].filter((x) => x.getClientRects().length).every((x) => x.scrollWidth <= x.clientWidth)), "No horizontal overflow");
+  await resize(1440); await open();
+  const conversation = root.locator(".dm-conversation"); await expect(conversation).not.toHaveAttribute("open"); await shot("collapsed");
+  await conversation.locator("summary").click(); await expect(conversation).toHaveAttribute("open"); await page.waitForTimeout(5200); await expect(conversation).toHaveAttribute("open");
+  await conversation.locator(".dm-conversation-items>button").filter({ hasText: "我" }).click(); await expect(conversation).not.toHaveAttribute("open"); await open();
+  checks.push("conversation starts collapsed, survives refresh while expanded and resets for another mail");
+  await root.getByRole("button", { name: /^山田客户(?:（手工）)?$/ }).click(); const dialog = root.getByRole("dialog"); await expect(dialog).toContainText("actions-client@example.invalid");
+  await dialog.getByLabel("姓名", { exact: true }).fill("山田客户（手工）"); await dialog.getByLabel("分组", { exact: true }).fill("项目客户"); await dialog.getByRole("button", { name: "保存联系人", exact: true }).click();
+  await expect(root.getByRole("button", { name: "山田客户（手工）", exact: true })).toBeVisible();
+  await root.getByRole("button", { name: "山田客户（手工）", exact: true }).click(); await expect(dialog.getByLabel("分组", { exact: true })).toHaveValue("项目客户"); await shot("contact-card");
+  await dialog.getByRole("button", { name: "往来邮件", exact: true }).click(); await expect(root.locator(".dm-message-row")).toHaveCount(1);
+  await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "联系人", exact: true }).click();
+  await expect(root.locator(".dm-contact").filter({ hasText: "actions-history@example.invalid" })).toHaveCount(1);
+  checks.push("inline contact edit persists, participant navigation clears old filters, historical sent recipient appears automatically");
+  await open(); await root.getByRole("button", { name: "翻译本邮件", exact: true }).click(); await expect(result()).toBeVisible(); await expect(result()).toContainText("语言：简体中文"); await expect(root.locator(".dm-mail-body")).toContainText("お世話になっております");
+  await shot("translation");
+  await root.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(result()).toBeVisible();
+  await root.getByRole("button", { name: "AI 回复", exact: true }).click(); await expect(panel().getByLabel("输出语言")).toHaveValue("original");
+  await panel().locator("textarea").fill("[slow]"); await panel().getByRole("button", { name: "生成", exact: true }).click(); await page.waitForTimeout(350); await panel().getByRole("button", { name: "取消生成", exact: true }).click(); await expect(result()).toHaveCount(0);
+  await generate("确认周五交付"); await result().getByRole("button", { name: "创建回复草稿", exact: true }).click(); await expect(root.getByLabel("主题", { exact: true })).toHaveValue("Re: [验收] 联系人与内置 AI"); await expect(root.getByLabel("收件人", { exact: true })).toHaveValue(/actions-client@example.invalid/);
+  await root.locator(".dm-composer").getByRole("button", { name: "← 关闭", exact: true }).click(); checks.push("one-click Chinese translation, summary, cancelled generation and AI reply enter existing draft flow without sending");
+  await root.getByRole("button", { name: "写邮件", exact: true }).click();
+  await root.getByLabel("收件人", { exact: true }).fill("actions-new@example.invalid"); await root.getByLabel("抄送", { exact: true }).fill("actions-copy@example.invalid"); await root.getByLabel("密送", { exact: true }).fill("actions-hidden@example.invalid"); await root.getByLabel("主题", { exact: true }).fill("原主题");
+  await root.getByRole("button", { name: "纯文本", exact: true }).click(); await root.getByRole("textbox", { name: "邮件纯文本正文", exact: true }).fill("用户原正文 <script>不会执行</script>"); await root.getByText("请求已读回执", { exact: true }).check();
+  await root.getByRole("button", { name: "AI 写信", exact: true }).click(); await panel().locator("textarea").fill("[slow]"); await panel().getByRole("button", { name: "生成", exact: true }).click(); await root.getByLabel("主题", { exact: true }).fill("生成期间的新主题"); await expect(result()).toBeVisible(); await result().getByRole("button", { name: "应用正文", exact: true }).click(); await expect(panel().getByRole("alert")).toContainText("草稿已经改变"); await expect(root.getByLabel("主题", { exact: true })).toHaveValue("生成期间的新主题");
+  await generate("请准备项目通知"); await result().getByRole("button", { name: "应用主题和正文", exact: true }).click(); await expect(root.getByLabel("主题", { exact: true })).toHaveValue("[AI] 生成期间的新主题"); await expect(root.getByLabel("密送", { exact: true })).toHaveValue("actions-hidden@example.invalid"); await expect(root.getByText("请求已读回执", { exact: true })).toBeChecked();
+  await panel().getByLabel("AI 操作").selectOption("polish"); await expect(panel().getByLabel("输出语言")).toHaveValue("preserve"); await generate(); await expect(result()).toContainText("语言：preserve");
+  await panel().getByLabel("AI 操作").selectOption("translateDraft"); await panel().getByLabel("输出语言").selectOption("日语"); await generate(); await expect(result()).toContainText("语言：日语");
+  await panel().locator("textarea").fill("[fail]"); await panel().getByRole("button", { name: "重新生成", exact: true }).click(); await expect(panel().getByRole("alert")).toContainText("合成模型失败");
+  await panel().locator("textarea").fill("[truncate]"); await panel().getByRole("button", { name: "生成", exact: true }).click(); await expect(panel().getByRole("alert")).toContainText("不完整"); await expect(result()).toHaveCount(0); await generate("用于界面截图");
+  checks.push("draft save precedes AI, stale apply is blocked, explicit apply preserves recipients/options; polish, translation, failure and truncation handled");
+  for (const name of ["浅色", "深色"]) { await theme(name); for (const width of [1440, 1024, 768, 390]) { await resize(width); await noOverflow(); await shot(`compose-${name}-${width}`); } }
+  await theme("浅色"); await resize(1440); await root.locator(".dm-composer").getByRole("button", { name: "← 关闭", exact: true }).click(); await open(); await root.getByRole("button", { name: "翻译本邮件", exact: true }).click(); await expect(result()).toBeVisible();
+  for (const name of ["浅色", "深色"]) { await theme(name); for (const width of [1440, 1024, 768, 390]) { await resize(width); await noOverflow(); await shot(`read-${name}-${width}`); } }
+  await theme("浅色"); await resize(1440); await root.getByRole("button", { name: "山田客户（手工）", exact: true }).click();
+  for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await resize(width); await page.screenshot({ path: `.cache/screenshots/actions-contact-${width}.png` }); }
+  await page.setViewportSize({ width: 2100, height: 1200 });
+  await dialog.getByRole("button", { name: "复制邮箱", exact: true }).click(); assert.equal(await page.evaluate(() => navigator.clipboard.readText()), "actions-client@example.invalid");
+  await dialog.getByRole("button", { name: "给他写信", exact: true }).click(); await expect(root.getByLabel("收件人", { exact: true })).toHaveValue(/actions-client@example.invalid/);
+  await root.locator(".dm-compose-people .dm-person").click(); await expect(dialog).toContainText("actions-client@example.invalid"); await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+  await root.locator(".dm-editor [contenteditable=true]").fill("富文本正文 <script>安全文本</script>");
+  await root.locator(".dm-compose-attachments label").filter({ hasText: "＋ 附件" }).locator("input").setInputFiles({ name: "keep.txt", mimeType: "text/plain", buffer: Buffer.from("synthetic attachment") });
+  await expect(root.locator(".dm-compose-attachments")).toContainText("keep.txt"); await root.getByRole("button", { name: "AI 写信", exact: true }).click(); await generate("富文本验收"); await result().getByRole("button", { name: "应用正文", exact: true }).click();
+  await expect(root.locator(".dm-compose-attachments")).toContainText("keep.txt"); await expect(root.locator(".dm-editor script")).toHaveCount(0); await expect(root.locator(".dm-editor")).toContainText("<script>安全文本</script>");
+  await panel().locator("textarea").fill("[slow]"); await panel().getByRole("button", { name: "生成", exact: true }).click(); await page.waitForTimeout(350); await root.locator(".dm-composer").getByRole("button", { name: "← 关闭", exact: true }).click(); await open(); await page.waitForTimeout(2200); await expect(panel()).toHaveCount(0); await expect(root.locator(".dm-reader h2")).toHaveText("[验收] 联系人与内置 AI");
+  checks.push("clipboard, write-to-person, compose-address card, rich-text safe apply/attachment retention and late result after closing editor");
+  checks.push("main mail reading/writing and contact card render in light/dark and 1440/1024/768/390px with no horizontal overflow");
+  await resize(1440); await root.getByRole("textbox", { name: "交给邮箱助手", exact: true }).fill("内置快捷操作合成验收"); await root.getByRole("button", { name: "交给助手 ↗", exact: true }).click();
+  await page.getByText(/合成会话消息：工作台界面验/).first().click(); await page.getByRole("button", { name: "打开 DSH Mail", exact: true }).last().click(); await expect(root).toBeVisible(); await open(); await root.getByRole("button", { name: "翻译本邮件", exact: true }).click(); await expect(result()).toBeVisible(); await shot("session-sidebar");
+  checks.push("real session sidebar opens and runs the native inline model path");
+  await root.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("button", { name: "关于", exact: true }).click(); await expect(root.getByText("DSH Mail 0.1.13", { exact: false })).toBeVisible(); await shot("about-0.1.13");
+  assert.deepEqual(errors, []); await writeFile(".cache/mail-actions-ui-verification.json", JSON.stringify({ checks, pageErrors: errors }, null, 2)); console.log(JSON.stringify({ checks, pageErrors: errors }));
+} catch (error) { await page.screenshot({ path: ".cache/screenshots/actions-failure.png" }); await writeFile(".cache/actions-failure.txt", await page.locator("body").innerText()); throw error; }
+finally { await browser.close(); }

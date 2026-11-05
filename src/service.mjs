@@ -13,6 +13,7 @@ import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses, addresses } from "./util.mjs";
 import packageInfo from "../package.json" with { type: "json" };
+import { draftTextParts, textHtml } from "./message-format.mjs";
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
 const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test", "ai.generate"]);
@@ -147,7 +148,7 @@ export class MailService {
     if (action === "ai.generate") { const work = this.generateAi(args, context); this.aiWork.add(work); try { return await work; } finally { this.aiWork.delete(work); } }
     if (action === "drafts.reply") return this.replyDraft(args);
     if (action === "drafts.delete") { const d = this.store.get("drafts", args.id); requireValue(d && !["sending", "sent"].includes(d.status), "DRAFT_LOCKED", "发送中的邮件不能删除。"); return draftView(this.store.put("drafts", { ...d, status: "discarded" })); }
-    if (action === "drafts.cancel") { const d = this.store.get("drafts", args.id); requireValue(d?.status === "queued", "CANNOT_UNSEND", "投递已经开始，不能撤回。"); return draftView(this.store.put("drafts", { ...d, status: "draft", sendAt: null })); }
+    if (action === "drafts.cancel") { const d = this.store.get("drafts", args.id); requireValue(d?.status === "queued", "CANNOT_UNSEND", "投递已经开始，不能撤回。"); return draftView(this.store.put("drafts", { ...d, status: "draft", sendAt: null, scheduledAt: null })); }
     if (action === "send.preview") return this.preview("send", { draftId: args.id, scheduledAt: args.scheduledAt || null }, context);
     if (action === "preview.confirm") return this.confirm(args.id, context);
     if (action === "preview.reject") { this.assertHuman(context); const p = this.store.get("previews", args.id); requireValue(p, "PREVIEW_NOT_FOUND", "预览不存在。"); return this.store.put("previews", { ...p, status: "rejected" }); }
@@ -304,10 +305,13 @@ export class MailService {
     const accountId = input.accountId || previous?.accountId || preferredAccount(this.store.list("accounts"), this.settings())?.id;
     requireValue(accountId, "ACCOUNT_REQUIRED", "请先连接并启用邮箱。");
     const account = this.account(accountId), signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
-    const allowed = ["to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt"];
+    const allowed = ["to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt", "scheduledAt", "sendTimeZone", "quotedText"];
     const next = { ...previous, accountId, id: input.id || id(), status: "draft" };
     if (!previous && input.text === undefined && input.html === undefined) { next.text = !signature?.deleted ? signature?.text || "" : ""; next.html = !signature?.deleted ? signature?.html || "" : ""; }
     for (const key of allowed) if (input[key] !== undefined) next[key] = input[key];
+    requireValue(next.quotedText === undefined || typeof next.quotedText === "string", "INVALID_DRAFT", "引用内容格式无效。");
+    if (next.scheduledAt) requireValue(typeof next.scheduledAt === "string" && /(?:Z|[+-]\d\d:\d\d)$/.test(next.scheduledAt) && Number.isFinite(Date.parse(next.scheduledAt)), "INVALID_SEND_TIME", "定时发送必须包含有效日期和时区。");
+    if (next.sendTimeZone) { try { new Intl.DateTimeFormat("en", { timeZone: next.sendTimeZone }); } catch { requireValue(false, "INVALID_TIME_ZONE", "发送时区无效。"); } }
     next.attachments = (next.attachments || []).map((a) => { const stored = this.store.get("attachments", a.id); requireValue(stored, "ATTACHMENT_NOT_FOUND", "附件不存在，请重新选择。"); return { id: stored.id, filename: cleanFilename(a.filename || stored.filename), size: stored.size, contentType: stored.contentType, cid: a.cid || null }; });
     return draftView(this.store.put("drafts", next, input.revision));
   }
@@ -316,7 +320,8 @@ export class MailService {
     const to = mode === "forward" ? [] : m.replyTo?.length ? m.replyTo : m.from;
     const cc = mode === "replyAll" ? [...m.to, ...m.cc].filter((a) => !allMine.has(a.address) && !to.some((t) => t.address === a.address)) : [];
     const signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
-    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${!signature?.deleted ? signature?.text || "" : ""}\n\n—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——\n${m.text}`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: mode === "forward" ? [] : [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: mode === "forward" ? m.attachments.map(({ id, filename, cid }) => ({ id, filename, cid })) : [] });
+    const heading = `—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——`, signatureText = !signature?.deleted ? signature?.text || "" : "";
+    return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${signatureText}\n\n${heading}\n${m.text || ""}`, quotedText: `${heading}\n${m.text || ""}`, html: `${!signature?.deleted && signature?.html || textHtml(signatureText)}<blockquote data-mail-quote="true">${textHtml(heading)}${m.html || textHtml(m.text)}</blockquote>`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: mode === "forward" ? [] : [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: m.attachments.filter((a) => mode === "forward" || a.cid).map(({ id, filename, cid }) => ({ id, filename, cid })) });
   }
   previewFingerprint(kind, payload) {
     if (kind === "send") { const d = this.store.get("drafts", payload.draftId); requireValue(d, "DRAFT_NOT_FOUND", "草稿不存在。"); return digest({ draft: d, account: sendIdentity(this.account(d.accountId)), scheduledAt: payload.scheduledAt }); }
@@ -329,8 +334,8 @@ export class MailService {
     if (kind === "send") {
       const d = this.store.get("drafts", payload.draftId); requireValue(d && ["draft", "failed", "needs-confirmation"].includes(d.status), "DRAFT_NOT_SENDABLE", "此草稿当前不能发送。");
       validateAddresses(d.to, true); validateAddresses(d.cc); validateAddresses(d.bcc);
-      if (payload.scheduledAt) requireValue(Date.parse(payload.scheduledAt) > this.clock(), "INVALID_SEND_TIME", "定时发送时间必须在未来。");
-      details = { ...draftView(d), from: this.account(d.accountId).email, calendarEvents: d.ical ? importEvents(d.ical).map(({ title, start, end, timeZone, organizer, attendees, method }) => ({ title, start, end, timeZone, organizer, attendees, method })) : [], scheduledAt: payload.scheduledAt, warning: "确认后进入发件箱；立即发送保留 10 秒取消时间。" };
+      if (payload.scheduledAt) requireValue(typeof payload.scheduledAt === "string" && /(?:Z|[+-]\d\d:\d\d)$/.test(payload.scheduledAt) && Date.parse(payload.scheduledAt) >= this.clock() + 10000, "INVALID_SEND_TIME", "定时发送时间必须至少在 10 秒后，并包含时区。");
+      details = { ...draftView(d), from: this.account(d.accountId).email, calendarEvents: d.ical ? importEvents(d.ical).map(({ title, start, end, timeZone, organizer, attendees, method }) => ({ title, start, end, timeZone, organizer, attendees, method })) : [], scheduledAt: payload.scheduledAt, warning: "确认后进入本机发件箱；立即发送保留 10 秒取消时间。定时发送需保持 DSH Host 运行并联网，退出或休眠错过时间后须重新确认。SMTP 结果未知不会自动重发。" };
     } else if (kind === "folder-delete") details = { folder: this.folder(payload.folderId).path, count: this.store.folderMessages(payload.folderId).length, warning: "删除服务器文件夹及其中邮件，无法撤销。" };
     else details = { count: payload.ids.length, samples: payload.ids.slice(0, 20).map((key) => { const m = this.message(key); return { id: key, subject: m.subject, accountId: m.accountId }; }), rule: kind === "rule-history" ? this.store.get("rules", payload.ruleId) : undefined };
     return publicValue(this.store.put("previews", { kind, payload, fingerprint: this.previewFingerprint(kind, payload), details, status: "pending", sessionId: context.sessionId || null, expiresAt: new Date(this.clock() + 30 * 60000).toISOString() }));
@@ -339,6 +344,7 @@ export class MailService {
     this.assertHuman(context); const p = this.store.get("previews", key);
     requireValue(p?.status === "pending" && Date.parse(p.expiresAt) > this.clock(), "PREVIEW_EXPIRED", "预览已失效，请重新生成。");
     requireValue(p.fingerprint === this.previewFingerprint(p.kind, p.payload), "PREVIEW_CHANGED", "预览后内容或目标已改变，请重新核对。");
+    if (p.kind === "send" && p.payload.scheduledAt) requireValue(Date.parse(p.payload.scheduledAt) >= this.clock() + 10000, "INVALID_SEND_TIME", "计划时间已临近或错过，请重新选择时间并预览。");
     this.store.put("previews", { ...p, status: "confirmed", confirmedAt: now() });
     this.store.log("user-confirmed", { previewId: p.id, kind: p.kind, fingerprint: p.fingerprint });
     if (p.kind === "send") { const d = this.store.get("drafts", p.payload.draftId); return draftView(this.store.put("drafts", { ...d, status: "queued", sendAt: p.payload.scheduledAt || new Date(this.clock() + 10000).toISOString(), approvedRevision: d.revision, approvedAccount: digest(sendIdentity(this.account(d.accountId))), approvalId: p.id })); }
@@ -499,12 +505,16 @@ export class MailService {
     if ((this.lastReminderCheck || 0) + 30000 <= this.clock()) { this.lastReminderCheck = this.clock(); this.reminders(); }
   }
   async deliver(draft) {
-    const account = this.account(draft.accountId); if (!account.enabled) { this.store.put("drafts", { ...draft, status: "needs-confirmation", error: "账号已暂停，请启用后重新确认发送。" }); return; }
+    let account = this.account(draft.accountId); if (!account.enabled) { this.store.put("drafts", { ...draft, status: "needs-confirmation", error: "账号已暂停，请启用后重新确认发送。" }); return; }
     if (this.clock() - Date.parse(draft.sendAt) > 60000 || draft.approvedAccount !== digest(sendIdentity(account))) { this.store.put("drafts", { ...draft, status: "needs-confirmation", error: "发送时间已错过或发件配置已改变，请重新预览确认。" }); return; }
     let compiled;
     try { compiled = await composeDraft(draft, account, (key) => this.ensureAttachment(key)); }
-    catch (e) { this.store.put("drafts", { ...draft, status: "failed", error: errorInfo(e) }); return; }
+    catch (e) { const current = this.store.get("drafts", draft.id); if (current?.status === "queued" && current.revision === draft.revision) this.store.put("drafts", { ...draft, status: "failed", error: errorInfo(e) }); return; }
     const rawPath = join(this.directory, "raw", `${digest(compiled.raw)}.eml`); await mkdir(join(this.directory, "raw"), { recursive: true }); await writeFile(rawPath, compiled.raw);
+    const latest = this.store.get("drafts", draft.id);
+    if (this.stopped || latest?.status !== "queued" || latest.revision !== draft.revision) return;
+    account = this.account(draft.accountId);
+    if (!account.enabled || this.clock() - Date.parse(draft.sendAt) > 60000 || draft.approvedAccount !== digest(sendIdentity(account))) { this.store.put("drafts", { ...latest, status: "needs-confirmation", error: "准备投递期间时间或发件配置发生变化，请重新预览确认。" }); return; }
     const sending = this.store.put("drafts", { ...draft, status: "sending", messageId: compiled.messageId, rawPath });
     try {
       const result = await this.transport.send(account, compiled.raw, compiled.envelope);
@@ -663,7 +673,7 @@ export class MailService {
     requireValue(original && (!drafting || ["draft", "failed", "needs-confirmation"].includes(original.status)), "DRAFT_LOCKED", "当前草稿不可编辑。");
     if (drafting && args.revision !== undefined) requireValue(original.revision === args.revision, "CONFLICT", "草稿已经改变，请重新生成。");
     requireValue(!original.bodyTruncated, "AI_SOURCE_TRUNCATED", "本机正文已截断，无法生成完整结果；请取得完整正文后重试。");
-    const source = { subject: original.subject || "", text: original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
+    const source = { subject: original.subject || "", text: drafting ? draftTextParts(original).current : original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
     requireValue(source.text.trim() || !original.html, "AI_TEXT_UNAVAILABLE", "此邮件只有 HTML 正文，请取得纯文本正文后再使用 AI。");
     requireValue(args.task === "compose" || source.text.trim(), "AI_TEXT_REQUIRED", "当前正文为空。");
     const language = args.language || (args.task === "polish" ? "preserve" : args.task === "reply" ? "original" : "简体中文");

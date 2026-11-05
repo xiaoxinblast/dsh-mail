@@ -69,6 +69,14 @@ github:xiaoxinblast/dsh-mail#main
 
 普通提醒不调用模型。所有同步、定时发送和提醒仅在 DSH Host 运行期间执行。
 
+阅读页的工具栏、主题和发收件人信息在正文滚动时保持置顶，小屏可在头部内滚动完整信息。空名称或只有引号的名称显示完整邮箱。常见的 `>`、`On … wrote:`、中文回复标记及 HTML blockquote/Gmail 引用显示为独立的“引用往来”区域；不确定的格式保留在原正文中，不删除内容。
+
+写信页将本次输入与原信引用分开，引用随信发送并可折叠查看。AI 回复直接打开同一写信页；紫色 AI 按钮打开生成助手，按“填写要求 → 编辑结果 → 应用正文”的顺序操作，再预览确认发送。生成期间编辑过草稿时，旧结果不能覆盖新输入。润色和翻译草稿只改本次撰写部分，保留引用。
+
+在写信页底部“发送方式”选择立即发送或定时发送，选择计划日期和发送时区；完整计划随草稿保存。夏令时跳过或重复时段须改选无歧义时间。定时任务由本机 DSH Host 执行，必须保持运行和联网；应用退出、休眠错过时间后要求重新预览确认，失败或结果未知不会自动重发。确认后在草稿与发件箱查看排队时间，投递开始前可以取消；开始后无法撤回。
+
+SMTP 明确接受的邮件不再留在草稿箱；失败和发送结果未知的邮件继续保留。发送记录保存在“通知与任务 → 已完成发送”，可核查回执、部分收件人拒绝及已发送副本保存失败，不提供再次发送原邮件的入口。SMTP 接受不等于送达或已读。
+
 ## 邮件内快捷操作
 
 点击阅读页的发件人、收件人、抄送姓名或写信页已解析的地址，可直接添加或编辑联系人、修改姓名和分组、复制邮箱、给此人写信，或查看双方往来。联系人页的“往来邮件”使用同一完整地址精确查询，不限于对方发来的邮件。
@@ -144,3 +152,5 @@ Agent 联动的隔离界面验收：运行 `node scripts/prepare-agent-ui.mjs "<
 本项目代码为 MIT，依赖保留各自许可。参考项目包括 [Mailspring](https://github.com/Foundry376/Mailspring)、[Inbox Zero](https://github.com/elie222/inbox-zero) 和 [dsh-mail-connector](https://github.com/aizzaua/dsh-mail-connector)，本项目未移植这些项目的应用代码。
 
 `node scripts/prepare-mail-actions-ui.mjs "<DSH rc.5 node_modules 目录>"` 准备仓库隔离目录中的合成联系人、邮件和本机 LLM 适配器。只对 `.cache/dsh-home` 启动 Host 时添加 `--patch .cache/mail-actions.patch.yml`，再运行 `node scripts/verify-mail-actions-ui.mjs "<完整回环 URL>"`。适配器不访问外部模型；验收覆盖取消、错误、草稿冲突、应用、联系人操作、主面板/会话侧栏及明暗主题/窄屏截图，测试后停止 Host。不得给日常 profile 添加此测试 overlay。
+
+`node scripts/verify-mail-experience-ui.mjs` 在独立缓存目录启动真实 App 与 MailService 的合成验收环境，覆盖固定头部、地址显示、引用分区、AI 结果编辑/取消/重试/冲突、定时计划、排队取消、草稿清理、明暗主题与窄屏。模型与传输均为替身，断言 SMTP 调用为零；结果和截图写入 `.cache/`。此脚本不启动用户日常 Host。

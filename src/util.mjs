@@ -1,3 +1,4 @@
+import { addressPeople } from "./message-format.mjs";
 import { createHash, randomUUID } from "node:crypto";
 import { basename, resolve, sep } from "node:path";
 
@@ -26,15 +27,7 @@ export function inside(root, name) {
   return path;
 }
 export function bounded(value, fallback = 50, max = 200) { return Math.min(max, Math.max(1, Math.trunc(Number(value) || fallback))); }
-export function addresses(value) {
-  if (Array.isArray(value)) return value.flatMap(addresses);
-  if (value?.value) return value.value.map((item) => ({ name: item.name || "", address: String(item.address || "").toLowerCase() }));
-  if (value?.address) return [{ name: value.name || "", address: String(value.address).toLowerCase() }];
-  return String(value || "").split(/[,;\n]/).map((s) => {
-    const match = s.trim().match(/^(.*?)<([^<>]+)>$/);
-    return { name: match ? match[1].trim().replace(/^"|"$/g, "") : "", address: (match ? match[2] : s).trim().toLowerCase() };
-  }).filter((x) => x.address);
-}
+export function addresses(value) { return addressPeople(value?.value || value); }
 export function validateAddresses(value, required = false) {
   const result = addresses(value);
   requireValue(!required || result.length, "RECIPIENT_REQUIRED", "请填写收件人。");

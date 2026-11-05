@@ -1902,14 +1902,14 @@ function createDOMPurify() {
     _executeHooks(hooks.afterSanitizeAttributes, currentNode, null);
     _handleHookDetachedNode(currentNode, root);
   };
-  const _sanitizeShadowDOM2 = function _sanitizeShadowDOM(fragment) {
+  const _sanitizeShadowDOM2 = function _sanitizeShadowDOM(fragment2) {
     let shadowNode = null;
-    const shadowIterator = _createNodeIterator(fragment);
-    _executeHooks(hooks.beforeSanitizeShadowDOM, fragment, null);
+    const shadowIterator = _createNodeIterator(fragment2);
+    _executeHooks(hooks.beforeSanitizeShadowDOM, fragment2, null);
     while (shadowNode = shadowIterator.nextNode()) {
       _executeHooks(hooks.uponSanitizeShadowNode, shadowNode, null);
-      _sanitizeElements(shadowNode, fragment);
-      _sanitizeAttributes(shadowNode, fragment);
+      _sanitizeElements(shadowNode, fragment2);
+      _sanitizeAttributes(shadowNode, fragment2);
       if (_isDocumentFragment(shadowNode.content)) _sanitizeShadowDOM2(shadowNode.content);
       if (_readNodeType(shadowNode) === NODE_TYPE.element) {
         const innerSr = getShadowRoot(shadowNode);
@@ -1919,8 +1919,8 @@ function createDOMPurify() {
         }
       }
     }
-    if (SAFE_FOR_TEMPLATES) _scrubOwnCharacterData(fragment);
-    _executeHooks(hooks.afterSanitizeShadowDOM, fragment, null);
+    if (SAFE_FOR_TEMPLATES) _scrubOwnCharacterData(fragment2);
+    _executeHooks(hooks.afterSanitizeShadowDOM, fragment2, null);
   };
   const _sanitizeAttachedShadowRoots = function _sanitizeAttachedShadowRoots2(root) {
     const stack = [{
@@ -2770,8 +2770,8 @@ var Slice = class _Slice {
   /**
   @internal
   */
-  insertAt(pos, fragment) {
-    let content = insertInto(this.content, pos + this.openStart, fragment, this.openStart + 1, this.openEnd + 1);
+  insertAt(pos, fragment2) {
+    let content = insertInto(this.content, pos + this.openStart, fragment2, this.openStart + 1, this.openEnd + 1);
     return content && new _Slice(content, this.openStart, this.openEnd);
   }
   /**
@@ -2820,13 +2820,13 @@ var Slice = class _Slice {
   Create a slice from a fragment by taking the maximum possible
   open value on both side of the fragment.
   */
-  static maxOpen(fragment, openIsolating = true) {
+  static maxOpen(fragment2, openIsolating = true) {
     let openStart = 0, openEnd = 0;
-    for (let n3 = fragment.firstChild; n3 && !n3.isLeaf && (openIsolating || !n3.type.spec.isolating); n3 = n3.firstChild)
+    for (let n3 = fragment2.firstChild; n3 && !n3.isLeaf && (openIsolating || !n3.type.spec.isolating); n3 = n3.firstChild)
       openStart++;
-    for (let n3 = fragment.lastChild; n3 && !n3.isLeaf && (openIsolating || !n3.type.spec.isolating); n3 = n3.lastChild)
+    for (let n3 = fragment2.lastChild; n3 && !n3.isLeaf && (openIsolating || !n3.type.spec.isolating); n3 = n3.lastChild)
       openEnd++;
-    return new _Slice(fragment, openStart, openEnd);
+    return new _Slice(fragment2, openStart, openEnd);
   }
 };
 Slice.empty = new Slice(Fragment.empty, 0, 0);
@@ -5244,11 +5244,11 @@ var DOMSerializer = class _DOMSerializer {
   document, should be passed so that the serializer can create
   nodes.
   */
-  serializeFragment(fragment, options = {}, target) {
+  serializeFragment(fragment2, options = {}, target) {
     if (!target)
       target = doc(options).createDocumentFragment();
     let top = target, active = [];
-    fragment.forEach((node) => {
+    fragment2.forEach((node) => {
       if (active.length || node.marks.length) {
         let keep = 0, rendered = 0;
         while (keep < active.length && rendered < node.marks.length) {
@@ -5804,10 +5804,10 @@ var StepResult = class _StepResult {
     }
   }
 };
-function mapFragment(fragment, f3, parent) {
+function mapFragment(fragment2, f3, parent) {
   let mapped = [];
-  for (let i4 = 0; i4 < fragment.childCount; i4++) {
-    let child = fragment.child(i4);
+  for (let i4 = 0; i4 < fragment2.childCount; i4++) {
+    let child = fragment2.child(i4);
     if (child.content.size)
       child = child.copy(mapFragment(child.content, f3, child));
     if (child.isInline)
@@ -6679,14 +6679,14 @@ var Fitter = class {
     }
     for (let pass = 1; pass <= 2; pass++) {
       for (let sliceDepth = pass == 1 ? startDepth : this.unplaced.openStart; sliceDepth >= 0; sliceDepth--) {
-        let fragment, parent = null;
+        let fragment2, parent = null;
         if (sliceDepth) {
           parent = contentAt(this.unplaced.content, sliceDepth - 1).firstChild;
-          fragment = parent.content;
+          fragment2 = parent.content;
         } else {
-          fragment = this.unplaced.content;
+          fragment2 = this.unplaced.content;
         }
-        let first2 = fragment.firstChild;
+        let first2 = fragment2.firstChild;
         for (let frontierDepth = this.depth; frontierDepth >= 0; frontierDepth--) {
           let { type, match: match2 } = this.frontier[frontierDepth], wrap2, inject = null;
           if (pass == 1 && (first2 ? match2.matchType(first2.type) || (inject = match2.fillBefore(Fragment.from(first2), false)) : parent && type.compatibleContent(parent.type)))
@@ -6727,7 +6727,7 @@ var Fitter = class {
     if (wrap2)
       for (let i4 = 0; i4 < wrap2.length; i4++)
         this.openFrontierNode(wrap2[i4]);
-    let slice2 = this.unplaced, fragment = parent ? parent.content : slice2.content;
+    let slice2 = this.unplaced, fragment2 = parent ? parent.content : slice2.content;
     let openStart = slice2.openStart - sliceDepth;
     let taken = 0, add = [];
     let { match: match2, type } = this.frontier[frontierDepth];
@@ -6736,25 +6736,25 @@ var Fitter = class {
         add.push(inject.child(i4));
       match2 = match2.matchFragment(inject);
     }
-    let openEndCount = fragment.size + sliceDepth - (slice2.content.size - slice2.openEnd);
-    while (taken < fragment.childCount) {
-      let next = fragment.child(taken), matches2 = match2.matchType(next.type);
+    let openEndCount = fragment2.size + sliceDepth - (slice2.content.size - slice2.openEnd);
+    while (taken < fragment2.childCount) {
+      let next = fragment2.child(taken), matches2 = match2.matchType(next.type);
       if (!matches2)
         break;
       taken++;
       if (taken > 1 || openStart == 0 || next.content.size) {
         match2 = matches2;
-        add.push(closeNodeStart(next.mark(type.allowedMarks(next.marks)), taken == 1 ? openStart : 0, taken == fragment.childCount ? openEndCount : -1));
+        add.push(closeNodeStart(next.mark(type.allowedMarks(next.marks)), taken == 1 ? openStart : 0, taken == fragment2.childCount ? openEndCount : -1));
       }
     }
-    let toEnd = taken == fragment.childCount;
+    let toEnd = taken == fragment2.childCount;
     if (!toEnd)
       openEndCount = -1;
     this.placed = addToFragment(this.placed, frontierDepth, Fragment.from(add));
     this.frontier[frontierDepth].match = match2;
     if (toEnd && openEndCount < 0 && parent && parent.type == this.frontier[this.depth].type && this.frontier.length > 1)
       this.closeFrontierNode();
-    for (let i4 = 0, cur = fragment; i4 < openEndCount; i4++) {
+    for (let i4 = 0, cur = fragment2; i4 < openEndCount; i4++) {
       let node = cur.lastChild;
       this.frontier.push({ type: node.type, match: node.contentMatchAt(node.childCount) });
       cur = node.content;
@@ -6816,20 +6816,20 @@ var Fitter = class {
       this.placed = addToFragment(this.placed, this.frontier.length, add);
   }
 };
-function dropFromFragment(fragment, depth, count) {
+function dropFromFragment(fragment2, depth, count) {
   if (depth == 0)
-    return fragment.cutByIndex(count, fragment.childCount);
-  return fragment.replaceChild(0, fragment.firstChild.copy(dropFromFragment(fragment.firstChild.content, depth - 1, count)));
+    return fragment2.cutByIndex(count, fragment2.childCount);
+  return fragment2.replaceChild(0, fragment2.firstChild.copy(dropFromFragment(fragment2.firstChild.content, depth - 1, count)));
 }
-function addToFragment(fragment, depth, content) {
+function addToFragment(fragment2, depth, content) {
   if (depth == 0)
-    return fragment.append(content);
-  return fragment.replaceChild(fragment.childCount - 1, fragment.lastChild.copy(addToFragment(fragment.lastChild.content, depth - 1, content)));
+    return fragment2.append(content);
+  return fragment2.replaceChild(fragment2.childCount - 1, fragment2.lastChild.copy(addToFragment(fragment2.lastChild.content, depth - 1, content)));
 }
-function contentAt(fragment, depth) {
+function contentAt(fragment2, depth) {
   for (let i4 = 0; i4 < depth; i4++)
-    fragment = fragment.firstChild.content;
-  return fragment;
+    fragment2 = fragment2.firstChild.content;
+  return fragment2;
 }
 function closeNodeStart(node, openStart, openEnd) {
   if (openStart <= 0)
@@ -6851,9 +6851,9 @@ function contentAfterFits($to, depth, type, match2, open) {
   let fit = match2.fillBefore(node.content, true, index6);
   return fit && !invalidMarks(type, node.content, index6) ? fit : null;
 }
-function invalidMarks(type, fragment, start) {
-  for (let i4 = start; i4 < fragment.childCount; i4++)
-    if (!type.allowsMarks(fragment.child(i4).marks))
+function invalidMarks(type, fragment2, start) {
+  for (let i4 = start; i4 < fragment2.childCount; i4++)
+    if (!type.allowsMarks(fragment2.child(i4).marks))
       return true;
   return false;
 }
@@ -6932,17 +6932,17 @@ function replaceRange(tr2, from2, to, slice2) {
     to = $to.after(depth);
   }
 }
-function closeFragment(fragment, depth, oldOpen, newOpen, parent) {
+function closeFragment(fragment2, depth, oldOpen, newOpen, parent) {
   if (depth < oldOpen) {
-    let first2 = fragment.firstChild;
-    fragment = fragment.replaceChild(0, first2.copy(closeFragment(first2.content, depth + 1, oldOpen, newOpen, first2)));
+    let first2 = fragment2.firstChild;
+    fragment2 = fragment2.replaceChild(0, first2.copy(closeFragment(first2.content, depth + 1, oldOpen, newOpen, first2)));
   }
   if (depth > newOpen) {
     let match2 = parent.contentMatchAt(0);
-    let start = match2.fillBefore(fragment).append(fragment);
-    fragment = start.append(match2.matchFragment(start).fillBefore(Fragment.empty, true));
+    let start = match2.fillBefore(fragment2).append(fragment2);
+    fragment2 = start.append(match2.matchFragment(start).fillBefore(Fragment.empty, true));
   }
-  return fragment;
+  return fragment2;
 }
 function replaceRangeWith(tr2, from2, to, node) {
   if (!node.isInline && from2 == to && tr2.doc.resolve(from2).parent.content.size) {
@@ -11577,14 +11577,14 @@ function parseFromClipboard(view, text2, html2, plainText, $context) {
   return slice2;
 }
 var inlineParents = /^(a|abbr|acronym|b|cite|code|del|em|i|ins|kbd|label|output|q|ruby|s|samp|span|strong|sub|sup|time|u|tt|var)$/i;
-function normalizeSiblings(fragment, $context) {
-  if (fragment.childCount < 2)
-    return fragment;
+function normalizeSiblings(fragment2, $context) {
+  if (fragment2.childCount < 2)
+    return fragment2;
   for (let d2 = $context.depth; d2 >= 0; d2--) {
     let parent = $context.node(d2);
     let match2 = parent.contentMatchAt($context.index(d2));
     let lastWrap, result = [];
-    fragment.forEach((node) => {
+    fragment2.forEach((node) => {
       if (!result)
         return;
       let wrap2 = match2.findWrapping(node.type), inLast;
@@ -11604,7 +11604,7 @@ function normalizeSiblings(fragment, $context) {
     if (result)
       return Fragment.from(result);
   }
-  return fragment;
+  return fragment2;
 }
 function withWrappers(node, wrap2, from2 = 0) {
   for (let i4 = wrap2.length - 1; i4 >= from2; i4--)
@@ -11624,19 +11624,19 @@ function addToSibling(wrap2, lastWrap, node, sibling, depth) {
 function closeRight(node, depth) {
   if (depth == 0)
     return node;
-  let fragment = node.content.replaceChild(node.childCount - 1, closeRight(node.lastChild, depth - 1));
+  let fragment2 = node.content.replaceChild(node.childCount - 1, closeRight(node.lastChild, depth - 1));
   let fill = node.contentMatchAt(node.childCount).fillBefore(Fragment.empty, true);
-  return node.copy(fragment.append(fill));
+  return node.copy(fragment2.append(fill));
 }
-function closeRange(fragment, side, from2, to, depth, openEnd) {
-  let node = side < 0 ? fragment.firstChild : fragment.lastChild, inner = node.content;
-  if (fragment.childCount > 1)
+function closeRange(fragment2, side, from2, to, depth, openEnd) {
+  let node = side < 0 ? fragment2.firstChild : fragment2.lastChild, inner = node.content;
+  if (fragment2.childCount > 1)
     openEnd = 0;
   if (depth < to - 1)
     inner = closeRange(inner, side, from2, to, depth + 1, openEnd);
   if (depth >= from2)
     inner = side < 0 ? node.contentMatchAt(0).fillBefore(inner, openEnd <= depth).append(inner) : inner.append(node.contentMatchAt(node.childCount).fillBefore(Fragment.empty, true));
-  return fragment.replaceChild(side < 0 ? 0 : fragment.childCount - 1, node.copy(inner));
+  return fragment2.replaceChild(side < 0 ? 0 : fragment2.childCount - 1, node.copy(inner));
 }
 function closeSlice(slice2, openStart, openEnd) {
   if (openStart < slice2.openStart)
@@ -15972,8 +15972,8 @@ function flattenExtensions(extensions) {
     return extension;
   }).flat(10);
 }
-function getHTMLFromFragment(fragment, schema) {
-  const documentFragment = DOMSerializer.fromSchema(schema).serializeFragment(fragment);
+function getHTMLFromFragment(fragment2, schema) {
+  const documentFragment = DOMSerializer.fromSchema(schema).serializeFragment(fragment2);
   const container = document.implementation.createHTMLDocument().createElement("div");
   container.appendChild(documentFragment);
   return container.innerHTML;
@@ -46052,6 +46052,10 @@ var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:va
 .dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}\r
 .dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}\r
 .dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}\r
+.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}\r
+.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}\r
+.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}\r
+.dsh-mail .dm-quoted-message>summary::before{content:"\u25B8"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"\u25BE"}\r
 .dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}\r
 .dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}\r
 .dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}\r
@@ -46234,10 +46238,29 @@ function addressPeople(value) {
     return { name: match2 ? displayName(match2[1]) : "", address: (match2 ? match2[2] : item).trim().toLowerCase() };
   }).filter((p3) => p3.address);
 }
+function isQuoteBoundary(value) {
+  const line = String(value || "").replace(/\u00a0/g, " ").trim().replace(/[\t ]+/g, " ");
+  return /^(?:[—–_-]{1,}|-{2,})\s*\d{4}-\d{2}-\d{2}(?:[T ][\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?\s+[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+\s*(?:[—–_-]{1,}|-{2,})$/i.test(line) || /^On .{1,400}wrote:\s*$/i.test(line) || /^在.{1,400}(?:写道|寫道)[：:]\s*$/.test(line) || /^-{2,}\s*(?:Original Message|原始邮件|原始郵件)\s*-{2,}$/i.test(line);
+}
+function quotedTextSections(value) {
+  const text2 = String(value || ""), sections = [];
+  let offset2 = 0, start = 0, quoting = false;
+  for (const line of text2.split(/(?<=\n)/)) {
+    const boundary = isQuoteBoundary(line) || !quoting && /^>/.test(line);
+    if (boundary) {
+      if (offset2 > start) sections.push({ quoted: quoting, text: text2.slice(start, offset2) });
+      quoting = true;
+      start = offset2;
+    }
+    offset2 += line.length;
+  }
+  if (start < text2.length) sections.push({ quoted: quoting, text: text2.slice(start) });
+  return sections;
+}
 function splitQuotedText(value) {
-  const text2 = String(value || "");
-  const match2 = /^(?:>.*|On .{1,400}wrote:\s*|在.{1,400}(?:写道|寫道)[：:]\s*|-{2,}\s*(?:Original Message|原始邮件|原始郵件)\s*-{2,}|—— [^\n]+ ——)\r?$/im.exec(text2);
-  return match2 ? { current: text2.slice(0, match2.index), quoted: text2.slice(match2.index) } : { current: text2, quoted: "" };
+  const text2 = String(value || ""), sections = quotedTextSections(text2);
+  const current = sections[0]?.quoted ? "" : sections[0]?.text || "";
+  return { current, quoted: text2.slice(current.length) };
 }
 function draftTextParts(draft) {
   const text2 = String(draft.text || "");
@@ -46248,6 +46271,110 @@ function draftTextParts(draft) {
 var escapeHtml = (value) => String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 var textHtml = (value) => `<p>${escapeHtml(value).replace(/\n/g, "</p><p>")}</p>`;
 var pendingDrafts = (drafts) => drafts.filter((d2) => !["sent", "discarded"].includes(d2.status));
+
+// ui/mail-quotes.mjs
+var BLOCKS = /* @__PURE__ */ new Set(["ADDRESS", "ARTICLE", "ASIDE", "BLOCKQUOTE", "DIV", "DL", "DT", "DD", "FIGCAPTION", "FIGURE", "FOOTER", "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HR", "LI", "MAIN", "OL", "P", "PRE", "SECTION", "TABLE", "TR", "UL"]);
+var NATIVE_QUOTES = "blockquote,.gmail_quote,.yahoo_quoted,[data-mail-quote]";
+function markerLines(doc3) {
+  const lines = [];
+  let text2 = "", start = null, end = null;
+  const flush = () => {
+    if (start && isQuoteBoundary(text2)) lines.push({ text: text2, start, end });
+    text2 = "";
+    start = end = null;
+  };
+  const walk = (node) => {
+    if (node.nodeType === 3) {
+      if (!node.parentElement.closest("pre,[style*='white-space: pre'],[style*='white-space:pre']")) {
+        if (node.data) {
+          start ||= { node, offset: 0 };
+          text2 += node.data.replace(/[\r\n\t]/g, " ");
+          end = { node, offset: node.data.length };
+        }
+        return;
+      }
+      let offset2 = 0;
+      for (const part of node.data.split(/(\r?\n)/)) {
+        if (/^\r?\n$/.test(part)) flush();
+        else if (part) {
+          start ||= { node, offset: offset2 };
+          text2 += part;
+          end = { node, offset: offset2 + part.length };
+        }
+        offset2 += part.length;
+      }
+      return;
+    }
+    if (node.nodeType !== 1 || ["STYLE", "SCRIPT", "TEMPLATE"].includes(node.tagName)) return;
+    if (node.tagName === "BR") {
+      flush();
+      return;
+    }
+    const block = BLOCKS.has(node.tagName);
+    if (block) flush();
+    for (const child of node.childNodes) walk(child);
+    if (block) flush();
+  };
+  walk(doc3.body);
+  flush();
+  return lines;
+}
+function fragment(doc3, start, end) {
+  const range = doc3.createRange();
+  range.setStart(start.node, start.offset);
+  range.setEnd(end.node, end.offset);
+  return range.cloneContents();
+}
+var bodyStart = (doc3) => ({ node: doc3.body, offset: 0 });
+var bodyEnd = (doc3) => ({ node: doc3.body, offset: doc3.body.childNodes.length });
+function splitReplyHtml(doc3) {
+  const marker = markerLines(doc3)[0];
+  if (!marker) return null;
+  const current = doc3.createElement("div"), quoted = doc3.createElement("div");
+  current.append(fragment(doc3, bodyStart(doc3), marker.start));
+  quoted.append(fragment(doc3, marker.start, bodyEnd(doc3)));
+  return { current: current.innerHTML, quoted: quoted.innerHTML };
+}
+function decorateHtmlQuotes(doc3) {
+  const markers = markerLines(doc3);
+  if (markers.length) {
+    const result = doc3.createDocumentFragment();
+    result.append(fragment(doc3, bodyStart(doc3), markers[0].start));
+    for (const [index6, marker] of markers.entries()) {
+      const section = doc3.createElement("section"), heading = doc3.createElement("header"), title = doc3.createElement("strong"), source = doc3.createElement("div"), body = doc3.createElement("div");
+      section.setAttribute("data-mail-history", "true");
+      section.setAttribute("aria-label", `\u5F15\u7528\u90AE\u4EF6 ${index6 + 1}`);
+      heading.className = "dm-quote-heading";
+      title.textContent = `\u5F15\u7528\u90AE\u4EF6 \xB7 ${index6 + 1}`;
+      source.className = "dm-quote-source";
+      source.append(fragment(doc3, marker.start, marker.end));
+      heading.append(title, source);
+      body.className = "dm-quote-body";
+      body.append(fragment(doc3, marker.end, markers[index6 + 1]?.start || bodyEnd(doc3)));
+      for (const old of body.querySelectorAll("[data-mail-history]")) old.removeAttribute("data-mail-history");
+      section.append(heading, body);
+      result.append(section);
+    }
+    doc3.body.replaceChildren(result);
+  }
+  for (const quote of doc3.querySelectorAll(NATIVE_QUOTES)) {
+    if (quote.closest("[data-mail-history]") || quote.parentElement.closest(NATIVE_QUOTES)) continue;
+    quote.setAttribute("data-mail-history", "true");
+    const heading = doc3.createElement("header");
+    heading.className = "dm-quote-heading";
+    heading.textContent = "\u5F15\u7528\u90AE\u4EF6";
+    quote.prepend(heading);
+  }
+}
+var QUOTE_FRAME_CSS = `
+[data-mail-history]{display:block!important;border:1px solid #b8c1d3!important;border-left:4px solid #7c3aed!important;border-radius:8px!important;background:#f4f5fa!important;margin:28px 0!important;padding:0!important;overflow-wrap:anywhere;clear:both}
+.dm-quote-heading{display:block!important;margin:0!important;padding:13px 16px!important;background:#ede9fe!important;border-bottom:1px solid #c4b5fd!important;color:#472178!important;font:600 14px/1.6 system-ui!important}
+.dm-quote-heading strong{font:700 14px/1.6 system-ui!important;color:#472178!important}
+.dm-quote-source{margin-top:4px!important;font:12px/1.65 system-ui!important;overflow-wrap:anywhere;color:#4b4562!important}
+.dm-quote-source *{font:inherit!important;color:inherit!important;background:transparent!important}
+.dm-quote-body{padding:4px 16px 14px!important;color:#30394c}
+blockquote:not([data-mail-history]){border-left:2px solid #a8b2c5;margin:12px 0;padding-left:14px}
+`;
 
 // src/send-options.mjs
 function scheduledInstant(local, zone) {
@@ -46836,7 +46963,7 @@ function Reader({ id, active }) {
     let cancelled = false;
     (async () => {
       const doc3 = new DOMParser().parseFromString(purify_default.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping"] }), "text/html");
-      for (const quote of doc3.querySelectorAll("blockquote,.gmail_quote,.yahoo_quoted,[data-mail-quote]")) if (!quote.parentElement.closest("blockquote,.gmail_quote,.yahoo_quoted,[data-mail-quote]")) quote.setAttribute("data-mail-history", "true");
+      decorateHtmlQuotes(doc3);
       for (const element of doc3.querySelectorAll("[style]")) if (/url\s*\(|@import/i.test(element.getAttribute("style"))) element.removeAttribute("style");
       for (const anchor of doc3.querySelectorAll("a")) {
         const href = (anchor.getAttribute("href") || "").trim();
@@ -46857,7 +46984,7 @@ function Reader({ id, active }) {
         } else if (!remote || !/^https:\/\//i.test(src)) image.removeAttribute("src");
       }
       const csp = `default-src 'none'; script-src 'none'; img-src data: ${remote ? "https:" : ""}; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'`;
-      if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap} [data-mail-history]{border-left:3px solid #8b91a3;background:#f4f5f8;color:#424b5b;margin:20px 0;padding:12px 16px;overflow-wrap:anywhere}[data-mail-history]::before{content:"\u5F15\u7528\u5F80\u6765";display:block;font:600 12px system-ui;color:#555d6e;margin-bottom:10px}blockquote blockquote{border-left:2px solid #adb5c3;margin:12px 0;padding-left:12px}</style></head><body>${doc3.body.innerHTML}</body></html>`);
+      if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style></head><body>${doc3.body.innerHTML}</body></html>`);
     })().catch((e3) => {
       if (!cancelled) setLocalError(e3.message);
     });
@@ -46906,14 +47033,16 @@ function MailBodyFrame({ html: html2 }) {
   return /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, onLoad: loaded });
 }
 function safeQuoteDocument(html2) {
-  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#485166;background:#f5f6fa;overflow-wrap:anywhere;margin:12px}blockquote{border-left:3px solid #949db2;margin:8px 0;padding-left:12px}img{max-width:100%}pre{white-space:pre-wrap}</style>${purify_default.sanitize(html2, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] })}`;
+  const doc3 = new DOMParser().parseFromString(purify_default.sanitize(html2, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] }), "text/html");
+  decorateHtmlQuotes(doc3);
+  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#485166;background:#f5f6fa;overflow-wrap:anywhere;margin:12px}img{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style>${doc3.body.innerHTML}`;
 }
 function LinkedText({ text: text2 }) {
   return text2.split(/(https?:\/\/[^\s<>]+)/gi).map((part, i4) => /^https?:\/\//i.test(part) && URL.canParse(part) ? /* @__PURE__ */ import_react2.default.createElement("a", { key: i4, href: part, target: "_blank", rel: "noopener noreferrer" }, part) : part);
 }
 function PlainMail({ text: text2 }) {
-  const parts = splitQuotedText(text2);
-  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("pre", null, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: parts.current })), parts.quoted && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted", open: true }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u5F80\u6765 \xB7 \u539F\u6587\u4FDD\u7559"), /* @__PURE__ */ import_react2.default.createElement("pre", null, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: parts.quoted }))));
+  let number = 0;
+  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, quotedTextSections(text2).map((part, i4) => part.quoted ? /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted dm-quoted-message", key: i4, open: true }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u90AE\u4EF6 \xB7 ", ++number, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u539F\u6587\u4FDD\u7559")), /* @__PURE__ */ import_react2.default.createElement("pre", null, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: part.text }))) : /* @__PURE__ */ import_react2.default.createElement("pre", { key: i4 }, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: part.text }))));
 }
 function AttachmentCard({ attachment: a3, messageId }) {
   const { request, run: run3, setModal, download, act } = useMail(), ref = (0, import_react2.useRef)(null), [thumbnail, setThumbnail] = (0, import_react2.useState)(null), [failed, setFailed] = (0, import_react2.useState)(false);
@@ -46956,11 +47085,20 @@ function Composer({ initial, active }) {
   const editableText = () => quoted.current ? draftTextParts({ ...current.current, quotedText: quoted.current }).current.replace(/\n\n$/, "") : current.current.text || "";
   const originalDoc = (0, import_react2.useRef)(null);
   if (!originalDoc.current) {
-    const doc3 = new DOMParser().parseFromString(purify_default.sanitize(initial.html || ""), "text/html");
-    const q3 = initial.sourceMessageId ? doc3.querySelector("[data-mail-quote]") : null;
-    originalDoc.current = { quote: q3?.outerHTML || (quoted.current ? `<blockquote data-mail-quote="true">${textHtml(quoted.current)}</blockquote>` : "") };
-    q3?.remove();
-    originalDoc.current.current = doc3.body.innerHTML;
+    const doc3 = new DOMParser().parseFromString(purify_default.sanitize(initial.html || ""), "text/html"), q3 = initial.sourceMessageId ? doc3.querySelector("[data-mail-quote]") : null;
+    if (q3) {
+      const quote = q3.outerHTML;
+      q3.remove();
+      originalDoc.current = { current: doc3.body.innerHTML, quote };
+    } else if (quoted.current && initial.html) {
+      const parts = splitReplyHtml(doc3);
+      if (parts) originalDoc.current = { current: parts.current, quote: `<blockquote data-mail-quote="true">${parts.quoted}</blockquote>` };
+      else {
+        quoted.current = "";
+        originalDoc.current = { current: doc3.body.innerHTML, quote: "" };
+      }
+    } else originalDoc.current = { current: doc3.body.innerHTML, quote: quoted.current ? `<blockquote data-mail-quote="true">${textHtml(quoted.current)}</blockquote>` : "" };
+    if (initial.sourceMessageId) current.current = { ...current.current, quotedText: quoted.current };
   }
   const editable = ["draft", "failed", "needs-confirmation"].includes(initial.status);
   const change = (fields) => {

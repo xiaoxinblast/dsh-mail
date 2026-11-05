@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { displayName, personLabel, addressPeople, splitQuotedText, pendingDrafts } from "../src/message-format.mjs";
+import { displayName, personLabel, addressPeople, splitQuotedText, quotedTextSections, isQuoteBoundary, pendingDrafts } from "../src/message-format.mjs";
 import { scheduledInstant } from "../src/send-options.mjs";
 import { validateAddresses } from "../src/util.mjs";
 import { MailService } from "../src/service.mjs";
@@ -30,6 +30,14 @@ test("quote segmentation preserves every character and leaves normal prose alone
     const value = `current\n\n${marker}`, parts = splitQuotedText(value); assert.equal(parts.current + parts.quoted, value); assert.equal(parts.current, "current\n\n");
   }
   assert.equal(splitQuotedText("We wrote: on the board\n价格 > 3").quoted, "");
+});
+test("flat timestamp/email reply separators split every quoted mail without deleting text", () => {
+  const first = "—— 2026-11-04T08:21:44.000Z previous@example.invalid ——", second = "—\u00a02026-11-03T12:00:00+09:00\u00a0older@example.invalid\u00a0—";
+  assert.ok(isQuoteBoundary(first)); assert.ok(isQuoteBoundary(second));
+  const text = `今回の返信\r\n\r\n${first}\r\n前回のメール\r\n\r\n${second}\r\n以前のメール`;
+  const sections = quotedTextSections(text); assert.equal(sections.filter((s) => s.quoted).length, 2); assert.equal(sections.map((s) => s.text).join(""), text);
+  assert.equal(splitQuotedText(text).current, "今回の返信\r\n\r\n");
+  for (const line of ["2026-11-04 previous@example.invalid", "—— 著者 ——", "—— 2026-11-04 ——", "contact previous@example.invalid on 2026-11-04"]) assert.equal(isQuoteBoundary(line), false);
 });
 test("send time conversion handles zones and rejects DST gaps, repeated hours and invalid dates", () => {
   assert.equal(scheduledInstant("2026-11-06T09:00", "Asia/Shanghai"), "2026-11-06T01:00:00.000Z");

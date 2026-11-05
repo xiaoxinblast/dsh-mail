@@ -367,6 +367,10 @@
 .dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}
 .dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}
 .dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}
+.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}
+.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}
+.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}
+.dsh-mail .dm-quoted-message>summary::before{content:"▸"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"▾"}
 .dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}
 .dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}
 .dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}

@@ -19,6 +19,14 @@ const service = new MailService({ directory, transport: { close: async () => {},
 service.store.put("accounts", { ...normalizeAccount({ id: "me", email: "me@example.invalid", imapHost: "127.0.0.1", smtpHost: "127.0.0.1" }), authFailed: true });
 service.store.put("folders", { id: "inbox", accountId: "me", path: "INBOX", role: "\\Inbox" });
 const message = service.store.upsertMessage({ accountId: "me", folderId: "inbox", uid: 1, uidValidity: "1", messageId: "<experience@example.invalid>", from: [{ name: '""', address: "client@example.invalid" }], to: [{ name: '" "', address: "me@example.invalid" }], cc: [{ name: '"Doe, Jane"', address: "jane@example.invalid" }], subject: "[验收] 阅读与写信体验", date: new Date().toISOString(), bodyLoaded: true, seen: true, flags: ["\\Seen"], attachments: [], text: "本次回复：请核对交付时间。\n".repeat(60) + "\nOn Tuesday, client wrote:\n> 上一轮回复\n>> 更早回复", html: "<p>本次回复：请核对交付时间。</p>".repeat(60) + '<div class="gmail_quote"><p>上一轮回复</p><blockquote>更早回复</blockquote></div><script>window.emailScriptRan=true</script>' });
+const separator1 = "—— 2026-11-04T08:21:44.000Z previous@example.invalid ——", separator2 = "— 2026-11-03T12:00:00+09:00 older@example.invalid —";
+const flatText = `今回の返信：翻訳が完了しました。\n\n${separator1}\n前回のメール：ご確認をお願いします。\n\n${separator2}\n以前のメール：日程について。`;
+const flatFixtures = [
+  ["paragraphs", `<div><p>今回の返信：翻訳が完了しました。</p><p>——&nbsp;<span>2026-11-04T08:21:44.000Z</span>\n<span> previous@example.invalid ——</span></p><p>前回のメール：ご確認をお願いします。</p><p>${separator2}</p><p>以前のメール：日程について。</p></div>`],
+  ["breaks", `<div>今回の返信：翻訳が完了しました。<br><br>${separator1}<br>前回のメール：ご確認をお願いします。<br><a href="https://example.invalid/quoted?x=1&amp;y=2">元のリンク</a><br>${separator2}<br><strong>以前のメール：日程について。</strong></div>`],
+  ["table", `<table><tbody><tr><td><p>今回の返信：翻訳が完了しました。</p><p>${separator1}</p><p>前回のメール：ご確認をお願いします。</p><p>${separator2}</p><p>以前のメール：日程について。</p></td></tr></tbody></table>`]
+].map(([kind, html], i) => service.store.upsertMessage({ ...message, id: undefined, uid: 20 + i, messageId: `<flat-${kind}@example.invalid>`, subject: `[验收] HTML 引用分区 ${kind}`, text: flatText, html }));
+const legacyDraft = service.saveDraft({ accountId: "me", to: "client@example.invalid", subject: "[验收] 旧回复草稿边界", sourceMessageId: flatFixtures[0].id, text: flatText, html: flatFixtures[0].html });
 for (const status of ["sent", "failed", "uncertain", "discarded"]) service.store.put("drafts", { id: `fixture-${status}`, accountId: "me", to: "client@example.invalid", subject: `fixture ${status}`, text: "synthetic", status });
 const entry = join(cache, "experience-entry.jsx");
 await writeFile(entry, `import React from 'react';import{createRoot}from'react-dom/client';import{App}from'../ui/workbench.jsx';createRoot(document.getElementById('root')).render(<App call={async(_id,operation,signal)=>{const r=await fetch('/api',{method:'POST',body:JSON.stringify(operation),signal});const v=await r.json();if(v.error)throw new Error(v.error);return v;} } prompt={async()=>''}/>);`);
@@ -42,7 +50,28 @@ const shot = (name) => page.screenshot({ path: join(shots, `experience-${name}.p
 const open = async () => { await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: message.subject }).click(); await expect(root.locator(".dm-reader h2")).toHaveText(message.subject); };
 const generate = async (instruction = "") => { await panel.getByLabel("写作或处理要求（可选）").or(panel.getByLabel("回复要求（可选）")).fill(instruction); await panel.getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible(); };
 try {
-  await page.goto(`http://127.0.0.1:${server.address().port}`); await open();
+  await page.goto(`http://127.0.0.1:${server.address().port}`);
+  for (const fixture of flatFixtures) {
+    await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: fixture.subject }).click();
+    const content = root.frameLocator('iframe[title="邮件正文"]'); await expect(content.locator("section[data-mail-history]")).toHaveCount(2);
+    await expect(content.locator("section[data-mail-history]").first()).toContainText("前回のメール"); await expect(content.locator("section[data-mail-history]").last()).toContainText("以前のメール");
+    await expect(content.locator("section[data-mail-history]").first()).not.toContainText("以前のメール"); await expect(content.locator("section[data-mail-history]").last()).not.toContainText("前回のメール");
+    await expect(content.locator(".dm-quote-heading").first()).toContainText("previous@example.invalid"); await expect(content.locator(".dm-quote-heading").last()).toContainText("older@example.invalid");
+    assert.equal((await content.locator("body").innerText()).split("今回の返信：翻訳が完了しました。").length, 2);
+    assert.ok(await content.locator("section[data-mail-history]").first().evaluate((e) => parseFloat(getComputedStyle(e).borderLeftWidth) >= 4));
+    if (fixture.subject.endsWith("breaks")) await expect(content.getByRole("link", { name: "元のリンク" })).toHaveAttribute("target", "_blank");
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1000 }); await shot(`flat-${fixture.subject.split(" ").at(-1)}-${width}`); }
+    await root.getByLabel("更多邮件操作").click(); await root.getByRole("button", { name: "显示纯文本", exact: true }).click();
+    await expect(root.locator(".dm-mail-body .dm-quoted-message")).toHaveCount(2); await expect(root.locator(".dm-quoted-message").last()).toContainText("以前のメール");
+    await root.locator(".dm-quoted-message").first().locator("summary").click(); await expect(root.locator(".dm-quoted-message").first()).not.toHaveAttribute("open");
+  }
+  await root.getByRole("button", { name: "草稿与发件箱", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: legacyDraft.subject }).click();
+  await expect(composer.locator(".tiptap")).toHaveText("今回の返信：翻訳が完了しました。");
+  await expect(composer.frameLocator('iframe[title="回复引用原文"]').locator("section[data-mail-history]")).toHaveCount(2);
+  await composer.getByRole("button", { name: "保存草稿", exact: true }).click(); const preserved = service.store.get("drafts", legacyDraft.id); assert.equal(preserved.text, flatText); assert.equal((preserved.html.match(/前回のメール/g) || []).length, 1);
+  await composer.getByRole("button", { name: "← 关闭", exact: true }).click(); await page.setViewportSize({ width: 1440, height: 1000 });
+  checks.push("flat HTML timestamp/email boundaries split across spans, BRs and tables form distinct preserved quote cards; old rich drafts separate without duplication");
+  await open();
   await expect(root.locator(".dm-reader-heading")).toContainText("client@example.invalid"); await expect(root.locator(".dm-reader-heading")).toContainText("me@example.invalid"); await expect(root.locator(".dm-reader-heading")).toContainText("Doe, Jane");
   const header = root.locator(".dm-reader-sticky"), top = (await header.boundingBox()).y;
   await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = 900); assert.ok(Math.abs((await header.boundingBox()).y - top) < 2);

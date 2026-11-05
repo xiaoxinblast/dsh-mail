@@ -20,7 +20,8 @@ import { Icon } from "./icons.jsx";
 import { reconcileState } from "./state.mjs";
 import { mailPaneSizes } from "./mail-layout.mjs";
 import { downloadableAttachments } from "../src/attachments.mjs";
-import { addressPeople, displayName, personLabel, splitQuotedText, draftTextParts, textHtml, pendingDrafts } from "../src/message-format.mjs";
+import { addressPeople, displayName, personLabel, quotedTextSections, draftTextParts, textHtml, pendingDrafts } from "../src/message-format.mjs";
+import { decorateHtmlQuotes, splitReplyHtml, QUOTE_FRAME_CSS } from "./mail-quotes.mjs";
 import { scheduledInstant, sendTimeLabel } from "../src/send-options.mjs";
 
 const Ctx = createContext(null);
@@ -224,12 +225,12 @@ function Reader({ id, active }) {
   useEffect(() => { if (!active) return; let cancelled = false; request({ action: "message.read", id }).then(async (m) => { if (cancelled) return; setMessage((previous) => JSON.stringify(previous) === JSON.stringify(m) ? previous : m); if (!m.seen && (state.settings?.markReadOnOpen ?? DEFAULT_SETTINGS.markReadOnOpen)) run(() => act({ action: "messages.action", ids: [id], operation: "read", value: true })); }).catch((e) => { if (!cancelled) setLocalError(e.message); }); return () => { cancelled = true; }; }, [id, active, state.mailVersion, request]);
   useEffect(() => { if (!message || !active) return; let cancelled = false; (async () => {
     const doc = new DOMParser().parseFromString(DOMPurify.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping"] }), "text/html");
-    for (const quote of doc.querySelectorAll("blockquote,.gmail_quote,.yahoo_quoted,[data-mail-quote]")) if (!quote.parentElement.closest("blockquote,.gmail_quote,.yahoo_quoted,[data-mail-quote]")) quote.setAttribute("data-mail-history", "true");
+    decorateHtmlQuotes(doc);
     for (const element of doc.querySelectorAll("[style]")) if (/url\s*\(|@import/i.test(element.getAttribute("style"))) element.removeAttribute("style");
     for (const anchor of doc.querySelectorAll("a")) { const href = (anchor.getAttribute("href") || "").trim(); if (/^https?:\/\//i.test(href) && URL.canParse(href)) { anchor.setAttribute("href", href); anchor.setAttribute("target", "_blank"); anchor.setAttribute("rel", "noopener noreferrer"); } else anchor.removeAttribute("href"); }
     for (const image of doc.querySelectorAll("img")) { const src = image.getAttribute("src") || ""; if (src.startsWith("cid:")) { const a = message.attachments.find((x) => x.cid === src.slice(4)); if (a && a.size < 8 * 1024 * 1024 && /^image\/(png|jpeg|gif|webp)$/.test(a.contentType)) { const data = await request({ action: "attachments.read", id: a.id }); image.src = `data:${data.contentType};base64,${data.base64}`; } else image.removeAttribute("src"); } else if (!remote || !/^https:\/\//i.test(src)) image.removeAttribute("src"); }
     const csp = `default-src 'none'; script-src 'none'; img-src data: ${remote ? "https:" : ""}; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'`;
-    if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap} [data-mail-history]{border-left:3px solid #8b91a3;background:#f4f5f8;color:#424b5b;margin:20px 0;padding:12px 16px;overflow-wrap:anywhere}[data-mail-history]::before{content:"引用往来";display:block;font:600 12px system-ui;color:#555d6e;margin-bottom:10px}blockquote blockquote{border-left:2px solid #adb5c3;margin:12px 0;padding-left:12px}</style></head><body>${doc.body.innerHTML}</body></html>`);
+    if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style></head><body>${doc.body.innerHTML}</body></html>`);
   })().catch((e) => { if (!cancelled) setLocalError(e.message); }); return () => { cancelled = true; }; }, [message?.html, imageAttachments, remote, active, request]);
   if (localError) return <Empty title="邮件暂时无法打开">{localError}<br /><Button onClick={() => setSelected(null)}>返回列表</Button></Empty>;
   if (!message) return <Empty title="正在读取邮件…">从本机缓存或邮箱服务器读取。</Empty>;
@@ -265,12 +266,14 @@ function MailBodyFrame({ html }) {
 }
 
 function safeQuoteDocument(html) {
-  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#485166;background:#f5f6fa;overflow-wrap:anywhere;margin:12px}blockquote{border-left:3px solid #949db2;margin:8px 0;padding-left:12px}img{max-width:100%}pre{white-space:pre-wrap}</style>${DOMPurify.sanitize(html, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] })}`;
+  const doc = new DOMParser().parseFromString(DOMPurify.sanitize(html, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] }), "text/html");
+  decorateHtmlQuotes(doc);
+  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#485166;background:#f5f6fa;overflow-wrap:anywhere;margin:12px}img{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style>${doc.body.innerHTML}`;
 }
 function LinkedText({ text }) { return text.split(/(https?:\/\/[^\s<>]+)/gi).map((part, i) => /^https?:\/\//i.test(part) && URL.canParse(part) ? <a key={i} href={part} target="_blank" rel="noopener noreferrer">{part}</a> : part); }
 function PlainMail({ text }) {
-  const parts = splitQuotedText(text);
-  return <><pre><LinkedText text={parts.current} /></pre>{parts.quoted && <details className="dm-quoted" open><summary>引用往来 · 原文保留</summary><pre><LinkedText text={parts.quoted} /></pre></details>}</>;
+  let number = 0;
+  return <>{quotedTextSections(text).map((part, i) => part.quoted ? <details className="dm-quoted dm-quoted-message" key={i} open><summary>引用邮件 · {++number}<span>原文保留</span></summary><pre><LinkedText text={part.text} /></pre></details> : <pre key={i}><LinkedText text={part.text} /></pre>)}</>;
 }
 
 function AttachmentCard({ attachment: a, messageId }) {
@@ -294,7 +297,17 @@ function Composer({ initial, active }) {
   const element = useRef(null), editor = useRef(null), current = useRef(initial), generation = useRef(0), savedGeneration = useRef(0), chain = useRef(Promise.resolve()), mounted = useRef(true);
   const quoted = useRef(draftTextParts(initial).quoted);
   const editableText = () => quoted.current ? draftTextParts({ ...current.current, quotedText: quoted.current }).current.replace(/\n\n$/, "") : current.current.text || "";
-  const originalDoc = useRef(null); if (!originalDoc.current) { const doc = new DOMParser().parseFromString(DOMPurify.sanitize(initial.html || ""), "text/html"); const q = initial.sourceMessageId ? doc.querySelector("[data-mail-quote]") : null; originalDoc.current = { quote: q?.outerHTML || (quoted.current ? `<blockquote data-mail-quote="true">${textHtml(quoted.current)}</blockquote>` : "") }; q?.remove(); originalDoc.current.current = doc.body.innerHTML; }
+  const originalDoc = useRef(null);
+  if (!originalDoc.current) {
+    const doc = new DOMParser().parseFromString(DOMPurify.sanitize(initial.html || ""), "text/html"), q = initial.sourceMessageId ? doc.querySelector("[data-mail-quote]") : null;
+    if (q) { const quote = q.outerHTML; q.remove(); originalDoc.current = { current: doc.body.innerHTML, quote }; }
+    else if (quoted.current && initial.html) {
+      const parts = splitReplyHtml(doc);
+      if (parts) originalDoc.current = { current: parts.current, quote: `<blockquote data-mail-quote="true">${parts.quoted}</blockquote>` };
+      else { quoted.current = ""; originalDoc.current = { current: doc.body.innerHTML, quote: "" }; }
+    } else originalDoc.current = { current: doc.body.innerHTML, quote: quoted.current ? `<blockquote data-mail-quote="true">${textHtml(quoted.current)}</blockquote>` : "" };
+    if (initial.sourceMessageId) current.current = { ...current.current, quotedText: quoted.current };
+  }
   const editable = ["draft", "failed", "needs-confirmation"].includes(initial.status);
   const change = (fields) => { if (fields.text !== undefined && quoted.current) fields = { ...fields, text: fields.text + "\n\n" + quoted.current }; if (fields.html) fields = { ...fields, html: fields.html + originalDoc.current.quote }; const next = { ...current.current, ...fields }; current.current = next; generation.current++; setDraft(next); setDirty(true); setDraftTouched(true); setSaving("待保存"); };
   const updateSchedule = (value, zone) => { setSendAt(value); setSendZone(zone); try { const scheduledAt = value ? scheduledInstant(value, zone) : null; setScheduleError(""); change({ scheduledAt, sendTimeZone: zone }); } catch (e) { setScheduleError(e.message); change({ scheduledAt: null, sendTimeZone: zone }); } };

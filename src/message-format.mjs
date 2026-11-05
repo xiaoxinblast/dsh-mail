@@ -19,10 +19,29 @@ export function addressPeople(value) {
   parts.push(part);
   return parts.map((item) => { const match = item.trim().match(/^(.*?)<([^<>]+)>$/); return { name: match ? displayName(match[1]) : "", address: (match ? match[2] : item).trim().toLowerCase() }; }).filter((p) => p.address);
 }
+// Confident standalone markers only: never infer a boundary from an ordinary
+// date, email address, signature rule, or mathematical greater-than sign.
+export function isQuoteBoundary(value) {
+  const line = String(value || "").replace(/\u00a0/g, " ").trim().replace(/[\t ]+/g, " ");
+  return /^(?:[—–_-]{1,}|-{2,})\s*\d{4}-\d{2}-\d{2}(?:[T ][\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?\s+[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+\s*(?:[—–_-]{1,}|-{2,})$/i.test(line)
+    || /^On .{1,400}wrote:\s*$/i.test(line)
+    || /^在.{1,400}(?:写道|寫道)[：:]\s*$/.test(line)
+    || /^-{2,}\s*(?:Original Message|原始邮件|原始郵件)\s*-{2,}$/i.test(line);
+}
+export function quotedTextSections(value) {
+  const text = String(value || ""), sections = []; let offset = 0, start = 0, quoting = false;
+  for (const line of text.split(/(?<=\n)/)) {
+    const boundary = isQuoteBoundary(line) || (!quoting && /^>/.test(line));
+    if (boundary) { if (offset > start) sections.push({ quoted: quoting, text: text.slice(start, offset) }); quoting = true; start = offset; }
+    offset += line.length;
+  }
+  if (start < text.length) sections.push({ quoted: quoting, text: text.slice(start) });
+  return sections;
+}
 export function splitQuotedText(value) {
-  const text = String(value || "");
-  const match = /^(?:>.*|On .{1,400}wrote:\s*|在.{1,400}(?:写道|寫道)[：:]\s*|-{2,}\s*(?:Original Message|原始邮件|原始郵件)\s*-{2,}|—— [^\n]+ ——)\r?$/im.exec(text);
-  return match ? { current: text.slice(0, match.index), quoted: text.slice(match.index) } : { current: text, quoted: "" };
+  const text = String(value || ""), sections = quotedTextSections(text);
+  const current = sections[0]?.quoted ? "" : sections[0]?.text || "";
+  return { current, quoted: text.slice(current.length) };
 }
 export function draftTextParts(draft) {
   const text = String(draft.text || "");

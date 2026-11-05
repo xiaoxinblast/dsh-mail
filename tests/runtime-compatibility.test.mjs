@@ -6,8 +6,9 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import packageInfo from "../package.json" with { type: "json" };
 
-test("plugin metadata supports the verified DSH rc.5 runtime without version exemption", () => {
-  assert.equal(packageInfo.engines.dsh, "0.2.1-rc.5");
+test("plugin metadata supports DSH 0.2.2-rc.1 and its Node minimum without version exemption", () => {
+  assert.equal(packageInfo.engines.dsh, "0.2.2-rc.1");
+  assert.equal(packageInfo.engines.node, ">=24.9.0");
   for (const range of Object.values(packageInfo.peerDependencies)) assert.equal(range, packageInfo.engines.dsh);
 });
 
@@ -26,6 +27,7 @@ test("native plugin and Agent load with the actual target DSH packages", { skip:
     const modelCtx = { get: (key) => services[key] }, runner = createAiRunner(modelCtx), signal = new AbortController().signal;
     const result = await runner({ task: "translateMessage", source: { text: "合成正文" }, language: "简体中文", instruction: "", context: {}, signal });
     assert.equal(result.text, "合成译文"); assert.equal(result.model, "fixture/default"); assert.equal(prepared.signal, signal);
+    assert.equal(aiModelSelection(modelCtx, { agent: { model: { current: () => ({ provider: "fixture", model: "agent-current" }) }, session: { requestHeader: () => ({ config: { provider: "fixture", model: "previous" } }) } } }).model, "agent-current");
     assert.equal(aiModelSelection(modelCtx, { agent: { session: { requestHeader: () => ({ config: { provider: "fixture", model: "previous" } }) } } }).model, "pending");
     services.sessionProjections = undefined;
     assert.equal(aiModelSelection(modelCtx, { agent: { session: { requestHeader: () => ({ config: { provider: "fixture", model: "previous" } }) } } }).model, "previous");

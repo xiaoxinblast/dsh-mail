@@ -11,7 +11,10 @@ const TASKS = {
 };
 
 export function aiModelSelection(ctx, context) {
-  const session = context.agent?.session;
+  const agent = context.agent;
+  const current = agent?.model?.current?.();
+  if (current?.provider && current?.model) return current;
+  const session = agent?.session;
   const pending = session && ctx.get("sessionProjections")?.stateOf(session, "modelSelection")?.pending;
   if (pending) return pending;
   const header = session?.requestHeader();

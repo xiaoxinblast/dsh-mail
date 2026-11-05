@@ -1,3 +1,9 @@
+# 0.1.14 — 2026-11-05
+
+- 适配 DeepSeek Harness 0.2.2-rc.1，最低 Node.js 版本提升至 24.9，与运行时及 peerDependencies 保持一致。
+- 邮件内 AI 优先读取当前 Agent 的 `agent.model.current()`；新版本不再依赖已弃用且无法可靠读取的 Session Projection registry state API。保留旧版 request-header 与模型服务回退路径。
+- 增加新 Agent 模型选择 API 的回归覆盖，并更新兼容元数据检查。
+
 # 0.1.13 — 2026-11-02
 
 - 邮件往来默认折叠；手动展开后后台刷新保持状态，切换邮件重新折叠，保留分组、副本去重和分页。

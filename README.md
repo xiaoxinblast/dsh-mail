@@ -6,7 +6,7 @@
 
 ## 安装
 
-环境：Windows，DeepSeek Harness **0.2.1-rc.5**。插件使用 DSH 自带 Node / SQLite，不另起常驻系统服务。
+环境：Windows，DeepSeek Harness **0.2.2-rc.1**（Node.js 24.9 或更新版本）。插件使用 DSH 自带 Node / SQLite，不另起常驻系统服务。
 
 打开 DSH → 插件 → 添加插件 → 安装第三方插件，填入：
 

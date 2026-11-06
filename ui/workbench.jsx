@@ -215,8 +215,16 @@ function AiPanel({ task: initialTask, messageId, replySource, prepare, apply, cl
   return <section className="dm-ai-panel" aria-label="邮件内 AI"><header><strong><Icon name="sparkle" size={16} />{AI_LABELS[task]}</strong><Button aria-label="关闭邮件内 AI" onClick={close}>×</Button></header><p className="dm-muted">1 填写要求 → 2 编辑生成结果 → 3 应用到下方正文。发送前仍需预览确认。</p><div className="dm-ai-controls"><Field label="AI 操作"><select value={task} onChange={(e) => { cancel(); setTask(e.target.value); setLanguage(aiLanguage(e.target.value)); setResult(null); setError(""); }}>{tasks.map((t) => <option key={t} value={t}>{AI_LABELS[t]}</option>)}</select></Field>{task !== "summary" && <Field label="输出语言"><select value={language} onChange={(e) => setLanguage(e.target.value)}>{task === "polish" && <option value="preserve">保留草稿语言</option>}{task === "reply" && <option value="original">跟随原信语言</option>}{["简体中文", "英语", "日语"].map((l) => <option key={l}>{l}</option>)}<option value="custom">自定义语言</option></select></Field>}{language === "custom" && <Field label="目标语言" value={custom} onChange={(e) => setCustom(e.target.value)} />}</div><Field label={task === "reply" ? "回复要求（可选）" : "写作或处理要求（可选）"}><textarea rows={2} value={instruction} onChange={(e) => setInstruction(e.target.value)} placeholder={task === "compose" ? "例如：向客户说明项目已交付，请对方周五前确认。" : "补充希望保留的内容、语气或其他要求…"} /></Field><div className="dm-ai-actions"><Button className="dm-ai-button" disabled={!active || loading || applyingResult || (language === "custom" && !custom.trim())} onClick={generate}>{loading ? "正在生成…" : result ? "重新生成" : "生成"}</Button>{loading && <Button onClick={() => { cancel(); setNote("已取消生成"); }}>取消生成</Button>}<small className="dm-muted">仅处理当前邮件或草稿</small></div>{error && <p role="alert" className="dm-warning">{error}</p>}{note && <p role="status">{note}</p>}{result && <div className="dm-ai-result"><small className="dm-muted">{result.model}</small>{result.subject !== undefined && <Field label="AI 生成主题" value={result.subject} onChange={(e) => setResult({ ...result, subject: e.target.value })} />}<Field label="AI 生成正文（可编辑）"><textarea className="dm-ai-edit" rows={8} value={result.text} onChange={(e) => setResult({ ...result, text: e.target.value })} /></Field><div className="dm-ai-actions"><Button onClick={async () => { try { await navigator.clipboard.writeText([result.subject, result.text].filter(Boolean).join("\n\n")); setNote("AI 结果已复制"); } catch (e) { setError(e.message); } }}>复制结果</Button>{!messageId && <><Button primary disabled={applyingResult} onClick={() => applyResult(false)}>应用正文</Button>{result.subject !== undefined && <Button disabled={applyingResult} onClick={() => applyResult(true)}>应用主题和正文</Button>}</>}{task === "reply" && messageId && <Button primary disabled={applyingResult} onClick={() => applyResult(false)}>创建回复草稿</Button>}</div></div>}</section>;
 }
 
+function mailtoRecipient(href) {
+  if (!/^mailto:/i.test(href)) return "";
+  try {
+    const address = decodeURIComponent(href.slice(7).split(/[?#]/, 1)[0]);
+    return /^[^\s\x00-\x1f\x7f<>"@,;:/\\]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(address) ? address : "";
+  } catch { return ""; }
+}
+
 function Reader({ id, active }) {
-  const { request, act, run, state, setSelected, setCompose, setModal, download, setQuery, busy } = useMail();
+  const { request, act, run, state, setSelected, setCompose, setModal, download, setQuery, busy, newDraft } = useMail();
   const [message, setMessage] = useState(null), [plain, setPlain] = useState(false), [remoteOverride, setRemote] = useState(null), [headers, setHeaders] = useState(false), [html, setHtml] = useState(""), [localError, setLocalError] = useState(""), [thread, setThread] = useState({ items: [], total: 0 });
   const [attachmentsOpen, setAttachmentsOpen] = useState(true), attachmentsId = useId(), [aiTask, setAiTask] = useState(null), [conversationOpen, setConversationOpen] = useState(false);
   const remote = remoteOverride ?? state.settings?.loadRemoteImages ?? DEFAULT_SETTINGS.loadRemoteImages;
@@ -224,13 +232,27 @@ function Reader({ id, active }) {
   useEffect(() => { if (!active) return; let cancelled = false; request({ action: "thread.read", id }).then((r) => { if (!cancelled) setThread(r); }).catch(() => {}); return () => { cancelled = true; }; }, [id, active, state.mailVersion, request]);
   useEffect(() => { if (!active) return; let cancelled = false; request({ action: "message.read", id }).then(async (m) => { if (cancelled) return; setMessage((previous) => JSON.stringify(previous) === JSON.stringify(m) ? previous : m); if (!m.seen && (state.settings?.markReadOnOpen ?? DEFAULT_SETTINGS.markReadOnOpen)) run(() => act({ action: "messages.action", ids: [id], operation: "read", value: true })); }).catch((e) => { if (!cancelled) setLocalError(e.message); }); return () => { cancelled = true; }; }, [id, active, state.mailVersion, request]);
   useEffect(() => { if (!message || !active) return; let cancelled = false; (async () => {
-    const doc = new DOMParser().parseFromString(DOMPurify.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping"] }), "text/html");
+    const doc = new DOMParser().parseFromString(DOMPurify.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping", "data-mail-recipient"] }), "text/html");
     decorateHtmlQuotes(doc);
     for (const element of doc.querySelectorAll("[style]")) if (/url\s*\(|@import/i.test(element.getAttribute("style"))) element.removeAttribute("style");
-    for (const anchor of doc.querySelectorAll("a")) { const href = (anchor.getAttribute("href") || "").trim(); if (/^https?:\/\//i.test(href) && URL.canParse(href)) { anchor.setAttribute("href", href); anchor.setAttribute("target", "_blank"); anchor.setAttribute("rel", "noopener noreferrer"); } else anchor.removeAttribute("href"); }
+    for (const anchor of doc.querySelectorAll("a")) {
+      const href = (anchor.getAttribute("href") || "").trim();
+      if (/^https?:\/\//i.test(href) && URL.canParse(href)) {
+        anchor.setAttribute("href", href); anchor.setAttribute("target", "_blank"); anchor.setAttribute("rel", "noopener noreferrer");
+        continue;
+      }
+      const address = mailtoRecipient(href);
+      if (!address) { anchor.removeAttribute("href"); continue; }
+      const button = doc.createElement("button");
+      button.type = "button";
+      button.title = address;
+      button.dataset.mailRecipient = address;
+      button.append(...anchor.childNodes);
+      anchor.replaceWith(button);
+    }
     for (const image of doc.querySelectorAll("img")) { const src = image.getAttribute("src") || ""; if (src.startsWith("cid:")) { const a = message.attachments.find((x) => x.cid === src.slice(4)); if (a && a.size < 8 * 1024 * 1024 && /^image\/(png|jpeg|gif|webp)$/.test(a.contentType)) { const data = await request({ action: "attachments.read", id: a.id }); image.src = `data:${data.contentType};base64,${data.base64}`; } else image.removeAttribute("src"); } else if (!remote || !/^https:\/\//i.test(src)) image.removeAttribute("src"); }
     const csp = `default-src 'none'; script-src 'none'; img-src data: ${remote ? "https:" : ""}; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'`;
-    if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style></head><body>${doc.body.innerHTML}</body></html>`);
+    if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}button[data-mail-recipient]{display:inline;padding:0;border:0;background:none;color:#0645ad;font:inherit;text-decoration:underline;cursor:pointer}${QUOTE_FRAME_CSS}</style></head><body>${doc.body.innerHTML}</body></html>`);
   })().catch((e) => { if (!cancelled) setLocalError(e.message); }); return () => { cancelled = true; }; }, [message?.html, imageAttachments, remote, active, request]);
   if (localError) return <Empty title="邮件暂时无法打开">{localError}<br /><Button onClick={() => setSelected(null)}>返回列表</Button></Empty>;
   if (!message) return <Empty title="正在读取邮件…">从本机缓存或邮箱服务器读取。</Empty>;
@@ -245,22 +267,29 @@ function Reader({ id, active }) {
     {thread.total > 1 && <details className="dm-conversation" open={conversationOpen} onToggle={(e) => setConversationOpen(e.currentTarget.open)}><summary>邮件往来 · 共 {thread.total} 封<span>含当前邮件，文件夹副本已合并</span></summary><div className="dm-conversation-items">{threadItems.map((m) => <Button key={m.id} aria-current={m.id === id ? "true" : undefined} onClick={() => m.id !== id && setSelected(m.id)}><span className="dm-conversation-sender">{personLabel(m.from?.[0])}</span><span className="dm-conversation-subject" title={m.subject}>{m.subject}</span><time dateTime={m.date}>{date(m.date)}</time>{m.id === id && <small>当前邮件</small>}</Button>)}</div>{thread.nextOffset !== null && <Button disabled={busy > 0} onClick={() => run(async () => { const more = await act({ action: "thread.read", id, offset: thread.nextOffset }); setThread((previous) => ({ ...more, items: [...previous.items, ...more.items] })); })}>加载更早的邮件</Button>}</details>}
     {aiTask && <AiPanel key={`${id}:${aiTask}`} task={aiTask} messageId={id} active={active} close={() => setAiTask(null)} apply={async (result) => { const draft = await act({ action: "drafts.reply", id, mode: "reply" }); const next = await act({ action: "drafts.save", draft: { id: draft.id, revision: draft.revision, text: `${result.text}\n\n${draft.text || ""}`, html: "" } }); setCompose(next); }} />}
     {!plain && message.html && <div className="dm-image-notice">{remote ? "已允许本封邮件加载 HTTPS 远程图片" : "远程图片已阻止"}<Button onClick={() => setRemote(!remote)}>{remote ? "阻止图片" : "加载图片"}</Button></div>}
-    <div className="dm-mail-body"><div className="dm-body-label">当前邮件正文</div>{!plain && message.html ? html ? <MailBodyFrame key={`${id}:${remote}`} html={html} /> : <p>正在整理邮件正文…</p> : <PlainMail text={message.text || "（无纯文本正文）"} />}</div>
+    <div className="dm-mail-body"><div className="dm-body-label">当前邮件正文</div>{!plain && message.html ? html ? <MailBodyFrame key={`${id}:${remote}`} html={html} onMailLink={newDraft} /> : <p>正在整理邮件正文…</p> : <PlainMail text={message.text || "（无纯文本正文）"} />}</div>
     {attachments.length > 0 && <section className={`dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`} aria-label="邮件附件"><div className="dm-attachment-heading"><h3><Button className="dm-attachment-toggle" aria-label={attachmentsOpen ? "收起附件" : "展开附件"} aria-expanded={attachmentsOpen} aria-controls={attachmentsId} onClick={() => setAttachmentsOpen(!attachmentsOpen)}><Icon name="next" size={14} />附件 · {attachments.length}</Button></h3><Button onClick={() => download({ action: "attachments.export", ids: attachments.map((a) => a.id) })}><Icon name="export" size={14} />打包下载全部附件</Button></div><div id={attachmentsId} className="dm-attachment-grid" hidden={!attachmentsOpen}>{attachments.map((a) => <AttachmentCard key={a.id || a.part} attachment={a} messageId={id} />)}</div></section>}
   </article>;
 }
 
-function MailBodyFrame({ html }) {
-  const observer = useRef(null);
-  useEffect(() => () => observer.current?.disconnect(), []);
+function MailBodyFrame({ html, onMailLink }) {
+  const cleanup = useRef(null), openDraft = useRef(onMailLink);
+  useEffect(() => { openDraft.current = onMailLink; }, [onMailLink]);
+  useEffect(() => () => cleanup.current?.(), []);
   // Same-origin access lets the parent measure static content. Email scripts
   // remain disabled by both sandbox and CSP; never add allow-scripts here.
   const loaded = (event) => {
-    observer.current?.disconnect();
+    cleanup.current?.();
     const frame = event.currentTarget, doc = frame.contentDocument;
     if (!doc?.body) return;
     const resize = () => { const style = getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom); frame.style.height = `${Math.min(100000, Math.max(180, Math.ceil(doc.body.scrollHeight + margins)))}px`; };
-    observer.current = new ResizeObserver(resize); observer.current.observe(doc.body); resize();
+    const click = (event) => {
+      const address = event.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
+      if (address) openDraft.current({ address });
+    };
+    const observer = new ResizeObserver(resize); observer.observe(doc.body); resize();
+    doc.addEventListener("click", click);
+    cleanup.current = () => { observer.disconnect(); doc.removeEventListener("click", click); };
   };
   return <iframe title="邮件正文" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcDoc={html} onLoad={loaded} />;
 }

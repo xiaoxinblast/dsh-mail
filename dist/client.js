@@ -46927,8 +46927,17 @@ function AiPanel({ task: initialTask, messageId, replySource, prepare, apply: ap
     }
   } }, "\u590D\u5236\u7ED3\u679C"), !messageId && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u5E94\u7528\u6B63\u6587"), result.subject !== void 0 && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: applyingResult, onClick: () => applyResult(true) }, "\u5E94\u7528\u4E3B\u9898\u548C\u6B63\u6587")), task === "reply" && messageId && /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u521B\u5EFA\u56DE\u590D\u8349\u7A3F"))));
 }
+function mailtoRecipient(href) {
+  if (!/^mailto:/i.test(href)) return "";
+  try {
+    const address = decodeURIComponent(href.slice(7).split(/[?#]/, 1)[0]);
+    return /^[^\s\x00-\x1f\x7f<>"@,;:/\\]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(address) ? address : "";
+  } catch {
+    return "";
+  }
+}
 function Reader({ id, active }) {
-  const { request, act, run: run3, state, setSelected, setCompose, setModal, download, setQuery, busy } = useMail();
+  const { request, act, run: run3, state, setSelected, setCompose, setModal, download, setQuery, busy, newDraft } = useMail();
   const [message, setMessage] = (0, import_react2.useState)(null), [plain, setPlain] = (0, import_react2.useState)(false), [remoteOverride, setRemote] = (0, import_react2.useState)(null), [headers, setHeaders] = (0, import_react2.useState)(false), [html2, setHtml] = (0, import_react2.useState)(""), [localError, setLocalError] = (0, import_react2.useState)(""), [thread, setThread] = (0, import_react2.useState)({ items: [], total: 0 });
   const [attachmentsOpen, setAttachmentsOpen] = (0, import_react2.useState)(true), attachmentsId = (0, import_react2.useId)(), [aiTask, setAiTask] = (0, import_react2.useState)(null), [conversationOpen, setConversationOpen] = (0, import_react2.useState)(false);
   const remote = remoteOverride ?? state.settings?.loadRemoteImages ?? DEFAULT_SETTINGS.loadRemoteImages;
@@ -46962,7 +46971,7 @@ function Reader({ id, active }) {
     if (!message || !active) return;
     let cancelled = false;
     (async () => {
-      const doc3 = new DOMParser().parseFromString(purify_default.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping"] }), "text/html");
+      const doc3 = new DOMParser().parseFromString(purify_default.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping", "data-mail-recipient"] }), "text/html");
       decorateHtmlQuotes(doc3);
       for (const element of doc3.querySelectorAll("[style]")) if (/url\s*\(|@import/i.test(element.getAttribute("style"))) element.removeAttribute("style");
       for (const anchor of doc3.querySelectorAll("a")) {
@@ -46971,7 +46980,19 @@ function Reader({ id, active }) {
           anchor.setAttribute("href", href);
           anchor.setAttribute("target", "_blank");
           anchor.setAttribute("rel", "noopener noreferrer");
-        } else anchor.removeAttribute("href");
+          continue;
+        }
+        const address = mailtoRecipient(href);
+        if (!address) {
+          anchor.removeAttribute("href");
+          continue;
+        }
+        const button = doc3.createElement("button");
+        button.type = "button";
+        button.title = address;
+        button.dataset.mailRecipient = address;
+        button.append(...anchor.childNodes);
+        anchor.replaceWith(button);
       }
       for (const image of doc3.querySelectorAll("img")) {
         const src = image.getAttribute("src") || "";
@@ -46984,7 +47005,7 @@ function Reader({ id, active }) {
         } else if (!remote || !/^https:\/\//i.test(src)) image.removeAttribute("src");
       }
       const csp = `default-src 'none'; script-src 'none'; img-src data: ${remote ? "https:" : ""}; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'`;
-      if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style></head><body>${doc3.body.innerHTML}</body></html>`);
+      if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}button[data-mail-recipient]{display:inline;padding:0;border:0;background:none;color:#0645ad;font:inherit;text-decoration:underline;cursor:pointer}${QUOTE_FRAME_CSS}</style></head><body>${doc3.body.innerHTML}</body></html>`);
     })().catch((e3) => {
       if (!cancelled) setLocalError(e3.message);
     });
@@ -47013,22 +47034,34 @@ function Reader({ id, active }) {
 
 ${draft.text || ""}`, html: "" } });
     setCompose(next);
-  } }), !plain && message.html && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-image-notice" }, remote ? "\u5DF2\u5141\u8BB8\u672C\u5C01\u90AE\u4EF6\u52A0\u8F7D HTTPS \u8FDC\u7A0B\u56FE\u7247" : "\u8FDC\u7A0B\u56FE\u7247\u5DF2\u963B\u6B62", /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setRemote(!remote) }, remote ? "\u963B\u6B62\u56FE\u7247" : "\u52A0\u8F7D\u56FE\u7247")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-mail-body" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-body-label" }, "\u5F53\u524D\u90AE\u4EF6\u6B63\u6587"), !plain && message.html ? html2 ? /* @__PURE__ */ import_react2.default.createElement(MailBodyFrame, { key: `${id}:${remote}`, html: html2 }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u6574\u7406\u90AE\u4EF6\u6B63\u6587\u2026") : /* @__PURE__ */ import_react2.default.createElement(PlainMail, { text: message.text || "\uFF08\u65E0\u7EAF\u6587\u672C\u6B63\u6587\uFF09" })), attachments.length > 0 && /* @__PURE__ */ import_react2.default.createElement("section", { className: `dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`, "aria-label": "\u90AE\u4EF6\u9644\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-attachment-heading" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-attachment-toggle", "aria-label": attachmentsOpen ? "\u6536\u8D77\u9644\u4EF6" : "\u5C55\u5F00\u9644\u4EF6", "aria-expanded": attachmentsOpen, "aria-controls": attachmentsId, onClick: () => setAttachmentsOpen(!attachmentsOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 14 }), "\u9644\u4EF6 \xB7 ", attachments.length)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "attachments.export", ids: attachments.map((a3) => a3.id) }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "export", size: 14 }), "\u6253\u5305\u4E0B\u8F7D\u5168\u90E8\u9644\u4EF6")), /* @__PURE__ */ import_react2.default.createElement("div", { id: attachmentsId, className: "dm-attachment-grid", hidden: !attachmentsOpen }, attachments.map((a3) => /* @__PURE__ */ import_react2.default.createElement(AttachmentCard, { key: a3.id || a3.part, attachment: a3, messageId: id })))));
+  } }), !plain && message.html && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-image-notice" }, remote ? "\u5DF2\u5141\u8BB8\u672C\u5C01\u90AE\u4EF6\u52A0\u8F7D HTTPS \u8FDC\u7A0B\u56FE\u7247" : "\u8FDC\u7A0B\u56FE\u7247\u5DF2\u963B\u6B62", /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setRemote(!remote) }, remote ? "\u963B\u6B62\u56FE\u7247" : "\u52A0\u8F7D\u56FE\u7247")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-mail-body" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-body-label" }, "\u5F53\u524D\u90AE\u4EF6\u6B63\u6587"), !plain && message.html ? html2 ? /* @__PURE__ */ import_react2.default.createElement(MailBodyFrame, { key: `${id}:${remote}`, html: html2, onMailLink: newDraft }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u6574\u7406\u90AE\u4EF6\u6B63\u6587\u2026") : /* @__PURE__ */ import_react2.default.createElement(PlainMail, { text: message.text || "\uFF08\u65E0\u7EAF\u6587\u672C\u6B63\u6587\uFF09" })), attachments.length > 0 && /* @__PURE__ */ import_react2.default.createElement("section", { className: `dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`, "aria-label": "\u90AE\u4EF6\u9644\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-attachment-heading" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-attachment-toggle", "aria-label": attachmentsOpen ? "\u6536\u8D77\u9644\u4EF6" : "\u5C55\u5F00\u9644\u4EF6", "aria-expanded": attachmentsOpen, "aria-controls": attachmentsId, onClick: () => setAttachmentsOpen(!attachmentsOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 14 }), "\u9644\u4EF6 \xB7 ", attachments.length)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "attachments.export", ids: attachments.map((a3) => a3.id) }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "export", size: 14 }), "\u6253\u5305\u4E0B\u8F7D\u5168\u90E8\u9644\u4EF6")), /* @__PURE__ */ import_react2.default.createElement("div", { id: attachmentsId, className: "dm-attachment-grid", hidden: !attachmentsOpen }, attachments.map((a3) => /* @__PURE__ */ import_react2.default.createElement(AttachmentCard, { key: a3.id || a3.part, attachment: a3, messageId: id })))));
 }
-function MailBodyFrame({ html: html2 }) {
-  const observer = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => () => observer.current?.disconnect(), []);
+function MailBodyFrame({ html: html2, onMailLink }) {
+  const cleanup = (0, import_react2.useRef)(null), openDraft = (0, import_react2.useRef)(onMailLink);
+  (0, import_react2.useEffect)(() => {
+    openDraft.current = onMailLink;
+  }, [onMailLink]);
+  (0, import_react2.useEffect)(() => () => cleanup.current?.(), []);
   const loaded = (event) => {
-    observer.current?.disconnect();
+    cleanup.current?.();
     const frame = event.currentTarget, doc3 = frame.contentDocument;
     if (!doc3?.body) return;
     const resize = () => {
       const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom);
       frame.style.height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
     };
-    observer.current = new ResizeObserver(resize);
-    observer.current.observe(doc3.body);
+    const click = (event2) => {
+      const address = event2.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
+      if (address) openDraft.current({ address });
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(doc3.body);
     resize();
+    doc3.addEventListener("click", click);
+    cleanup.current = () => {
+      observer.disconnect();
+      doc3.removeEventListener("click", click);
+    };
   };
   return /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, onLoad: loaded });
 }

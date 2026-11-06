@@ -19,6 +19,7 @@ const service = new MailService({ directory, transport: { close: async () => {},
 service.store.put("accounts", { ...normalizeAccount({ id: "me", email: "me@example.invalid", imapHost: "127.0.0.1", smtpHost: "127.0.0.1" }), authFailed: true });
 service.store.put("folders", { id: "inbox", accountId: "me", path: "INBOX", role: "\\Inbox" });
 const message = service.store.upsertMessage({ accountId: "me", folderId: "inbox", uid: 1, uidValidity: "1", messageId: "<experience@example.invalid>", from: [{ name: '""', address: "client@example.invalid" }], to: [{ name: '" "', address: "me@example.invalid" }], cc: [{ name: '"Doe, Jane"', address: "jane@example.invalid" }], subject: "[验收] 阅读与写信体验", date: new Date().toISOString(), bodyLoaded: true, seen: true, flags: ["\\Seen"], attachments: [], text: "本次回复：请核对交付时间。\n".repeat(60) + "\nOn Tuesday, client wrote:\n> 上一轮回复\n>> 更早回复", html: "<p>本次回复：请核对交付时间。</p>".repeat(60) + '<div class="gmail_quote"><p>上一轮回复</p><blockquote>更早回复</blockquote></div><script>window.emailScriptRan=true</script>' });
+const linkedMessage = service.store.upsertMessage({ ...message, id: undefined, uid: 2, messageId: "<mailto@example.invalid>", subject: "[验收] 项目联系人", text: "请联系项目经理。", html: '<p>请<a href="mailto:contact%2Bproject&#64;example.invalid?bcc=hidden%40example.invalid&amp;subject=Injected"><strong>联系项目经理</strong></a>，或查看<a href="https://mail-links.example.invalid/project">项目网页</a>。</p><p><a href="mailto:contact@example.invalid%0d%0a">含换行的地址</a> · <a href="mailto:broken%ZZ@example.invalid">无效编码</a> · <a data-mail-recipient="forged@example.invalid" href="javascript:void(0)">伪造操作</a></p>' });
 const separator1 = "—— 2026-11-04T08:21:44.000Z previous@example.invalid ——", separator2 = "— 2026-11-03T12:00:00+09:00 older@example.invalid —";
 const flatText = `今回の返信：翻訳が完了しました。\n\n${separator1}\n前回のメール：ご確認をお願いします。\n\n${separator2}\n以前のメール：日程について。`;
 const flatFixtures = [
@@ -47,10 +48,32 @@ page.setDefaultTimeout(10000); const errors = [], checks = []; page.on("pageerro
 const shots = join(cache, "screenshots"); await mkdir(shots, { recursive: true });
 const root = page.locator(".dsh-mail"), composer = root.locator(".dm-composer"), panel = root.getByRole("region", { name: "邮件内 AI" });
 const shot = (name) => page.screenshot({ path: join(shots, `experience-${name}.png`), fullPage: true });
-const open = async () => { await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: message.subject }).click(); await expect(root.locator(".dm-reader h2")).toHaveText(message.subject); };
+const open = async (subject = message.subject) => { await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: subject }).click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); };
 const generate = async (instruction = "") => { await panel.getByLabel("写作或处理要求（可选）").or(panel.getByLabel("回复要求（可选）")).fill(instruction); await panel.getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible(); };
 try {
   await page.goto(`http://127.0.0.1:${server.address().port}`);
+  await open(linkedMessage.subject);
+  const linkFrame = root.frameLocator('iframe[title="邮件正文"]');
+  const mailLink = linkFrame.getByRole("button", { name: "联系项目经理", exact: true });
+  await expect(mailLink).toHaveAttribute("title", "contact+project@example.invalid");
+  await expect(linkFrame.locator("[data-mail-recipient]")).toHaveCount(1);
+  for (const name of ["含换行的地址", "无效编码", "伪造操作"]) await expect(linkFrame.getByText(name, { exact: true })).not.toHaveAttribute("href", /.+/);
+  await page.context().route("https://mail-links.example.invalid/project", (route) => route.fulfill({ contentType: "text/plain; charset=utf-8", body: "合成项目网页" }));
+  const [projectPage] = await Promise.all([page.waitForEvent("popup"), linkFrame.getByRole("link", { name: "项目网页" }).click()]);
+  await expect(projectPage.locator("body")).toHaveText("合成项目网页"); await projectPage.close();
+  await shot("mailto-reader");
+  for (const activate of [() => mailLink.click(), () => mailLink.press("Enter")]) {
+    await activate();
+    await expect(composer.getByLabel("收件人", { exact: true })).toHaveValue("contact+project@example.invalid");
+    await expect(composer.getByLabel("主题", { exact: true })).toHaveValue("");
+    await shot("mailto-composer");
+    await composer.getByRole("button", { name: "← 关闭", exact: true }).click();
+    await open(linkedMessage.subject);
+  }
+  const linkDrafts = service.store.list("drafts").filter((draft) => draft.to?.[0]?.address === "contact+project@example.invalid");
+  assert.equal(linkDrafts.length, 2);
+  assert.ok(linkDrafts.every((draft) => !draft.bcc?.length && draft.status === "draft"));
+  checks.push("HTML mailto opens a local draft by mouse and keyboard, prefills the decoded recipient only, and keeps unsafe and web links isolated");
   for (const fixture of flatFixtures) {
     await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: fixture.subject }).click();
     const content = root.frameLocator('iframe[title="邮件正文"]'); await expect(content.locator("section[data-mail-history]")).toHaveCount(2);

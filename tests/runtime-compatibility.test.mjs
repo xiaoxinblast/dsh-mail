@@ -21,6 +21,14 @@ test("native plugin and Agent load with the actual target DSH packages", { skip:
   try {
     const plugin = await import("../dsh/index.mjs"), agent = await import("../dsh/agent.mjs"), bridge = await import("../dsh/bridge.mjs");
     assert.equal(typeof plugin.apply, "function"); assert.equal(typeof agent.apply, "function");
+    const hooks = new Map(), definitions = [], masks = [];
+    let reads = 0;
+    agent.apply({ tools: { view: () => ({ knownNames: new Set(["pwsh", "web_fetch"]) }), restrict: (mask) => masks.push(mask), register: (definition) => definitions.push(definition) }, on: (event, fn) => hooks.set(event, fn), systemPrompt: { section() {} }, mailWorkbench: { service: { assistantSource: async (id) => { assert.equal(id, "mail-session"); reads++; return { message: { text: "Full quoted mail" } }; } } } });
+    assert.deepEqual(masks, [{ deny: ["pwsh", "web_fetch"] }]); assert.equal(definitions.length, 9);
+    const decision = { kind: "enter", messages: [] }, event = { agent: { session: { header: { id: "mail-session" } } }, step: 1, signal: new AbortController().signal };
+    const admitted = await hooks.get("agent/pre-step")(event, async () => decision);
+    assert.equal(admitted.messages.length, 1); assert.equal(admitted.messages[0].source.kind, "dsh-mail-context"); assert.match(admitted.messages[0].content[0].text, /Full quoted mail/);
+    assert.equal(await hooks.get("agent/pre-step")({ ...event, step: 2 }, async () => decision), decision); assert.equal(reads, 1);
     const { createAiRunner, aiModelSelection } = await import("../dsh/ai.mjs");
     let finish = { kind: "stop" }, output = JSON.stringify({ subject: "合成主题", text: "合成译文" }), prepared;
     const services = { agentDefaultModel: { currentSelection: () => ({ provider: "fixture", model: "default" }) }, sessionProjections: { stateOf: () => ({ pending: { provider: "fixture", model: "pending" } }) }, llm: { prepareCall: async (config, signal) => { prepared = { config, signal }; return { config, async *stream(options) { assert.deepEqual(options.tools, []); assert.ok(!options.messages[0].content[0].text.includes("attachments")); yield { type: "block-end", index: 0, block: { type: "text", text: output } }; yield { type: "finish", reason: finish }; } }; } } };

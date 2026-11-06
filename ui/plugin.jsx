@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { App } from "./workbench.jsx";
 import { Icon } from "./icons.jsx";
+import { MailConversation, createMailAssistant } from "./assistant.jsx";
 
 function Opener({ sessionId, open }) { return <button type="button" title="打开 DSH Mail" aria-label="打开 DSH Mail" onClick={() => open(sessionId)} style={{ border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 }}><Icon name="mail" /></button>; }
 function Presence({ useMailMounted, useSessions, open, call }) {
@@ -26,14 +27,16 @@ export default {
     ctx.effect(() => dispose);
     await ctx.inject(["remote.mailUi"], (ctx) => {
       const call = async (sessionId, operation, signal) => { const r = await ctx.remote.mailUi.invoke(sessionId, operation, signal); if (!r.ok) throw new Error(r.error.message); return r.value; };
-      const globalCall = async (_sessionId, operation, signal) => { const r = await ctx.remote.mailUi.invokeGlobal(operation, signal); if (!r.ok) throw new Error(r.error.message); return r.value; };
-      const globalPrompt = async (_sessionId, text) => { const workspaces = ctx.workspaces.list.getSnapshot(); if (workspaces.phase !== "ready" || !workspaces.items.length) throw new Error("请先在 DSH 左侧添加工作区，再交给邮箱助手。"); ctx.uiWorkspace.startSession(undefined, { agentPreset: "dsh-mail", prompt: text, whenDraftExists: "append" }); return "请在邮箱助手会话中核对输入框的内容，然后发送。"; };
-      const prompt = async (sessionId, text) => { const preset = ctx.sessions.list.getSnapshot().byId[sessionId]?.projectionValues?.agentPreset; if (preset !== "dsh-mail") throw new Error("请先新建使用 DSH Mail 邮箱助手的会话。"); const r = await ctx.remote.session.prompt({ requestId: crypto.randomUUID(), sessionId, mode: "queue", content: [{ type: "text", text }] }); if (!r.ok) throw new Error(r.error.message); return r.value; };
+      const globalCall = async (_sessionId, operation, signal) => { if (_sessionId) return call(_sessionId, operation, signal); const r = await ctx.remote.mailUi.invokeGlobal(operation, signal); if (!r.ok) throw new Error(r.error.message); return r.value; };
+
+      const assistantHost = createMailAssistant(ctx, globalCall);
+      const children = (name) => ({ [name]: { kind: "single", scope: "session" } });
+      for (const name of ["dsh-mail.main.conversation", "dsh-mail.sidebar.conversation"]) ctx.slots.inject(name, () => ctx.slots.register({ name }, MailConversation));
       const open = (sessionId) => { if (!sessionId || ctx.sidebarRight.mounted.getSnapshot() !== sessionId) return; const existing = ctx.sidebarRight.openTabs.getSnapshot().find((t) => t.sessionId === sessionId && t.kind === "dsh-mail"); if (existing) { ctx.sidebarRight.focus(existing.tabId); if (!ctx.sidebarRight.isExpanded()) ctx.sidebarRight.toggleExpanded(); } else ctx.sidebarRight.openTab("dsh-mail"); };
       ctx.effect(() => ctx.sidebarRightTabs.register({ id: "dsh-mail", kind: "dsh-mail", title: () => "DSH Mail", keepMounted: true }));
-      ctx.slots.inject("main", () => ctx.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, App));
+      ctx.slots.inject("main", () => ctx.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.main.conversation"), inject: () => ({ call: globalCall, assistantHost, conversationSlot: "dsh-mail.main.conversation" }) }, App));
       ctx.slots.inject("sidebar.panellist", () => ctx.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
-      ctx.slots.inject("sidebar.right.pane.tab", () => ctx.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call, prompt }) }, Tab));
+      ctx.slots.inject("sidebar.right.pane.tab", () => ctx.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.sidebar.conversation"), inject: () => ({ call, assistantHost, conversationSlot: "dsh-mail.sidebar.conversation" }) }, Tab));
       ctx.slots.inject("sidebar.right.pane.tab.title", () => ctx.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));
       ctx.slots.inject("shell.overlay", () => ctx.slots.register({ name: "shell.overlay", id: "dsh-mail-auto-open", inject: () => ({ hooks: { mailMounted: ctx.sidebarRight.mounted }, open, call }) }, Presence));
       ctx.slots.inject("conversation.session.header.utilities", () => ctx.slots.register({ name: "conversation.session.header.utilities", id: "dsh-mail-open", locale: "dsh-mail", inject: () => ({ open }) }, Opener));

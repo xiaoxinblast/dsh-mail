@@ -1,5 +1,15 @@
 # 验收记录
 
+## 0.1.18 Mailbird 布局与内嵌 Agent 验收（2026-11-06）
+
+- 完整 104 项测试：103 通过、0 失败、1 项 Windows 通知身份环境检查跳过。覆盖实际 DSH 0.2.2-rc.1 SDK、完整 HTML/纯文本引用、会话上下文隔离、仅真人绑定、逐轮上下文注入、发送预览保留草稿和既有发送确认权限。
+- `scripts/verify-mail-experience-ui.mjs` 使用真实 App/MailService 与独立合成数据库：验证长正文滚动时发送/附件仍可见、抄送密送折叠后持久化、附件上传、发送选项浮层及 Escape 关闭、定时计划保存、AI 回复和链接回归。1440/768/390px 浅色/深色截图已实际查看；浮层不超出写信区域，浏览器错误和 SMTP 调用均为 0。
+- 图标格式栏通过真实选区操作验证字体、字号、文字颜色、背景高亮及各类文字标记；保存后重开仍保留，生成并解析邮件 MIME 后 HTML 与草稿完全相同，附件也保留。验证清除格式、撤销、重做、两类列表、纯文本模式禁用格式选项及模板/签名菜单；浅色/深色、1440/768/390px 颜色面板截图已查看。
+- `scripts/prepare-mail-assistant-ui.mjs` 与 `scripts/fixtures/assistant-model.mjs` 为仓库内隔离 Host 提供本地合成模型；`scripts/verify-mail-assistant-ui.mjs` 从真实原生输入框发送消息，经过 Agent 多步工具链生成并展示回复草稿、发送预览和待办。请求记录证明完整最早引用进入模型、同轮只注入一次、工具集合仅有九组邮件工具；切换邮件更新快照，关闭重开及页面刷新保留历史，停止按钮取消请求。发送预览未被确认。
+- 使用本地合成模型与合成邮箱；未进行付费模型调用或真实邮件发送，未更新日常 DSH 安装。运行数据、模型请求记录和截图仅保存在 `.cache/`，不随提交交付。
+
+在已有 DSH Mail 与工作区配置的仓库隔离 web profile 中复现原生侧栏验收：先运行 `node scripts/prepare-mail-assistant-ui.mjs <DSH_RUNTIME_MODULES>`，将 `DSH_HOME` 指向仓库 `.cache/dsh-home`，使用生成的 `.cache/current-launch.mjs --profile web --patch .cache/mail-assistant.patch.yml --no-open --port 0` 启动隔离 Host，并将输出保存为 `.cache/current-host.log`；再运行 `node scripts/verify-mail-assistant-ui.mjs`。准备脚本只重置该隔离目录的助手映射、通知和待确认预览。
+
 ## 0.1.16 平铺 HTML 引用边界验收（2026-11-06）
 
 - 针对用户截图中的“横线 + ISO 日期 + 邮箱”格式增加合成邮件；未使用截图中的真实联系人或邮件数据。识别普通段落、带 NBSP 的 span、HTML 源码换行、BR 和表格中的分隔行，逐封显示编号卡片、标题栏、背景和边框。

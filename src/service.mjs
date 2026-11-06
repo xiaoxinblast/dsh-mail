@@ -4,6 +4,7 @@ import JSZip from "jszip";
 import { parse as parseCsv } from "csv-parse/sync";
 import { stringify as stringifyCsv } from "csv-stringify/sync";
 import ICAL from "ical.js";
+import { simpleParser } from "mailparser";
 import { Store } from "./store.mjs";
 import { WindowsVault } from "./vault.mjs";
 import { MailTransport, normalizeAccount, parseMessage, composeDraft } from "./mail.mjs";
@@ -14,9 +15,10 @@ import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses, addresses } from "./util.mjs";
 import packageInfo from "../package.json" with { type: "json" };
 import { draftTextParts, textHtml } from "./message-format.mjs";
+import { downloadableAttachments } from "./attachments.mjs";
 
 const SAFE_RESOURCES = new Set(["tasks", "contacts", "calendars", "signatures", "templates", "saved-searches", "labels"]);
-const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test", "ai.generate"]);
+const HUMAN_ONLY = new Set(["accounts.save", "accounts.remove", "preview.confirm", "rules.enable", "backup.restore", "attachments.upload", "files.save", "settings.save", "folders.color", "workbench.state", "workbench.ack", "exports.read", "notifications.test", "ai.generate", "assistant.session", "assistant.context"]);
 const PRIVATE_FIELDS = new Set(["ciphertext", "password", "secret", "rawPath"]);
 function publicValue(value) { return JSON.parse(JSON.stringify(value, function (key, item) { return PRIVATE_FIELDS.has(key) || (key === "path" && (this.contentType || this.rawPath)) ? undefined : item; })); }
 function draftView(draft) { return publicValue(draft); }
@@ -85,6 +87,7 @@ export class MailService {
     if (action === "message.read" || action === "thread.read") { const m = this.message(args.id); return { page: "mail", messageId: m.id, query: action === "thread.read" ? { accountId: m.accountId, threadId: result.threadId, includeSnoozed: true } : { accountId: m.accountId, folderId: m.folderId } }; }
     if (["drafts.save", "drafts.reply", "drafts.cancel", "events.invite", "events.rsvp"].includes(action)) return { page: "mail", draftId: result.id };
     if (action === "drafts.delete") return { page: "mail", section: "drafts" };
+    if (action === "send.preview") return { page: "mail", draftId: args.id, previewId: result.id };
     if (result?.kind && result?.details && result?.status === "pending") return { page: action.startsWith("rules.") ? "rules" : "mail", previewId: result.id };
     if (action === "messages.action") return { page: "mail", activity: true, selectedIds: [...new Set(args.ids || [])] };
     if (action === "folders.action") return result.kind === "folder-copy" ? { page: "mail", activity: true } : { page: "mail", query: { accountId: result.accountId, folderId: result.id } };
@@ -116,6 +119,22 @@ export class MailService {
     if (context.kind !== "human") requireValue(!/"(?:password|ciphertext|secret)"\s*:/.test(JSON.stringify(args)), "SECRET_INPUT_FORBIDDEN", "请通过设置界面输入凭据。");
     if (action === "state") return { ...this.state(), workbench: context.kind === "human" ? publicValue(this.workbenchView(context.sessionId)) : null };
     if (action === "workbench.state") return publicValue(this.workbenchView(context.sessionId));
+    if (action === "assistant.session") {
+      requireValue(typeof args.key === "string" && args.key.length > 0 && args.key.length <= 200, "INVALID_ASSISTANT", "邮箱助手会话标识无效。");
+      if (args.sessionId !== undefined) {
+        requireValue(typeof args.sessionId === "string" && args.sessionId.length > 0 && args.sessionId.length <= 200, "INVALID_ASSISTANT", "邮箱助手会话无效。");
+        return this.store.put("assistant-sessions", { id: args.key, sessionId: args.sessionId });
+      }
+      return this.store.get("assistant-sessions", args.key);
+    }
+    if (action === "assistant.context") {
+      requireValue(context.sessionId, "WORKBENCH_SESSION_REQUIRED", "请先打开邮箱助手。");
+      const message = args.messageId ? this.message(args.messageId) : null;
+      const draft = args.draftId ? this.store.get("drafts", args.draftId) : null;
+      if (args.draftId) requireValue(draft, "DRAFT_NOT_FOUND", "草稿不存在。");
+      return { ...this.store.put("assistant-contexts", { id: context.sessionId, messageId: args.messageId || null, draftId: args.draftId || null }), subject: draft?.subject || message?.subject || "" };
+    }
+    if (action === "assistant.read") return this.assistantSource(context.sessionId);
     if (action === "workbench.ack") { const current = this.workbenchView(context.sessionId); if (!current || current.id !== args.id) return { acknowledged: false }; this.workbenchViews.delete(context.sessionId); return { acknowledged: true }; }
     if (action === "workbench.show") {
       const page = args.page || "mail"; requireValue(["mail", "drafts", "calendar", "tasks", "contacts", "rules", "settings", "activity"].includes(page), "INVALID_WORKBENCH_PAGE", "请选择有效的工作台页面。");
@@ -661,6 +680,28 @@ export class MailService {
     } while (rows.length === 200);
     if (!this.stopped) this.store.put("settings", { ...progress, complete: true });
   }
+  async completeMailText(message) {
+    requireValue(!message.bodyTruncated, "AI_SOURCE_TRUNCATED", "本机正文已截断，请取得完整正文后再交给 AI。");
+    if (!message.html) return message.text || "";
+    const parsed = await simpleParser(Buffer.from("Content-Type: text/html; charset=utf-8\r\n\r\n" + message.html), { skipImageLinks: true });
+    const plain = message.text || "", htmlText = parsed.text || "";
+    const normalized = (value) => value.replace(/\s+/g, "");
+    if (normalized(htmlText).includes(normalized(plain))) return htmlText;
+    if (normalized(plain).includes(normalized(htmlText))) return plain;
+    return plain + "\n\n[HTML 正文与引用]\n" + htmlText;
+  }
+  async assistantSource(sessionId) {
+    const selection = this.store.get("assistant-contexts", sessionId);
+    if (!selection) return { message: null, draft: null };
+    const draft = selection.draftId ? this.store.get("drafts", selection.draftId) : null;
+    const messageId = selection.messageId || draft?.sourceMessageId;
+    const message = messageId ? await this.loadMessage(messageId) : null;
+    return {
+      bound: true,
+      message: message ? { id: message.id, accountId: message.accountId, subject: message.subject, from: message.from, to: message.to, cc: message.cc, date: message.date, text: await this.completeMailText(message), attachments: downloadableAttachments(message).map(({ id, filename, size, contentType }) => ({ id, filename, size, contentType })) } : null,
+      draft: draft ? { id: draft.id, revision: draft.revision, accountId: draft.accountId, subject: draft.subject, to: draft.to, cc: draft.cc, bcc: draft.bcc, text: draft.text, status: draft.status } : null
+    };
+  }
   async generateAi(args, context) {
     const signal = AbortSignal.any([this.abort.signal, ...(context.signal ? [context.signal] : []), AbortSignal.timeout(120000)]);
     signal.throwIfAborted();
@@ -673,7 +714,7 @@ export class MailService {
     requireValue(original && (!drafting || ["draft", "failed", "needs-confirmation"].includes(original.status)), "DRAFT_LOCKED", "当前草稿不可编辑。");
     if (drafting && args.revision !== undefined) requireValue(original.revision === args.revision, "CONFLICT", "草稿已经改变，请重新生成。");
     requireValue(!original.bodyTruncated, "AI_SOURCE_TRUNCATED", "本机正文已截断，无法生成完整结果；请取得完整正文后重试。");
-    const source = { subject: original.subject || "", text: drafting ? draftTextParts(original).current : original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
+    const source = { subject: original.subject || "", text: drafting ? draftTextParts(original).current : args.task === "reply" ? await this.completeMailText(original) : original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
     requireValue(source.text.trim() || !original.html, "AI_TEXT_UNAVAILABLE", "此邮件只有 HTML 正文，请取得纯文本正文后再使用 AI。");
     requireValue(args.task === "compose" || source.text.trim(), "AI_TEXT_REQUIRED", "当前正文为空。");
     const language = args.language || (args.task === "polish" ? "preserve" : args.task === "reply" ? "original" : "简体中文");

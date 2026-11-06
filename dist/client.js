@@ -34,7 +34,7 @@ __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
-var import_react3 = __toESM(require("react"), 1);
+var import_react4 = __toESM(require("react"), 1);
 
 // ui/workbench.jsx
 var import_react2 = __toESM(require("react"), 1);
@@ -17922,6 +17922,19 @@ function createStyleTag(style2, nonce, suffix) {
   document.getElementsByTagName("head")[0].appendChild(styleNode);
   return styleNode;
 }
+function getStyleProperty(element, propertyName) {
+  const styleAttr = element.getAttribute("style");
+  if (!styleAttr) return null;
+  const decls = styleAttr.split(";").map((decl) => decl.trim()).filter(Boolean);
+  const target = propertyName.toLowerCase();
+  for (let i4 = decls.length - 1; i4 >= 0; i4 -= 1) {
+    const decl = decls[i4];
+    const colonIndex = decl.indexOf(":");
+    if (colonIndex === -1) continue;
+    if (decl.slice(0, colonIndex).trim().toLowerCase() === target) return decl.slice(colonIndex + 1).trim();
+  }
+  return null;
+}
 function isNumber(value) {
   return typeof value === "number";
 }
@@ -17931,6 +17944,9 @@ function getType(value) {
 function isPlainObject(value) {
   if (getType(value) !== "Object") return false;
   return value.constructor === Object && Object.getPrototypeOf(value) === Object.prototype;
+}
+function isValidCSSStyleValue(value) {
+  return typeof value === "string" && value.trim().length > 0 && !/[;{}]/.test(value);
 }
 function parseIndentedBlocks(src, config2, lexer) {
   const lines = src.split("\n");
@@ -25380,6 +25396,247 @@ var StarterKit = Extension.create({
   }
 });
 var src_default = StarterKit;
+
+// node_modules/@tiptap/extension-text-style/dist/index.js
+var MAX_FIND_CHILD_SPAN_DEPTH = 20;
+var findChildSpans = (element, depth = 0) => {
+  const childSpans = [];
+  if (!element.children.length || depth > MAX_FIND_CHILD_SPAN_DEPTH) return childSpans;
+  Array.from(element.children).forEach((child) => {
+    if (child.tagName === "SPAN") childSpans.push(child);
+    else if (child.children.length) childSpans.push(...findChildSpans(child, depth + 1));
+  });
+  return childSpans;
+};
+var mergeNestedSpanStyles = (element) => {
+  if (!element.children.length) return;
+  const childSpans = findChildSpans(element);
+  if (!childSpans) return;
+  childSpans.forEach((childSpan) => {
+    var _childSpan$parentElem;
+    const childStyle = childSpan.getAttribute("style");
+    const closestParentSpanStyleOfChild = (_childSpan$parentElem = childSpan.parentElement) === null || _childSpan$parentElem === void 0 || (_childSpan$parentElem = _childSpan$parentElem.closest("span")) === null || _childSpan$parentElem === void 0 ? void 0 : _childSpan$parentElem.getAttribute("style");
+    childSpan.setAttribute("style", `${closestParentSpanStyleOfChild};${childStyle}`);
+  });
+};
+var TextStyle = Mark2.create({
+  name: "textStyle",
+  priority: 101,
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+      mergeNestedSpanStyles: true
+    };
+  },
+  parseHTML() {
+    return [{
+      tag: "span",
+      consuming: false,
+      getAttrs: (element) => {
+        if (!element.hasAttribute("style")) return false;
+        if (this.options.mergeNestedSpanStyles) mergeNestedSpanStyles(element);
+        return {};
+      }
+    }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "span",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0
+    ];
+  },
+  addCommands() {
+    return {
+      toggleTextStyle: (attributes) => ({ commands }) => {
+        return commands.toggleMark(this.name, attributes);
+      },
+      removeEmptyTextStyle: () => ({ tr: tr2 }) => {
+        const { selection } = tr2;
+        tr2.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+          if (!node.isInline) return true;
+          if (!node.marks.filter((mark) => mark.type === this.type).some((mark) => Object.values(mark.attrs).some((value) => !!value))) tr2.removeMark(pos, pos + node.nodeSize, this.type);
+        });
+        return true;
+      }
+    };
+  }
+});
+var BackgroundColor = Extension.create({
+  name: "backgroundColor",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { backgroundColor: {
+        default: null,
+        parseHTML: (element) => {
+          var _getStyleProperty;
+          const value = (_getStyleProperty = getStyleProperty(element, "background-color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.backgroundColor;
+          return value === null || value === void 0 ? void 0 : value.replace(/['"]+/g, "");
+        },
+        renderHTML: (attributes) => {
+          if (!isValidCSSStyleValue(attributes.backgroundColor)) return {};
+          return { style: `background-color: ${attributes.backgroundColor}` };
+        }
+      } }
+    }];
+  },
+  addCommands() {
+    return {
+      setBackgroundColor: (backgroundColor) => ({ chain }) => {
+        return chain().setMark("textStyle", { backgroundColor }).run();
+      },
+      unsetBackgroundColor: () => ({ chain }) => {
+        return chain().setMark("textStyle", { backgroundColor: null }).removeEmptyTextStyle().run();
+      }
+    };
+  }
+});
+var Color = Extension.create({
+  name: "color",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { color: {
+        default: null,
+        parseHTML: (element) => {
+          var _getStyleProperty;
+          const value = (_getStyleProperty = getStyleProperty(element, "color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.color;
+          return value === null || value === void 0 ? void 0 : value.replace(/['"]+/g, "");
+        },
+        renderHTML: (attributes) => {
+          if (!isValidCSSStyleValue(attributes.color)) return {};
+          return { style: `color: ${attributes.color}` };
+        }
+      } }
+    }];
+  },
+  addCommands() {
+    return {
+      setColor: (color) => ({ chain }) => {
+        return chain().setMark("textStyle", { color }).run();
+      },
+      unsetColor: () => ({ chain }) => {
+        return chain().setMark("textStyle", { color: null }).removeEmptyTextStyle().run();
+      }
+    };
+  }
+});
+var FontFamily = Extension.create({
+  name: "fontFamily",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { fontFamily: {
+        default: null,
+        parseHTML: (element) => {
+          var _getStyleProperty;
+          return (_getStyleProperty = getStyleProperty(element, "font-family")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.fontFamily;
+        },
+        renderHTML: (attributes) => {
+          if (!isValidCSSStyleValue(attributes.fontFamily)) return {};
+          return { style: `font-family: ${attributes.fontFamily}` };
+        }
+      } }
+    }];
+  },
+  addCommands() {
+    return {
+      setFontFamily: (fontFamily) => ({ chain }) => {
+        return chain().setMark("textStyle", { fontFamily }).run();
+      },
+      unsetFontFamily: () => ({ chain }) => {
+        return chain().setMark("textStyle", { fontFamily: null }).removeEmptyTextStyle().run();
+      }
+    };
+  }
+});
+var FontSize = Extension.create({
+  name: "fontSize",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { fontSize: {
+        default: null,
+        parseHTML: (element) => {
+          var _getStyleProperty;
+          return (_getStyleProperty = getStyleProperty(element, "font-size")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.fontSize;
+        },
+        renderHTML: (attributes) => {
+          if (!isValidCSSStyleValue(attributes.fontSize)) return {};
+          return { style: `font-size: ${attributes.fontSize}` };
+        }
+      } }
+    }];
+  },
+  addCommands() {
+    return {
+      setFontSize: (fontSize) => ({ chain }) => {
+        return chain().setMark("textStyle", { fontSize }).run();
+      },
+      unsetFontSize: () => ({ chain }) => {
+        return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+      }
+    };
+  }
+});
+var LineHeight = Extension.create({
+  name: "lineHeight",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { lineHeight: {
+        default: null,
+        parseHTML: (element) => {
+          var _getStyleProperty;
+          return (_getStyleProperty = getStyleProperty(element, "line-height")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.lineHeight;
+        },
+        renderHTML: (attributes) => {
+          if (!isValidCSSStyleValue(attributes.lineHeight)) return {};
+          return { style: `line-height: ${attributes.lineHeight}` };
+        }
+      } }
+    }];
+  },
+  addCommands() {
+    return {
+      setLineHeight: (lineHeight) => ({ chain }) => {
+        return chain().setMark("textStyle", { lineHeight }).run();
+      },
+      unsetLineHeight: () => ({ chain }) => {
+        return chain().setMark("textStyle", { lineHeight: null }).removeEmptyTextStyle().run();
+      }
+    };
+  }
+});
+var TextStyleKit = Extension.create({
+  name: "textStyleKit",
+  addExtensions() {
+    const extensions = [];
+    if (this.options.backgroundColor !== false) extensions.push(BackgroundColor.configure(this.options.backgroundColor));
+    if (this.options.color !== false) extensions.push(Color.configure(this.options.color));
+    if (this.options.fontFamily !== false) extensions.push(FontFamily.configure(this.options.fontFamily));
+    if (this.options.fontSize !== false) extensions.push(FontSize.configure(this.options.fontSize));
+    if (this.options.lineHeight !== false) extensions.push(LineHeight.configure(this.options.lineHeight));
+    if (this.options.textStyle !== false) extensions.push(TextStyle.configure(this.options.textStyle));
+    return extensions;
+  }
+});
 
 // node_modules/@tiptap/extension-image/dist/index.js
 var inputRegex4 = /(?:^|\s)(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/;
@@ -46060,6 +46317,98 @@ var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:va
 .dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}\r
 .dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}\r
 @container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}\r
+\r
+/* Compact composer keeps the action dock outside the scrolling content. */\r
+.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}\r
+.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}\r
+.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}\r
+.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}\r
+.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}\r
+.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}\r
+.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}\r
+.dsh-mail .dm-compose-scroll>*{flex-shrink:0}\r
+.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}\r
+.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}\r
+.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}\r
+.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}\r
+.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}\r
+.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}\r
+.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}\r
+.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}\r
+.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}\r
+.dsh-mail .dm-compose-people summary{cursor:pointer}\r
+.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}\r
+.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}\r
+.dsh-mail .dm-editor-toolbar{align-items:center}\r
+.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}\r
+.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}\r
+.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}\r
+.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}\r
+.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}\r
+.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}\r
+.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}\r
+.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}\r
+.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}\r
+.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}\r
+.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}\r
+.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}\r
+.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}\r
+.dsh-mail .dm-format-insert select{width:100%}\r
+.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}\r
+.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}\r
+.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}\r
+.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}\r
+.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}\r
+.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}\r
+.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}\r
+.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}\r
+.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}\r
+.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}\r
+.dsh-mail .dm-compose-options{position:static}\r
+.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}\r
+.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}\r
+.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}\r
+.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}\r
+.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}\r
+.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}\r
+.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}\r
+.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}\r
+@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}\r
+\r
+.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}\r
+.dm-app>.dsh-mail{flex:1;min-width:0}\r
+.dm-agent-panel{flex:0 0 390px;min-width:0;max-width:45%;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}\r
+.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}\r
+.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}\r
+.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}\r
+.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}\r
+.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}\r
+.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
+.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}\r
+.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}\r
+@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:min(420px,100%);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}\r
+/* Mailbird-inspired quiet chrome and a readable message surface. */\r
+.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}\r
+.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}\r
+.dsh-mail .dm-reader-person>div{flex:1;min-width:0}\r
+.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}\r
+.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}\r
+.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}\r
+.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}\r
+.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}\r
+.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}\r
+.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}\r
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}\r
+.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}\r
+.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}\r
+.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}\r
+.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}\r
+.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}\r
+.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}\r
+.dsh-mail .dm-mail-body{padding:18px 24px}\r
+.dsh-mail .dm-reader .dm-body-label{display:none}\r
+.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}\r
+@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}\r
 `;
 
 // ui/event-color.mjs
@@ -46157,6 +46506,21 @@ var paths = {
   next: /* @__PURE__ */ import_react.default.createElement("path", { d: "m10 5 7 7-7 7" }),
   sparkle: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m12 3 3 6 6 3-6 3-3 6-3-6-6-3 6-3ZM20 2v4M18 4h4" })),
   attachment: /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 13 7-7a3 3 0 0 1 4 4L9 20a5 5 0 0 1-7-7L13 2" }),
+  image: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3", y: "3", width: "18", height: "18", rx: "3" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "8", cy: "8", r: "1" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m3 17 5-5 4 4 4-6 5 7" })),
+  bold: /* @__PURE__ */ import_react.default.createElement("path", { d: "M6 4h7a4 4 0 0 1 0 8H6V4Zm0 8h8a4 4 0 0 1 0 8H6v-8Z" }),
+  italic: /* @__PURE__ */ import_react.default.createElement("path", { d: "M10 4h10M4 20h10M15 4 9 20" }),
+  underline: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M6 3v7a6 6 0 0 0 12 0V3M4 21h16" })),
+  strike: /* @__PURE__ */ import_react.default.createElement("path", { d: "M18 5c-2-3-10-3-11 1-.6 2 1 3 3 4M6 18c2 3 10 3 11-1 .4-1.5-.5-3-2-4M3 12h18" }),
+  bulletList: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M9 5h12M9 12h12M9 19h12" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "3", cy: "5", r: "1" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "3", cy: "12", r: "1" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "3", cy: "19", r: "1" })),
+  orderedList: /* @__PURE__ */ import_react.default.createElement("path", { d: "M10 5h11M10 12h11M10 19h11M2 3h2v5M2 8h4M2 13c0-2 4-2 4 0 0 1-4 4-4 5h4" }),
+  undo: /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 4-5 5 5 5M3 9h10a7 7 0 0 1 0 14" }),
+  redo: /* @__PURE__ */ import_react.default.createElement("path", { d: "m16 4 5 5-5 5M21 9H11a7 7 0 0 0 0 14" }),
+  textColor: /* @__PURE__ */ import_react.default.createElement("path", { d: "m6 17 6-14 6 14M8 12h8M4 22h16" }),
+  highlight: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m14 3 7 7-9 9H5v-7Z M5 12l7 7M3 22h18" })),
+  clearFormat: /* @__PURE__ */ import_react.default.createElement("path", { d: "M5 4h14M12 4l-3 12M5 20l14-14M14 17l5 5M19 17l-5 5" }),
+  code: /* @__PURE__ */ import_react.default.createElement("path", { d: "m7 7-5 5 5 5M17 7l5 5-5 5M14 3l-4 18" }),
+  richText: /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 4h18M12 4v16M8 20h8" }),
+  template: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 9h18M9 9v12" })),
   export: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6" }))
 };
 function Icon({ name, size = 18 }) {
@@ -46393,6 +46757,13 @@ var useMail = () => (0, import_react2.useContext)(Ctx);
 var date = (v3) => v3 ? new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Hong_Kong" }).format(new Date(v3)) : "\u2014";
 var addr = (v3) => Array.isArray(v3) ? addressPeople(v3).map((a3) => a3.name ? `"${a3.name.replace(/"/g, '\\"')}" <${a3.address}>` : a3.address).join(", ") : v3 || "";
 var people = (value) => addressPeople(value).filter((p3) => /^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(p3?.address));
+var MAIL_FONTS = { "": "\u9ED8\u8BA4\u5B57\u4F53", Arial: "Arial", Calibri: "Calibri", "Microsoft YaHei": "\u5FAE\u8F6F\u96C5\u9ED1", SimSun: "\u5B8B\u4F53", SimHei: "\u9ED1\u4F53", Georgia: "Georgia", "Times New Roman": "Times New Roman", "Courier New": "\u7B49\u5BBD\u5B57\u4F53" };
+var TEXT_COLORS = [["\u9ED1\u8272", "#1f2937"], ["\u7070\u8272", "#64748b"], ["\u7EA2\u8272", "#b91c1c"], ["\u6A59\u8272", "#c2410c"], ["\u9EC4\u8272", "#fff2a8"], ["\u7EFF\u8272", "#15803d"], ["\u9752\u8272", "#0891b2"], ["\u84DD\u8272", "#2563eb"], ["\u7D2B\u8272", "#7c3aed"], ["\u7C89\u8272", "#db2777"], ["\u6D45\u7070\u8272", "#e2e8f0"], ["\u767D\u8272", "#ffffff"]];
+var colorInputValue = (value, fallback) => {
+  if (/^#[0-9a-f]{6}$/i.test(value || "")) return value;
+  const rgb = (value || "").match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  return rgb ? "#" + rgb.slice(1).map((n3) => Number(n3).toString(16).padStart(2, "0")).join("") : fallback;
+};
 var editableEvent = (event) => event.rrule ? { ...event, seriesId: event.eventId, id: void 0, revision: void 0, recurrenceId: event.start, rrule: "" } : { ...event, id: event.eventId };
 var statusText = { draft: "\u8349\u7A3F", queued: "\u7B49\u5F85\u53D1\u9001", sending: "\u53D1\u9001\u4E2D", sent: "\u5DF2\u53D1\u9001", uncertain: "\u53D1\u9001\u7ED3\u679C\u672A\u77E5", failed: "\u53D1\u9001\u5931\u8D25", "needs-confirmation": "\u5F85\u91CD\u65B0\u786E\u8BA4", connected: "\u5DF2\u8FDE\u63A5", syncing: "\u540C\u6B65\u4E2D", error: "\u8FDE\u63A5\u5F02\u5E38", disconnected: "\u5F85\u8FDE\u63A5" };
 var EMPTY = { accounts: [], folders: [], drafts: [], rules: [], events: [], previews: [], jobs: [], tasks: [], contacts: [], calendars: [], signatures: [], templates: [], notifications: [], labels: [], "saved-searches": [], logs: [] };
@@ -46443,8 +46814,46 @@ function deliverFile(result) {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 3e4);
 }
-function App({ sessionId, call, prompt, visible = true }) {
-  const [state, setState] = (0, import_react2.useState)(EMPTY), [tab, setTab] = (0, import_react2.useState)("\u90AE\u4EF6"), [error, setError] = (0, import_react2.useState)(""), [notice, setNotice] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(0), [modal, setModal] = (0, import_react2.useState)(null), [selected, setSelected] = (0, import_react2.useState)(null), [compose, setCompose] = (0, import_react2.useState)(null), [query, setQuery] = (0, import_react2.useState)({ inbox: true }), [assistant, setAssistant] = (0, import_react2.useState)("");
+function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, renderSlot, conversationSlot, visible = true }) {
+  const [assistantOpen, setAssistantOpen] = (0, import_react2.useState)(false), [assistantBinding, setAssistantBinding] = (0, import_react2.useState)(null), [contextReady, setContextReady] = (0, import_react2.useState)("");
+  const [assistantError, setAssistantError] = (0, import_react2.useState)(""), [assistantSubject, setAssistantSubject] = (0, import_react2.useState)("");
+  const sessionId = assistantOpen ? assistantBinding?.sessionId || ownerSessionId : ownerSessionId;
+  const [state, setState] = (0, import_react2.useState)(EMPTY), [tab, setTab] = (0, import_react2.useState)("\u90AE\u4EF6"), [error, setError] = (0, import_react2.useState)(""), [notice, setNotice] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(0), [modal, setModal] = (0, import_react2.useState)(null), [selected, setSelected] = (0, import_react2.useState)(null), [compose, setCompose] = (0, import_react2.useState)(null), [query, setQuery] = (0, import_react2.useState)({ inbox: true });
+  const contextKey = JSON.stringify([sessionId, tab === "\u90AE\u4EF6" ? compose ? compose.sourceMessageId || null : selected : null, tab === "\u90AE\u4EF6" ? compose?.id : null]);
+  (0, import_react2.useEffect)(() => {
+    if (!assistantOpen || !assistantHost) return;
+    setAssistantError("");
+    let cancelled = false, binding;
+    assistantHost.connect(ownerSessionId).then((value2) => {
+      binding = value2;
+      if (cancelled) binding.reference.release();
+      else setAssistantBinding(value2);
+    }).catch((e3) => {
+      if (!cancelled) setAssistantError(e3.message);
+    });
+    return () => {
+      cancelled = true;
+      binding?.reference.release();
+      setAssistantBinding(null);
+    };
+  }, [assistantOpen, assistantHost, ownerSessionId]);
+  (0, import_react2.useEffect)(() => {
+    if (!assistantOpen || !assistantBinding) return;
+    let cancelled = false;
+    const [id, messageId, draftId] = JSON.parse(contextKey);
+    setAssistantError("");
+    call(id, { action: "assistant.context", messageId, draftId }).then((value2) => {
+      if (!cancelled) {
+        setAssistantSubject(value2.subject);
+        setContextReady(contextKey);
+      }
+    }).catch((e3) => {
+      if (!cancelled) setAssistantError(e3.message);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [contextKey, assistantOpen, assistantBinding, call]);
   const root = (0, import_react2.useRef)(null), live = (0, import_react2.useRef)(true), tick = (0, import_react2.useRef)(false), [settingsSection, setSettingsSection] = (0, import_react2.useState)("\u90AE\u7BB1\u8D26\u53F7");
   const [folderMenu, setFolderMenu] = (0, import_react2.useState)(false), [drafts, setDrafts] = (0, import_react2.useState)(false), folderTrigger = (0, import_react2.useRef)(null), folderId = (0, import_react2.useId)();
   (0, import_react2.useEffect)(() => {
@@ -46589,25 +46998,15 @@ function App({ sessionId, call, prompt, visible = true }) {
     setFolderMenu(false);
   };
   const value = { state, error, request, act, run: run3, refresh, setModal, openMessage, setCompose, setTab, setQuery, query, selected, setSelected, compose, busy, settingsSection, setSettingsSection, navigation, setDraftTouched, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId, showParticipant, newDraft, download: (operation) => run3(async () => deliverFile(await act(operation))), setNotice };
-  return /* @__PURE__ */ import_react2.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react2.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
+  return /* @__PURE__ */ import_react2.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react2.default.createElement("div", { className: `dm-app ${assistantOpen ? "has-assistant" : ""}` }, /* @__PURE__ */ import_react2.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
     setTab("\u90AE\u4EF6");
     setFolderMenu(!folderMenu);
   } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u6587\u4EF6\u5939"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages" }, [["\u65E5\u5386", "calendar"], ["\u5F85\u529E", "task"], ["\u8054\u7CFB\u4EBA", "contacts"], ["\u89C4\u5219", "rules"]].map(([name, icon]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name, "aria-current": tab === name ? "page" : void 0, onClick: () => setTab(name) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, name), name === "\u5F85\u529E" && state.tasks.some((t3) => !t3.done) && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.tasks.filter((t3) => !t3.done).length)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-bottom" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u901A\u77E5\u4E0E\u4EFB\u52A1", onClick: () => {
     setFolderMenu(false);
     setModal({ type: "activity" });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react2.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: newDraft }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u5199\u90AE\u4EF6"))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react2.default.createElement("span", null, error), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, notice), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react2.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react2.default.createElement(MailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react2.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react2.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react2.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react2.default.createElement(RulesView, null) : /* @__PURE__ */ import_react2.default.createElement(SettingsView, null)), /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-assistant", onSubmit: (e3) => {
-    e3.preventDefault();
-    if (!assistant.trim()) return;
-    const text2 = `${assistant}${selected ? `
-\u5F53\u524D\u9009\u4E2D\u90AE\u4EF6 id\uFF1A${selected}` : ""}`;
-    run3(async () => {
-      const result = await prompt(sessionId, text2);
-      setAssistant("");
-      setNotice(typeof result === "string" ? result : "\u5DF2\u4EA4\u7ED9\u90AE\u7BB1\u52A9\u624B\u5904\u7406\uFF0C\u8BF7\u67E5\u770B DSH \u5BF9\u8BDD\u3002");
-    });
-  } }, /* @__PURE__ */ import_react2.default.createElement("span", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 21 })), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u4EA4\u7ED9\u90AE\u7BB1\u52A9\u624B", value: assistant, onChange: (e3) => setAssistant(e3.target.value), placeholder: "\u8BA9 AI \u67E5\u627E\u90AE\u4EF6\u3001\u51C6\u5907\u56DE\u590D\uFF0C\u6216\u6574\u7406\u5F85\u529E\u2026" }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit" }, "\u4EA4\u7ED9\u52A9\u624B \u2197"))), modal && /* @__PURE__ */ import_react2.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5\u4E0E\u64CD\u4F5C\u8BB0\u5F55", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react2.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react2.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react2.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react2.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react2.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react2.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react2.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react2.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react2.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react2.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react2.default.createElement(Activity, null))));
+  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react2.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "\u90AE\u7BB1 AI \u52A9\u624B", "aria-expanded": assistantOpen, onClick: () => setAssistantOpen(!assistantOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 16 }), "AI \u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: newDraft }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u5199\u90AE\u4EF6"))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react2.default.createElement("span", null, error), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, notice), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react2.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react2.default.createElement(MailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react2.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react2.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react2.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react2.default.createElement(RulesView, null) : /* @__PURE__ */ import_react2.default.createElement(SettingsView, null))), modal && /* @__PURE__ */ import_react2.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5\u4E0E\u64CD\u4F5C\u8BB0\u5F55", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react2.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react2.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react2.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react2.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react2.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react2.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react2.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react2.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react2.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react2.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react2.default.createElement(Activity, null))), assistantOpen && /* @__PURE__ */ import_react2.default.createElement("aside", { className: "dm-agent-panel", "aria-label": "\u90AE\u7BB1 AI \u5BF9\u8BDD" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), "\u90AE\u7BB1\u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u5173\u95ED\u90AE\u7BB1\u52A9\u624B", onClick: () => setAssistantOpen(false) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 18 }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-context" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5F53\u524D\u4E0A\u4E0B\u6587"), /* @__PURE__ */ import_react2.default.createElement("strong", null, tab === "\u90AE\u4EF6" ? compose ? compose.subject || "\u65B0\u90AE\u4EF6\u8349\u7A3F" : assistantSubject || (selected ? "\u5F53\u524D\u6253\u5F00\u7684\u90AE\u4EF6" : "\u90AE\u7BB1\u5DE5\u4F5C\u53F0") : tab), /* @__PURE__ */ import_react2.default.createElement("small", null, "\u6BCF\u8F6E\u8BFB\u53D6\u5F53\u524D\u90AE\u4EF6\u6B63\u6587\u3001\u5B8C\u6574\u5F15\u7528\u53CA\u5DF2\u4FDD\u5B58\u8349\u7A3F")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-conversation" }, assistantError ? /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert" }, assistantError, " \u5173\u95ED\u4FA7\u680F\u540E\u53EF\u91CD\u65B0\u8FDE\u63A5\u3002") : !assistantHost ? /* @__PURE__ */ import_react2.default.createElement("p", null, "\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002") : assistantBinding && contextReady === contextKey ? /* @__PURE__ */ import_react2.default.createElement(SessionProvider, { session: assistantBinding.reference }, renderSlot(conversationSlot, {})) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u8FDE\u63A5\u90AE\u4EF6\u4E0A\u4E0B\u6587\u2026")))));
 }
-function Menu({ label, children, className = "" }) {
+function Menu({ label, children, className = "", icon = "more", caption, closeOnAction = false, style: style2 }) {
   const ref = (0, import_react2.useRef)(null);
   (0, import_react2.useEffect)(() => {
     const close2 = (e3) => {
@@ -46626,7 +47025,9 @@ function Menu({ label, children, className = "" }) {
       document.removeEventListener("keydown", close2);
     };
   }, []);
-  return /* @__PURE__ */ import_react2.default.createElement("details", { ref, className: `dm-menu ${className}` }, /* @__PURE__ */ import_react2.default.createElement("summary", { "aria-label": label, title: label }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "more" })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-menu-panel" }, children));
+  return /* @__PURE__ */ import_react2.default.createElement("details", { ref, className: `dm-menu ${className}`, style: style2 }, /* @__PURE__ */ import_react2.default.createElement("summary", { "aria-label": label, title: label }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon }), caption), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-menu-panel", onClick: (event) => {
+    if (closeOnAction && event.target.closest("button")) ref.current.open = false;
+  } }, children));
 }
 function FolderColorMenu({ folder }) {
   const { act, run: run3, setModal, busy } = useMail(), [custom, setCustom] = (0, import_react2.useState)(folder.color || folderAppearance(folder).color);
@@ -46828,7 +47229,7 @@ function MailView({ active, navigation }) {
       setSelected(m3.id);
       setCompose(null);
     } }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-top" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("small", null, date(m3.date))), /* @__PURE__ */ import_react2.default.createElement("h3", null, m3.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("p", null, m3.snippet || (m3.bodyLoaded ? "\u65E0\u7EAF\u6587\u672C\u6B63\u6587" : "\u6B63\u6587\u7B49\u5F85\u540C\u6B65")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-bottom" }, /* @__PURE__ */ import_react2.default.createElement("span", null, state.accounts.find((a3) => a3.id === m3.accountId)?.name), !!attachments.length && /* @__PURE__ */ import_react2.default.createElement("span", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 12 }), " ", attachments.length), m3.labels?.map((x4) => /* @__PURE__ */ import_react2.default.createElement("span", { key: x4, style: { color: state.labels.find((label) => label.name === x4)?.color || "var(--dm-accent)", border: "1px solid currentColor", padding: "0 4px", borderRadius: 3 } }, x4)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-row-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-star ${m3.starred ? "is-starred" : ""}`, "aria-label": `${m3.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "star", value: !m3.starred })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "star", size: 16 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-row-quick" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": `${m3.seen ? "\u6807\u4E3A\u672A\u8BFB" : "\u6807\u4E3A\u5DF2\u8BFB"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "read", value: !m3.seen })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: m3.seen ? "mail" : "read", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": `\u5F52\u6863 ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "archive" })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })))));
-  })), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !query.offset, onClick: () => setQuery({ ...query, offset: Math.max(0, (query.offset || 0) - 50) }) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react2.default.createElement("span", null, result.total ? (query.offset || 0) + 1 : 0, "\u2013", Math.min((query.offset || 0) + 50, result.total), " / ", result.total), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !result.nextOffset, onClick: () => setQuery({ ...query, offset: result.nextOffset }) }, "\u4E0B\u4E00\u9875")), result.coverage && result.coverage.indexed < result.coverage.total && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-index-status" }, "\u6B63\u6587\u7D22\u5F15 ", result.coverage.indexed, " / ", result.coverage.total, " \xB7 \u672A\u5B8C\u6210\u90E8\u5206\u4E0D\u5728\u6B63\u6587\u641C\u7D22\u7ED3\u679C\u4E2D"))), sizes.handles > 0 && divider("mailListWidth", "\u8C03\u6574\u90AE\u4EF6\u5217\u8868\u5BBD\u5EA6", sizes.list, 260, sizes.listMax, "list"), /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-detail-pane" }, compose ? /* @__PURE__ */ import_react2.default.createElement(Composer, { key: `${compose.id}:${["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id)?.status || compose.status : compose.status}`, initial: ["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id) || compose : compose, active }) : selected ? /* @__PURE__ */ import_react2.default.createElement(Reader, { key: selected, id: selected, active }) : /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2727", title: "\u7ED9\u6BCF\u5C01\u90AE\u4EF6\u4E00\u4E2A\u6E05\u6670\u7684\u4E0B\u4E00\u6B65" }, "\u9009\u62E9\u90AE\u4EF6\u5F00\u59CB\u9605\u8BFB\uFF0C\u6216\u5728\u4E0B\u65B9\u8BA9\u90AE\u7BB1\u52A9\u624B\u67E5\u627E\u3001\u603B\u7ED3\u548C\u51C6\u5907\u56DE\u590D\u3002")));
+  })), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !query.offset, onClick: () => setQuery({ ...query, offset: Math.max(0, (query.offset || 0) - 50) }) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react2.default.createElement("span", null, result.total ? (query.offset || 0) + 1 : 0, "\u2013", Math.min((query.offset || 0) + 50, result.total), " / ", result.total), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !result.nextOffset, onClick: () => setQuery({ ...query, offset: result.nextOffset }) }, "\u4E0B\u4E00\u9875")), result.coverage && result.coverage.indexed < result.coverage.total && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-index-status" }, "\u6B63\u6587\u7D22\u5F15 ", result.coverage.indexed, " / ", result.coverage.total, " \xB7 \u672A\u5B8C\u6210\u90E8\u5206\u4E0D\u5728\u6B63\u6587\u641C\u7D22\u7ED3\u679C\u4E2D"))), sizes.handles > 0 && divider("mailListWidth", "\u8C03\u6574\u90AE\u4EF6\u5217\u8868\u5BBD\u5EA6", sizes.list, 260, sizes.listMax, "list"), /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-detail-pane" }, compose ? /* @__PURE__ */ import_react2.default.createElement(Composer, { key: `${compose.id}:${["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id)?.status || compose.status : compose.status}`, initial: ["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id) || compose : compose, active }) : selected ? /* @__PURE__ */ import_react2.default.createElement(Reader, { key: selected, id: selected, active }) : /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2727", title: "\u7ED9\u6BCF\u5C01\u90AE\u4EF6\u4E00\u4E2A\u6E05\u6670\u7684\u4E0B\u4E00\u6B65" }, "\u9009\u62E9\u90AE\u4EF6\u5F00\u59CB\u9605\u8BFB\uFF0C\u6216\u6253\u5F00\u53F3\u4E0A\u65B9 AI \u52A9\u624B\uFF0C\u67E5\u627E\u3001\u603B\u7ED3\u548C\u51C6\u5907\u56DE\u590D\u3002")));
 }
 function AddressButtons({ value }) {
   const { setModal, state } = useMail();
@@ -47019,13 +47420,13 @@ function Reader({ id, active }) {
   const action = (operation, value) => run3(() => act({ action: "messages.action", ids: [id], operation, value }));
   const reply = (mode, ai = false) => run3(async () => setCompose({ ...await act({ action: "drafts.reply", id, mode }), ...ai ? { aiStart: "reply" } : {} }));
   const threadItems = [...new Map([...thread.items, ...thread.current ? [thread.current] : []].map((m3) => [m3.id, m3])).values()].sort((a3, b3) => Date.parse(b3.date) - Date.parse(a3.date) || a3.id.localeCompare(b3.id));
-  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-toolbar" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, state.accounts.find((a3) => a3.id === message.accountId)?.email), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
+  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-toolbar" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more", closeOnAction: true }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react2.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
     const folder = location.folder;
     return /* @__PURE__ */ import_react2.default.createElement(Button, { key: folder.id, className: "dm-location-chip", title: folder.path, style: { "--folder-color": folderAppearance(folder).color }, onClick: () => {
       setQuery({ accountId: message.accountId, folderId: folder.id });
       setSelected(location.id);
     } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 13 }), folder.name || folder.path);
-  }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u53D1\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.from }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.cc }))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), label)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react2.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) }))), headers && /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), thread.total > 1 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react2.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react2.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
+  }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-person" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": senderAppearance(message).color }, "aria-hidden": "true" }, senderAppearance(message).text), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-from" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.from })), /* @__PURE__ */ import_react2.default.createElement("time", { className: "dm-muted", dateTime: message.date }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.cc }))))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), label))), headers && /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), thread.total > 1 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react2.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react2.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
     const more = await act({ action: "thread.read", id, offset: thread.nextOffset });
     setThread((previous) => ({ ...more, items: [...previous.items, ...more.items] }));
   }) }, "\u52A0\u8F7D\u66F4\u65E9\u7684\u90AE\u4EF6")), aiTask && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { key: `${id}:${aiTask}`, task: aiTask, messageId: id, active, close: () => setAiTask(null), apply: async (result) => {
@@ -47113,6 +47514,12 @@ function AttachmentCard({ attachment: a3, messageId }) {
 function Composer({ initial, active }) {
   const { state, act, run: run3, request, refresh, setCompose, setModal, setDraftTouched } = useMail();
   const [draft, setDraft] = (0, import_react2.useState)(initial), [saving, setSaving] = (0, import_react2.useState)("\u5DF2\u4FDD\u5B58"), [rich, setRich] = (0, import_react2.useState)(true), [scheduleError, setScheduleError] = (0, import_react2.useState)(""), [sendMode, setSendMode] = (0, import_react2.useState)(initial.scheduledAt ? "scheduled" : "now"), [sendAt, setSendAt] = (0, import_react2.useState)(initial.scheduledAt ? DateTime.fromISO(initial.scheduledAt, { zone: initial.sendTimeZone || "Asia/Shanghai" }).toFormat("yyyy-MM-dd'T'HH:mm") : ""), [sendZone, setSendZone] = (0, import_react2.useState)(initial.sendTimeZone || "Asia/Shanghai"), [dirty, setDirty] = (0, import_react2.useState)(false), [aiOpen, setAiOpen] = (0, import_react2.useState)(!!initial.aiStart);
+  const [extraRecipients, setExtraRecipients] = (0, import_react2.useState)(!!(addr(initial.cc) || addr(initial.bcc)));
+  const [format, setFormat] = (0, import_react2.useState)({});
+  const scroll = (0, import_react2.useRef)(null);
+  (0, import_react2.useEffect)(() => {
+    if (aiOpen) scroll.current?.querySelector(".dm-ai-panel")?.scrollIntoView({ block: "nearest" });
+  }, [aiOpen]);
   const element = (0, import_react2.useRef)(null), editor = (0, import_react2.useRef)(null), current = (0, import_react2.useRef)(initial), generation = (0, import_react2.useRef)(0), savedGeneration = (0, import_react2.useRef)(0), chain = (0, import_react2.useRef)(Promise.resolve()), mounted = (0, import_react2.useRef)(true);
   const quoted = (0, import_react2.useRef)(draftTextParts(initial).quoted);
   const editableText = () => quoted.current ? draftTextParts({ ...current.current, quotedText: quoted.current }).current.replace(/\n\n$/, "") : current.current.text || "";
@@ -47159,7 +47566,9 @@ function Composer({ initial, active }) {
   };
   (0, import_react2.useEffect)(() => {
     if (!element.current || !editable) return;
-    editor.current = new Editor({ element: element.current, extensions: [src_default, src_default2.configure({ allowBase64: true })], content: originalDoc.current.current || textHtml(draftTextParts(initial).current), onUpdate: ({ editor: e3 }) => change({ html: e3.getHTML(), text: e3.getText() }) });
+    const selection = ({ editor: e3 }) => setFormat({ ...e3.getAttributes("textStyle"), ...Object.fromEntries(["bold", "italic", "underline", "strike", "bulletList", "orderedList"].map((key) => [key, e3.isActive(key)])), undo: e3.can().undo(), redo: e3.can().redo() });
+    editor.current = new Editor({ element: element.current, extensions: [src_default, TextStyleKit, src_default2.configure({ allowBase64: true })], content: originalDoc.current.current || textHtml(draftTextParts(initial).current), onTransaction: selection, onUpdate: ({ editor: e3 }) => change({ html: e3.getHTML(), text: e3.getText() }) });
+    selection({ editor: editor.current });
     return () => {
       editor.current?.destroy();
       editor.current = null;
@@ -47216,17 +47625,17 @@ function Composer({ initial, active }) {
       if (inline) editor.current?.chain().focus().setImage({ src: `data:${a3.contentType};base64,${(await fileData(file)).base64}`, alt: `cid:${cid}` }).run();
     }
   });
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-composer" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-toolbar" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-status" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-composer" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-toolbar" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-status" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u2190 \u5173\u95ED", onClick: () => run3(async () => {
     if (editable && dirty) await queueSave();
     setCompose(null);
-  }) }, "\u2190 \u5173\u95ED"), /* @__PURE__ */ import_react2.default.createElement("strong", null, statusText[initial.status]), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, saving)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-actions", role: "group", "aria-label": "\u8349\u7A3F\u64CD\u4F5C" }, editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", onClick: () => setAiOpen(!aiOpen), "aria-expanded": aiOpen }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), "AI \u5199\u4FE1"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: preview }, "\u9884\u89C8\u5E76\u53D1\u9001 \u2192"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(queueSave) }, "\u4FDD\u5B58\u8349\u7A3F"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 15 }), "\u5173\u95ED"), /* @__PURE__ */ import_react2.default.createElement("strong", null, initial.sourceMessageId ? "\u56DE\u590D\u90AE\u4EF6" : "\u5199\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, saving)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-actions", role: "group", "aria-label": "\u8349\u7A3F\u64CD\u4F5C" }, editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u4FDD\u5B58\u8349\u7A3F", onClick: () => run3(queueSave) }, "\u4FDD\u5B58"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u4E22\u5F03\u8349\u7A3F", onClick: () => run3(async () => {
     await act({ action: "drafts.delete", id: draft.id });
     setCompose(null);
-  }) }, "\u4E22\u5F03\u8349\u7A3F")) : draft.status === "queued" ? /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 15 }))) : draft.status === "queued" ? /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     const d2 = await act({ action: "drafts.cancel", id: draft.id });
     setCompose(null);
     queueMicrotask(() => setCompose(d2));
-  }) }, "\u53D6\u6D88\u53D1\u9001") : null)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-fields" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA" }, /* @__PURE__ */ import_react2.default.createElement("select", { disabled: !editable, value: draft.accountId, onChange: (e3) => change({ accountId: e3.target.value }) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name, " <", a3.email, ">")))), /* @__PURE__ */ import_react2.default.createElement("datalist", { id: "dm-contacts" }, state.contacts.map((c3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c3.id, value: c3.email }, c3.name))), [["to", "\u6536\u4EF6\u4EBA"], ["cc", "\u6284\u9001"], ["bcc", "\u5BC6\u9001"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Field, { key, label, value: addr(draft[key]), list: "dm-contacts", disabled: !editable, onChange: (e3) => change({ [key]: e3.target.value }), placeholder: "name@example.com\uFF1B\u591A\u4E2A\u5730\u5740\u7528\u9017\u53F7\u5206\u9694" })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4E3B\u9898", value: draft.subject || "", disabled: !editable, onChange: (e3) => change({ subject: e3.target.value }) })), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-people", "aria-label": "\u6536\u4EF6\u5730\u5740\u5FEB\u6377\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: [...people(draft.to), ...people(draft.cc), ...people(draft.bcc)] })), editable && aiOpen && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { task: initial.aiStart || "compose", replySource: initial.sourceMessageId, active, close: () => setAiOpen(false), prepare: async (task) => {
+  }) }, "\u53D6\u6D88\u53D1\u9001") : null)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-scroll", ref: scroll }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-fields" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA" }, /* @__PURE__ */ import_react2.default.createElement("select", { disabled: !editable, value: draft.accountId, onChange: (e3) => change({ accountId: e3.target.value }) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name && a3.name !== a3.email ? `${a3.name} <${a3.email}>` : a3.email)))), /* @__PURE__ */ import_react2.default.createElement("datalist", { id: "dm-contacts" }, state.contacts.map((c3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c3.id, value: c3.email }, c3.name))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-recipient-row" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u6536\u4EF6\u4EBA", value: addr(draft.to), list: "dm-contacts", disabled: !editable, onChange: (e3) => change({ to: e3.target.value }), placeholder: "\u586B\u5199\u90AE\u7BB1\u5730\u5740" }), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-expanded": extraRecipients, onClick: () => setExtraRecipients(!extraRecipients) }, "\u6284\u9001 / \u5BC6\u9001")), extraRecipients && [["cc", "\u6284\u9001"], ["bcc", "\u5BC6\u9001"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Field, { key, label, value: addr(draft[key]), list: "dm-contacts", disabled: !editable, onChange: (e3) => change({ [key]: e3.target.value }), placeholder: "\u591A\u4E2A\u5730\u5740\u7528\u9017\u53F7\u5206\u9694" })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4E3B\u9898", value: draft.subject || "", disabled: !editable, onChange: (e3) => change({ subject: e3.target.value }), placeholder: "\u6DFB\u52A0\u90AE\u4EF6\u4E3B\u9898" })), editable && people([draft.to, draft.cc, draft.bcc]).length > 0 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-compose-people" }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u8054\u7CFB\u4EBA\u64CD\u4F5C"), /* @__PURE__ */ import_react2.default.createElement("div", { "aria-label": "\u6536\u4EF6\u5730\u5740\u5FEB\u6377\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: [...people(draft.to), ...people(draft.cc), ...people(draft.bcc)] }))), editable && aiOpen && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { task: initial.aiStart || "compose", replySource: initial.sourceMessageId, active, close: () => setAiOpen(false), prepare: async (task) => {
     const saved = await queueSave();
     return { args: task === "reply" ? { messageId: initial.sourceMessageId } : { draftId: saved.id, revision: saved.revision }, token: savedGeneration.current, revision: saved.revision };
   }, apply: async (result, includeSubject) => {
@@ -47234,7 +47643,7 @@ function Composer({ initial, active }) {
     const html2 = rich ? textHtml(result.text) : "";
     if (rich) editor.current?.commands.setContent(html2, { emitUpdate: false });
     change({ text: result.text, html: html2, ...includeSubject && result.subject !== void 0 ? { subject: result.subject } : {} });
-  } }), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor-toolbar" }, [["\u7C97\u4F53", () => editor.current?.chain().focus().toggleBold().run()], ["\u659C\u4F53", () => editor.current?.chain().focus().toggleItalic().run()], ["\u5217\u8868", () => editor.current?.chain().focus().toggleBulletList().run()], ["\u64A4\u9500", () => editor.current?.chain().focus().undo().run()]].map(([label, fn]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: label, onClick: fn }, label)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
+  } }), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor-toolbar", role: "toolbar", "aria-label": "\u6B63\u6587\u683C\u5F0F" }, /* @__PURE__ */ import_react2.default.createElement("select", { className: "dm-font-family", "aria-label": "\u5B57\u4F53", title: "\u5B57\u4F53", disabled: !rich, value: format.fontFamily || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontFamily(e3.target.value).run() : editor.current?.chain().focus().unsetFontFamily().run() }, [.../* @__PURE__ */ new Set([...Object.keys(MAIL_FONTS), ...format.fontFamily ? [format.fontFamily] : []])].map((font) => /* @__PURE__ */ import_react2.default.createElement("option", { key: font, value: font }, MAIL_FONTS[font] || font))), /* @__PURE__ */ import_react2.default.createElement("select", { className: "dm-font-size", "aria-label": "\u5B57\u53F7", title: "\u5B57\u53F7", disabled: !rich, value: format.fontSize || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontSize(e3.target.value).run() : editor.current?.chain().focus().unsetFontSize().run() }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u5B57\u53F7"), [.../* @__PURE__ */ new Set(["12px", "14px", "16px", "18px", "20px", "24px", "32px", ...format.fontSize ? [format.fontSize] : []])].map((size) => /* @__PURE__ */ import_react2.default.createElement("option", { key: size, value: size }, size.replace("px", "")))), rich && [["\u6587\u5B57\u989C\u8272", "textColor", "color", "#1f2937", "setColor", "unsetColor"], ["\u80CC\u666F\u9AD8\u4EAE", "highlight", "backgroundColor", "#fff2a8", "setBackgroundColor", "unsetBackgroundColor"]].map(([label, icon, key, fallback, command2, reset2]) => /* @__PURE__ */ import_react2.default.createElement(Menu, { key, label, icon, className: "dm-format-palette", closeOnAction: true, style: { "--format-color": format[key] || fallback } }, /* @__PURE__ */ import_react2.default.createElement("strong", null, label), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-format-swatches" }, TEXT_COLORS.map(([name, color]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: color, "aria-label": `${label}\uFF1A${name}`, title: name, style: { background: color }, onClick: () => editor.current?.chain().focus()[command2](color).run() }))), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react2.default.createElement("input", { type: "color", "aria-label": `\u81EA\u5B9A\u4E49${label}`, value: colorInputValue(format[key], fallback), onChange: (e3) => editor.current?.chain().focus()[command2](e3.target.value).run() })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => editor.current?.chain().focus()[reset2]().run() }, key === "color" ? "\u6062\u590D\u9ED8\u8BA4\u989C\u8272" : "\u6E05\u9664\u9AD8\u4EAE"))), [["\u7C97\u4F53", "bold", "toggleBold"], ["\u659C\u4F53", "italic", "toggleItalic"], ["\u4E0B\u5212\u7EBF", "underline", "toggleUnderline"], ["\u5220\u9664\u7EBF", "strike", "toggleStrike"], ["\u65E0\u5E8F\u5217\u8868", "bulletList", "toggleBulletList"], ["\u6709\u5E8F\u5217\u8868", "orderedList", "toggleOrderedList"]].map(([label, icon, command2]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: icon, className: "dm-format-button", "aria-label": label, title: label, "aria-pressed": !!format[icon], disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 17 }))), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-format-divider" }), [["\u64A4\u9500", "undo"], ["\u91CD\u505A", "redo"]].map(([label, command2]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: command2, className: "dm-format-button", "aria-label": label, title: label, disabled: !rich || !format[command2], onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: command2, size: 17 }))), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-format-button", "aria-label": "\u6E05\u9664\u683C\u5F0F", title: "\u6E05\u9664\u683C\u5F0F", disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus().unsetAllMarks().clearNodes().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "clearFormat", size: 17 })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-format-button", "aria-label": rich ? "\u7EAF\u6587\u672C" : "\u5BCC\u6587\u672C", title: rich ? "\u5207\u6362\u5230\u7EAF\u6587\u672C\uFF08\u79FB\u9664\u6B63\u6587\u683C\u5F0F\uFF09" : "\u5207\u6362\u5230\u5BCC\u6587\u672C", onClick: () => {
     if (rich) change({ text: editor.current ? editor.current.getText() : editableText(), html: "" });
     else {
       const html2 = textHtml(editableText());
@@ -47242,7 +47651,7 @@ function Composer({ initial, active }) {
       change({ html: html2 });
     }
     setRich(!rich);
-  } }, rich ? "\u7EAF\u6587\u672C" : "\u5BCC\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u63D2\u5165\u6A21\u677F", onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: rich ? "code" : "richText", size: 17 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u6A21\u677F\u4E0E\u7B7E\u540D", icon: "template", className: "dm-format-insert" }, /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u63D2\u5165\u6A21\u677F", onChange: (e3) => {
     const t3 = state.templates.find((t4) => t4.id === e3.target.value);
     if (t3) {
       const html2 = t3.html || textHtml(t3.text);
@@ -47256,14 +47665,20 @@ function Composer({ initial, active }) {
       else change({ text: `${editableText()}
 ${s4.text || ""}`, html: "" });
     }
-  } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: s4.id, value: s4.id }, s4.name)))), editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor", ref: element, hidden: !rich }), /* @__PURE__ */ import_react2.default.createElement("textarea", { className: "dm-plain-editor", "aria-label": "\u90AE\u4EF6\u7EAF\u6587\u672C\u6B63\u6587", hidden: rich, value: editableText(), onChange: (e3) => change({ text: e3.target.value, html: "" }) })) : /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-sent-body" }, draft.text), quoted.current && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted", open: true }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u5F80\u6765 \xB7 \u968F\u6B64\u90AE\u4EF6\u53D1\u9001\uFF08\u539F\u6587\u4FDD\u7559\uFF09"), originalDoc.current.quote && rich ? /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u56DE\u590D\u5F15\u7528\u539F\u6587", sandbox: "", srcDoc: safeQuoteDocument(originalDoc.current.quote) }) : /* @__PURE__ */ import_react2.default.createElement("pre", null, quoted.current)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-attachments" }, draft.attachments?.map((a3) => /* @__PURE__ */ import_react2.default.createElement("span", { key: a3.id, className: "dm-chip" }, "\u2311 ", a3.filename, editable && /* @__PURE__ */ import_react2.default.createElement("button", { "aria-label": `\u79FB\u9664 ${a3.filename}`, onClick: () => change({ attachments: draft.attachments.filter((x4) => x4.id !== a3.id) }) }, "\xD7"))), editable && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\uFF0B \u9644\u4EF6", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", multiple: true, onChange: (e3) => attach(e3.target.files) })), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\uFF0B \u5185\u5D4C\u56FE\u7247", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: "image/png,image/jpeg,image/gif,image/webp", onChange: (e3) => attach(e3.target.files, true) })))), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-send-options" }, /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!draft.requestReceipt, onChange: (e3) => change({ requestReceipt: e3.target.checked }) }), "\u8BF7\u6C42\u5DF2\u8BFB\u56DE\u6267"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u9001\u65B9\u5F0F" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: sendMode, onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: s4.id, value: s4.id }, s4.name))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-body" }, editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor", ref: element, hidden: !rich }), /* @__PURE__ */ import_react2.default.createElement("textarea", { className: "dm-plain-editor", "aria-label": "\u90AE\u4EF6\u7EAF\u6587\u672C\u6B63\u6587", hidden: rich, value: editableText(), onChange: (e3) => change({ text: e3.target.value, html: "" }) })) : /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-sent-body" }, draft.text)), quoted.current && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted" }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u5F80\u6765 \xB7 \u968F\u6B64\u90AE\u4EF6\u53D1\u9001\uFF08\u539F\u6587\u4FDD\u7559\uFF09"), originalDoc.current.quote && rich ? /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u56DE\u590D\u5F15\u7528\u539F\u6587", sandbox: "", srcDoc: safeQuoteDocument(originalDoc.current.quote) }) : /* @__PURE__ */ import_react2.default.createElement("pre", null, quoted.current)), draft.status === "queued" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, "\u5DF2\u6392\u961F\uFF1A", sendTimeLabel(draft.sendAt, draft.sendTimeZone), "\u3002\u6295\u9012\u5F00\u59CB\u524D\u53EF\u53D6\u6D88\uFF1B\u5F00\u59CB\u540E\u4E0D\u80FD\u64A4\u56DE\u3002"), draft.error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert" }, typeof draft.error === "string" ? draft.error : draft.error.message), draft.status === "sent" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice" }, draft.receipt ? `\u6536\u5230\u56DE\u6267\uFF1A${draft.receipt.disposition}` : "\u9605\u8BFB\u72B6\u6001\u672A\u77E5\uFF1A\u5C1A\u672A\u6536\u5230\u56DE\u6267", draft.sentCopyError && /* @__PURE__ */ import_react2.default.createElement("p", null, draft.sentCopyError.message))), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-compose-footer" }, !!draft.attachments?.length && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-attachments" }, draft.attachments.map((a3) => /* @__PURE__ */ import_react2.default.createElement("span", { key: a3.id, className: "dm-chip" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 13 }), a3.filename, editable && /* @__PURE__ */ import_react2.default.createElement("button", { "aria-label": `\u79FB\u9664 ${a3.filename}`, onClick: () => change({ attachments: draft.attachments.filter((x4) => x4.id !== a3.id) }) }, "\xD7")))), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-dock" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-tools" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button", title: "\u6DFB\u52A0\u9644\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u9644\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u6DFB\u52A0\u9644\u4EF6", type: "file", multiple: true, onChange: (e3) => {
+    attach([...e3.target.files]);
+    e3.target.value = "";
+  } })), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button", title: "\u63D2\u5165\u56FE\u7247" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "image", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u56FE\u7247"), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u63D2\u5165\u56FE\u7247", type: "file", accept: "image/png,image/jpeg,image/gif,image/webp", onChange: (e3) => {
+    attach([...e3.target.files], true);
+    e3.target.value = "";
+  } })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "AI \u5199\u4FE1", onClick: () => setAiOpen(!aiOpen), "aria-expanded": aiOpen }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "AI \u5199\u4FE1")), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u53D1\u9001\u9009\u9879", icon: "calendar", caption: sendMode === "scheduled" ? "\u5B9A\u65F6\u53D1\u9001" : "\u53D1\u9001\u9009\u9879", className: `dm-compose-options ${sendMode === "scheduled" || draft.requestReceipt || draft.followUpAt ? "is-active" : ""}` }, /* @__PURE__ */ import_react2.default.createElement("strong", null, "\u53D1\u9001\u9009\u9879"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-send-options" }, /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!draft.requestReceipt, onChange: (e3) => change({ requestReceipt: e3.target.checked }) }), "\u8BF7\u6C42\u5DF2\u8BFB\u56DE\u6267"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u9001\u65B9\u5F0F" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: sendMode, onChange: (e3) => {
     setSendMode(e3.target.value);
     change({ scheduledAt: null, sendTimeZone: sendZone });
   } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "now" }, "\u7ACB\u5373\u53D1\u9001\uFF08\u786E\u8BA4\u540E 10 \u79D2\uFF09"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "scheduled" }, "\u5B9A\u65F6\u53D1\u9001"))), sendMode === "scheduled" && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u8BA1\u5212\u53D1\u9001\u65F6\u95F4", type: "datetime-local", value: sendAt, onChange: (e3) => {
     updateSchedule(e3.target.value, sendZone);
   } }), /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { label: "\u53D1\u9001\u65F6\u533A", value: sendZone, onChange: (zone) => {
     updateSchedule(sendAt, zone);
-  } })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u672A\u56DE\u590D\u65F6\u63D0\u9192", type: "datetime-local", value: draft.followUpAt ? DateTime.fromISO(draft.followUpAt).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => change({ followUpAt: e3.target.value ? new Date(e3.target.value).toISOString() : null }) })), scheduleError && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning", role: "alert" }, scheduleError), editable && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-send-limit", role: "note" }, "\u5B9A\u65F6\u53D1\u9001\u7531\u672C\u673A DSH Host \u6267\u884C\uFF0C\u5FC5\u987B\u4FDD\u6301\u5E94\u7528\u8FD0\u884C\u53CA\u8054\u7F51\u3002\u9000\u51FA\u6216\u4F11\u7720\u9519\u8FC7\u65F6\u95F4\u540E\u9700\u91CD\u65B0\u786E\u8BA4\uFF1B\u53D1\u9001\u5931\u8D25\u6216\u7ED3\u679C\u672A\u77E5\u4E0D\u4F1A\u81EA\u52A8\u91CD\u53D1\u3002\u6392\u961F\u540E\u53EF\u5728\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1\u53D6\u6D88\u3002"), draft.status === "queued" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, "\u5DF2\u6392\u961F\uFF1A", sendTimeLabel(draft.sendAt, draft.sendTimeZone), "\u3002\u6295\u9012\u5F00\u59CB\u524D\u53EF\u53D6\u6D88\uFF1B\u5F00\u59CB\u540E\u4E0D\u80FD\u64A4\u56DE\u3002"), draft.error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert" }, typeof draft.error === "string" ? draft.error : draft.error.message), draft.status === "sent" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice" }, draft.receipt ? `\u6536\u5230\u56DE\u6267\uFF1A${draft.receipt.disposition}` : "\u9605\u8BFB\u72B6\u6001\u672A\u77E5\uFF1A\u5C1A\u672A\u6536\u5230\u56DE\u6267", draft.sentCopyError && /* @__PURE__ */ import_react2.default.createElement("p", null, draft.sentCopyError.message)));
+  } })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u672A\u56DE\u590D\u65F6\u63D0\u9192", type: "datetime-local", value: draft.followUpAt ? DateTime.fromISO(draft.followUpAt).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => change({ followUpAt: e3.target.value ? new Date(e3.target.value).toISOString() : null }) })), scheduleError && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning", role: "alert" }, scheduleError), editable && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-send-limit", role: "note" }, "\u5B9A\u65F6\u53D1\u9001\u7531\u672C\u673A DSH Host \u6267\u884C\uFF0C\u5FC5\u987B\u4FDD\u6301\u5E94\u7528\u8FD0\u884C\u53CA\u8054\u7F51\u3002\u9000\u51FA\u6216\u4F11\u7720\u9519\u8FC7\u65F6\u95F4\u540E\u9700\u91CD\u65B0\u786E\u8BA4\uFF1B\u53D1\u9001\u5931\u8D25\u6216\u7ED3\u679C\u672A\u77E5\u4E0D\u4F1A\u81EA\u52A8\u91CD\u53D1\u3002\u6392\u961F\u540E\u53EF\u5728\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1\u53D6\u6D88\u3002"))), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, className: "dm-compose-send", "aria-label": "\u9884\u89C8\u5E76\u53D1\u9001 \u2192", onClick: preview }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sent", size: 16 }), "\u9884\u89C8\u5E76\u53D1\u9001"))));
 }
 function Preview({ value }) {
   const { act, run: run3, setModal, setCompose, state } = useMail();
@@ -47617,13 +48032,57 @@ function AttachmentPreview({ value }) {
   return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react2.default.createElement("p", null, value.filename), supportedImage ? /* @__PURE__ */ import_react2.default.createElement("img", { className: "dm-image-preview", src: `data:${value.contentType};base64,${value.base64}`, alt: value.filename }) : isPdf ? /* @__PURE__ */ import_react2.default.createElement("iframe", { className: "dm-pdf-preview", title: value.filename, sandbox: "", src: `data:application/pdf;base64,${value.base64}` }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B64\u7C7B\u578B\u4E0D\u5728\u5E94\u7528\u5185\u9884\u89C8\uFF0C\u8BF7\u4FDD\u5B58\u540E\u7528\u5BF9\u5E94\u5E94\u7528\u6253\u5F00\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => deliverFile(value) }, "\u4E0B\u8F7D\u6587\u4EF6"));
 }
 
+// ui/assistant.jsx
+var import_react3 = __toESM(require("react"), 1);
+function ChatView({ renderSlot }) {
+  return renderSlot("conversation.session", { view: "chat" });
+}
+function MailConversation({ useSession, useConversation, renderFactorySlot }) {
+  const session = useSession((value) => value);
+  const conversation = useConversation((value) => value);
+  const active = conversation.activeTargets.size > 0 || !session.blank && !session.awaitingFirstTurn || session.running;
+  return renderFactorySlot("conversation.content", { variant: "embedded", phase: !active && session.openState === "loading" ? "settling" : "active", hero: false }, { slots: { views: ChatView } });
+}
+function createMailAssistant(ctx, globalCall) {
+  const opening = /* @__PURE__ */ new Map();
+  return {
+    async connect(ownerSessionId) {
+      const key = ownerSessionId || "main";
+      if (!opening.has(key)) {
+        const work = (async () => {
+          const saved = await globalCall(null, { action: "assistant.session", key });
+          let sessionId2 = saved?.sessionId;
+          if (!sessionId2 || ctx.sessions.list.getSnapshot().byId[sessionId2]?.projectionValues?.agentPreset !== "dsh-mail") {
+            const workspaces = ctx.workspaces.list.getSnapshot();
+            const workspace = workspaces.items?.[0];
+            if (!workspace) throw new Error("\u8BF7\u5148\u5728 DSH \u6DFB\u52A0\u5DE5\u4F5C\u533A\uFF0C\u518D\u6253\u5F00\u90AE\u7BB1\u52A9\u624B\u3002");
+            sessionId2 = await ctx.sessions.create({ cwd: workspace.path, agentPreset: "dsh-mail" });
+            await globalCall(null, { action: "assistant.session", key, sessionId: sessionId2 });
+          }
+          return sessionId2;
+        })().finally(() => opening.delete(key));
+        opening.set(key, work);
+      }
+      const sessionId = await opening.get(key);
+      const reference = ctx.sessions.retain(sessionId, { source: "dsh-mail-assistant" });
+      try {
+        await reference.ready;
+        return { sessionId, reference };
+      } catch (error) {
+        reference.release();
+        throw error;
+      }
+    }
+  };
+}
+
 // ui/plugin.jsx
 function Opener({ sessionId, open }) {
-  return /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail" }));
+  return /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail" }));
 }
 function Presence({ useMailMounted, useSessions, open, call }) {
   const sessionId = useMailMounted((x4) => x4), preset = useSessions((s4) => s4.byId[sessionId]?.projectionValues?.agentPreset);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (preset !== "dsh-mail" || !sessionId) return;
     open(sessionId);
     let cancelled = false, running = false, lastId;
@@ -47653,14 +48112,14 @@ function Presence({ useMailMounted, useSessions, open, call }) {
 }
 function Tab(props) {
   const { tab } = props.useTabInfo();
-  return /* @__PURE__ */ import_react3.default.createElement(App, { ...props, visible: tab.visible });
+  return /* @__PURE__ */ import_react4.default.createElement(App, { ...props, visible: tab.visible });
 }
 function Title({ useTabInfo }) {
   const { tab } = useTabInfo();
-  return /* @__PURE__ */ import_react3.default.createElement("span", null, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
+  return /* @__PURE__ */ import_react4.default.createElement("span", null, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
 }
 function MailIcon({ size = 18 }) {
-  return /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail", size });
+  return /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail", size });
 }
 var plugin_default = {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],
@@ -47680,23 +48139,14 @@ var plugin_default = {
         return r3.value;
       };
       const globalCall = async (_sessionId, operation, signal) => {
+        if (_sessionId) return call(_sessionId, operation, signal);
         const r3 = await ctx2.remote.mailUi.invokeGlobal(operation, signal);
         if (!r3.ok) throw new Error(r3.error.message);
         return r3.value;
       };
-      const globalPrompt = async (_sessionId, text2) => {
-        const workspaces = ctx2.workspaces.list.getSnapshot();
-        if (workspaces.phase !== "ready" || !workspaces.items.length) throw new Error("\u8BF7\u5148\u5728 DSH \u5DE6\u4FA7\u6DFB\u52A0\u5DE5\u4F5C\u533A\uFF0C\u518D\u4EA4\u7ED9\u90AE\u7BB1\u52A9\u624B\u3002");
-        ctx2.uiWorkspace.startSession(void 0, { agentPreset: "dsh-mail", prompt: text2, whenDraftExists: "append" });
-        return "\u8BF7\u5728\u90AE\u7BB1\u52A9\u624B\u4F1A\u8BDD\u4E2D\u6838\u5BF9\u8F93\u5165\u6846\u7684\u5185\u5BB9\uFF0C\u7136\u540E\u53D1\u9001\u3002";
-      };
-      const prompt = async (sessionId, text2) => {
-        const preset = ctx2.sessions.list.getSnapshot().byId[sessionId]?.projectionValues?.agentPreset;
-        if (preset !== "dsh-mail") throw new Error("\u8BF7\u5148\u65B0\u5EFA\u4F7F\u7528 DSH Mail \u90AE\u7BB1\u52A9\u624B\u7684\u4F1A\u8BDD\u3002");
-        const r3 = await ctx2.remote.session.prompt({ requestId: crypto.randomUUID(), sessionId, mode: "queue", content: [{ type: "text", text: text2 }] });
-        if (!r3.ok) throw new Error(r3.error.message);
-        return r3.value;
-      };
+      const assistantHost = createMailAssistant(ctx2, globalCall);
+      const children = (name) => ({ [name]: { kind: "single", scope: "session" } });
+      for (const name of ["dsh-mail.main.conversation", "dsh-mail.sidebar.conversation"]) ctx2.slots.inject(name, () => ctx2.slots.register({ name }, MailConversation));
       const open = (sessionId) => {
         if (!sessionId || ctx2.sidebarRight.mounted.getSnapshot() !== sessionId) return;
         const existing = ctx2.sidebarRight.openTabs.getSnapshot().find((t3) => t3.sessionId === sessionId && t3.kind === "dsh-mail");
@@ -47706,9 +48156,9 @@ var plugin_default = {
         } else ctx2.sidebarRight.openTab("dsh-mail");
       };
       ctx2.effect(() => ctx2.sidebarRightTabs.register({ id: "dsh-mail", kind: "dsh-mail", title: () => "DSH Mail", keepMounted: true }));
-      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call: globalCall, prompt: globalPrompt }) }, App));
+      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.main.conversation"), inject: () => ({ call: globalCall, assistantHost, conversationSlot: "dsh-mail.main.conversation" }) }, App));
       ctx2.slots.inject("sidebar.panellist", () => ctx2.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
-      ctx2.slots.inject("sidebar.right.pane.tab", () => ctx2.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", inject: () => ({ call, prompt }) }, Tab));
+      ctx2.slots.inject("sidebar.right.pane.tab", () => ctx2.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.sidebar.conversation"), inject: () => ({ call, assistantHost, conversationSlot: "dsh-mail.sidebar.conversation" }) }, Tab));
       ctx2.slots.inject("sidebar.right.pane.tab.title", () => ctx2.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));
       ctx2.slots.inject("shell.overlay", () => ctx2.slots.register({ name: "shell.overlay", id: "dsh-mail-auto-open", inject: () => ({ hooks: { mailMounted: ctx2.sidebarRight.mounted }, open, call }) }, Presence));
       ctx2.slots.inject("conversation.session.header.utilities", () => ctx2.slots.register({ name: "conversation.session.header.utilities", id: "dsh-mail-open", locale: "dsh-mail", inject: () => ({ open }) }, Opener));

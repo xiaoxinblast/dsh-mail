@@ -375,3 +375,95 @@
 .dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}
 .dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}
 @container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}
+
+/* Compact composer keeps the action dock outside the scrolling content. */
+.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}
+.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}
+.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}
+.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}
+.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}
+.dsh-mail .dm-compose-scroll>*{flex-shrink:0}
+.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}
+.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}
+.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}
+.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}
+.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}
+.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}
+.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}
+.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}
+.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}
+.dsh-mail .dm-compose-people summary{cursor:pointer}
+.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}
+.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}
+.dsh-mail .dm-editor-toolbar{align-items:center}
+.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}
+.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}
+.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}
+.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}
+.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}
+.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}
+.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}
+.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}
+.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}
+.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}
+.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}
+.dsh-mail .dm-format-insert select{width:100%}
+.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}
+.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}
+.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}
+.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}
+.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}
+.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}
+.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}
+.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}
+.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}
+.dsh-mail .dm-compose-options{position:static}
+.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}
+.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}
+.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}
+.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}
+.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}
+.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}
+.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}
+.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}
+@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}
+
+.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}
+.dm-app>.dsh-mail{flex:1;min-width:0}
+.dm-agent-panel{flex:0 0 390px;min-width:0;max-width:45%;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}
+.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}
+.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}
+.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}
+.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}
+.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}
+.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}
+@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:min(420px,100%);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}
+/* Mailbird-inspired quiet chrome and a readable message surface. */
+.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}
+.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}
+.dsh-mail .dm-reader-person>div{flex:1;min-width:0}
+.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}
+.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}
+.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}
+.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}
+.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}
+.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}
+.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}
+.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}
+.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}
+.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}
+.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}
+.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}
+.dsh-mail .dm-mail-body{padding:18px 24px}
+.dsh-mail .dm-reader .dm-body-label{display:none}
+.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}
+@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}

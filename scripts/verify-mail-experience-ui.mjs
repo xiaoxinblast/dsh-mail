@@ -7,7 +7,8 @@ import { chromium, expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { DateTime } from "luxon";
 import { MailService } from "../src/service.mjs";
-import { normalizeAccount } from "../src/mail.mjs";
+import { normalizeAccount, composeDraft } from "../src/mail.mjs";
+import { simpleParser } from "mailparser";
 const cache = resolve(".cache"); await mkdir(cache, { recursive: true });
 const directory = await mkdtemp(join(cache, "experience-ui-"));
 let sends = 0;
@@ -114,6 +115,7 @@ try {
   await composer.getByRole("button", { name: "保存草稿", exact: true }).click();
   const saved = service.store.list("drafts").find((d) => d.sourceMessageId === message.id); assert.match(saved.text, /第一行\n> 本次输入符号\n第二行\n/); assert.equal(saved.text.split("——").length, 3);
   checks.push("AI reply shares composer, edited results apply explicitly, newer user input protected, quote preserved across rich/plain saves");
+  await composer.getByLabel("发送选项", { exact: true }).click();
   await composer.getByLabel("发送方式").selectOption("scheduled"); await composer.getByLabel("发送时区").selectOption("Asia/Tokyo");
   const local = DateTime.now().setZone("Asia/Tokyo").plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm"); await composer.getByLabel("计划发送时间").fill(local);
   await composer.getByRole("button", { name: "保存草稿", exact: true }).click(); await composer.getByRole("button", { name: "← 关闭", exact: true }).click();
@@ -131,8 +133,59 @@ try {
   await composer.getByRole("button", { name: "AI 写信", exact: true }).click(); await panel.getByLabel("写作或处理要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await panel.getByRole("button", { name: "取消生成", exact: true }).click(); await expect(panel.locator(".dm-ai-result")).toHaveCount(0);
   await panel.getByLabel("写作或处理要求（可选）").fill("[fail]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await expect(panel.getByRole("alert")).toContainText("合成模型失败"); await generate();
   checks.push("persistent zoned schedule, preview and queue status, cancel before delivery, sent excluded while failed/uncertain retained");
+  await composer.getByRole("button", { name: "AI 写信", exact: true }).click();
+  await composer.getByRole("button", { name: "抄送 / 密送", exact: true }).click();
+  await composer.getByLabel("抄送", { exact: true }).fill("copy@example.invalid");
+  await composer.getByLabel("密送", { exact: true }).fill("hidden@example.invalid");
+  await composer.getByRole("button", { name: "抄送 / 密送", exact: true }).click();
+  await composer.getByLabel("添加附件", { exact: true }).setInputFiles({ name: "合成交付说明.txt", mimeType: "text/plain", buffer: Buffer.from("synthetic attachment") });
+  await expect(composer.locator(".dm-compose-attachments")).toContainText("合成交付说明.txt");
+  await composer.getByRole("button", { name: "保存草稿", exact: true }).click();
+  const attachmentDraft = service.store.list("drafts").find((d) => d.subject === "[验收] 手工新草稿");
+  assert.equal(attachmentDraft.cc, "copy@example.invalid"); assert.equal(attachmentDraft.bcc, "hidden@example.invalid"); assert.equal(attachmentDraft.attachments.length, 1);
+  const footer = composer.locator(".dm-compose-footer"), footerTop = (await footer.boundingBox()).y;
+  await composer.locator(".tiptap").fill("正文区域\n".repeat(100));
+  await composer.locator(".dm-compose-scroll").evaluate((el) => el.scrollTop = el.scrollHeight);
+  assert.ok(Math.abs((await footer.boundingBox()).y - footerTop) < 2);
+  await expect(composer.getByRole("button", { name: "预览并发送 →", exact: true })).toBeInViewport();
+  await composer.getByLabel("发送选项", { exact: true }).click(); await expect(composer.getByLabel("发送方式")).toBeInViewport();
+  await composer.getByLabel("发送方式").press("Escape"); await expect(composer.locator(".dm-compose-options")).not.toHaveAttribute("open");
+  await composer.locator(".tiptap").fill("您好，\n\n附件是本次交付说明，请查收。\n如需调整，请直接回复这封邮件。\n\n谢谢！");
+  await composer.locator(".dm-compose-scroll").evaluate((el) => el.scrollTop = 0);
+  checks.push("collapsed CC/BCC persist; attachments remain in the fixed dock; long-body scrolling keeps send/options visible; Escape closes the options popup");
+  await composer.getByLabel("收件人", { exact: true }).fill("client@example.invalid");
+  await composer.locator(".tiptap").press("ControlOrMeta+A");
+  await composer.getByLabel("字体", { exact: true }).selectOption("Arial");
+  await composer.getByLabel("字号", { exact: true }).selectOption("20px");
+  await composer.getByLabel("文字颜色", { exact: true }).click(); await composer.getByLabel("自定义文字颜色", { exact: true }).fill("#b91c1c"); await composer.getByLabel("自定义文字颜色").press("Escape");
+  await composer.getByLabel("背景高亮", { exact: true }).click(); await composer.getByRole("button", { name: "背景高亮：黄色", exact: true }).click();
+  for (const name of ["粗体", "斜体", "下划线", "删除线"]) {
+    const button = composer.getByRole("button", { name, exact: true });
+    await expect(button).toHaveAttribute("title", name); await expect(button).toHaveText("");
+    await button.click(); await expect(button).toHaveAttribute("aria-pressed", "true");
+  }
+  await composer.getByRole("button", { name: "保存草稿", exact: true }).click();
+  const formatted = service.store.get("drafts", attachmentDraft.id);
+  assert.match(formatted.html, /font-family: Arial/); assert.match(formatted.html, /font-size: 20px/); assert.match(formatted.html, /color: rgb\(185, 28, 28\)/); assert.match(formatted.html, /background-color: rgb\(255, 242, 168\)/);
+  const mime = await composeDraft(formatted, service.account("me"), (id) => service.ensureAttachment(id));
+  const delivered = await simpleParser(mime.raw); assert.equal(delivered.html, formatted.html); assert.equal(delivered.attachments.length, 1);
+  await shot("formatting-colors-light");
+  await composer.getByRole("button", { name: "← 关闭", exact: true }).click();
+  await root.locator("button.dm-message").filter({ hasText: "[验收] 手工新草稿" }).click();
+  await composer.locator(".tiptap").press("ControlOrMeta+A");
+  await expect(composer.getByLabel("字体", { exact: true })).toHaveValue("Arial"); await expect(composer.getByLabel("字号", { exact: true })).toHaveValue("20px");
+  await expect(composer.locator(".tiptap span").first()).toHaveCSS("color", "rgb(185, 28, 28)");
+  await composer.getByRole("button", { name: "清除格式", exact: true }).click(); await expect(composer.locator(".tiptap span")).toHaveCount(0);
+  await composer.getByRole("button", { name: "撤销", exact: true }).click(); await expect(composer.locator(".tiptap span").first()).toHaveCSS("font-size", "20px");
+  await composer.getByRole("button", { name: "重做", exact: true }).click(); await expect(composer.locator(".tiptap span")).toHaveCount(0);
+  for (const name of ["无序列表", "有序列表"]) { await composer.locator(".tiptap").press("ControlOrMeta+Home"); const button = composer.getByRole("button", { name, exact: true }); await button.click(); await expect(button).toHaveAttribute("aria-pressed", "true"); await button.click(); }
+  await composer.getByRole("button", { name: "纯文本", exact: true }).click(); await expect(composer.getByLabel("字体", { exact: true })).toBeDisabled();
+  await composer.getByRole("button", { name: "富文本", exact: true }).click();
+  await composer.getByLabel("模板与签名", { exact: true }).click(); await expect(composer.getByLabel("插入模板")).toBeVisible(); await composer.getByLabel("插入签名").press("Escape");
+  checks.push("icon formatting controls expose hover labels and active states; fonts, size, color, highlight and marks survive save/reopen and MIME; clear/undo/redo, lists and plain-text disabling work");
   for (const theme of ["light", "dark"]) {
     await page.evaluate((dark) => document.body.classList.toggle("dark", dark), theme === "dark");
+    await page.waitForTimeout(200);
     const contrast = await composer.getByRole("button", { name: "AI 写信", exact: true }).evaluate((el) => {
       const style = getComputedStyle(el), ctx = document.createElement("canvas").getContext("2d");
       const light = (color) => { ctx.fillStyle = color; ctx.fillRect(0, 0, 1, 1); const c = [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3).map((v) => { const n = v / 255; return n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4; }); return c[0] * .2126 + c[1] * .7152 + c[2] * .0722; };
@@ -141,12 +194,21 @@ try {
     for (const width of [1440, 768, 390]) {
       await page.setViewportSize({ width, height: 900 }); await shot(`compose-${theme}-${width}`);
       assert.ok(await root.evaluate((e) => e.scrollWidth <= e.clientWidth), "no workspace horizontal overflow");
+      await composer.getByLabel("发送选项", { exact: true }).click();
+      const popup = composer.locator(".dm-compose-options .dm-menu-panel"), bounds = await popup.boundingBox(), parent = await composer.boundingBox();
+      assert.ok(bounds.x >= parent.x && bounds.x + bounds.width <= parent.x + parent.width, "send options fit the composer");
+      await shot(`options-${theme}-${width}`); await composer.getByLabel("发送方式").press("Escape");
+      await composer.getByLabel("文字颜色", { exact: true }).click();
+      const palette = composer.locator(".dm-format-palette[open] .dm-menu-panel"), paletteBounds = await palette.boundingBox();
+      assert.ok(paletteBounds.x >= parent.x && paletteBounds.x + paletteBounds.width <= parent.x + parent.width, "color palette fits the composer");
+      await shot(`palette-${theme}-${width}`); await composer.getByLabel("自定义文字颜色").press("Escape");
     }
   }
   await composer.getByRole("button", { name: "← 关闭", exact: true }).click(); await open();
   await page.setViewportSize({ width: 1440, height: 1000 }); await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = e.scrollHeight); await shot("reader-quote-boundary"); await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = 0);
   for (const theme of ["light", "dark"]) {
     await page.evaluate((dark) => document.body.classList.toggle("dark", dark), theme === "dark");
+    await page.waitForTimeout(200);
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 900 }); await shot(`read-${theme}-${width}`); assert.ok((await header.boundingBox()).height < 900 * .43); }
   }
   await root.getByRole("button", { name: "AI 回复", exact: true }).focus(); await expect(root.getByRole("button", { name: "AI 回复", exact: true })).toBeFocused();

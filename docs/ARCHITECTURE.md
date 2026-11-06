@@ -2,9 +2,13 @@
 
 `dsh/index.mjs` 管理插件生命周期和 profile 数据目录；`dsh/bridge.mjs` 为原生 UI 提供 Typert 接口；`dsh/agent.mjs` 在邮箱助手预设中注册九组原生工具。两种入口都调用 `MailService.invoke`。
 
+`ui/assistant.jsx` 使用独立 `dsh-mail` 预设会话和原生 `conversation.content` / `conversation.session` 插槽。主面板与会话侧栏分别声明子插槽。新会话按 cwd 创建，避免工作区自动复用尚未发言的邮箱会话；`assistant-sessions` 保存会话映射，`assistant-contexts` 保存当前邮件/草稿 ID，均只允许真人 UI 修改。
+
+每轮第一步通过 `agent/pre-step` 加入当前邮件完整正文与引用、已保存草稿；后续工具步骤复用该快照。无当前选择时也加入空快照，避免沿用上一封邮件。`assistant.read` 可显式读取当前选择；源正文截断时明确报错。原生执行器仅展示九组邮件工具，发送预览沿用服务端真人确认，并保留草稿。草稿和待办等结果使用现有工作台展示队列。
+
 | 层 | 文件 | 责任 |
 |---|---|---|
-| UI | `ui/plugin.jsx`, `ui/workbench.jsx`, `ui/styles.css` | DSH slots、响应式工作台、用户确认、文件交付 |
+| UI | `ui/plugin.jsx`, `ui/workbench.jsx`, `ui/assistant.jsx`, `ui/styles.css` | DSH slots、响应式工作台、用户确认、文件交付 |
 | 业务 | `src/service.mjs` | 权限、预览、持久队列、同步协调、规则、资源与备份 |
 | 协议 | `src/mail.mjs` | IMAP ID/TLS、UIDVALIDITY、能力检查、MIME、SMTP |
 | 存储 | `src/store.mjs` | SQLite WAL、FTS5、中日文检索词、版本迁移与一致性备份 |

@@ -11,7 +11,7 @@ await mkdir(".cache/screenshots", { recursive: true });
 try {
   page = await browser.newPage({ viewport: { width: 1920, height: 1000 } }); page.on("pageerror", (error) => errors.push(error.message));
   await page.route("https://mail-image.example.invalid/**", async (route) => { imageRequests++; await route.fulfill({ contentType: "image/png", body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZQmcAAAAASUVORK5CYII=", "base64") }); });
-  await page.goto(url); await page.getByText("开始使用", { exact: true }).waitFor(); await page.keyboard.press("Escape"); await page.getByText("DSH Mail", { exact: true }).click();
+  await page.goto(url); const launcher = page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }); await launcher.waitFor(); if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape"); await launcher.click();
   const root = page.locator(".dsh-mail"), rail = root.getByRole("navigation", { name: "功能导航" });
   const resize = async (width) => { await root.evaluate((el, width) => { el.style.width = `${width}px`; el.style.height = "900px"; el.style.flex = "none"; }, width); assert.equal(await root.evaluate((el) => el.clientWidth), width); };
   const shot = async (name) => { await page.waitForTimeout(220); await root.screenshot({ path: `.cache/screenshots/followup-${name}.png` }); };
@@ -58,13 +58,13 @@ try {
   checks.push("real UI copies preserve source, moves change current location, same-message chips and list corner agree");
   checks.push("inbox rows acquire project color after copying, multiple folders share the indicator, and all 24 preset colors are available");
 
-  const imagePreference = async (enabled) => { await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click(); const checkbox = root.getByRole("checkbox", { name: "默认加载外部图片（HTTPS）", exact: true }); await checkbox.setChecked(enabled); const save = root.getByRole("button", { name: "保存偏好", exact: true }); if (await save.isEnabled()) { await save.click(); await expect(save).toBeDisabled(); } };
+  const imagePreference = async (enabled) => { await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与阅读", exact: true }).click(); const checkbox = root.getByRole("switch", { name: "默认加载外部图片（HTTPS）", exact: true }); await checkbox.setChecked(enabled); const save = root.getByRole("button", { name: "保存设置", exact: true }); if (await save.isEnabled()) { await save.click(); await expect(save).toBeDisabled(); } };
   await imagePreference(true); assert.equal(imageRequests, 0, "Hidden reader does not fetch external images"); await shot("image-preference-light");
   await rail.getByRole("button", { name: "邮件", exact: true }).click(); await rail.getByRole("button", { name: "邮箱与文件夹", exact: true }).click(); await root.locator(".dm-folder-row>button").filter({ hasText: "[验收] 项目 B" }).click(); await root.locator(".dm-message-row").filter({ hasText: subject }).locator("button.dm-message").click(); await expect(body().getByAltText("外部图片")).toHaveAttribute("src", "https://mail-image.example.invalid/sample.png"); await expect.poll(() => imageRequests).toBeGreaterThan(0);
   await shot("images-allowed-light"); await root.getByRole("button", { name: "阻止图片", exact: true }).click(); await expect(body().getByAltText("外部图片")).not.toHaveAttribute("src", /.+/);
   await locations.getByRole("button", { name: "[验收] 项目 A", exact: true }).click(); await expect(body().getByAltText("外部图片")).toHaveAttribute("src", "https://mail-image.example.invalid/sample.png");
   await page.reload(); await page.getByText("DSH Mail", { exact: true }).waitFor(); await page.waitForTimeout(2500); if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape"); if (!await root.isVisible()) await page.getByText("DSH Mail", { exact: true }).click(); await resize(1440);
-  await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click(); await expect(root.getByRole("checkbox", { name: "默认加载外部图片（HTTPS）", exact: true })).toBeChecked();
+  await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与阅读", exact: true }).click(); await expect(root.getByRole("switch", { name: "默认加载外部图片（HTTPS）", exact: true })).toBeChecked();
   await imagePreference(false); checks.push("CID works while external images are blocked; global default, one-message override, new-message reset and reload persistence");
 
   await rail.getByRole("button", { name: "日历", exact: true }).click();
@@ -104,8 +104,8 @@ try {
   await page.emulateMedia({ reducedMotion: "reduce" }); await rail.getByRole("button", { name: "日历", exact: true }).hover(); await expect(rail.getByRole("button", { name: "日历", exact: true }).locator("svg")).toHaveCSS("transform", "none"); await page.emulateMedia({ reducedMotion: "no-preference" });
   checks.push("every rail icon has visible hover feedback in both themes, including the selected icon; reduced motion removes icon movement");
   await resize(1440); await setTheme("浅色");
-  await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "关于", exact: true }).click();
-  await expect(root.locator(".dm-settings-card p").filter({ hasText: `DSH Mail ${packageInfo.version} ·` })).toBeVisible(); await shot(`about-version-${packageInfo.version}`); checks.push(`about page shows package version ${packageInfo.version}`);
+  await rail.getByRole("button", { name: "设置", exact: true }).click(); await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "诊断与关于", exact: true }).click();
+  await expect(root.locator(".dm-about-brand").filter({ hasText: `DSH Mail ${packageInfo.version}` })).toBeVisible(); await shot(`about-version-${packageInfo.version}`); checks.push(`about page shows package version ${packageInfo.version}`);
   assert.deepEqual(errors, []); await writeFile(".cache/message-ui-verification.json", JSON.stringify({ checks, pageErrors: errors, imageRequests }, null, 2)); console.log(JSON.stringify({ checks, pageErrors: errors, imageRequests }, null, 2));
 } catch (error) { if (page) { await page.screenshot({ path: ".cache/screenshots/followup-failure.png" }); await writeFile(".cache/followup-failure.txt", `${error.stack}\n\n${await page.locator("body").innerText()}`); } throw error; }
 finally { await browser.close(); }

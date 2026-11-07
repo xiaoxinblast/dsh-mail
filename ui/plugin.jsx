@@ -9,8 +9,8 @@ function Presence({ useMailMounted, useSessions, open, call }) {
   useEffect(() => {
     if (preset !== "dsh-mail" || !sessionId) return; open(sessionId);
     let cancelled = false, running = false, lastId;
-    const poll = async () => { if (running) return; running = true; try { const view = await call(sessionId, { action: "workbench.state" }); if (!cancelled && view && view.id !== lastId) { lastId = view.id; open(sessionId); window.dispatchEvent(new CustomEvent("dsh-mail:workbench", { detail: { sessionId } })); } } catch {} finally { running = false; } };
-    poll(); const timer = setInterval(poll, 1000); return () => { cancelled = true; clearInterval(timer); };
+    const poll = async () => { if (running || document.visibilityState === "hidden") return; running = true; try { const view = await call(sessionId, { action: "workbench.state" }); if (!cancelled && view && view.id !== lastId) { lastId = view.id; open(sessionId); window.dispatchEvent(new CustomEvent("dsh-mail:workbench", { detail: { sessionId } })); } } catch {} finally { running = false; } };
+    poll(); const timer = setInterval(poll, 1000), visible = () => { if (document.visibilityState !== "hidden") poll(); }; document.addEventListener("visibilitychange", visible); return () => { cancelled = true; clearInterval(timer); document.removeEventListener("visibilitychange", visible); };
   }, [sessionId, preset, open, call]);
   return null;
 }

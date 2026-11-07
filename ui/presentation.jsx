@@ -45,6 +45,7 @@ export function createMailPresentationHost() {
   };
   const change = (record, update) => {
     busy = true;
+    const noMotion = reducedMotion() || record.surface.querySelector(".dm-app")?.dataset.motion === "off";
     let interaction;
     const perform = () => { interaction = update(); };
     notify(record, active === record.id, true);
@@ -52,7 +53,7 @@ export function createMailPresentationHost() {
     const rules = document.createElement("style");
     rules.textContent = `::view-transition-group(${name}){animation-duration:180ms;animation-timing-function:cubic-bezier(.2,.7,.2,1)}::view-transition-old(${name}),::view-transition-new(${name}){animation-duration:180ms}html[data-dm-mail-transition]::view-transition-group(root),html[data-dm-mail-transition]::view-transition-old(root),html[data-dm-mail-transition]::view-transition-new(root){animation:none}`;
     const finish = () => { interaction?.scroll(); rules.remove(); delete document.documentElement.dataset.dmMailTransition; transition = null; busy = false; notify(surfaces.get(record.id), active === record.id); };
-    if (!reducedMotion() && typeof document.startViewTransition === "function") {
+    if (!noMotion && typeof document.startViewTransition === "function") {
       document.documentElement.dataset.dmMailTransition = name;
       document.head.appendChild(rules);
       try {
@@ -63,7 +64,7 @@ export function createMailPresentationHost() {
       } catch {}
     }
     perform();
-    if (!reducedMotion() && typeof record.surface.animate === "function") {
+    if (!noMotion && typeof record.surface.animate === "function") {
       const animation = record.surface.animate([{ opacity: .85 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
       animation.finished.catch(() => {}).finally(finish);
     } else finish();

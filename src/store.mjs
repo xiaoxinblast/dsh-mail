@@ -30,7 +30,14 @@ export class Store {
       CREATE TABLE IF NOT EXISTS logs(id INTEGER PRIMARY KEY AUTOINCREMENT,time TEXT NOT NULL,kind TEXT NOT NULL,data TEXT NOT NULL);
       INSERT OR IGNORE INTO message_attributes SELECT id,json_extract(data,'$.snoozedUntil'),coalesce((SELECT group_concat(coalesce(json_extract(value,'$.address'),'')||' '||coalesce(json_extract(value,'$.name'),''),' ') FROM json_each(data,'$.from')),''),coalesce((SELECT group_concat(coalesce(json_extract(value,'$.address'),'')||' '||coalesce(json_extract(value,'$.name'),''),' ') FROM json_each(data,'$.to')),''),coalesce((SELECT group_concat(coalesce(json_extract(value,'$.address'),'')||' '||coalesce(json_extract(value,'$.name'),''),' ') FROM json_each(data,'$.cc')),'') FROM messages;
       PRAGMA user_version=2; COMMIT;`);
+    // Transactional versions also observe deletes and SQL used by backup restore.
+    this.db.exec("CREATE TABLE IF NOT EXISTS resource_versions(kind TEXT PRIMARY KEY,version INTEGER NOT NULL)");
+    for (const [table, key] of [["entities", null], ["messages", "messages"], ["logs", "logs"]]) for (const operation of ["INSERT", "UPDATE", "DELETE"]) {
+      const resource = key ? `'${key}'` : `${operation === "DELETE" ? "OLD" : "NEW"}.kind`;
+      this.db.exec(`CREATE TRIGGER IF NOT EXISTS version_${table}_${operation} AFTER ${operation} ON ${table} BEGIN INSERT INTO resource_versions VALUES(${resource},1) ON CONFLICT(kind) DO UPDATE SET version=version+1; END`);
+    }
   }
+  resourceVersions() { return Object.fromEntries(this.db.prepare("SELECT kind,version FROM resource_versions").all().map((row) => [row.kind, row.version])); }
   transaction(fn) { if (this.inTransaction) return fn(); this.db.exec("BEGIN IMMEDIATE"); this.inTransaction = true; try { const result = fn(); this.db.exec("COMMIT"); return result; } catch (error) { this.db.exec("ROLLBACK"); this.conversationCache?.clear(); throw error; } finally { this.inTransaction = false; } }
   get(kind, key) { const row = this.db.prepare("SELECT data,revision FROM entities WHERE kind=? AND id=?").get(kind, key); return row ? { ...JSON.parse(row.data), revision: row.revision } : null; }
   put(kind, value, expectedRevision) {
@@ -109,7 +116,7 @@ export class Store {
     if (query.folderId) add("m.folder_id=?", query.folderId);
     const threadAccount = query.accountId || (query.threadId?.startsWith("conversation:") ? this.message(query.threadId.slice(13))?.accountId : undefined);
     const conversation = query.threadId?.startsWith("conversation:") && this.conversations(threadAccount).groups.get(query.threadId);
-    if (conversation) { add("m.id IN (SELECT value FROM json_each(?))", JSON.stringify(conversation)); clauses.push("m.folder_id IN (SELECT id FROM entities WHERE kind='folders' AND coalesce(json_extract(data,'$.missing'),0)=0 AND coalesce(json_extract(data,'$.deleted'),0)=0)"); }
+    if (conversation) { params.unshift(JSON.stringify(conversation)); clauses.push("m.folder_id IN (SELECT id FROM entities WHERE kind='folders' AND coalesce(json_extract(data,'$.missing'),0)=0 AND coalesce(json_extract(data,'$.deleted'),0)=0)"); }
     else if (query.threadId) add("m.thread_id=?", query.threadId);
     if (query.after) add("m.date>=?", query.after);
     if (query.before) add("m.date<?", query.before);
@@ -123,12 +130,14 @@ export class Store {
     if (query.label) add("EXISTS(SELECT 1 FROM json_each(m.data,'$.labels') l WHERE l.value=?)", query.label);
     if (!query.includeSnoozed) { clauses.push("m.id NOT IN (SELECT id FROM message_attributes WHERE snoozed_until>?)"); params.push(now()); }
     const where = clauses.length ? " WHERE " + clauses.join(" AND ") : "";
-    let total = this.db.prepare("SELECT count(*) AS n FROM messages m" + where).get(...params).n;
+    // Start with the known conversation IDs; an account/folder index scan reads every mail in a large inbox.
+    const from = conversation ? " FROM json_each(?) selected CROSS JOIN messages m ON m.id=selected.value" : " FROM messages m";
+    let total = conversation ? 0 : this.db.prepare("SELECT count(*) AS n" + from + where).get(...params).n;
     const limit = bounded(query.limit), offset = Math.max(0, Math.trunc(Number(query.offset) || 0));
     let rows, current;
     if (conversation) {
       const unique = new Map();
-      for (const row of this.db.prepare("SELECT m.data FROM messages m" + where + " ORDER BY m.date DESC,m.id").all(...params)) { const message = JSON.parse(row.data), key = message.messageId || message.id; if (!unique.has(key) || message.id === query.preferredId) unique.set(key, message); }
+      for (const row of this.db.prepare("SELECT m.data" + from + where + " ORDER BY m.date DESC,m.id").all(...params)) { const message = JSON.parse(row.data), key = message.messageId || message.id; if (!unique.has(key) || message.id === query.preferredId) unique.set(key, message); }
       const messages = [...unique.values()].sort((a, b) => Date.parse(b.date) - Date.parse(a.date) || a.id.localeCompare(b.id));
       total = messages.length; current = messages.find((message) => message.id === query.preferredId);
       rows = messages.slice(offset, offset + limit).map((message) => ({ data: JSON.stringify(message) }));

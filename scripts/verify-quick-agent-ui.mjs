@@ -1,0 +1,60 @@
+// Uses only the repository-local Host and synthetic model; never confirms a send.
+import { chromium, expect as baseExpect } from "@playwright/test";
+import assert from "node:assert/strict";
+import { readFile, writeFile } from "node:fs/promises";
+const expect = baseExpect.configure({ timeout: 20000 });
+const log = await readFile(".cache/current-host.log", "utf8"), url = log.match(/http:\/\/127\.0\.0\.1:\d+\/\?token=\S+/)?.[0];
+assert.ok(url);
+const browser = await chromium.launch({ channel: "msedge", headless: true });
+const page = await browser.newPage({ viewport: { width: 1700, height: 1000 } }), errors = [], checks = [];
+page.on("pageerror", (e) => errors.push(e.message)); page.setDefaultTimeout(20000);
+const mail = page.locator(".dsh-mail:visible"), panel = page.getByRole("complementary", { name: "邮箱 AI 对话" }), quick = mail.getByRole("region", { name: "邮件内 AI" });
+const calls = async () => (await readFile(".cache/assistant-model-calls.jsonl", "utf8")).trim().split("\n").filter(Boolean).map(JSON.parse);
+const shot = (name) => page.locator(".dm-app").screenshot({ path: `.cache/screenshots/quick-agent-${name}.png` });
+try {
+  await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
+  await mail.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }).click();
+  await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
+  await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/最早报价 12345/);
+  await expect(quick.getByLabel("快捷 AI 工具进度")).toContainText("查找往来邮件");
+  await quick.getByRole("button", { name: "在助手中查看" }).click(); await expect(panel).toContainText("邮件快捷任务");
+  const nativeCalls = (await calls()).filter((c) => c.messages.some((m) => m.source?.kind === "dsh-mail-context"));
+  const quickCalls = nativeCalls.filter((c) => c.messages.findLast((m) => m.role === "user" && m.source?.kind === "user")?.content.some((c) => c.text?.startsWith("邮件快捷任务")));
+  assert.ok(quickCalls.length >= 3); assert.deepEqual(quickCalls[0].tools.map((t) => t.name).sort(), nativeCalls[0].tools.map((t) => t.name).sort());
+  assert.ok(quickCalls.at(-1).messages.some((m) => m.source?.kind === "user" && m.content.some((c) => c.text?.includes("请查看完整引用并创建回复草稿"))));
+  await shot("summary"); checks.push("quick summary uses native multi-step tools, complete nested quotes and the existing sidebar history, with editable inline results");
+  await quick.getByLabel("写作或处理要求（可选）").fill("创建待办并总结当前邮件"); await quick.getByRole("button", { name: "重新生成", exact: true }).click();
+  await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/确认周五交付/);
+  await expect(quick.getByLabel("快捷 AI 工具进度")).toContainText("保存待办或资源");
+  await expect(mail.locator(".dm-reader h2")).toHaveText("[验收] 联系人与内置 AI");
+  checks.push("quick actions can create a requested task without navigating away from their source mail");
+  await quick.getByLabel("写作或处理要求（可选）").fill("[pause] 检查跨邮件上下文"); await quick.getByRole("button", { name: "重新生成", exact: true }).click();
+  await page.waitForTimeout(300); await mail.getByRole("heading", { name: "[验收] 另一封上下文邮件", exact: true }).click();
+  await mail.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(quick).toContainText("邮箱助手正在处理任务");
+  await mail.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }).click(); await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
+  await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/最早报价 12345/);
+  assert.doesNotMatch(await quick.getByLabel("AI 生成正文（可编辑）").inputValue(), /第二封邮件的专属信息/);
+  checks.push("switching mail keeps the original task running and restores its candidate; a competing quick task is rejected instead of interrupting the sidebar");
+  await quick.getByLabel("写作或处理要求（可选）").fill("[slow] 总结邮件"); await quick.getByRole("button", { name: "重新生成", exact: true }).click();
+  await expect(quick.getByRole("button", { name: "取消生成" })).toBeVisible(); await page.waitForTimeout(700); await quick.getByRole("button", { name: "取消生成" }).click();
+  await expect(quick).toContainText("已取消生成");
+  await quick.getByRole("button", { name: "关闭邮件内 AI" }).click();
+  await mail.getByRole("button", { name: "AI 回复", exact: true }).click();
+  await quick.getByLabel("回复要求（可选）").fill("查找往来后回复，并生成发送预览"); await quick.getByRole("button", { name: "生成", exact: true }).click();
+  await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/确认周五交付/);
+  await expect(mail.locator(".dm-approval-bar")).toBeVisible();
+  await expect(quick.getByLabel("快捷 AI 工具进度")).toContainText("准备发送预览");
+  await shot("reply-preview"); checks.push("cancellation stops the native task; reply can search correspondence and prepare a human-confirmed send preview without sending");
+  await mail.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "设置", exact: true }).click();
+  await mail.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "外观与动效", exact: true }).click();
+  await mail.locator(".dm-settings-main").getByLabel("主题", { exact: true }).selectOption("dark"); await mail.getByLabel("界面密度").selectOption("compact"); await mail.getByLabel("动态效果").selectOption("off");
+  const save = mail.getByRole("button", { name: "保存设置", exact: true }); if (await save.isEnabled()) await save.click();
+  await mail.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "邮件", exact: true }).click();
+  for (const width of [1440, 1024, 768, 390]) { await page.setViewportSize({ width, height: 1000 }); await shot(`dark-compact-${width}`); assert.ok(await panel.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)); }
+  await page.setViewportSize({ width: 1700, height: 1000 }); await panel.getByRole("button", { name: "关闭邮箱助手" }).click();
+  await mail.getByRole("navigation", { name: "功能导航" }).getByRole("button", { name: "设置", exact: true }).click();
+  await mail.locator(".dm-settings-main").getByLabel("主题", { exact: true }).selectOption("host"); await mail.getByLabel("界面密度").selectOption("standard"); await mail.getByLabel("动态效果").selectOption("auto"); await save.click();
+  checks.push("native AI container follows plugin dark theme and compact density at four viewport widths");
+  assert.deepEqual(errors, []); await writeFile(".cache/quick-agent-ui-verification.json", JSON.stringify({ checks, errors, confirmedSends: 0 }, null, 2)); console.log(JSON.stringify({ checks, errors, confirmedSends: 0 }));
+} catch (e) { await shot("failure"); await writeFile(".cache/quick-agent-failure.txt", await mail.innerText()); throw e; }
+finally { await browser.close(); }

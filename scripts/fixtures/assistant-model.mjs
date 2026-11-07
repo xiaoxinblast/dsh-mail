@@ -15,10 +15,17 @@ export async function apply(ctx) {
    if(!context){if(options.messages[0]?.source?.kind !== 'dsh-session-title-llm')throw Error('Missing mail context');yield {type:'block-end',index:0,block:{type:'text',text:'Mailbox verification'}};yield {type:'finish',reason:{kind:'stop'}};return;}
    const source=JSON.parse(context.content[0].text.split('\n').slice(1).join('\n'));
    const results=turn.filter(m=>m.role==='tool'), instruction=turn[0].content.map(c=>c.text||'').join('');
+   if(instruction.includes('[pause]')&&results.length===0)await new Promise((resolve)=>setTimeout(resolve,1500));
    if(instruction.includes('[slow]'))await new Promise((resolve,reject)=>{const t=setTimeout(resolve,12000);options.signal.addEventListener('abort',()=>{clearTimeout(t);reject(options.signal.reason)},{once:true});});
    options.signal.throwIfAborted();
    let call;
-   if(instruction.includes('回复草稿')) {
+   const quick=context.content[0].text.match(/本轮是快捷任务 ([\w-]+)。/);
+   if(quick) {
+    if(results.length===0)call={name:'mail_search',arguments:JSON.stringify({action:'thread.read',args:{id:source.message?.id||source.draft?.sourceMessageId}})};
+    else if(results.length===1&&instruction.includes('创建待办'))call={name:'mail_resources',arguments:JSON.stringify({action:'resources.save',args:{kind:'tasks',value:{title:'[合成快捷] 核对完整往来',sourceMessageId:source.message.id}}})};
+    else if(results.length===1&&instruction.includes('生成发送预览'))call={name:'mail_drafts',arguments:JSON.stringify({action:'send.preview',args:{id:source.draft.id}})};
+    else if(!results.some(m=>m.toolName==='mail_results'||m.name==='mail_results'||m.content.some(c=>c.type==='text'&&c.text.includes('"submitted":true'))))call={name:'mail_results',arguments:JSON.stringify({action:'assistant.quick.result',args:{id:quick[1],subject:'[合成快捷] 候选主题',text:'已查找往来。'+(source.message?.text||source.draft?.text)+'\n候选回复：确认周五交付。'}})};
+   } else if(instruction.includes('回复草稿')) {
     if(results.length===0)call={name:'mail_drafts',arguments:JSON.stringify({action:'drafts.reply',args:{id:source.message.id,mode:'reply',display:false}})};
     else if(results.length===1){const d=JSON.parse(results[0].content.find(c=>c.type==='text').text);call={name:'mail_drafts',arguments:JSON.stringify({action:'drafts.save',args:{draft:{...d,text:'已核对完整往来，确认周五交付。\n\n'+d.quotedText,html:'<p>已核对完整往来，确认周五交付。</p>'+d.html}}})};}
    } else if(instruction.includes('发送预览')&&results.length===0)call={name:'mail_drafts',arguments:JSON.stringify({action:'send.preview',args:{id:source.draft.id}})};

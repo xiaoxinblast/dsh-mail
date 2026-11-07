@@ -26,11 +26,11 @@ try {
   await expect(mail.locator(".dm-composer .tiptap")).toContainText("确认周五交付");
   const replyCalls = await calls(); assert.equal(replyCalls.length, 3);
   for (const call of replyCalls) {
-    assert.equal(call.tools.length, 9); assert.ok(call.tools.every((tool) => tool.name.startsWith("mail_")));
+    assert.equal(call.tools.length, 10); assert.ok(call.tools.every((tool) => tool.name.startsWith("mail_")));
     const context = call.messages.filter((m) => m.source?.kind === "dsh-mail-context");
     assert.equal(context.length, 1); assert.match(context[0].content[0].text, /最早报价 12345/);
   }
-  await shot("reply"); checks.push("native multi-step Agent sees complete nested HTML quotes, uses only 9 mail tools, and displays the created reply draft");
+  await shot("reply"); checks.push("native multi-step Agent sees complete nested HTML quotes, uses the 10 shared mail tools, and displays the created reply draft");
   await prompt("为当前草稿生成发送预览"); await expect(mail.getByRole("dialog")).toContainText("确认发送");
   await shot("send-preview"); await mail.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
   checks.push("Agent can prepare a send preview; SMTP confirmation remains a human UI action");

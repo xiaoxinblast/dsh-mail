@@ -58,7 +58,7 @@ async(page)=>{
   await input.fill('切换后继续编辑这条未发送的消息');
   await full(true);await cover();
   check((await input.inputValue().catch(()=>input.innerText())).trim()==='切换后继续编辑这条未发送的消息','AI unsent input lost');
-  await assistant.getByText('全屏状态检查，请直接读取当前邮件。',{exact:true}).waitFor();
+  await assistant.getByText('全屏状态检查，请直接读取当前邮件。',{exact:true}).last().waitFor();
   await page.screenshot({path:'output/playwright/full20-light-assistant.png'});
   await back(true);check((await input.inputValue().catch(()=>input.innerText())).trim()==='切换后继续编辑这条未发送的消息','AI input lost returning');
   await input.fill('');await assistant.getByRole('button',{name:'关闭邮箱助手',exact:true}).click();

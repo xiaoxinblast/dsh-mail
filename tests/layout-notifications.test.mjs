@@ -74,6 +74,8 @@ test("test notifications are human-only and can check delivery while the prefere
   await service.invoke({ action: "settings.save", value: { desktopNotifications: false } }, human);
   assert.equal((await service.invoke({ action: "notifications.test" }, human)).status, "submitted");
   assert.equal(sent.length, 1); assert.equal(service.state().notifications.length, 0);
+  await service.invoke({ action: "settings.save", value: { notificationSound: false } }, human);
+  await service.invoke({ action: "notifications.test" }, human); assert.equal(sent[1].silent, true);
 });
 
 test("Windows toast escapes untrusted text and uses the default system sound", () => {
@@ -103,7 +105,7 @@ test("sync notifies only new inbox mail, skipping first sync, sent copies and UI
   await service.syncAccount(service.account("demo")); assert.equal(sent.length, 0);
   count = 2; await service.syncAccount(service.account("demo"));
   await Promise.all([...service.notificationWork]);
-  assert.equal(sent.length, 1); assert.match(sent[0].title, /收到 1 封新邮件/);
+  assert.equal(sent.length, 1); assert.match(sent[0].title, /未读邮件 · 1 封/);
   await service.syncAccount(service.account("demo"));
   validity = "2"; await service.syncAccount(service.account("demo"));
   await Promise.all([...service.notificationWork]); assert.equal(sent.length, 1);

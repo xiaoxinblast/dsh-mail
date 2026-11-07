@@ -9,7 +9,11 @@ import { Store } from "./store.mjs";
 import { WindowsVault } from "./vault.mjs";
 import { MailTransport, normalizeAccount, parseMessage, composeDraft } from "./mail.mjs";
 import { normalizeEvent, exportEvents, importEvents, occurrences, applyInvitation, zoneFor } from "./calendar.mjs";
-import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount } from "./settings.mjs";
+import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount, validateExperienceSettings, notificationAllowed } from "./settings.mjs";
+import { QuickAi } from "./quick-ai.mjs";
+import { uiState, resourcePage } from "./ui-state.mjs";
+import { storageInfo, cleanupPreview, cleanupConfirm, diagnosticInfo } from "./management.mjs";
+import { acknowledgeMail } from "./mail-notifications.mjs";
 import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses, addresses } from "./util.mjs";
@@ -25,12 +29,12 @@ function draftView(draft) { return publicValue(draft); }
 function sendIdentity(account) { const { id, email, name, username, smtpHost, smtpPort, smtpSecure, enabled } = account; return { id, email, name, username, smtpHost, smtpPort, smtpSecure, enabled }; }
 
 export class MailService {
-  constructor({ directory, vault = new WindowsVault(), transport, clock = () => Date.now(), notify = () => {}, ai = null }) {
-    this.store = new Store(directory); this.directory = directory; this.vault = vault; this.clock = clock; this.notify = notify;
+  constructor({ directory, vault = new WindowsVault(), transport, clock = () => Date.now(), notify = () => {}, dismissNotify = () => {}, ai = null }) {
+    this.store = new Store(directory); this.directory = directory; this.vault = vault; this.clock = clock; this.notify = notify; this.dismissNotify = dismissNotify; this.nativeNotifications = new Map();
     this.abort = new AbortController(); this.syncing = new Map(); this.work = new Map(); this.sending = false; this.stopped = false;
     this.workbenchViews = new Map(); this.viewEpoch = id(); this.viewSequence = 0;
     this.notificationWork = new Set();
-    this.ai = ai; this.aiWork = new Set();
+    this.ai = ai; this.aiWork = new Set(); this.quickAi = new QuickAi(this);
     this.transport = transport || new MailTransport({ getPassword: (key) => this.password(key), onChange: (key) => { const a = this.store.get("accounts", key); if (a?.enabled) this.scheduleSync(a); } });
     if (!this.store.get("calendars", "default")) this.store.put("calendars", { id: "default", name: "我的日历", color: "#155e75" });
     this.recover();
@@ -70,6 +74,13 @@ export class MailService {
     return query;
   }
   async invoke(operation, context = { kind: "agent" }) {
+    const started = performance.now(); let ok = false;
+    try { const result = await this.invokeOperation(operation, context); ok = true; return result; }
+    finally {
+      if (/^[a-z]+(?:\.[a-z]+)?$/.test(operation?.action || "") && operation.action !== "ui.state") { this.operationTimings ||= []; this.operationTimings.push({ action: operation.action, ms: Math.round((performance.now() - started) * 100) / 100, ok }); if (this.operationTimings.length > 40) this.operationTimings.shift(); }
+    }
+  }
+  async invokeOperation(operation, context) {
     if (operation?.action === "search" && context.kind === "agent" && context.sessionId && operation.display !== false) this.workbenchQuery(operation);
     const result = await this.invokeBusiness(operation, context);
     if (context.kind === "agent" && context.sessionId && operation.display !== false) {
@@ -114,6 +125,25 @@ export class MailService {
     requireValue(operation && typeof operation.action === "string", "ACTION_REQUIRED", "缺少 action。");
     requireValue(!this.stopped, "STOPPED", "邮箱服务已停止。");
     const { action, ...args } = operation;
+    if (["ui.state", "contacts.lookup", "resources.list", "drafts.read", "accounts.sync-settings", "storage.read", "storage.preview", "storage.clean", "diagnostics.read", "diagnostics.export"].includes(action)) {
+      this.assertHuman(context);
+      if (action === "ui.state") return { version: packageInfo.version, ...uiState(this, args, context, publicValue) };
+      if (action === "contacts.lookup") { const email = validateAddresses(args.email, true)[0].address; const row = this.store.db.prepare("SELECT data FROM entities WHERE kind='contacts' AND lower(json_extract(data,'$.email'))=? AND coalesce(json_extract(data,'$.deleted'),0)=0 LIMIT 1").get(email.toLowerCase()); return row ? publicValue(JSON.parse(row.data)) : null; }
+      if (action === "resources.list") return publicValue(resourcePage(this.store, args));
+      if (action === "drafts.read") { const draft = this.store.get("drafts", args.id); requireValue(draft && draft.status !== "discarded", "DRAFT_NOT_FOUND", "草稿不存在。"); return draftView(draft); }
+      if (action === "accounts.sync-settings") {
+        const account = this.account(args.id);
+        requireValue(typeof args.paused === "boolean" && (args.interval === null || Number.isInteger(args.interval) && args.interval >= 1 && args.interval <= 60), "INVALID_SYNC_INTERVAL", "同步间隔须为 1–60 分钟或继承全局。");
+        const next = { ...account, syncPaused: args.paused, syncIntervalMinutes: args.interval };
+        if (!args.paused && !account.authFailed && account.status !== "error") next.nextSyncAt = this.clock() + (args.interval || this.settings().syncIntervalMinutes) * 60000;
+        return publicValue(this.store.put("accounts", next));
+      }
+      if (action === "storage.read") return storageInfo(this);
+      if (action === "storage.preview") return cleanupPreview(this, args.ids);
+      if (action === "storage.clean") return cleanupConfirm(this, args.id);
+      if (action === "diagnostics.read") return diagnosticInfo(this, packageInfo.version);
+      return this.download("dsh-mail-diagnostics.json", "application/json", Buffer.from(JSON.stringify(diagnosticInfo(this, packageInfo.version), null, 2)));
+    }
     if (HUMAN_ONLY.has(action)) this.assertHuman(context);
     // Credential entry never exists on the agent tool surface, even in arbitrary nested JSON.
     if (context.kind !== "human") requireValue(!/"(?:password|ciphertext|secret)"\s*:/.test(JSON.stringify(args)), "SECRET_INPUT_FORBIDDEN", "请通过设置界面输入凭据。");
@@ -133,6 +163,13 @@ export class MailService {
       const draft = args.draftId ? this.store.get("drafts", args.draftId) : null;
       if (args.draftId) requireValue(draft, "DRAFT_NOT_FOUND", "草稿不存在。");
       return { ...this.store.put("assistant-contexts", { id: context.sessionId, messageId: args.messageId || null, draftId: args.draftId || null }), subject: draft?.subject || message?.subject || "" };
+    }
+    if (action.startsWith("assistant.quick.")) {
+      if (action === "assistant.quick.result") return this.quickAi.publish(args, context);
+      this.assertHuman(context);
+      if (action === "assistant.quick.start") return this.quickAi.start(args, context);
+      if (action === "assistant.quick.read") return this.quickAi.view(this.quickAi.read(args.id, context.sessionId));
+      if (action === "assistant.quick.cancel") return this.quickAi.cancel(args.id, context);
     }
     if (action === "assistant.read") return this.assistantSource(context.sessionId);
     if (action === "workbench.ack") { const current = this.workbenchView(context.sessionId); if (!current || current.id !== args.id) return { acknowledged: false }; this.workbenchViews.delete(context.sessionId); return { acknowledged: true }; }
@@ -161,10 +198,19 @@ export class MailService {
       if ((args.inbox || args.sent) && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
       return publicValue(this.store.search(args));
     }
-    if (action === "message.read") { const m = await this.loadMessage(args.id); return publicValue({ ...m, locations: this.store.messageLocations(m) }); }
+    if (action === "message.read") { const m = await this.loadMessage(args.id); const acknowledged = context.kind === "human" && args.acknowledge === true ? acknowledgeMail(this, m) : 0; return publicValue({ ...m, locations: this.store.messageLocations(m), ...(acknowledged ? { notificationsChanged: true } : {}) }); }
     if (action === "thread.read") { const m = this.message(args.id); return publicValue(this.store.search({ accountId: m.accountId, threadId: this.store.conversationId(m), preferredId: m.id, limit: args.limit || 50, offset: args.offset, includeSnoozed: true })); }
     if (action === "drafts.save") return this.saveDraft(args.draft);
-    if (action === "ai.generate") { const work = this.generateAi(args, context); this.aiWork.add(work); try { return await work; } finally { this.aiWork.delete(work); } }
+    if (action === "ai.generate") {
+      if (this.ai?.nativeAgent) {
+        const started = await this.quickAi.start(args, context), run = this.quickAi.read(started.id, context.sessionId);
+        const cancel = () => this.quickAi.cancel(run.id, context);
+        context.signal?.addEventListener("abort", cancel, { once: true });
+        try { if (context.signal?.aborted) cancel(); await run.work; requireValue(run.status === "completed", run.errorCode || "AI_FAILED", run.error || "快捷任务未完成。"); return run.result; }
+        finally { context.signal?.removeEventListener("abort", cancel); }
+      }
+      const work = this.generateAi(args, context); this.aiWork.add(work); try { return await work; } finally { this.aiWork.delete(work); }
+    }
     if (action === "drafts.reply") return this.replyDraft(args);
     if (action === "drafts.delete") { const d = this.store.get("drafts", args.id); requireValue(d && !["sending", "sent"].includes(d.status), "DRAFT_LOCKED", "发送中的邮件不能删除。"); return draftView(this.store.put("drafts", { ...d, status: "discarded" })); }
     if (action === "drafts.cancel") { const d = this.store.get("drafts", args.id); requireValue(d?.status === "queued", "CANNOT_UNSEND", "投递已经开始，不能撤回。"); return draftView(this.store.put("drafts", { ...d, status: "draft", sendAt: null, scheduledAt: null })); }
@@ -205,8 +251,8 @@ export class MailService {
     if (action === "backup.restore") return this.restore(args);
     if (action === "jobs.cancel") { const j = this.store.get("jobs", args.id); requireValue(j, "JOB_NOT_FOUND", "任务不存在。"); this.store.put("jobs", { ...j, cancelRequested: true }); return { id: j.id, status: "cancel-requested" }; }
     if (action === "jobs.retry") return this.retryJob(args.id);
-    if (action === "notifications.dismiss") { const n = this.store.get("notifications", args.id); if (n) this.store.put("notifications", { ...n, dismissed: true }); return { ok: true }; }
-    if (action === "notifications.test") return this.notify({ kind: "test", title: "这是一条 DSH Mail 测试通知，使用 Windows 默认提示音。" });
+    if (action === "notifications.dismiss") { const n = this.store.get("notifications", args.id); if (n) { this.store.put("notifications", { ...n, dismissed: true }); this.removeNativeNotification(n.id); } return { ok: true }; }
+    if (action === "notifications.test") return this.notify({ kind: "test", silent: !this.settings().notificationSound, title: this.settings().notificationSound ? "这是一条 DSH Mail 测试通知，使用 Windows 默认提示音。" : "这是一条 DSH Mail 静音测试通知。" });
     if (action === "settings.save") return this.saveSettings(args.value);
     throw Object.assign(new Error(`不支持的操作：${action}`), { code: "UNKNOWN_ACTION" });
   }
@@ -226,13 +272,14 @@ export class MailService {
     requireValue(typeof next.markReadOnOpen === "boolean", "INVALID_READ_PREFERENCE", "自动已读设置无效。");
     requireValue(typeof next.loadRemoteImages === "boolean", "INVALID_IMAGE_PREFERENCE", "图片加载设置无效。");
     requireValue(typeof next.desktopNotifications === "boolean", "INVALID_NOTIFICATION_PREFERENCE", "系统通知设置无效。");
+    validateExperienceSettings(next);
     for (const [key, min, max] of [["mailFolderWidth", 180, 480], ["mailListWidth", 260, 720]]) requireValue(Number.isInteger(next[key]) && next[key] >= min && next[key] <= max, "INVALID_PANE_WIDTH", "邮件栏宽度无效。");
     requireValue(FOLDER_SORTS.some(([sort]) => sort === next.folderSort), "INVALID_FOLDER_SORT", "请选择有效的文件夹排序方式。");
     requireValue(typeof next.defaultAccountId === "string", "INVALID_DEFAULT_ACCOUNT", "默认发件账号无效。");
     if (next.defaultAccountId && next.defaultAccountId !== previous.defaultAccountId) { const account = this.account(next.defaultAccountId); requireValue(account.enabled && !account.local && !account.deleted, "INVALID_DEFAULT_ACCOUNT", "请选择已启用的邮箱作为默认发件账号。"); }
     return this.store.transaction(() => {
       const saved = this.store.put("settings", { ...next, id: "general" });
-      if (next.syncIntervalMinutes !== previous.syncIntervalMinutes) for (const account of this.store.list("accounts")) if (!account.local && account.enabled && !account.authFailed && account.status !== "error") this.store.put("accounts", { ...account, nextSyncAt: this.clock() + next.syncIntervalMinutes * 60000 });
+      if (next.syncIntervalMinutes !== previous.syncIntervalMinutes) for (const account of this.store.list("accounts")) if (!account.local && account.enabled && !account.authFailed && !account.syncPaused && !account.syncIntervalMinutes && account.status !== "error") this.store.put("accounts", { ...account, nextSyncAt: this.clock() + next.syncIntervalMinutes * 60000 });
       return saved;
     });
   }
@@ -245,6 +292,7 @@ export class MailService {
     this.scheduleSync(saved, true); return publicValue(saved);
   }
   scheduleSync(account, force = false) {
+    if (account.syncPaused && !force) return;
     if (this.stopped || this.syncing.has(account.id) || account.local || !account.enabled || (!force && account.authFailed)) return;
     const promise = this.syncAccount(account).catch((error) => {
       const info = errorInfo(error), a = this.account(account.id), attempt = (a.failures || 0) + 1;
@@ -262,15 +310,16 @@ export class MailService {
     const roles = { ...account.folders };
     for (const [role, key] of [["\\Sent", "sent"], ["\\Drafts", "drafts"], ["\\Trash", "trash"], ["\\Junk", "junk"], ["\\Archive", "archive"]]) { const matches = mapped.filter((f) => f.role === role); if (!roles[key] && matches.length === 1) roles[key] = matches[0].id; }
     this.store.put("accounts", { ...this.account(account.id), folders: roles });
-    let added = 0;
+    const added = [];
     for (const folder of mapped.filter((f) => f.selectable).sort((a, b) => +(b.role === "\\Inbox") - +(a.role === "\\Inbox"))) {
       this.abort.signal.throwIfAborted();
       const known = this.store.folderMessages(folder.id);
       const result = await this.transport.scan(account, folder, known, async (batch) => {
         for (const message of batch) {
           const previous = this.store.location(account.id, folder.id, message.uidValidity, message.uid);
-          if (!previous && folder.role === "\\Inbox" && folder.syncedAt && String(folder.uidValidity) === String(message.uidValidity)) added++;
           const saved = this.store.upsertMessage({ ...message, rulesPending: previous?.rulesPending || (!previous && wasSynced) });
+          if (!previous && !saved.seen && folder.role === "\\Inbox" && folder.syncedAt && String(folder.uidValidity) === String(message.uidValidity)) added.push(saved.id);
+          if (previous && !previous.seen && saved.seen) acknowledgeMail(this, saved);
           this.collectOutgoingContacts(saved);
           for (const attachment of saved.attachments || []) if (attachment.id && !this.store.get("attachments", attachment.id)) this.store.put("attachments", { ...attachment, messageId: saved.id });
         }
@@ -282,9 +331,9 @@ export class MailService {
       const pending = this.store.folderMessages(folder.id).filter((m) => !m.bodyLoaded).sort((a, b) => b.uid - a.uid);
       for (const message of pending) { this.abort.signal.throwIfAborted(); try { await this.loadMessage(message.id); } catch (error) { if (this.abort.signal.aborted) throw error; this.store.log("body-sync-error", { messageId: message.id, ...errorInfo(error) }); } await new Promise((r) => setImmediate(r)); }
     }
-    this.store.put("accounts", { ...this.account(account.id), status: "connected", initialSynced: true, lastSyncedAt: now(), nextSyncAt: this.clock() + this.settings().syncIntervalMinutes * 60000, failures: 0, error: null });
+    this.store.put("accounts", { ...this.account(account.id), status: "connected", initialSynced: true, lastSyncedAt: now(), nextSyncAt: this.clock() + (this.account(account.id).syncIntervalMinutes || this.settings().syncIntervalMinutes) * 60000, failures: 0, error: null });
     const inbox = mapped.find((f) => f.role === "\\Inbox"); if (inbox && this.transport.idleInbox) await this.transport.idleInbox(account, inbox);
-    if (added && wasSynced) this.addNotification("new-mail", `${account.name} 收到 ${added} 封新邮件`, { accountId: account.id });
+    if (added.length && wasSynced) this.addNotification("new-mail", `未读邮件 · ${added.length} 封`, { accountId: account.id, messageIds: added });
   }
   async loadMessage(key) {
     let message = this.message(key);
@@ -324,10 +373,11 @@ export class MailService {
     const accountId = input.accountId || previous?.accountId || preferredAccount(this.store.list("accounts"), this.settings())?.id;
     requireValue(accountId, "ACCOUNT_REQUIRED", "请先连接并启用邮箱。");
     const account = this.account(accountId), signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
-    const allowed = ["to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt", "scheduledAt", "sendTimeZone", "quotedText"];
-    const next = { ...previous, accountId, id: input.id || id(), status: "draft" };
+    const allowed = ["to", "cc", "bcc", "subject", "text", "html", "attachments", "inReplyTo", "references", "sourceMessageId", "requestReceipt", "ical", "icalMethod", "followUpAt", "scheduledAt", "sendTimeZone", "quotedText", "editorMode"];
+    const next = { editorMode: this.settings().composeFormat, ...previous, accountId, id: input.id || id(), status: "draft" };
     if (!previous && input.text === undefined && input.html === undefined) { next.text = !signature?.deleted ? signature?.text || "" : ""; next.html = !signature?.deleted ? signature?.html || "" : ""; }
     for (const key of allowed) if (input[key] !== undefined) next[key] = input[key];
+    requireValue(["rich", "plain"].includes(next.editorMode), "INVALID_DRAFT", "草稿编辑格式无效。");
     requireValue(next.quotedText === undefined || typeof next.quotedText === "string", "INVALID_DRAFT", "引用内容格式无效。");
     if (next.scheduledAt) requireValue(typeof next.scheduledAt === "string" && /(?:Z|[+-]\d\d:\d\d)$/.test(next.scheduledAt) && Number.isFinite(Date.parse(next.scheduledAt)), "INVALID_SEND_TIME", "定时发送必须包含有效日期和时区。");
     if (next.sendTimeZone) { try { new Intl.DateTimeFormat("en", { timeZone: next.sendTimeZone }); } catch { requireValue(false, "INVALID_TIME_ZONE", "发送时区无效。"); } }
@@ -406,7 +456,7 @@ export class MailService {
   async messageAction(key, { operation, value, destinationId }) {
     let m = this.message(key); const account = this.account(m.accountId), folder = this.folder(m.folderId);
     if (operation === "label" || operation === "snooze") return publicValue(this.store.upsertMessage({ ...m, ...(operation === "label" ? { labels: [...new Set(value || [])] } : { snoozedUntil: value || null }) }));
-    if (["star", "read"].includes(operation)) { const flag = operation === "star" ? "\\Flagged" : "\\Seen"; if (!account.local) await this.transport.flags(account, folder, m, value ? [flag] : [], value ? [] : [flag]); return publicValue(this.store.upsertMessage({ ...m, flags: value ? [...new Set([...m.flags, flag])] : m.flags.filter((f) => f !== flag) })); }
+    if (["star", "read"].includes(operation)) { const flag = operation === "star" ? "\\Flagged" : "\\Seen"; if (!account.local) await this.transport.flags(account, folder, m, value ? [flag] : [], value ? [] : [flag]); const updated = this.store.upsertMessage({ ...m, flags: value ? [...new Set([...m.flags, flag])] : m.flags.filter((f) => f !== flag) }); if (operation === "read" && value) acknowledgeMail(this, updated); return publicValue(updated); }
     if (operation === "purge") { if (!account.local) requireValue(await this.transport.purge(account, folder, m), "PURGE_FAILED", "服务器未确认永久删除。"); this.store.deleteMessage(m.id); return { deleted: true }; }
     requireValue(["copy", "move", "archive", "trash", "junk", "restore"].includes(operation), "INVALID_MAIL_ACTION", "邮件操作无效。");
     const role = { archive: "archive", trash: "trash", junk: "junk" }[operation];
@@ -497,7 +547,7 @@ export class MailService {
   async runRule(rule, message) { const results = []; for (const action of rule.actions) { if (action.action === "task") results.push(this.saveResource("tasks", { title: action.title || message.subject, sourceMessageId: message.id, evidence: message.text?.slice(0, 300), priority: "normal" })); else results.push(await this.messageAction(message.id, { operation: action.action, value: action.value ?? true, destinationId: action.destinationId })); if (["move", "archive"].includes(action.action)) break; } this.store.log("rule-applied", { ruleId: rule.id, messageId: message.id }); return { actions: results.length }; }
   saveResource(kind, value) {
     requireValue(value && typeof value === "object", "INVALID_VALUE", "记录无效。");
-    if (kind === "tasks") { requireValue(value.title?.trim(), "TITLE_REQUIRED", "请填写待办名称。"); if (value.due) requireValue(Number.isFinite(Date.parse(value.due)), "INVALID_DATE", "截止日期无效。"); }
+    if (kind === "tasks") { if (!value.id && value.priority === undefined) value = { ...value, priority: this.settings().taskPriority }; requireValue(value.title?.trim(), "TITLE_REQUIRED", "请填写待办名称。"); if (value.due) requireValue(Number.isFinite(Date.parse(value.due)), "INVALID_DATE", "截止日期无效。"); }
     if (kind === "contacts") {
       const list = validateAddresses(value.email, true); requireValue(list.length === 1, "INVALID_ADDRESS", "一个联系人只能填写一个邮箱地址。");
       const old = this.store.list("contacts").find((c) => String(c.email).trim().toLowerCase() === list[0].address && c.id !== value.id);
@@ -508,7 +558,7 @@ export class MailService {
     const { workbench, ...resource } = value;
     return this.store.put(kind, resource, value.revision);
   }
-  saveEvent(input) { const previous = input.id ? this.store.get("events", input.id) : null; const event = normalizeEvent({ timeZone: this.settings().eventTimeZone, ...previous, ...input, uid: previous?.uid || input.uid, sequence: previous ? previous.sequence + 1 : 0 }); return this.store.put("events", event, input.revision); }
+  saveEvent(input) { const previous = input.id ? this.store.get("events", input.id) : null; const event = normalizeEvent({ timeZone: this.settings().eventTimeZone, reminderMinutes: this.settings().eventReminder, ...previous, ...input, uid: previous?.uid || input.uid, sequence: previous ? previous.sequence + 1 : 0 }); return this.store.put("events", event, input.revision); }
   inviteDraft(action, args) {
     const event = this.store.get("events", args.id); requireValue(event, "EVENT_NOT_FOUND", "事件不存在。"); const account = this.account(args.accountId);
     let content = { ...event }, method = "REQUEST", to;
@@ -560,12 +610,26 @@ export class MailService {
     } catch (error) { this.store.put("drafts", { ...this.store.get("drafts", sent.id), sentCopyStatus: "failed", sentCopyError: errorInfo(error) }); }
   }
   addNotification(kind, title, data) {
-    const n = this.store.put("notifications", { kind, title, data, createdAt: now() });
-    if (this.settings().desktopNotifications) {
-      const work = Promise.resolve().then(() => this.notify(publicValue(n))).catch((error) => this.store.log("notification-error", { notificationId: n.id, ...errorInfo(error) })).finally(() => this.notificationWork.delete(work));
-      this.notificationWork.add(work);
+    if (kind === "new-mail" && Array.isArray(data?.messageIds)) {
+      data = { ...data, messageIds: data.messageIds.filter((id) => !this.openedNotificationMails?.has(id)) };
+      if (!data.messageIds.length) return null;
+      title = `未读邮件 · ${data.messageIds.length} 封`;
+    }
+    const nativeNotification = notificationAllowed(this.settings(), kind, this.clock());
+    const n = this.store.put("notifications", { kind, title, data, nativeNotification, createdAt: now() });
+    if (nativeNotification) {
+      const work = Promise.resolve().then(() => { if (!this.store.get("notifications", n.id)?.dismissed) return this.notify({ ...publicValue(n), silent: !this.settings().notificationSound }); }).catch((error) => this.store.log("notification-error", { notificationId: n.id, ...errorInfo(error) })).finally(() => { this.notificationWork.delete(work); if (this.nativeNotifications.get(n.id) === work) this.nativeNotifications.delete(n.id); });
+      this.notificationWork.add(work); this.nativeNotifications.set(n.id, work);
     }
     return n;
+  }
+  removeNativeNotification(id) {
+    const notice = this.store.get("notifications", id);
+    if (notice?.nativeDismissed || notice?.nativeNotification === false) return;
+    if (notice) this.store.put("notifications", { ...notice, nativeDismissed: true });
+    const pending = this.nativeNotifications.get(id);
+    const work = Promise.resolve(pending).then(() => this.dismissNotify(id)).catch((error) => this.store.log("notification-error", { notificationId: id, ...errorInfo(error) })).finally(() => { this.notificationWork.delete(work); if (this.nativeNotifications.get(id) === work) this.nativeNotifications.delete(id); });
+    this.nativeNotifications.set(id, work); this.notificationWork.add(work);
   }
   reminders() {
     const start = new Date(this.clock() - 7 * 86400000).toISOString(), end = new Date(this.clock() + 86400000).toISOString();
@@ -577,7 +641,7 @@ export class MailService {
   async ensureAttachment(key) { let a = this.store.get("attachments", key); requireValue(a, "ATTACHMENT_NOT_FOUND", "附件不存在，请先同步或打开邮件。"); if (!a.path) { const m = this.message(a.messageId), bytes = await this.transport.attachment(this.account(m.accountId), this.folder(m.folderId), m, a.part), path = join(this.directory, "blobs", digest(bytes)); await mkdir(join(this.directory, "blobs"), { recursive: true }); await writeFile(path, bytes); a = this.store.put("attachments", { ...a, path, size: bytes.length }); } return a; }
   async ensureRaw(key) { const m = this.message(key); if (m.rawPath) return readFile(m.rawPath); const bytes = await this.transport.raw(this.account(m.accountId), this.folder(m.folderId), m), rawPath = join(this.directory, "raw", `${digest(bytes)}.eml`); await mkdir(join(this.directory, "raw"), { recursive: true }); await writeFile(rawPath, bytes); this.store.upsertMessage({ ...m, rawPath }); return bytes; }
   async attachmentDownload({ id: key }) { const a = await this.ensureAttachment(key); const bytes = await readFile(a.path); return { filename: a.filename, contentType: a.contentType, size: bytes.length, base64: bytes.toString("base64") }; }
-  async download(filename, contentType, bytes) { const fileId = id(), dir = join(this.directory, "exports"); await mkdir(dir, { recursive: true }); const path = inside(dir, `${fileId}-${cleanFilename(filename)}`); await writeFile(path, bytes); this.store.put("exports", { id: fileId, filename: cleanFilename(filename), contentType, path, size: bytes.length }); return { id: fileId, filename: cleanFilename(filename), contentType, size: bytes.length, base64: bytes.length <= 60 * 1024 * 1024 ? bytes.toString("base64") : undefined, localPath: path }; }
+  async download(filename, contentType, bytes, exportKind = "temporary") { const fileId = id(), dir = join(this.directory, "exports"); await mkdir(dir, { recursive: true }); const path = inside(dir, `${fileId}-${cleanFilename(filename)}`); await writeFile(path, bytes); this.store.put("exports", { id: fileId, filename: cleanFilename(filename), contentType, path, size: bytes.length, exportKind }); return { id: fileId, filename: cleanFilename(filename), contentType, size: bytes.length, base64: bytes.length <= 60 * 1024 * 1024 ? bytes.toString("base64") : undefined, localPath: path }; }
   async saveFile({ id: key, directory, attachment }) { requireValue(typeof directory === "string" && resolve(directory) === directory, "ABSOLUTE_PATH_REQUIRED", "请选择绝对目录路径。"); const file = this.store.get(attachment ? "attachments" : "exports", key); requireValue(file, "FILE_NOT_FOUND", "文件不存在。"); await mkdir(directory, { recursive: true }); const target = inside(directory, cleanFilename(file.filename)); await copyFile(file.path, target, 1); const metadata = await stat(target); return { path: target, size: metadata.size }; }
   async exportMail({ ids, folderId, format = "eml" }) {
     const keys = ids || this.store.folderMessages(folderId).map((m) => m.id); requireValue(keys.length, "NO_MESSAGES", "没有可导出的邮件。"); const entries = [];
@@ -610,7 +674,7 @@ export class MailService {
     const paths = new Set([...messages.flatMap((m) => [m.rawPath, ...(m.attachments || []).map((a) => a.path)]), ...entities.filter((e) => e.kind === "attachments").map((e) => e.data.path), ...entities.filter((e) => e.kind === "drafts").map((e) => e.data.rawPath)].filter(Boolean));
     const mapping = new Map(); for (const path of paths) { const name = `files/${digest(path)}`; zip.file(name, await readFile(path)); mapping.set(path, name); }
     const snapshot = JSON.stringify({ version: 1, createdAt: now(), entities, messages }, function (key, value) { return (key === "rawPath" || (key === "path" && this.contentType)) && mapping.has(value) ? mapping.get(value) : value; });
-    zip.file("snapshot.json", snapshot); return this.download("dsh-mail-backup.zip", "application/zip", await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
+    zip.file("snapshot.json", snapshot); return this.download("dsh-mail-backup.zip", "application/zip", await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }), "backup");
   }
   async restore({ base64 }) {
     requireValue(this.store.db.prepare("SELECT count(*) AS n FROM messages").get().n === 0 && this.store.list("accounts").length === 0, "RESTORE_REQUIRES_EMPTY", "为防止覆盖现有邮箱，请在空数据配置中恢复备份。");
@@ -691,7 +755,11 @@ export class MailService {
     return plain + "\n\n[HTML 正文与引用]\n" + htmlText;
   }
   async assistantSource(sessionId) {
-    const selection = this.store.get("assistant-contexts", sessionId);
+    const quick = this.quickAi.active.get(sessionId);
+    if (quick?.snapshot) return quick.snapshot;
+    return this.contextSource(this.store.get("assistant-contexts", sessionId));
+  }
+  async contextSource(selection) {
     if (!selection) return { message: null, draft: null };
     const draft = selection.draftId ? this.store.get("drafts", selection.draftId) : null;
     const messageId = selection.messageId || draft?.sourceMessageId;
@@ -710,16 +778,18 @@ export class MailService {
     requireValue(args.instruction === undefined || (typeof args.instruction === "string" && args.instruction.length <= 8000), "INVALID_AI_INPUT", "AI 要求不能超过 8000 字。");
     requireValue(args.language === undefined || (typeof args.language === "string" && args.language.trim() && args.language.length <= 80), "INVALID_AI_INPUT", "请填写有效的目标语言。");
     const drafting = ["compose", "polish", "translateDraft"].includes(args.task);
-    const original = drafting ? this.store.get("drafts", args.draftId) : await this.loadMessage(args.messageId);
+    const snapshot = context.quickRunId ? this.quickAi.read(context.quickRunId, context.sessionId).snapshot : null;
+    const original = snapshot ? drafting ? snapshot.draft : snapshot.message : drafting ? this.store.get("drafts", args.draftId) : await this.loadMessage(args.messageId);
     requireValue(original && (!drafting || ["draft", "failed", "needs-confirmation"].includes(original.status)), "DRAFT_LOCKED", "当前草稿不可编辑。");
     if (drafting && args.revision !== undefined) requireValue(original.revision === args.revision, "CONFLICT", "草稿已经改变，请重新生成。");
     requireValue(!original.bodyTruncated, "AI_SOURCE_TRUNCATED", "本机正文已截断，无法生成完整结果；请取得完整正文后重试。");
-    const source = { subject: original.subject || "", text: drafting ? draftTextParts(original).current : args.task === "reply" ? await this.completeMailText(original) : original.text || "", from: original.from, to: original.to, cc: original.cc, date: original.date };
+    const source = { subject: original.subject || "", text: drafting ? draftTextParts(original).current : await this.completeMailText(original), from: original.from, to: original.to, cc: original.cc, date: original.date };
     requireValue(source.text.trim() || !original.html, "AI_TEXT_UNAVAILABLE", "此邮件只有 HTML 正文，请取得纯文本正文后再使用 AI。");
     requireValue(args.task === "compose" || source.text.trim(), "AI_TEXT_REQUIRED", "当前正文为空。");
-    const language = args.language || (args.task === "polish" ? "preserve" : args.task === "reply" ? "original" : "简体中文");
-    const input = { task: args.task, language, instruction: args.instruction || "", source };
-    requireValue(Buffer.byteLength(JSON.stringify(input), "utf8") <= 96 * 1024, "AI_INPUT_TOO_LONG", "当前邮件过长，超过内置 AI 的 96 KiB 输入限制；请缩短草稿或处理较短邮件。");
+    const language = args.language || (args.task === "polish" ? "preserve" : args.task === "reply" ? "original" : this.settings().aiLanguage);
+    const input = { task: args.task, language, instruction: args.instruction || "", style: this.settings().aiStyle, source };
+    requireValue(context.quickRunId || Buffer.byteLength(JSON.stringify(input), "utf8") <= 96 * 1024, "AI_INPUT_TOO_LONG", "当前邮件过长，超过内置 AI 的 96 KiB 输入限制；请缩短草稿或处理较短邮件。");
+    signal.throwIfAborted();
     const result = await this.ai({ ...input, context, signal }); signal.throwIfAborted();
     requireValue(result && typeof result.text === "string" && result.text.trim() && (result.subject === undefined || typeof result.subject === "string"), "AI_INVALID_RESULT", "AI 没有返回有效内容，请重试。");
     return { task: args.task, text: result.text, ...(result.subject === undefined ? {} : { subject: result.subject }), model: result.model, sourceId: original.id, sourceRevision: original.revision || null, language };

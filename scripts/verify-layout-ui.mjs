@@ -49,12 +49,12 @@ try {
   await expect.poll(() => settings().mailListWidth).toBe(340);
   const rail = root.getByRole("navigation", { name: "功能导航" });
   await rail.getByRole("button", { name: "设置", exact: true }).click();
-  await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click();
-  const toggle = root.getByRole("checkbox", { name: "新邮件、日历与待办使用系统通知", exact: true }), save = root.getByRole("button", { name: "保存偏好", exact: true });
+  await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "通知", exact: true }).click();
+  const toggle = root.getByRole("switch", { name: "启用 Windows 系统通知", exact: true }), save = root.getByRole("button", { name: "保存设置", exact: true });
   await toggle.uncheck(); if (await save.isEnabled()) await save.click(); await expect.poll(() => settings().desktopNotifications).toBe(false);
   await toggle.check(); await save.click(); await expect.poll(() => settings().desktopNotifications).toBe(true);
   await shot("notification-settings-light");
-  if (process.argv.includes("--notify")) { await root.getByRole("button", { name: "测试系统通知", exact: true }).click(); await expect(root.getByRole("status").filter({ hasText: "测试通知已提交给 Windows" })).toBeVisible({ timeout: 20000 }); checks.push("test notification submitted through actual Host native Windows adapter"); }
+  if (process.argv.includes("--notify")) { await root.getByRole("button", { name: "测试系统通知", exact: true }).click(); await expect(root.getByRole("status").filter({ hasText: "测试通知已提交" })).toBeVisible({ timeout: 20000 }); checks.push("test notification submitted through actual Host native Windows adapter"); }
   await resize(390); await root.getByRole("button", { name: "测试系统通知", exact: true }).scrollIntoViewIfNeeded(); await noOverflow(); await shot("notification-settings-light-390");
   await page.getByText("更多", { exact: true }).last().click(); await page.getByText("设置", { exact: true }).last().click(); await page.getByRole("button", { name: "深色", exact: true }).click(); await expect(page.locator("body")).toHaveAttribute("data-ds-dark-theme", ""); await page.getByRole("button", { name: "关闭", exact: true }).last().click();
   await rail.getByRole("button", { name: "邮件", exact: true }).click();

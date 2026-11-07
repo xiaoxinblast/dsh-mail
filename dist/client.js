@@ -34,13 +34,13 @@ __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
-var import_react5 = __toESM(require("react"), 1);
+var import_react6 = __toESM(require("react"), 1);
 
 // ui/presentation.jsx
-var import_react3 = __toESM(require("react"), 1);
+var import_react4 = __toESM(require("react"), 1);
 
 // ui/workbench.jsx
-var import_react2 = __toESM(require("react"), 1);
+var import_react3 = __toESM(require("react"), 1);
 
 // node_modules/dompurify/dist/purify.es.mjs
 /*! @license DOMPurify 3.4.17 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.4.17/LICENSE */
@@ -21382,13 +21382,13 @@ var emoji = "emoji";
 var scheme = "scheme";
 var slashscheme = "slashscheme";
 var whitespace = "whitespace";
-function registerGroup(name, groups) {
-  if (!(name in groups)) {
-    groups[name] = [];
+function registerGroup(name, groups2) {
+  if (!(name in groups2)) {
+    groups2[name] = [];
   }
-  return groups[name];
+  return groups2[name];
 }
-function addToGroups(t3, flags, groups) {
+function addToGroups(t3, flags, groups2) {
   if (flags[numeric]) {
     flags[asciinumeric] = true;
     flags[alphanumeric] = true;
@@ -21410,16 +21410,16 @@ function addToGroups(t3, flags, groups) {
     flags[domain] = true;
   }
   for (const k3 in flags) {
-    const group = registerGroup(k3, groups);
+    const group = registerGroup(k3, groups2);
     if (group.indexOf(t3) < 0) {
       group.push(t3);
     }
   }
 }
-function flagsForToken(t3, groups) {
+function flagsForToken(t3, groups2) {
   const result = {};
-  for (const c3 in groups) {
-    if (groups[c3].indexOf(t3) >= 0) {
+  for (const c3 in groups2) {
+    if (groups2[c3].indexOf(t3) >= 0) {
       result[c3] = true;
     }
   }
@@ -21475,9 +21475,9 @@ State.prototype = {
    * @param {Flags} [flags] Collections flags to add token to
    * @param {Collections<T>} [groups] Master list of token groups
    */
-  ta(inputs, next, flags, groups) {
+  ta(inputs, next, flags, groups2) {
     for (let i4 = 0; i4 < inputs.length; i4++) {
-      this.tt(inputs[i4], next, flags, groups);
+      this.tt(inputs[i4], next, flags, groups2);
     }
   },
   /**
@@ -21489,15 +21489,15 @@ State.prototype = {
    * @param {Collections<T>} [groups] Master list of token groups
    * @returns {State<T>} taken after the given input
    */
-  tr(regexp, next, flags, groups) {
-    groups = groups || State.groups;
+  tr(regexp, next, flags, groups2) {
+    groups2 = groups2 || State.groups;
     let nextState;
     if (next && next.j) {
       nextState = next;
     } else {
       nextState = new State(next);
-      if (flags && groups) {
-        addToGroups(next, flags, groups);
+      if (flags && groups2) {
+        addToGroups(next, flags, groups2);
       }
     }
     this.jr.push([regexp, nextState]);
@@ -21513,7 +21513,7 @@ State.prototype = {
    * @param {Collections<T>} [groups] Master list of token groups
    * @returns {State<T>} taken after the given input
    */
-  ts(input, next, flags, groups) {
+  ts(input, next, flags, groups2) {
     let state = this;
     const len = input.length;
     if (!len) {
@@ -21522,7 +21522,7 @@ State.prototype = {
     for (let i4 = 0; i4 < len - 1; i4++) {
       state = state.tt(input[i4]);
     }
-    return state.tt(input[len - 1], next, flags, groups);
+    return state.tt(input[len - 1], next, flags, groups2);
   },
   /**
    * Short for "take transition", this is a method for building/working with
@@ -21550,8 +21550,8 @@ State.prototype = {
    * @param {Collections<T>} [groups] Master list of groups
    * @returns {State<T>} taken after the given input
    */
-  tt(input, next, flags, groups) {
-    groups = groups || State.groups;
+  tt(input, next, flags, groups2) {
+    groups2 = groups2 || State.groups;
     const state = this;
     if (next && next.j) {
       state.j[input] = next;
@@ -21569,12 +21569,12 @@ State.prototype = {
       nextState = new State();
     }
     if (t3) {
-      if (groups) {
+      if (groups2) {
         if (nextState.t && typeof nextState.t === "string") {
-          const allFlags = Object.assign(flagsForToken(nextState.t, groups), flags);
-          addToGroups(t3, allFlags, groups);
+          const allFlags = Object.assign(flagsForToken(nextState.t, groups2), flags);
+          addToGroups(t3, allFlags, groups2);
         } else if (flags) {
-          addToGroups(t3, flags, groups);
+          addToGroups(t3, flags, groups2);
         }
       }
       nextState.t = t3;
@@ -21583,10 +21583,10 @@ State.prototype = {
     return nextState;
   }
 };
-var ta = (state, input, next, flags, groups) => state.ta(input, next, flags, groups);
-var tr = (state, regexp, next, flags, groups) => state.tr(regexp, next, flags, groups);
-var ts = (state, input, next, flags, groups) => state.ts(input, next, flags, groups);
-var tt = (state, input, next, flags, groups) => state.tt(input, next, flags, groups);
+var ta = (state, input, next, flags, groups2) => state.ta(input, next, flags, groups2);
+var tr = (state, regexp, next, flags, groups2) => state.tr(regexp, next, flags, groups2);
+var ts = (state, input, next, flags, groups2) => state.ts(input, next, flags, groups2);
+var tt = (state, input, next, flags, groups2) => state.tt(input, next, flags, groups2);
 var WORD = "WORD";
 var UWORD = "UWORD";
 var ASCIINUMERICAL = "ASCIINUMERICAL";
@@ -21718,8 +21718,8 @@ var OBJECT_REPLACEMENT = "\uFFFC";
 var tlds = null;
 var utlds = null;
 function init$2(customSchemes = []) {
-  const groups = {};
-  State.groups = groups;
+  const groups2 = {};
+  State.groups = groups2;
   const Start = new State();
   if (tlds == null) {
     tlds = decodeTlds(encodedTlds);
@@ -21831,11 +21831,11 @@ function init$2(customSchemes = []) {
   addToGroups(TLD, {
     tld: true,
     ascii: true
-  }, groups);
+  }, groups2);
   addToGroups(UTLD, {
     utld: true,
     alpha: true
-  }, groups);
+  }, groups2);
   fastts(Start, "file", SCHEME, WORD, wordjr);
   fastts(Start, "mailto", SCHEME, WORD, wordjr);
   fastts(Start, "http", SLASH_SCHEME, WORD, wordjr);
@@ -21845,11 +21845,11 @@ function init$2(customSchemes = []) {
   addToGroups(SCHEME, {
     scheme: true,
     ascii: true
-  }, groups);
+  }, groups2);
   addToGroups(SLASH_SCHEME, {
     slashscheme: true,
     ascii: true
-  }, groups);
+  }, groups2);
   customSchemes = customSchemes.sort((a3, b3) => a3[0] > b3[0] ? 1 : -1);
   for (let i4 = 0; i4 < customSchemes.length; i4++) {
     const sch = customSchemes[i4][0];
@@ -21877,7 +21877,7 @@ function init$2(customSchemes = []) {
   return {
     start: Start,
     tokens: Object.assign({
-      groups
+      groups: groups2
     }, tk)
   };
 }
@@ -22293,60 +22293,60 @@ var Url = createTokenClass("url", {
 });
 var makeState = (arg) => new State(arg);
 function init$1({
-  groups
+  groups: groups2
 }) {
-  const qsAccepting = groups.domain.concat([AMPERSAND, ASTERISK, AT, BACKSLASH, BACKTICK, CARET, DOLLAR, EQUALS, HYPHEN, NUM, PERCENT, PIPE, PLUS, POUND, SLASH, SYM, TILDE, UNDERSCORE]);
+  const qsAccepting = groups2.domain.concat([AMPERSAND, ASTERISK, AT, BACKSLASH, BACKTICK, CARET, DOLLAR, EQUALS, HYPHEN, NUM, PERCENT, PIPE, PLUS, POUND, SLASH, SYM, TILDE, UNDERSCORE]);
   const qsNonAccepting = [APOSTROPHE, COLON, COMMA, DOT, EXCLAMATION, PERCENT, QUERY, QUOTE, SEMI, OPENANGLEBRACKET, CLOSEANGLEBRACKET, OPENBRACE, CLOSEBRACE, CLOSEBRACKET, OPENBRACKET, OPENPAREN, CLOSEPAREN, FULLWIDTHLEFTPAREN, FULLWIDTHRIGHTPAREN, LEFTCORNERBRACKET, RIGHTCORNERBRACKET, LEFTWHITECORNERBRACKET, RIGHTWHITECORNERBRACKET, FULLWIDTHLESSTHAN, FULLWIDTHGREATERTHAN];
   const localpartAccepting = [AMPERSAND, APOSTROPHE, ASTERISK, BACKSLASH, BACKTICK, CARET, DOLLAR, EQUALS, HYPHEN, OPENBRACE, CLOSEBRACE, PERCENT, PIPE, PLUS, POUND, QUERY, SLASH, SYM, TILDE, UNDERSCORE];
   const Start = makeState();
   const Localpart = tt(Start, TILDE);
   ta(Localpart, localpartAccepting, Localpart);
-  ta(Localpart, groups.domain, Localpart);
+  ta(Localpart, groups2.domain, Localpart);
   const Domain = makeState(), Scheme = makeState(), SlashScheme = makeState();
-  ta(Start, groups.domain, Domain);
-  ta(Start, groups.scheme, Scheme);
-  ta(Start, groups.slashscheme, SlashScheme);
+  ta(Start, groups2.domain, Domain);
+  ta(Start, groups2.scheme, Scheme);
+  ta(Start, groups2.slashscheme, SlashScheme);
   ta(Domain, localpartAccepting, Localpart);
-  ta(Domain, groups.domain, Domain);
+  ta(Domain, groups2.domain, Domain);
   const LocalpartAt = tt(Domain, AT);
   tt(Localpart, AT, LocalpartAt);
   tt(Scheme, AT, LocalpartAt);
   tt(SlashScheme, AT, LocalpartAt);
   const LocalpartDot = tt(Localpart, DOT);
   ta(LocalpartDot, localpartAccepting, Localpart);
-  ta(LocalpartDot, groups.domain, Localpart);
+  ta(LocalpartDot, groups2.domain, Localpart);
   const EmailDomain = makeState();
-  ta(LocalpartAt, groups.domain, EmailDomain);
-  ta(EmailDomain, groups.domain, EmailDomain);
+  ta(LocalpartAt, groups2.domain, EmailDomain);
+  ta(EmailDomain, groups2.domain, EmailDomain);
   const EmailDomainDot = tt(EmailDomain, DOT);
-  ta(EmailDomainDot, groups.domain, EmailDomain);
+  ta(EmailDomainDot, groups2.domain, EmailDomain);
   const Email$1 = makeState(Email);
-  ta(EmailDomainDot, groups.tld, Email$1);
-  ta(EmailDomainDot, groups.utld, Email$1);
+  ta(EmailDomainDot, groups2.tld, Email$1);
+  ta(EmailDomainDot, groups2.utld, Email$1);
   tt(LocalpartAt, LOCALHOST, Email$1);
   const EmailDomainHyphen = tt(EmailDomain, HYPHEN);
   tt(EmailDomainHyphen, HYPHEN, EmailDomainHyphen);
-  ta(EmailDomainHyphen, groups.domain, EmailDomain);
-  ta(Email$1, groups.domain, EmailDomain);
+  ta(EmailDomainHyphen, groups2.domain, EmailDomain);
+  ta(Email$1, groups2.domain, EmailDomain);
   tt(Email$1, DOT, EmailDomainDot);
   tt(Email$1, HYPHEN, EmailDomainHyphen);
   const DomainHyphen = tt(Domain, HYPHEN);
   const DomainDot = tt(Domain, DOT);
   tt(DomainHyphen, HYPHEN, DomainHyphen);
-  ta(DomainHyphen, groups.domain, Domain);
+  ta(DomainHyphen, groups2.domain, Domain);
   ta(DomainDot, localpartAccepting, Localpart);
-  ta(DomainDot, groups.domain, Domain);
+  ta(DomainDot, groups2.domain, Domain);
   const DomainDotTld = makeState(Url);
-  ta(DomainDot, groups.tld, DomainDotTld);
-  ta(DomainDot, groups.utld, DomainDotTld);
-  ta(DomainDotTld, groups.domain, Domain);
+  ta(DomainDot, groups2.tld, DomainDotTld);
+  ta(DomainDot, groups2.utld, DomainDotTld);
+  ta(DomainDotTld, groups2.domain, Domain);
   ta(DomainDotTld, localpartAccepting, Localpart);
   tt(DomainDotTld, DOT, DomainDot);
   tt(DomainDotTld, HYPHEN, DomainHyphen);
   tt(DomainDotTld, AT, LocalpartAt);
   const DomainDotTldColon = tt(DomainDotTld, COLON);
   const DomainDotTldColonPort = makeState(Url);
-  ta(DomainDotTldColon, groups.numeric, DomainDotTldColonPort);
+  ta(DomainDotTldColon, groups2.numeric, DomainDotTldColonPort);
   const Url$1 = makeState(Url);
   const UrlNonaccept = makeState();
   ta(Url$1, qsAccepting, Url$1);
@@ -22363,16 +22363,16 @@ function init$1({
   const SlashSchemeColon = tt(SlashScheme, COLON);
   const SlashSchemeColonSlash = tt(SlashSchemeColon, SLASH);
   const UriPrefix = tt(SlashSchemeColonSlash, SLASH);
-  ta(Scheme, groups.domain, Domain);
+  ta(Scheme, groups2.domain, Domain);
   tt(Scheme, DOT, DomainDot);
   tt(Scheme, HYPHEN, DomainHyphen);
-  ta(SlashScheme, groups.domain, Domain);
+  ta(SlashScheme, groups2.domain, Domain);
   tt(SlashScheme, DOT, DomainDot);
   tt(SlashScheme, HYPHEN, DomainHyphen);
-  ta(SchemeColon, groups.domain, Url$1);
+  ta(SchemeColon, groups2.domain, Url$1);
   tt(SchemeColon, SLASH, Url$1);
   tt(SchemeColon, QUERY, Url$1);
-  ta(UriPrefix, groups.domain, Url$1);
+  ta(UriPrefix, groups2.domain, Url$1);
   ta(UriPrefix, qsAccepting, Url$1);
   tt(UriPrefix, SLASH, Url$1);
   const bracketPairs = [
@@ -43353,8 +43353,8 @@ function oneOf(strings, startIndex) {
     };
   }
 }
-function offset(regex, groups) {
-  return { regex, deser: ([, h4, m3]) => signedOffset(h4, m3), groups };
+function offset(regex, groups2) {
+  return { regex, deser: ([, h4, m3]) => signedOffset(h4, m3), groups: groups2 };
 }
 function simple(regex) {
   return { regex, deser: ([s4]) => s4 };
@@ -43580,11 +43580,11 @@ function match(input, regex, handlers2) {
     let matchIndex = 1;
     for (const i4 in handlers2) {
       if (hasOwnProperty2(handlers2, i4)) {
-        const h4 = handlers2[i4], groups = h4.groups ? h4.groups + 1 : 1;
+        const h4 = handlers2[i4], groups2 = h4.groups ? h4.groups + 1 : 1;
         if (!h4.literal && h4.token) {
-          all[h4.token.val[0]] = h4.deser(matches2.slice(matchIndex, matchIndex + groups));
+          all[h4.token.val[0]] = h4.deser(matches2.slice(matchIndex, matchIndex + groups2));
         }
-        matchIndex += groups;
+        matchIndex += groups2;
       }
     }
     return [matches2, all];
@@ -45943,496 +45943,498 @@ var l77 = {
 };
 
 // ui/styles.css
-var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:var(--dsw-alias-bg-layer-2);--dm-border:var(--dsw-alias-border-l2);--dm-muted:var(--dsw-alias-label-secondary);--dm-accent:var(--dsw-alias-brand-primary);display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;container-type:inline-size;background:var(--dm-bg);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:1.5;overflow:hidden}
-.dsh-mail *{box-sizing:border-box}.dsh-mail button,.dsh-mail input,.dsh-mail select,.dsh-mail textarea{font:inherit;color:inherit;font-size:13px;min-width:0;max-width:100%}.dsh-mail button,.dsh-mail select,.dsh-mail input,.dsh-mail textarea{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-card);padding:7px 10px}.dsh-mail button{cursor:pointer;line-height:1.4;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}.dsh-mail button:hover{background:var(--dsw-alias-interactive-bg-hover)}.dsh-mail button:disabled{opacity:.45;cursor:default}.dsh-mail :is(button,input,select,textarea,summary,a):focus-visible{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail input[type=checkbox]{width:15px;height:15px;padding:0;accent-color:var(--dm-accent);flex:none}.dsh-mail .primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);border-color:transparent}.dsh-mail .danger,.dsh-mail .dm-error-text{color:var(--dsw-alias-state-error-primary)}.dsh-mail h1,.dsh-mail h2,.dsh-mail h3,.dsh-mail p{margin:0;overflow-wrap:anywhere}.dsh-mail h1{font-size:17px;font-weight:650;letter-spacing:-.4px}.dsh-mail h2{font-size:20px;line-height:1.45;letter-spacing:-.4px}.dsh-mail h3{font-size:14px}.dsh-mail p{line-height:1.7}.dsh-mail small,.dsh-mail .dm-muted{font-size:11px;color:var(--dm-muted)}.dsh-mail a{color:var(--dm-accent);overflow-wrap:anywhere}.dsh-mail pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-family:inherit}.dsh-mail textarea{width:100%;min-height:100px;resize:vertical;line-height:1.7}.dsh-mail summary{cursor:pointer}.dsh-mail [hidden]{display:none!important}
-.dsh-mail .dm-masthead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px 13px;flex:none}.dsh-mail .dm-brand{display:flex;align-items:center;gap:10px}.dsh-mail .dm-brand>div>span{font-size:10px;color:var(--dm-muted);letter-spacing:1px}.dsh-mail .dm-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--dm-card);border:1px solid var(--dm-border);color:var(--dm-accent);font-size:23px}.dsh-mail .dm-top-actions{display:flex;gap:7px;align-items:center}.dsh-mail .dm-connection{font-size:11px;color:var(--dm-muted);margin-right:7px}.dsh-mail .dm-nav{display:flex;gap:4px;border-bottom:1px solid var(--dm-border);padding:0 20px 9px;flex:none;overflow-x:auto}.dsh-mail .dm-nav>button{border:0;background:transparent;color:var(--dm-muted);gap:7px;padding:7px 12px}.dsh-mail .dm-nav>button[aria-current]{background:var(--dm-card);color:var(--dsw-alias-label-primary);font-weight:600}.dsh-mail .dm-nav small{padding:0 4px}.dsh-mail .dm-content{flex:1;min-height:0;min-width:0;overflow:auto}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar,.dsh-mail .dm-warning{padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--dm-card);font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-alert{color:var(--dsw-alias-state-error-primary);border-left:3px solid currentColor}.dsh-mail .dm-approval-bar{border-left:3px solid var(--dm-accent)}.dsh-mail .dm-assistant{flex:none;display:flex;align-items:center;gap:10px;margin:10px 16px 13px;padding:7px 9px;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card)}.dsh-mail .dm-assistant>span{font-size:23px;color:var(--dm-accent)}.dsh-mail .dm-assistant input{flex:1;border:0;background:transparent;padding:4px}.dsh-mail .dm-assistant button{border:0;background:transparent;font-size:12px}
-.dsh-mail .dm-mail-layout{display:grid;grid-template-columns:184px minmax(265px,340px) minmax(310px,1fr);height:100%;min-height:360px}.dsh-mail .dm-folders{padding:15px 10px;overflow:auto;background:var(--dm-card);border-right:1px solid var(--dm-border)}.dsh-mail .dm-folders>button{justify-content:flex-start;width:100%;border:0;background:transparent;text-align:left;margin-bottom:3px;padding:8px}.dsh-mail .dm-folders .selected{background:var(--dsw-alias-interactive-bg-hover);font-weight:600}.dsh-mail .dm-section-label{font-size:10px;color:var(--dm-muted);display:flex;align-items:center;justify-content:space-between;letter-spacing:.5px;margin:12px 0 8px}.dsh-mail .dm-section-label>button{padding:0 5px;border:0;background:transparent}.dsh-mail .dm-folders summary{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 4px;overflow:hidden}.dsh-mail .dm-dot{width:5px;height:5px;border-radius:50%;background:var(--dm-accent);flex:none}.dsh-mail .dm-dot.bad{background:var(--dsw-alias-state-error-primary)}.dsh-mail .dm-folder-row{display:flex;align-items:center}.dsh-mail .dm-folder-row>button{border:0;background:transparent;padding:7px 5px}.dsh-mail .dm-folder-row>button:first-child{flex:1;justify-content:flex-start;min-width:0}.dsh-mail .dm-folder-row>button:first-child>span:nth-child(2){text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.dsh-mail .dm-folder-row small{margin-left:auto}.dsh-mail .dm-list-pane{display:flex;flex-direction:column;border-right:1px solid var(--dm-border);min-height:0;min-width:0}.dsh-mail .dm-list-heading{display:flex;align-items:center;gap:9px;padding:17px 14px 10px}.dsh-mail .dm-list-heading h2{font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-mobile-folder{display:none}.dsh-mail .dm-search{display:flex;align-items:center;margin:0 12px 10px;padding:2px 4px 2px 10px;border:1px solid var(--dm-border);border-radius:8px;gap:3px;background:var(--dm-card)}.dsh-mail .dm-search input{flex:1;padding:6px 4px;background:transparent;border:0;width:0}.dsh-mail .dm-search button{background:transparent;border:0;font-size:11px;padding:5px}.dsh-mail .dm-bulk{display:flex;align-items:center;gap:5px;padding:6px 12px;flex-wrap:wrap;border-top:1px solid var(--dm-border);font-size:11px;color:var(--dm-muted)}.dsh-mail .dm-bulk button{font-size:11px;padding:3px 5px}.dsh-mail .dm-bulk select{flex:1;min-width:100px;font-size:11px}.dsh-mail .dm-message-list{overflow:auto;flex:1;min-height:0}.dsh-mail .dm-message-row{display:flex;align-items:flex-start;gap:6px;padding:13px 10px;border-top:1px solid var(--dm-border);min-width:0}.dsh-mail .dm-message-row>input{margin:4px 0}.dsh-mail .dm-message-row.selected{background:var(--dm-card);box-shadow:inset 3px 0 var(--dm-accent)}.dsh-mail .dm-message{display:block;flex:1;border:0;border-radius:0;background:transparent;text-align:left;min-width:0;padding:0;white-space:normal}.dsh-mail .dm-message-list>button.dm-message{padding:16px;width:100%;border-top:1px solid var(--dm-border)}.dsh-mail .dm-message:hover{background:transparent}.dsh-mail .dm-message-top{display:flex;justify-content:space-between;gap:6px;margin-bottom:6px;align-items:baseline}.dsh-mail .dm-message-top strong{font-weight:500;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-message-top small{flex:none;font-size:10px}.dsh-mail .unread .dm-message-top strong,.dsh-mail .unread h3{font-weight:650}.dsh-mail .dm-message h3{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;margin-bottom:5px}.dsh-mail .dm-message p{color:var(--dm-muted);font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.dsh-mail .dm-message-bottom{display:flex;gap:7px;font-size:10px;color:var(--dm-muted);margin-top:8px;flex-wrap:wrap}.dsh-mail .dm-star{border:0;background:transparent;padding:0 1px;color:var(--dm-accent);font-size:17px}.dsh-mail .dm-pagination{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--dm-border);font-size:10px;gap:5px}.dsh-mail .dm-pagination button{font-size:11px;padding:4px 6px}.dsh-mail .dm-index-status{font-size:10px;padding:6px 12px;background:var(--dm-card)}.dsh-mail .dm-advanced{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px}.dsh-mail .dm-advanced>label:not(.dm-field){display:flex;align-items:center;gap:5px;font-size:11px}.dsh-mail .dm-detail-pane{min-width:0;overflow:auto}.dsh-mail .dm-empty{display:grid;justify-items:center;align-content:center;gap:10px;padding:55px 24px;text-align:center;min-height:260px;height:100%}.dsh-mail .dm-empty-icon{font-size:36px;color:var(--dm-accent);margin-bottom:6px}.dsh-mail .dm-empty h2{font-size:17px}.dsh-mail .dm-empty p{font-size:12px;max-width:340px;color:var(--dm-muted)}.dsh-mail .dm-empty button{margin-top:18px}
-.dsh-mail .dm-reader-toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-reader-toolbar button{font-size:11px;padding:5px 7px}.dsh-mail .dm-reader-heading{padding:10px 22px 16px}.dsh-mail .dm-reader-heading h2{margin-bottom:14px}.dsh-mail .dm-reader-heading p{font-size:12px;margin:3px 0}.dsh-mail .dm-reader-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:13px}.dsh-mail .dm-reader-tags button,.dsh-mail .dm-reader-tags input{font-size:10px;padding:4px 6px}.dsh-mail .dm-mail-body{padding:10px 22px}.dsh-mail .dm-mail-body iframe{width:100%;min-height:420px;border:0;background:white;border-radius:4px}.dsh-mail .dm-mail-body pre{margin:0;font-size:14px}.dsh-mail .dm-raw-headers{font:11px/1.6 Consolas,monospace;padding:15px;max-height:250px;overflow:auto;background:var(--dm-card)}.dsh-mail .dm-image-notice{display:flex;justify-content:space-between;gap:8px;padding:8px 22px;font-size:11px;color:var(--dm-muted);align-items:center;background:var(--dm-card)}.dsh-mail .dm-image-notice button{font-size:10px;padding:3px 6px}.dsh-mail .dm-attachments{padding:16px 22px}.dsh-mail .dm-attachments h3{margin-bottom:10px}.dsh-mail .dm-attachment{display:flex;align-items:center;gap:6px;padding:9px 0;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-attachment>div{flex:1;min-width:0}.dsh-mail .dm-attachment strong{display:block;font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-attachment small{display:block}.dsh-mail .dm-attachment button{font-size:11px;padding:4px 6px}
-.dsh-mail .dm-compose-fields{display:grid;gap:8px;padding:15px}.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:55px 1fr;align-items:center;gap:10px}.dsh-mail .dm-field{display:grid;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-field>input,.dsh-mail .dm-field>select{width:100%}.dsh-mail .dm-field input,.dsh-mail .dm-field textarea{color:var(--dsw-alias-label-primary)}.dsh-mail .dm-editor-toolbar{display:flex;flex-wrap:wrap;gap:5px;padding:8px 15px;background:var(--dm-card);border-block:1px solid var(--dm-border)}.dsh-mail .dm-editor-toolbar button,.dsh-mail .dm-editor-toolbar select{font-size:11px;padding:4px 7px}.dsh-mail .dm-editor{min-height:230px;padding:16px 22px;font-size:14px;line-height:1.8}.dsh-mail .dm-editor .tiptap{min-height:220px;outline:0}.dsh-mail .dm-editor img{max-width:100%;height:auto}.dsh-mail .dm-plain-editor{min-height:260px;border:0;border-radius:0;padding:18px 22px}.dsh-mail .dm-compose-attachments{display:flex;flex-wrap:wrap;gap:8px;padding:12px 15px}.dsh-mail .dm-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:var(--dm-card);border-radius:5px;font-size:11px;max-width:100%;overflow-wrap:anywhere}.dsh-mail .dm-chip button{border:0;padding:0 4px;background:transparent}.dsh-mail .dm-file-button{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;border:1px solid var(--dm-border);border-radius:6px;padding:6px 9px}.dsh-mail .dm-file-button input[type=file]{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}.dsh-mail .dm-file-button:focus-within{outline:2px solid var(--dm-accent)}.dsh-mail .dm-send-options{display:flex;gap:12px;padding:12px 15px;border-top:1px solid var(--dm-border);flex-wrap:wrap;align-items:end}.dsh-mail .dm-send-options>label{font-size:11px}.dsh-mail .dm-send-options .dm-field{max-width:190px}.dsh-mail .dm-sent-body{padding:18px 22px}
-.dsh-mail .dm-page{padding:24px;min-width:0;max-width:1400px;margin:auto}.dsh-mail .dm-page-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}.dsh-mail .dm-page-heading p{font-size:12px;color:var(--dm-muted);margin-top:5px}.dsh-mail .dm-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-mail .dm-tabs{display:flex;gap:6px;margin-bottom:16px}.dsh-mail .dm-tabs button[aria-pressed=true]{background:var(--dm-card);font-weight:650;border-color:var(--dm-accent)}.dsh-mail .dm-task-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail .dm-task-title{border:0;background:transparent;display:grid;text-align:left;justify-content:start;flex:1;min-width:130px;white-space:normal}.dsh-mail .dm-task-title strong{font-weight:500;overflow-wrap:anywhere}.dsh-mail .dm-wide-search{width:100%;margin-bottom:20px}.dsh-mail .dm-contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.dsh-mail .dm-contact{border:1px solid var(--dm-border);border-radius:10px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dsh-mail .dm-contact>div:not(.dm-avatar){flex:1;min-width:0}.dsh-mail .dm-contact h3,.dsh-mail .dm-contact p{overflow-wrap:anywhere}.dsh-mail .dm-contact p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-avatar{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:50%;background:var(--dm-card);color:var(--dm-accent)}.dsh-mail .dm-rule-row,.dsh-mail .dm-account-row,.dsh-mail .dm-activity-row,.dsh-mail .dm-settings-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item)>div:first-of-type{flex:1;min-width:150px;overflow-wrap:anywhere}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item) p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-settings-card{padding:18px;border:1px solid var(--dm-border);border-radius:11px;margin-bottom:16px;background:var(--dm-card)}.dsh-mail .dm-settings-card>h3{margin-bottom:10px}.dsh-mail .dm-settings-card>p{font-size:12px;color:var(--dm-muted);margin:8px 0}.dsh-mail .dm-settings-group{margin:16px 0}.dsh-mail .dm-calendar{margin-bottom:20px;--fc-border-color:var(--dm-border);--fc-page-bg-color:var(--dm-bg);--fc-neutral-bg-color:var(--dm-card);--fc-list-event-hover-bg-color:var(--dm-card);--fc-today-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-bg-color:var(--dm-card);--fc-button-border-color:var(--dm-border);--fc-button-text-color:var(--dsw-alias-label-primary);--fc-button-hover-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-hover-border-color:var(--dm-border);--fc-button-active-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-active-border-color:var(--dm-accent);font-size:12px}.dsh-mail .fc .fc-toolbar-title{font-size:17px}.dsh-mail .fc .fc-button{font-size:11px}.dsh-mail .fc a{color:inherit;text-decoration:none}.dsh-mail .fc .fc-daygrid-event{white-space:normal}.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:8px}
-.dsh-mail .dm-dialog{color:inherit;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:14px;width:min(700px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:85vh;margin:auto;padding:0;box-shadow:0 20px 80px #0004}.dsh-mail .dm-dialog::backdrop{background:#0005}.dsh-mail .dm-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:17px 22px;border-bottom:1px solid var(--dm-border);position:sticky;top:0;background:var(--dm-bg);z-index:1}.dsh-mail .dm-dialog>header h2{font-size:17px}.dsh-mail .dm-dialog>header button{border:0;background:transparent;font-size:19px}.dsh-mail .dm-form{display:grid;gap:16px;padding:22px}.dsh-mail .dm-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-mail .dm-form>footer{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}.dsh-mail .dm-form details{padding:12px 0;border-block:1px solid var(--dm-border)}.dsh-mail .dm-form details[open]>summary{margin-bottom:12px}.dsh-mail .dm-form details>.dm-field{margin:10px 0}.dsh-mail .dm-form>label:not(.dm-field){font-size:12px}.dsh-mail .dm-preview-body{white-space:pre-wrap;max-height:240px;overflow:auto;padding:15px;background:var(--dm-card);border-radius:7px;font-size:13px;overflow-wrap:anywhere}.dsh-mail .dm-rule-editor-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px;background:var(--dm-card);border-radius:6px}.dsh-mail .dm-rule-editor-row input{flex:1;min-width:100px}.dsh-mail .dm-image-preview{display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:auto}.dsh-mail .dm-pdf-preview{width:100%;height:65vh;border:0}
-@container (max-width:1000px){.dsh-mail .dm-mail-layout{grid-template-columns:150px minmax(230px,300px) minmax(240px,1fr)}.dsh-mail .dm-connection{display:none}.dsh-mail .dm-reader-heading,.dsh-mail .dm-mail-body{padding-inline:16px}.dsh-mail .dm-masthead{padding:13px 16px}.dsh-mail .dm-nav{padding-inline:16px}.dsh-mail .dm-page{padding:18px}}
-@container (max-width:800px){.dsh-mail .dm-mail-layout{grid-template-columns: minmax(220px,43%) minmax(240px,57%);position:relative}.dsh-mail .dm-folders{display:none}.dsh-mail .dm-mobile-folder{display:inline-flex;padding:2px 6px;border:0;background:transparent}.dsh-mail .show-folders .dm-folders{display:block;position:absolute;left:0;top:0;bottom:0;width:210px;z-index:2;box-shadow:12px 0 28px #0002}.dsh-mail .dm-top-actions{gap:4px}.dsh-mail .dm-brand>div>span{display:none}.dsh-mail .dm-nav>button{padding:7px 9px}.dsh-mail .dm-calendar .fc-toolbar{flex-wrap:wrap;gap:9px}.dsh-mail .dm-calendar .fc-toolbar-chunk:last-child{width:100%}}
-@container (max-width:680px){.dsh-mail .dm-mail-layout{display:block;min-height:0}.dsh-mail .dm-list-pane{height:100%;border:0}.dsh-mail .dm-detail-pane{display:none;height:100%}.dsh-mail .has-detail .dm-list-pane{display:none}.dsh-mail .has-detail .dm-detail-pane{display:block}.dsh-mail .dm-masthead{padding:11px 12px;gap:8px}.dsh-mail .dm-mark{width:29px;height:29px;font-size:19px;border-radius:8px}.dsh-mail .dm-brand{gap:7px}.dsh-mail h1{font-size:15px}.dsh-mail .dm-top-actions button{font-size:11px;padding:5px 7px}.dsh-mail .dm-nav{padding:0 8px 7px;gap:0;justify-content:space-between}.dsh-mail .dm-nav>button{font-size:11px;padding:6px 7px;gap:3px}.dsh-mail .dm-nav>button>span{display:none}.dsh-mail .dm-assistant{margin:8px 10px;padding:6px;gap:5px}.dsh-mail .dm-assistant input{font-size:11px}.dsh-mail .dm-assistant button{font-size:10px;padding:4px}.dsh-mail .dm-page{padding:16px 12px}.dsh-mail .dm-page-heading{gap:10px;margin-bottom:16px}.dsh-mail .dm-page-heading h2{font-size:19px}.dsh-mail .dm-page-heading .dm-inline{gap:5px}.dsh-mail .dm-calendar .fc-toolbar-title{font-size:15px}.dsh-mail .dm-form-grid{grid-template-columns:1fr}.dsh-mail .dm-form{padding:17px;gap:13px}.dsh-mail .dm-task-row{gap:7px}.dsh-mail .dm-task-row>button:not(.dm-task-title){font-size:10px;padding:4px}.dsh-mail .dm-attachment{flex-wrap:wrap}.dsh-mail .dm-attachment>div{min-width:130px}.dsh-mail .dm-reader-toolbar{padding:8px;gap:4px}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar{font-size:11px;padding:8px 10px}.dsh-mail .dm-empty{padding:35px 18px}}
-
-.dsh-mail .fc .fc-daygrid-event .fc-event-time{white-space:nowrap;flex-shrink:0}.dsh-mail .fc .fc-daygrid-event-dot{flex-shrink:0}.dsh-mail .fc .fc-event-title{min-width:0}
-.dsh-mail .fc .fc-h-event,.dsh-mail .fc .fc-v-event{border-width:0 0 0 4px;border-radius:0}.dsh-mail .fc .fc-h-event .fc-event-main{padding:2px 6px;min-height:22px}.dsh-mail .fc .fc-v-event .fc-event-main{padding:2px 4px}.dsh-mail .fc .fc-daygrid-block-event .fc-event-time,.dsh-mail .fc .fc-daygrid-block-event .fc-event-title{font-weight:500}
-.dsh-mail .dm-event-colors{margin:0;padding:12px;border:1px solid var(--dm-border);border-radius:8px;min-width:0}.dsh-mail .dm-event-colors legend{padding:0 5px}.dsh-mail .dm-color-options{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}.dsh-mail .dm-color-options .dm-color-swatch{width:29px;height:29px;min-width:29px;padding:0;border-radius:50%;border:2px solid transparent;font-size:16px}.dsh-mail .dm-color-options [aria-pressed=true]{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail .dm-color-options .dm-field{display:flex;align-items:center;gap:8px}.dsh-mail .dm-color-options input[type=color]{width:38px;height:30px;padding:2px;cursor:pointer}
-@container (max-width:680px){.dsh-mail .fc .fc-daygrid-event .fc-event-time{display:none}.dsh-mail .fc .fc-daygrid-event .fc-event-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .fc .fc-daygrid-dot-event{padding:3px 0;min-width:0}}
-.dsh-mail .dm-preferences{display:grid;gap:20px}.dsh-mail .dm-preferences fieldset{border:0;padding:0;margin:0;min-width:0}.dsh-mail .dm-preferences legend{font-size:14px;font-weight:600;margin-bottom:12px;padding:0}.dsh-mail .dm-preferences fieldset>p{margin:10px 0 0}.dsh-mail .dm-preferences .dm-check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px}
-
-/* Mailbird-style workspace. Surfaces and text follow the host theme. */
-.dsh-mail{--dm-accent:#2563eb;--dm-blue:color-mix(in srgb,#3b82f6 78%,var(--dsw-alias-label-primary));--dm-hover:color-mix(in srgb,var(--dsw-alias-label-primary) 6%,var(--dm-bg));--dm-selected:color-mix(in srgb,#3b82f6 13%,var(--dm-bg));--dm-soft:color-mix(in srgb,#64748b 5%,var(--dm-bg));flex-direction:row;isolation:isolate}
-.dsh-mail svg{flex-shrink:0;vertical-align:middle}
-.dsh-mail button,.dsh-mail summary,.dsh-mail input,.dsh-mail select,.dsh-mail textarea,.dsh-mail .dm-message-row{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease}
-.dsh-mail button:not(:disabled):hover,.dsh-mail summary:hover{background:var(--dm-hover);border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
-.dsh-mail button:not(:disabled):active{background:var(--dm-selected);box-shadow:inset 0 1px 3px #0002}
-.dsh-mail button:disabled{cursor:not-allowed;box-shadow:none}
-.dsh-mail .primary{background:#2563eb;color:#fff;border-color:transparent;box-shadow:0 2px 5px #2563eb24}
-.dsh-mail .primary:not(:disabled):hover{background:#1d4ed8;color:#fff;border-color:transparent;box-shadow:0 3px 9px #2563eb36}
-.dsh-mail .danger{color:color-mix(in srgb,#ef4444 80%,var(--dsw-alias-label-primary))}
-.dsh-mail .danger:not(:disabled):hover{background:color-mix(in srgb,#ef4444 12%,var(--dm-bg));border-color:#ef444470}
-.dsh-mail input:hover,.dsh-mail select:hover,.dsh-mail textarea:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
-.dsh-mail input:focus,.dsh-mail select:focus,.dsh-mail textarea:focus{border-color:var(--dm-blue)}
-.dsh-mail .dm-rail{width:60px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 5px 12px;background:color-mix(in srgb,#64748b 10%,var(--dm-bg));border-right:1px solid var(--dm-border);overflow-y:auto;scrollbar-width:thin}
-.dsh-mail .dm-rail-brand{display:grid;place-items:center;color:#fff;background:#2563eb;border-radius:12px;width:38px;min-height:38px;box-shadow:0 3px 10px #2563eb30}
-.dsh-mail .dm-rail-pages,.dsh-mail .dm-rail-bottom{display:grid;gap:5px;width:100%}
-.dsh-mail .dm-rail-mail{padding-bottom:12px;border-bottom:1px solid var(--dm-border)}
-.dsh-mail .dm-rail-bottom{margin-top:auto;padding-top:16px}
-.dsh-mail .dm-rail button{position:relative;border:0;background:transparent;color:var(--dm-muted);border-radius:10px;padding:7px 2px;min-height:43px;width:100%;display:flex;flex-direction:column;gap:4px}
-.dsh-mail .dm-rail-caption{font-size:9px;line-height:1.2}
-.dsh-mail .dm-rail button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-accent)}
-.dsh-mail .dm-rail-badge{position:absolute;right:0;top:0;border:2px solid var(--dm-bg);border-radius:10px;background:#2563eb;color:#fff;font-size:9px;font-style:normal;padding:0 4px;min-width:17px;line-height:15px}
-.dsh-mail .dm-workspace{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-.dsh-mail .dm-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;border-bottom:1px solid var(--dm-border);flex:none;background:var(--dm-bg)}
-.dsh-mail .dm-workspace-header>div:first-child{min-width:0}
-.dsh-mail .dm-workspace-header h1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dsh-mail .dm-eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--dm-muted);display:block;margin-bottom:3px}
-.dsh-mail .dm-connection{display:flex;align-items:center;gap:7px}
-.dsh-mail .dm-dot{background:#16a34a;width:6px;height:6px}
-.dsh-mail .dm-sync.is-busy svg{animation:dm-spin 1.2s linear infinite}
-@keyframes dm-spin{to{transform:rotate(360deg)}}
-.dsh-mail .dm-content{overflow:hidden}
-.dsh-mail .dm-content>.dm-page{height:100%;overflow:auto}
-.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr);height:100%;min-height:0}
-.dsh-mail .dm-pane-divider{position:relative;cursor:col-resize;touch-action:none;background:var(--dm-bg);outline-offset:-1px}
-.dsh-mail .dm-pane-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dm-border);transition:background .15s}
-.dsh-mail .dm-pane-divider:hover::after,.dsh-mail .dm-pane-divider:focus-visible::after,.dsh-mail .dm-resizing .dm-pane-divider::after{background:var(--dm-blue)}
-.dsh-mail .dm-resizing,.dsh-mail .dm-resizing *{cursor:col-resize!important;user-select:none!important}
-.dsh-mail .dm-resizing iframe{pointer-events:none}
-.dsh-mail .dm-folders{display:none;padding:16px 12px;background:var(--dm-soft);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
-.dsh-mail .dm-folders>button{gap:10px;padding:10px;border-radius:8px;margin-bottom:3px;font-size:12px}
-.dsh-mail .dm-folders>button>svg,.dsh-mail .dm-folder-row>button>svg{color:var(--folder-color,var(--dm-blue));fill:color-mix(in srgb,var(--folder-color,var(--dm-blue)) 12%,transparent)}
-.dsh-mail .dm-folders>button small{margin-left:auto;border-radius:5px;padding:0 5px;background:var(--dm-hover)}
-.dsh-mail .dm-folders .selected{background:var(--dm-selected);color:var(--dsw-alias-label-primary);box-shadow:inset 3px 0 var(--dm-accent);font-weight:600}
-.dsh-mail .dm-folders .dm-section-label{font-size:10px;letter-spacing:.4px;margin:16px 4px 8px;min-height:20px}
-.dsh-mail .dm-folders>.dm-section-label:first-child{margin-top:0}
-.dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}
-.dsh-mail .show-folders .dm-folders{display:block;position:absolute;inset:0 auto 0 0;width:min(300px,calc(100% - 20px));z-index:6;box-shadow:12px 0 30px #0003;background:var(--dm-bg)}
-.dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0003}
-.dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0003}
-.dsh-mail .dm-folder-search{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-bg);color:var(--dm-muted);margin-top:7px}
-.dsh-mail .dm-folder-search:focus-within{border-color:var(--dm-blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--dm-blue) 12%,transparent)}
-.dsh-mail .dm-folder-search input{width:100%;padding:5px 0;border:0;background:transparent;font-size:11px;outline:none}
-.dsh-mail .dm-folder-search button{border:0;padding:3px;background:transparent}
-.dsh-mail .dm-folder-sort{width:100%;margin:7px 0 8px;font-size:11px;padding:6px 8px;background:var(--dm-bg)}
-.dsh-mail .dm-folder-matches{font-size:11px;color:var(--dm-muted);padding:4px 6px 10px}
-.dsh-mail .dm-folders .dm-account-folders>summary{font-size:11px;font-weight:600;gap:8px;padding:12px 6px 6px;min-height:35px;border-radius:6px}
-.dsh-mail .dm-account-folders>summary>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.dsh-mail .dm-account-folders>summary::before{content:'\u203A';font-size:14px;line-height:1;color:var(--dm-muted);transition:transform .15s}
-.dsh-mail .dm-account-folders[open]>summary::before{transform:rotate(90deg)}
-.dsh-mail .dm-account-folders>summary>.dm-dot{margin-left:auto}
-.dsh-mail .dm-folder-row{position:relative;gap:2px;border-radius:7px;flex-wrap:wrap;margin:2px 0}
-.dsh-mail .dm-folder-row:hover,.dsh-mail .dm-folder-row:focus-within{background:var(--dm-hover)}
-.dsh-mail .dm-folder-row>button:first-child{gap:9px;border-radius:7px;padding:9px 7px;font-size:12px}
-.dsh-mail .dm-folder-row small{font-size:10px;font-variant-numeric:tabular-nums;min-width:16px;text-align:right}
-.dsh-mail .dm-menu{position:relative;flex:none;border:0;padding:0}
-.dsh-mail .dm-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;border:1px solid transparent;border-radius:6px;padding:6px;color:var(--dm-muted)}
-.dsh-mail .dm-menu>summary::-webkit-details-marker{display:none}
-.dsh-mail .dm-menu[open]>summary{background:var(--dm-selected);color:var(--dm-blue)}
-.dsh-mail .dm-menu-panel{position:absolute;right:0;top:calc(100% + 5px);z-index:4;width:200px;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:10px;box-shadow:0 10px 30px #0002;padding:7px}
-.dsh-mail .dm-menu-panel>button{justify-content:flex-start;width:100%;border:0;background:transparent;padding:9px 10px;font-size:12px}
-.dsh-mail .dm-folder-actions>summary{padding:7px 4px}
-.dsh-mail .dm-folder-actions[open]{flex-basis:100%;order:2}
-.dsh-mail .dm-folder-actions[open]>summary{position:absolute;right:0;top:-33px}
-.dsh-mail .dm-folder-actions .dm-menu-panel{position:static;width:100%;box-shadow:0 3px 10px #0001;margin:3px 0 6px;padding:8px}
-.dsh-mail .dm-folder-colors{margin:8px 0 0;padding:9px 2px 2px;min-width:0;border:0;border-top:1px solid var(--dm-border)}
-.dsh-mail .dm-folder-colors legend{font-size:11px;padding:0 5px}
-.dsh-mail .dm-folder-colors .dm-color-options{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:5px 0 12px;justify-items:center}
-.dsh-mail .dm-folder-colors .dm-color-swatch{width:25px;height:25px;min-width:25px;color:#fff;border:1px solid #0001;font-size:13px;padding:0;box-shadow:0 0 0 2px var(--dm-bg)}
-.dsh-mail .dm-folder-colors .dm-color-swatch:hover{outline:2px solid var(--dm-blue);outline-offset:2px}
-.dsh-mail .dm-custom-color{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-bottom:9px}
-.dsh-mail .dm-custom-color input{width:42px;height:29px;padding:2px}
-.dsh-mail .dm-folder-colors .dm-inline{gap:4px}
-.dsh-mail .dm-folder-colors .dm-inline button{font-size:10px;padding:5px 7px}
-.dsh-mail .dm-folder-colors p{font-size:10px;margin-top:9px}
-.dsh-mail .dm-list-pane{background:var(--dm-bg);overflow:hidden}
-.dsh-mail .dm-list-heading{padding:19px 17px 13px;min-height:57px}
-.dsh-mail .dm-list-heading h2{font-size:16px;font-weight:650}
-.dsh-mail .dm-count{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--dm-selected);color:var(--dm-blue);font-variant-numeric:tabular-nums}
-.dsh-mail .dm-search{margin:0 14px 12px;background:var(--dm-soft);border-color:transparent;border-radius:9px;padding:5px 8px;color:var(--dm-muted)}
-.dsh-mail .dm-search:focus-within{border-color:var(--dm-blue);background:var(--dm-bg)}
-.dsh-mail .dm-bulk{border-top:0;border-bottom:1px solid var(--dm-border);padding:8px 15px;font-size:10px}
-.dsh-mail .dm-bulk>label{display:flex}
-.dsh-mail .dm-message-row{position:relative;gap:8px;padding:15px 12px;border-top:0;border-bottom:1px solid var(--dm-border);background:transparent}
-.dsh-mail .dm-message-row>input{width:13px;height:13px;margin:9px 0}
-.dsh-mail .dm-message-row:hover{background:var(--dm-hover)}
-.dsh-mail .dm-message-row.selected{background:var(--dm-selected);box-shadow:inset 3px 0 var(--dm-accent)}
-.dsh-mail .dm-message-row .dm-message{align-self:stretch;padding:0}
-.dsh-mail .dm-message-row .dm-message:hover{background:transparent;border-color:transparent}
-.dsh-mail .dm-sender-avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;flex:none;font-size:10px;font-weight:600;background:color-mix(in srgb,var(--avatar-color) 14%,var(--dm-bg));color:color-mix(in srgb,var(--avatar-color) 60%,var(--dsw-alias-label-primary));margin-top:1px}
-.dsh-mail .dm-message-top{gap:5px;margin-bottom:5px;flex-wrap:wrap}
-.dsh-mail .dm-message-top strong{max-width:100%;font-size:12px}
-.dsh-mail .dm-message-top small{font-size:9px;color:var(--dm-muted)}
-.dsh-mail .dm-message h3{font-size:12px;line-height:1.6;margin-bottom:4px}
-.dsh-mail .dm-message p{font-size:11px;-webkit-line-clamp:1}
-.dsh-mail .unread h3::before{content:'';display:inline-block;width:5px;height:5px;background:var(--dm-blue);border-radius:50%;margin:0 5px 2px 0}
-.dsh-mail .dm-message-bottom{gap:5px;font-size:9px;margin-top:8px;align-items:center}
-.dsh-mail .dm-row-actions{display:flex;flex-direction:column;gap:3px;flex:none}
-.dsh-mail .dm-row-actions button{padding:3px;border:0;background:transparent;min-height:23px;color:var(--dm-muted)}
-.dsh-mail .dm-row-actions .is-starred{color:#d97706}
-.dsh-mail .is-starred svg{fill:#fbbf24;stroke:#d97706}
-.dsh-mail .dm-row-quick{display:grid;gap:3px;opacity:0;pointer-events:none;transition:opacity .15s}
-.dsh-mail .dm-message-row:hover .dm-row-quick,.dsh-mail .dm-message-row:focus-within .dm-row-quick{opacity:1;pointer-events:auto}
-.dsh-mail .dm-sent-warning{padding:10px 14px;font-size:11px;display:flex;gap:7px;align-items:center;background:color-mix(in srgb,#f59e0b 12%,var(--dm-bg));border-bottom:1px solid var(--dm-border)}
-.dsh-mail .dm-sent-warning span{flex:1;min-width:0;overflow-wrap:anywhere}
-.dsh-mail .dm-sent-warning button{font-size:10px;padding:4px 7px;flex:none}
-.dsh-mail .dm-detail-pane{background:var(--dm-bg)}
-.dsh-mail .dm-reader{min-height:100%;display:flex;flex-direction:column}
-.dsh-mail .dm-reader>*{flex-shrink:0}
-.dsh-mail .dm-reader-toolbar{position:sticky;top:0;z-index:2;padding:10px 17px;gap:5px;min-height:49px;background:var(--dm-soft)}
-.dsh-mail .dm-reader-toolbar button{background:transparent;border-color:transparent;padding:6px 8px}
-/* Keep draft actions available while scrolling the message editor. */
-.dsh-mail .dm-compose-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;min-height:57px;border-bottom:1px solid var(--dm-border);background:var(--dm-card)}
-.dsh-mail .dm-compose-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;overflow-wrap:anywhere}
-.dsh-mail .dm-compose-toolbar button{font-size:11px;padding:6px 8px}
-.dsh-mail .dm-compose-status>button{background:transparent;border-color:transparent}
-.dsh-mail .dm-compose-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-left:auto}
-.dsh-mail .dm-reader-more{margin-left:auto}
-.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100vw - 110px)}
-.dsh-mail .dm-reader-heading{padding:10px 20px 12px}
-.dsh-mail .dm-reader-heading h2{font-size:20px;line-height:1.4;margin:4px 0 10px;font-weight:650}
-.dsh-mail .dm-reader-tags{margin-top:10px;gap:6px;align-items:center}
-.dsh-mail .dm-reader-tags button{padding:6px 9px;font-size:11px}
-.dsh-mail .dm-snooze-label{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dm-muted);flex-wrap:wrap}
-.dsh-mail .dm-reader-tags input{font-size:10px;max-width:180px}
-.dsh-mail .dm-mail-body{padding:8px 16px 16px;flex:1}
-.dsh-mail .dm-mail-body iframe{display:block;height:180px;min-height:180px}
-.dsh-mail .dm-image-notice{padding:5px 20px}
-.dsh-mail .dm-attachments{padding:12px 20px 20px}
-.dsh-mail .dm-attachment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.dsh-mail .dm-attachment-heading h3{margin:0}
-.dsh-mail .dm-attachment-heading h3 .dm-attachment-toggle{padding:3px 0;border:0;background:transparent;font-size:13px;font-weight:650}
-.dsh-mail .dm-attachment-toggle[aria-expanded=true] svg{transform:rotate(90deg)}
-.dsh-mail .dm-attachments.is-collapsed .dm-attachment-heading{margin-bottom:0}
-.dsh-mail .dm-attachment-heading button{font-size:11px;padding:5px 8px}
-.dsh-mail .dm-attachment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}
-.dsh-mail .dm-attachment{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;column-gap:10px;row-gap:4px;min-width:0;border:1px solid var(--dm-border);border-radius:8px;overflow:hidden;padding:8px;background:var(--dm-soft)}
-.dsh-mail .dm-attachment>.dm-attachment-art{grid-row:1 / span 2;min-width:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--file-color) 7%,var(--dm-bg));color:color-mix(in srgb,var(--file-color) 70%,var(--dsw-alias-label-primary));border:1px solid var(--dm-border)}
-.dsh-mail .dm-file-mark{position:relative;display:flex}
-.dsh-mail .dm-file-mark b{position:absolute;left:-3px;bottom:3px;padding:2px 3px;border-radius:3px;background:var(--file-color);color:#fff;font-size:8px;line-height:1.2}
-.dsh-mail .dm-file-type{min-width:0;overflow-wrap:anywhere}
-.dsh-mail .dm-attachment-art img{display:block;width:100%;height:100%;object-fit:contain}
-.dsh-mail .dm-attachment>.dm-attachment-info{padding:0;min-width:0}
-.dsh-mail .dm-attachment-info strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
-.dsh-mail .dm-attachment-info small{margin-top:2px}
-.dsh-mail .dm-attachment>.dm-attachment-actions{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;padding:0;min-width:0}
-.dsh-mail .dm-empty-icon{display:grid;place-items:center;width:68px;height:68px;border-radius:22px;background:var(--dm-selected);color:var(--dm-blue);font-size:32px}
-.dsh-mail .dm-assistant{margin:12px 18px;padding:8px 11px;border-color:color-mix(in srgb,var(--dm-blue) 23%,var(--dm-border));background:color-mix(in srgb,var(--dm-blue) 3%,var(--dm-bg));border-radius:12px;min-width:0}
-.dsh-mail .dm-assistant>span{color:var(--dm-blue);display:flex}
-.dsh-mail .dm-assistant button{color:var(--dm-blue);border-radius:7px;padding:6px 9px}
-.dsh-mail .dm-page{padding:28px;max-width:1500px}
-.dsh-mail .dm-page-heading{margin-bottom:24px}
-.dsh-mail .dm-contact,.dsh-mail .dm-settings-card{background:var(--dm-soft);border-radius:12px}
-.dsh-mail .dm-contact:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
-.dsh-mail .dm-avatar{color:var(--dm-blue);background:var(--dm-selected)}
-.dsh-mail .dm-settings-layout{display:grid;grid-template-columns:190px minmax(0,1fr);height:100%;overflow:hidden}
-.dsh-mail .dm-settings-nav{display:flex;flex-direction:column;gap:6px;padding:22px 12px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto}
-.dsh-mail .dm-settings-nav button{justify-content:flex-start;text-align:left;gap:9px;padding:12px 10px;border:0;background:transparent;font-size:12px}
-.dsh-mail .dm-settings-nav button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);font-weight:600}
-.dsh-mail .dm-settings-main{padding:28px;overflow:auto;min-width:0}
-.dsh-mail .dm-settings-main h3{margin:16px 0 10px}
-.dsh-mail .dm-settings-main .dm-preferences h3{margin:0}
-.dsh-mail .dm-settings-item{width:100%;justify-content:flex-start;text-align:left}
-.dsh-mail .dm-notice{background:color-mix(in srgb,#22c55e 9%,var(--dm-bg));border-left:3px solid #16a34a}
-.dsh-mail .dm-dialog{box-shadow:0 24px 80px #0005}
-@container (max-width:1099px){
-  .dsh-mail .dm-mail-layout{grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr)}
-  .dsh-mail .dm-folders{display:none}
-  .dsh-mail .dm-mobile-folder{display:inline-flex;border:0;background:transparent;padding:5px}
-  .dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}
-  .dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0005}
-  .dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0005}
-  .dsh-mail .dm-connection{display:none}
-  .dsh-mail .dm-reader-heading{padding:14px 20px}
-  .dsh-mail .dm-settings-layout{grid-template-columns:160px minmax(0,1fr)}
-  .dsh-mail .dm-settings-main{padding:22px}
-}
-@container (min-width:760px) and (max-width:800px){.dsh-mail .dm-mail-layout{display:grid}.dsh-mail .dm-list-pane,.dsh-mail .dm-detail-pane,.dsh-mail .has-detail .dm-list-pane{display:flex}.dsh-mail .dm-detail-pane{display:block}}
-@container (max-width:759px){
-  .dsh-mail .dm-rail{width:52px;padding:13px 4px 8px;gap:14px}
-  .dsh-mail .dm-rail-brand{width:34px;min-height:34px;border-radius:10px}
-  .dsh-mail .dm-rail button{min-height:44px}
-  .dsh-mail .dm-workspace-header{padding:12px 14px;gap:8px}
-  .dsh-mail .dm-workspace-header h1{font-size:14px}
-  .dsh-mail .dm-top-actions{gap:5px}
-  .dsh-mail .dm-top-actions button{font-size:11px;padding:6px 8px}
-  .dsh-mail .dm-mail-layout{display:block;min-height:0}
-  .dsh-mail .dm-list-pane{height:100%;border-right:0}
-  .dsh-mail .dm-detail-pane{display:none;height:100%}
-  .dsh-mail .has-detail .dm-list-pane{display:none}
-  .dsh-mail .has-detail .dm-detail-pane{display:block}
-  .dsh-mail .dm-list-heading{padding:14px 13px 12px;min-height:52px}
-  .dsh-mail .dm-assistant{margin:9px 11px;padding:7px;gap:7px}
-  .dsh-mail .dm-assistant input{font-size:11px}
-  .dsh-mail .dm-assistant button{font-size:10px;padding:5px}
-  .dsh-mail .dm-settings-layout{display:flex;flex-direction:column}
-  .dsh-mail .dm-settings-nav{flex-direction:row;padding:9px;border-right:0;border-bottom:1px solid var(--dm-border);flex:none}
-  .dsh-mail .dm-settings-nav button{font-size:11px;padding:8px;gap:5px;flex:none}
-  .dsh-mail .dm-settings-main{padding:18px 14px}
-  .dsh-mail .dm-page{padding:18px 14px}
-  .dsh-mail .dm-reader-toolbar{padding:10px 8px;gap:3px}
-  .dsh-mail .dm-reader-toolbar button{font-size:10px;padding:5px 6px}
-  .dsh-mail .dm-reader-heading{padding:12px 18px}
-  .dsh-mail .dm-reader-heading h2{font-size:20px}
-  .dsh-mail .dm-mail-body{padding:12px 18px}
-}
-@media (hover:none){.dsh-mail .dm-row-quick{opacity:1;pointer-events:auto}}
-@media (prefers-reduced-motion:reduce){.dsh-mail *,.dsh-mail *::before{transition:none!important;animation:none!important}}
-
-.dsh-mail .dm-rail button:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 16%,var(--dm-bg));color:var(--dm-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
-.dsh-mail .dm-rail button[aria-current]:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 25%,var(--dm-bg));box-shadow:inset 3px 0 var(--dm-accent),inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
-.dsh-mail .dm-rail button svg{transition:transform .15s ease}
-.dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}
-.dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}
-.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:18px;height:18px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}
-.dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}
-.dsh-mail .dm-reader-title h2{margin:0;min-width:0}
-.dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
-.dsh-mail .dm-location-chip{padding:3px 7px;border:0;border-radius:12px;background:color-mix(in srgb,var(--folder-color) 16%,var(--dm-bg));color:color-mix(in srgb,var(--folder-color) 60%,var(--dsw-alias-label-primary));font-size:11px;max-width:230px;overflow:hidden;text-overflow:ellipsis}
-.dsh-mail .dm-location-chip:not(:disabled):hover{background:color-mix(in srgb,var(--folder-color) 27%,var(--dm-bg))}
-.dsh-mail .dm-add-location{padding:4px 6px;border:0;background:transparent;color:var(--dm-muted);gap:1px}
-.dsh-mail .dm-transfer-mode{display:flex;flex-wrap:wrap;gap:14px;border:1px solid var(--dm-border);border-radius:8px;padding:12px;min-width:0}
-.dsh-mail .dm-transfer-mode legend{padding:0 5px;font-size:12px}
-.dsh-mail .dm-transfer-mode label{display:flex;align-items:center;gap:6px;font-size:12px}
-
-.dsh-mail .dm-calendar-page{position:relative;display:grid;grid-template-columns:220px minmax(0,1fr);height:100%;min-height:0;min-width:0;overflow:hidden}
-.dsh-mail .dm-calendar-sidebar{display:flex;flex-direction:column;min-width:0;gap:14px;padding:18px 14px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto;scrollbar-width:thin}
-.dsh-mail .dm-calendar-sidebar-actions{display:flex;gap:6px;align-items:center}
-.dsh-mail .dm-calendar-sidebar-actions>.primary{flex:1;min-height:36px}
-.dsh-mail .dm-calendar-panel-close,.dsh-mail .dm-calendar-backdrop,.dsh-mail .dm-calendar-mobile-actions{display:none}
-.dsh-mail .dm-mini-calendar header{display:flex;align-items:center;gap:4px;margin:6px 0 12px}
-.dsh-mail .dm-mini-calendar header strong{flex:1;font-size:12px;font-weight:600}
-.dsh-mail .dm-mini-calendar header button{border:0;background:transparent;padding:4px}
-.dsh-mail .dm-mini-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px 0;align-items:center;text-align:center}
-.dsh-mail .dm-mini-grid .dm-mini-weekday{font-size:10px;color:var(--dm-muted);padding:4px 0 8px}
-.dsh-mail .dm-mini-grid button{border:0;background:transparent;padding:0;font-size:11px;width:26px;height:26px;justify-self:center;border-radius:50%}
-.dsh-mail .dm-mini-grid button.outside{color:var(--dm-muted);opacity:.5}
-.dsh-mail .dm-mini-grid button.chosen{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 0 0 0 1px var(--dm-blue)}
-.dsh-mail .dm-mini-grid button[aria-current=date]{background:#2563eb;color:#fff;opacity:1}
-.dsh-mail .dm-calendar-sidebar .dm-section-label{margin:4px 0 0;border-top:1px solid var(--dm-border);padding-top:14px}
-.dsh-mail .dm-calendar-list{display:grid;gap:10px}
-.dsh-mail .dm-calendar-list label{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0}
-.dsh-mail .dm-calendar-list label>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dsh-mail .dm-calendar-color{width:9px;height:9px;border-radius:3px;flex:none}
-.dsh-mail .dm-calendar-legend{font-size:10px;color:var(--dm-muted)}
-.dsh-mail .dm-calendar-tools{display:grid;gap:7px;margin-top:auto;padding-top:16px}
-.dsh-mail .dm-calendar-tools :is(button,label){font-size:11px;justify-content:flex-start;border-color:transparent;background:transparent;padding:6px 8px}
-.dsh-mail .dm-calendar-tools>span{font-size:9px;overflow-wrap:anywhere;padding:4px 8px}
-.dsh-mail .dm-calendar-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:16px 18px 12px}
-.dsh-mail .dm-calendar-main>.dm-calendar{flex:1;min-height:0;margin:0;width:100%}
-.dsh-mail .dm-calendar .fc-header-toolbar{margin-bottom:14px;gap:10px}
-.dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{display:flex;align-items:center;gap:10px;min-width:0}
-.dsh-mail .dm-calendar .fc-toolbar-title{font-size:20px;font-weight:600;white-space:nowrap;margin:0}
-.dsh-mail .dm-calendar .fc-button{padding:6px 9px;border-radius:6px}
-.dsh-mail .dm-calendar .fc-col-header-cell-cushion{padding:9px 6px;font-size:12px;font-weight:500}
-.dsh-mail .dm-calendar .fc-col-header-cell{text-align:left}
-.dsh-mail .dm-calendar .fc-daygrid-day-top{flex-direction:row}
-.dsh-mail .dm-calendar .fc-daygrid-day-number{padding:5px 8px;font-size:12px}
-.dsh-mail .dm-calendar .fc-day-today{background:color-mix(in srgb,#3b82f6 4%,var(--dm-bg))}
-.dsh-mail .dm-calendar .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number{border-radius:50%;background:#2563eb;color:#fff;min-width:24px;height:24px;padding:2px 5px;margin:4px;text-align:center}
-.dsh-mail .dm-calendar .fc-h-event .fc-event-main{padding:2px 7px;min-height:24px;font-size:12px}
-.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:0}
-@container (max-width:999px){
-  .dsh-mail .dm-calendar-page{grid-template-columns:minmax(0,1fr)}
-  .dsh-mail .dm-calendar-sidebar{display:none}
-  .dsh-mail .dm-calendar-mobile-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
-  .dsh-mail .calendar-panel-open .dm-calendar-sidebar{display:flex;position:absolute;inset:0 auto 0 0;width:240px;z-index:6;background:var(--dm-bg);box-shadow:12px 0 30px #0003}
-  .dsh-mail .dm-calendar-panel-close{display:inline-flex;border:0;background:transparent;padding:5px}
-  .dsh-mail .dm-calendar-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;background:#0005;z-index:5}
-  .dsh-mail .dm-calendar-backdrop:not(:disabled):hover{background:#0005}
-}
-@container (max-width:759px){
-  .dsh-mail .dm-calendar-main{padding:12px 8px 8px}
-  .dsh-mail .dm-calendar .fc-header-toolbar{flex-wrap:wrap;gap:10px}
-  .dsh-mail .dm-calendar .fc-toolbar-title{font-size:17px}
-  .dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{gap:7px}
-  .dsh-mail .dm-calendar .fc-button{font-size:10px;padding:5px 7px}
-  .dsh-mail .dm-calendar .fc-col-header-cell-cushion{font-size:10px;padding:7px 2px}
-  .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}
-}
-@media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}
-
-.dsh-mail [data-agent-selected="true"] { outline: 2px solid var(--dm-primary, #2563eb); outline-offset: -2px; }
-
-.dsh-mail .dm-conversation{margin:0 22px 12px;padding:10px 12px;border:1px solid var(--dm-border);border-radius:8px;background:var(--dm-soft);font-size:12px}
-.dsh-mail .dm-conversation summary>span{margin-left:10px;color:var(--dm-muted);font-size:10px}
-.dsh-mail .dm-conversation-items{display:grid;gap:4px;max-height:180px;overflow:auto;margin-top:9px}
-.dsh-mail .dm-conversation-items>button{display:flex;justify-content:flex-start;gap:8px;text-align:left;padding:8px;font-size:11px;background:var(--dm-bg)}
-.dsh-mail .dm-conversation-items>button[aria-current]{background:var(--dm-selected);border-color:var(--dm-blue)}
-.dsh-mail .dm-conversation-sender{flex:0 1 110px;overflow:hidden;text-overflow:ellipsis}
-.dsh-mail .dm-conversation-subject{flex:1;overflow:hidden;text-overflow:ellipsis}
-.dsh-mail .dm-conversation time,.dsh-mail .dm-conversation small{flex:none;font-size:10px;color:var(--dm-muted)}
-@container (max-width:759px){
-  .dsh-mail .dm-conversation{margin-inline:14px}
-  .dsh-mail .dm-conversation summary>span{display:block;margin:4px 0 0}
-  .dsh-mail .dm-conversation-items>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}
-  .dsh-mail .dm-conversation-subject{grid-row:2;grid-column:1 / -1}
-  .dsh-mail .dm-conversation time{grid-row:1;grid-column:2}
-  .dsh-mail .dm-conversation small{grid-row:3;grid-column:1 / -1}
-}
-
-.dsh-mail .dm-addresses{display:inline;overflow-wrap:anywhere}
-.dsh-mail button.dm-person{display:inline;border:0;background:transparent;color:var(--dm-blue);padding:1px 3px;font:inherit;text-align:left;overflow-wrap:anywhere;white-space:normal}
-.dsh-mail button.dm-person:hover{text-decoration:underline;background:var(--dm-soft)}
-.dsh-mail .dm-address-line{line-height:1.6}
-.dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}
-.dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}
-.dsh-mail .dm-person-card .dm-form{padding:16px 0 0}
-.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}
-.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}
-.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}
-.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}
-.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}
-.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}
-.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}
-.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}
-.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}
-.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}
-.dsh-mail .dm-ai-actions small{font-size:11px}
-@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}
-.dsh-mail .dm-reader-sticky{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;background:var(--dm-bg);border-bottom:1px solid var(--dm-border);max-height:42vh;overflow:visible;box-shadow:0 3px 8px #00000008;scrollbar-width:thin}
-.dsh-mail .dm-reader-sticky .dm-reader-toolbar{position:static;min-height:40px;padding-block:6px}
-.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:8px 20px 10px;overflow:auto;min-height:0;flex:1 1 auto}
-.dsh-mail .dm-reader-sticky .dm-reader-title{margin:4px 0 8px}
-.dsh-mail .dm-reader-sticky h2{font-size:19px;overflow-wrap:anywhere}
-.dsh-mail .dm-reader-sticky .dm-section-label{margin:0;font-size:10px}
-.dsh-mail .dm-reader-sticky .dm-address-line{max-height:4.5em;overflow:auto;overflow-wrap:anywhere}
-.dsh-mail .dm-reader>.dm-reader-tags{padding:10px 20px;margin:0;border-bottom:1px solid var(--dm-border)}
-.dsh-mail .dm-ai-button{color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary));background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));border-color:color-mix(in srgb,#8b5cf6 48%,var(--dm-border));font-weight:600}
-.dsh-mail .dm-ai-button:hover{background:color-mix(in srgb,#8b5cf6 22%,var(--dm-bg))}
-.dsh-mail .dm-ai-button:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}
-.dsh-mail .dm-ai-panel{border-color:color-mix(in srgb,#8b5cf6 35%,var(--dm-border));background:color-mix(in srgb,#8b5cf6 4%,var(--dm-bg))}
-.dsh-mail .dm-ai-panel .dm-ai-edit{min-height:180px;max-height:none;font:inherit;line-height:1.8;padding:14px;background:var(--dm-bg)}
-.dsh-mail .dm-body-label{color:var(--dm-muted);font-size:11px;letter-spacing:.05em;margin:4px 0 12px}
-.dsh-mail .dm-quoted{margin:18px 0;border:1px solid var(--dm-border);border-left:3px solid #8e95a6;border-radius:5px;background:var(--dm-soft);min-width:0}
-.dsh-mail .dm-composer>.dm-quoted{margin:8px 18px 18px}
-.dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}
-.dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}
-.dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}
-.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}
-.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}
-.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}
-.dsh-mail .dm-quoted-message>summary::before{content:"\u25B8"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"\u25BE"}
-.dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}
-.dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}
-.dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}
-@container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}
-
-/* Compact composer keeps the action dock outside the scrolling content. */
-.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}
-.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}
-.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
-.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}
-.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}
-.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}
-.dsh-mail .dm-compose-scroll>*{flex-shrink:0}
-.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}
-.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}
-.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}
-.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}
-.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}
-.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}
-.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}
-.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}
-.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}
-.dsh-mail .dm-compose-people summary{cursor:pointer}
-.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}
-.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}
-.dsh-mail .dm-editor-toolbar{align-items:center}
-.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}
-.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}
-.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}
-.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}
-.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}
-.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}
-.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}
-.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
-.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}
-.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}
-.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}
-.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}
-.dsh-mail .dm-format-insert select{width:100%}
-.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}
-.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}
-.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}
-.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}
-.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}
-.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}
-.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
-.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}
-.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}
-.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}
-.dsh-mail .dm-compose-options{position:static}
-.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}
-.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}
-.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}
-.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}
-.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}
-.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}
-.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}
-.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}
-@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}
-
-.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}
-.dm-app>.dsh-mail{flex:1;min-width:0}
-.dm-agent-panel{box-sizing:border-box;position:relative;flex:0 0 var(--dm-assistant-width,390px);min-width:0;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}
-.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}
-.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}
-.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}
-.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}
-.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}
-.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}
-.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}
-@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:var(--dm-assistant-width,390px);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}
-/* Mailbird-inspired quiet chrome and a readable message surface. */
-.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}
-.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}
-.dsh-mail .dm-reader-person>div{flex:1;min-width:0}
-.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}
-.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}
-.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}
-.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}
-.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}
-.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}
-.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}
-.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}
-.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}
-.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}
-.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}
-.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}
-.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}
-.dsh-mail .dm-mail-body{padding:18px 24px}
-.dsh-mail .dm-reader .dm-body-label{display:none}
-.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}
-@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}
-
-/* Reading actions share the subject row; wrap according to the reading pane. */
-.dsh-mail .dm-detail-pane{container:dm-reader / inline-size}
-.dsh-mail .dm-reader-sticky{max-height:none}
-.dsh-mail .dm-reader-sticky .dm-reader-heading{overflow:visible;flex:none}
-.dsh-mail .dm-reader-topline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start}
-.dsh-mail .dm-reader-topline>button{padding:6px 4px;border-color:transparent;background:transparent}
-.dsh-mail .dm-reader-sticky .dm-reader-title{min-width:0;margin:0;gap:7px}
-.dsh-mail .dm-reader-title h2{max-height:4.35em;overflow:auto;scrollbar-width:thin}
-.dsh-mail .dm-reader-actions{display:flex;align-items:center;justify-content:flex-end;gap:3px;flex-wrap:wrap;min-width:0}
-.dsh-mail .dm-reader-actions>button{font-size:11px;padding:5px 7px;border-color:transparent;background:transparent}
-.dsh-mail .dm-reader-actions .dm-reader-more{margin-left:0}
-.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100cqw - 28px);max-height:min(60vh,440px);overflow:auto}
-@container dm-reader (max-width:700px){.dsh-mail .dm-reader-topline{grid-template-columns:auto minmax(0,1fr);gap:7px}.dsh-mail .dm-reader-actions{grid-column:1/-1}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-reader-actions>button{padding:5px 6px}}
-/* The right pane uses the same captured-pointer divider as the mail list. */
-.dm-agent-panel>.dm-agent-divider{position:absolute;inset:0 auto 0 -3px;width:6px;z-index:2;cursor:col-resize;touch-action:none;outline-offset:-2px}
-.dm-agent-panel>.dm-agent-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dsw-alias-border-l2)}
-.dm-agent-panel>.dm-agent-divider:hover::after,.dm-agent-panel>.dm-agent-divider:focus-visible::after,.dm-app.dm-resizing .dm-agent-divider::after{background:var(--dsw-alias-brand-primary,#2563eb)}
-.dm-agent-panel>.dm-agent-divider:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563eb)}
-.dm-app.dm-resizing,.dm-app.dm-resizing *{cursor:col-resize!important;user-select:none!important}
-.dm-app.dm-resizing iframe{pointer-events:none}
+var styles_default = `\r
+\r
+.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:var(--dsw-alias-bg-layer-2);--dm-border:var(--dsw-alias-border-l2);--dm-muted:var(--dsw-alias-label-secondary);--dm-accent:var(--dsw-alias-brand-primary);display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;container-type:inline-size;background:var(--dm-bg);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:1.5;overflow:hidden}\r
+.dsh-mail *{box-sizing:border-box}.dsh-mail button,.dsh-mail input,.dsh-mail select,.dsh-mail textarea{font:inherit;color:inherit;font-size:13px;min-width:0;max-width:100%}.dsh-mail button,.dsh-mail select,.dsh-mail input,.dsh-mail textarea{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-card);padding:7px 10px}.dsh-mail button{cursor:pointer;line-height:1.4;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}.dsh-mail button:hover{background:var(--dsw-alias-interactive-bg-hover)}.dsh-mail button:disabled{opacity:.45;cursor:default}.dsh-mail :is(button,input,select,textarea,summary,a):focus-visible{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail input[type=checkbox]{width:15px;height:15px;padding:0;accent-color:var(--dm-accent);flex:none}.dsh-mail .primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);border-color:transparent}.dsh-mail .danger,.dsh-mail .dm-error-text{color:var(--dsw-alias-state-error-primary)}.dsh-mail h1,.dsh-mail h2,.dsh-mail h3,.dsh-mail p{margin:0;overflow-wrap:anywhere}.dsh-mail h1{font-size:17px;font-weight:650;letter-spacing:-.4px}.dsh-mail h2{font-size:20px;line-height:1.45;letter-spacing:-.4px}.dsh-mail h3{font-size:14px}.dsh-mail p{line-height:1.7}.dsh-mail small,.dsh-mail .dm-muted{font-size:11px;color:var(--dm-muted)}.dsh-mail a{color:var(--dm-accent);overflow-wrap:anywhere}.dsh-mail pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-family:inherit}.dsh-mail textarea{width:100%;min-height:100px;resize:vertical;line-height:1.7}.dsh-mail summary{cursor:pointer}.dsh-mail [hidden]{display:none!important}\r
+.dsh-mail .dm-masthead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px 13px;flex:none}.dsh-mail .dm-brand{display:flex;align-items:center;gap:10px}.dsh-mail .dm-brand>div>span{font-size:10px;color:var(--dm-muted);letter-spacing:1px}.dsh-mail .dm-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--dm-card);border:1px solid var(--dm-border);color:var(--dm-accent);font-size:23px}.dsh-mail .dm-top-actions{display:flex;gap:7px;align-items:center}.dsh-mail .dm-connection{font-size:11px;color:var(--dm-muted);margin-right:7px}.dsh-mail .dm-nav{display:flex;gap:4px;border-bottom:1px solid var(--dm-border);padding:0 20px 9px;flex:none;overflow-x:auto}.dsh-mail .dm-nav>button{border:0;background:transparent;color:var(--dm-muted);gap:7px;padding:7px 12px}.dsh-mail .dm-nav>button[aria-current]{background:var(--dm-card);color:var(--dsw-alias-label-primary);font-weight:600}.dsh-mail .dm-nav small{padding:0 4px}.dsh-mail .dm-content{flex:1;min-height:0;min-width:0;overflow:auto}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar,.dsh-mail .dm-warning{padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--dm-card);font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-alert{color:var(--dsw-alias-state-error-primary);border-left:3px solid currentColor}.dsh-mail .dm-approval-bar{border-left:3px solid var(--dm-accent)}.dsh-mail .dm-assistant{flex:none;display:flex;align-items:center;gap:10px;margin:10px 16px 13px;padding:7px 9px;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card)}.dsh-mail .dm-assistant>span{font-size:23px;color:var(--dm-accent)}.dsh-mail .dm-assistant input{flex:1;border:0;background:transparent;padding:4px}.dsh-mail .dm-assistant button{border:0;background:transparent;font-size:12px}\r
+.dsh-mail .dm-mail-layout{display:grid;grid-template-columns:184px minmax(265px,340px) minmax(310px,1fr);height:100%;min-height:360px}.dsh-mail .dm-folders{padding:15px 10px;overflow:auto;background:var(--dm-card);border-right:1px solid var(--dm-border)}.dsh-mail .dm-folders>button{justify-content:flex-start;width:100%;border:0;background:transparent;text-align:left;margin-bottom:3px;padding:8px}.dsh-mail .dm-folders .selected{background:var(--dsw-alias-interactive-bg-hover);font-weight:600}.dsh-mail .dm-section-label{font-size:10px;color:var(--dm-muted);display:flex;align-items:center;justify-content:space-between;letter-spacing:.5px;margin:12px 0 8px}.dsh-mail .dm-section-label>button{padding:0 5px;border:0;background:transparent}.dsh-mail .dm-folders summary{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 4px;overflow:hidden}.dsh-mail .dm-dot{width:5px;height:5px;border-radius:50%;background:var(--dm-accent);flex:none}.dsh-mail .dm-dot.bad{background:var(--dsw-alias-state-error-primary)}.dsh-mail .dm-folder-row{display:flex;align-items:center}.dsh-mail .dm-folder-row>button{border:0;background:transparent;padding:7px 5px}.dsh-mail .dm-folder-row>button:first-child{flex:1;justify-content:flex-start;min-width:0}.dsh-mail .dm-folder-row>button:first-child>span:nth-child(2){text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.dsh-mail .dm-folder-row small{margin-left:auto}.dsh-mail .dm-list-pane{display:flex;flex-direction:column;border-right:1px solid var(--dm-border);min-height:0;min-width:0}.dsh-mail .dm-list-heading{display:flex;align-items:center;gap:9px;padding:17px 14px 10px}.dsh-mail .dm-list-heading h2{font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-mobile-folder{display:none}.dsh-mail .dm-search{display:flex;align-items:center;margin:0 12px 10px;padding:2px 4px 2px 10px;border:1px solid var(--dm-border);border-radius:8px;gap:3px;background:var(--dm-card)}.dsh-mail .dm-search input{flex:1;padding:6px 4px;background:transparent;border:0;width:0}.dsh-mail .dm-search button{background:transparent;border:0;font-size:11px;padding:5px}.dsh-mail .dm-bulk{display:flex;align-items:center;gap:5px;padding:6px 12px;flex-wrap:wrap;border-top:1px solid var(--dm-border);font-size:11px;color:var(--dm-muted)}.dsh-mail .dm-bulk button{font-size:11px;padding:3px 5px}.dsh-mail .dm-bulk select{flex:1;min-width:100px;font-size:11px}.dsh-mail .dm-message-list{overflow:auto;flex:1;min-height:0}.dsh-mail .dm-message-row{display:flex;align-items:flex-start;gap:6px;padding:13px 10px;border-top:1px solid var(--dm-border);min-width:0}.dsh-mail .dm-message-row>input{margin:4px 0}.dsh-mail .dm-message-row.selected{background:var(--dm-card);box-shadow:inset 3px 0 var(--dm-accent)}.dsh-mail .dm-message{display:block;flex:1;border:0;border-radius:0;background:transparent;text-align:left;min-width:0;padding:0;white-space:normal}.dsh-mail .dm-message-list>button.dm-message{padding:16px;width:100%;border-top:1px solid var(--dm-border)}.dsh-mail .dm-message:hover{background:transparent}.dsh-mail .dm-message-top{display:flex;justify-content:space-between;gap:6px;margin-bottom:6px;align-items:baseline}.dsh-mail .dm-message-top strong{font-weight:500;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-message-top small{flex:none;font-size:10px}.dsh-mail .unread .dm-message-top strong,.dsh-mail .unread h3{font-weight:650}.dsh-mail .dm-message h3{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;margin-bottom:5px}.dsh-mail .dm-message p{color:var(--dm-muted);font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.dsh-mail .dm-message-bottom{display:flex;gap:7px;font-size:10px;color:var(--dm-muted);margin-top:8px;flex-wrap:wrap}.dsh-mail .dm-star{border:0;background:transparent;padding:0 1px;color:var(--dm-accent);font-size:17px}.dsh-mail .dm-pagination{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--dm-border);font-size:10px;gap:5px}.dsh-mail .dm-pagination button{font-size:11px;padding:4px 6px}.dsh-mail .dm-index-status{font-size:10px;padding:6px 12px;background:var(--dm-card)}.dsh-mail .dm-advanced{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px}.dsh-mail .dm-advanced>label:not(.dm-field){display:flex;align-items:center;gap:5px;font-size:11px}.dsh-mail .dm-detail-pane{min-width:0;overflow:auto}.dsh-mail .dm-empty{display:grid;justify-items:center;align-content:center;gap:10px;padding:55px 24px;text-align:center;min-height:260px;height:100%}.dsh-mail .dm-empty-icon{font-size:36px;color:var(--dm-accent);margin-bottom:6px}.dsh-mail .dm-empty h2{font-size:17px}.dsh-mail .dm-empty p{font-size:12px;max-width:340px;color:var(--dm-muted)}.dsh-mail .dm-empty button{margin-top:18px}\r
+.dsh-mail .dm-reader-toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-reader-toolbar button{font-size:11px;padding:5px 7px}.dsh-mail .dm-reader-heading{padding:10px 22px 16px}.dsh-mail .dm-reader-heading h2{margin-bottom:14px}.dsh-mail .dm-reader-heading p{font-size:12px;margin:3px 0}.dsh-mail .dm-reader-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:13px}.dsh-mail .dm-reader-tags button,.dsh-mail .dm-reader-tags input{font-size:10px;padding:4px 6px}.dsh-mail .dm-mail-body{padding:10px 22px}.dsh-mail .dm-mail-body iframe{width:100%;min-height:420px;border:0;background:white;border-radius:4px}.dsh-mail .dm-mail-body pre{margin:0;font-size:14px}.dsh-mail .dm-raw-headers{font:11px/1.6 Consolas,monospace;padding:15px;max-height:250px;overflow:auto;background:var(--dm-card)}.dsh-mail .dm-image-notice{display:flex;justify-content:space-between;gap:8px;padding:8px 22px;font-size:11px;color:var(--dm-muted);align-items:center;background:var(--dm-card)}.dsh-mail .dm-image-notice button{font-size:10px;padding:3px 6px}.dsh-mail .dm-attachments{padding:16px 22px}.dsh-mail .dm-attachments h3{margin-bottom:10px}.dsh-mail .dm-attachment{display:flex;align-items:center;gap:6px;padding:9px 0;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-attachment>div{flex:1;min-width:0}.dsh-mail .dm-attachment strong{display:block;font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-attachment small{display:block}.dsh-mail .dm-attachment button{font-size:11px;padding:4px 6px}\r
+.dsh-mail .dm-compose-fields{display:grid;gap:8px;padding:15px}.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:55px 1fr;align-items:center;gap:10px}.dsh-mail .dm-field{display:grid;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-field>input,.dsh-mail .dm-field>select{width:100%}.dsh-mail .dm-field input,.dsh-mail .dm-field textarea{color:var(--dsw-alias-label-primary)}.dsh-mail .dm-editor-toolbar{display:flex;flex-wrap:wrap;gap:5px;padding:8px 15px;background:var(--dm-card);border-block:1px solid var(--dm-border)}.dsh-mail .dm-editor-toolbar button,.dsh-mail .dm-editor-toolbar select{font-size:11px;padding:4px 7px}.dsh-mail .dm-editor{min-height:230px;padding:16px 22px;font-size:14px;line-height:1.8}.dsh-mail .dm-editor .tiptap{min-height:220px;outline:0}.dsh-mail .dm-editor img{max-width:100%;height:auto}.dsh-mail .dm-plain-editor{min-height:260px;border:0;border-radius:0;padding:18px 22px}.dsh-mail .dm-compose-attachments{display:flex;flex-wrap:wrap;gap:8px;padding:12px 15px}.dsh-mail .dm-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:var(--dm-card);border-radius:5px;font-size:11px;max-width:100%;overflow-wrap:anywhere}.dsh-mail .dm-chip button{border:0;padding:0 4px;background:transparent}.dsh-mail .dm-file-button{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;border:1px solid var(--dm-border);border-radius:6px;padding:6px 9px}.dsh-mail .dm-file-button input[type=file]{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}.dsh-mail .dm-file-button:focus-within{outline:2px solid var(--dm-accent)}.dsh-mail .dm-send-options{display:flex;gap:12px;padding:12px 15px;border-top:1px solid var(--dm-border);flex-wrap:wrap;align-items:end}.dsh-mail .dm-send-options>label{font-size:11px}.dsh-mail .dm-send-options .dm-field{max-width:190px}.dsh-mail .dm-sent-body{padding:18px 22px}\r
+.dsh-mail .dm-page{padding:24px;min-width:0;max-width:1400px;margin:auto}.dsh-mail .dm-page-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}.dsh-mail .dm-page-heading p{font-size:12px;color:var(--dm-muted);margin-top:5px}.dsh-mail .dm-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-mail .dm-tabs{display:flex;gap:6px;margin-bottom:16px}.dsh-mail .dm-tabs button[aria-pressed=true]{background:var(--dm-card);font-weight:650;border-color:var(--dm-accent)}.dsh-mail .dm-task-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail .dm-task-title{border:0;background:transparent;display:grid;text-align:left;justify-content:start;flex:1;min-width:130px;white-space:normal}.dsh-mail .dm-task-title strong{font-weight:500;overflow-wrap:anywhere}.dsh-mail .dm-wide-search{width:100%;margin-bottom:20px}.dsh-mail .dm-contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.dsh-mail .dm-contact{border:1px solid var(--dm-border);border-radius:10px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dsh-mail .dm-contact>div:not(.dm-avatar){flex:1;min-width:0}.dsh-mail .dm-contact h3,.dsh-mail .dm-contact p{overflow-wrap:anywhere}.dsh-mail .dm-contact p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-avatar{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:50%;background:var(--dm-card);color:var(--dm-accent)}.dsh-mail .dm-rule-row,.dsh-mail .dm-account-row,.dsh-mail .dm-activity-row,.dsh-mail .dm-settings-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item)>div:first-of-type{flex:1;min-width:150px;overflow-wrap:anywhere}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item) p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-settings-card{padding:18px;border:1px solid var(--dm-border);border-radius:11px;margin-bottom:16px;background:var(--dm-card)}.dsh-mail .dm-settings-card>h3{margin-bottom:10px}.dsh-mail .dm-settings-card>p{font-size:12px;color:var(--dm-muted);margin:8px 0}.dsh-mail .dm-settings-group{margin:16px 0}.dsh-mail .dm-calendar{margin-bottom:20px;--fc-border-color:var(--dm-border);--fc-page-bg-color:var(--dm-bg);--fc-neutral-bg-color:var(--dm-card);--fc-list-event-hover-bg-color:var(--dm-card);--fc-today-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-bg-color:var(--dm-card);--fc-button-border-color:var(--dm-border);--fc-button-text-color:var(--dsw-alias-label-primary);--fc-button-hover-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-hover-border-color:var(--dm-border);--fc-button-active-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-active-border-color:var(--dm-accent);font-size:12px}.dsh-mail .fc .fc-toolbar-title{font-size:17px}.dsh-mail .fc .fc-button{font-size:11px}.dsh-mail .fc a{color:inherit;text-decoration:none}.dsh-mail .fc .fc-daygrid-event{white-space:normal}.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:8px}\r
+.dsh-mail .dm-dialog{color:inherit;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:14px;width:min(700px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:85vh;margin:auto;padding:0;box-shadow:0 20px 80px #0004}.dsh-mail .dm-dialog::backdrop{background:#0005}.dsh-mail .dm-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:17px 22px;border-bottom:1px solid var(--dm-border);position:sticky;top:0;background:var(--dm-bg);z-index:1}.dsh-mail .dm-dialog>header h2{font-size:17px}.dsh-mail .dm-dialog>header button{border:0;background:transparent;font-size:19px}.dsh-mail .dm-form{display:grid;gap:16px;padding:22px}.dsh-mail .dm-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-mail .dm-form>footer{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}.dsh-mail .dm-form details{padding:12px 0;border-block:1px solid var(--dm-border)}.dsh-mail .dm-form details[open]>summary{margin-bottom:12px}.dsh-mail .dm-form details>.dm-field{margin:10px 0}.dsh-mail .dm-form>label:not(.dm-field){font-size:12px}.dsh-mail .dm-preview-body{white-space:pre-wrap;max-height:240px;overflow:auto;padding:15px;background:var(--dm-card);border-radius:7px;font-size:13px;overflow-wrap:anywhere}.dsh-mail .dm-rule-editor-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px;background:var(--dm-card);border-radius:6px}.dsh-mail .dm-rule-editor-row input{flex:1;min-width:100px}.dsh-mail .dm-image-preview{display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:auto}.dsh-mail .dm-pdf-preview{width:100%;height:65vh;border:0}\r
+@container (max-width:1000px){.dsh-mail .dm-mail-layout{grid-template-columns:150px minmax(230px,300px) minmax(240px,1fr)}.dsh-mail .dm-connection{display:none}.dsh-mail .dm-reader-heading,.dsh-mail .dm-mail-body{padding-inline:16px}.dsh-mail .dm-masthead{padding:13px 16px}.dsh-mail .dm-nav{padding-inline:16px}.dsh-mail .dm-page{padding:18px}}\r
+@container (max-width:800px){.dsh-mail .dm-mail-layout{grid-template-columns: minmax(220px,43%) minmax(240px,57%);position:relative}.dsh-mail .dm-folders{display:none}.dsh-mail .dm-mobile-folder{display:inline-flex;padding:2px 6px;border:0;background:transparent}.dsh-mail .show-folders .dm-folders{display:block;position:absolute;left:0;top:0;bottom:0;width:210px;z-index:2;box-shadow:12px 0 28px #0002}.dsh-mail .dm-top-actions{gap:4px}.dsh-mail .dm-brand>div>span{display:none}.dsh-mail .dm-nav>button{padding:7px 9px}.dsh-mail .dm-calendar .fc-toolbar{flex-wrap:wrap;gap:9px}.dsh-mail .dm-calendar .fc-toolbar-chunk:last-child{width:100%}}\r
+@container (max-width:680px){.dsh-mail .dm-mail-layout{display:block;min-height:0}.dsh-mail .dm-list-pane{height:100%;border:0}.dsh-mail .dm-detail-pane{display:none;height:100%}.dsh-mail .has-detail .dm-list-pane{display:none}.dsh-mail .has-detail .dm-detail-pane{display:block}.dsh-mail .dm-masthead{padding:11px 12px;gap:8px}.dsh-mail .dm-mark{width:29px;height:29px;font-size:19px;border-radius:8px}.dsh-mail .dm-brand{gap:7px}.dsh-mail h1{font-size:15px}.dsh-mail .dm-top-actions button{font-size:11px;padding:5px 7px}.dsh-mail .dm-nav{padding:0 8px 7px;gap:0;justify-content:space-between}.dsh-mail .dm-nav>button{font-size:11px;padding:6px 7px;gap:3px}.dsh-mail .dm-nav>button>span{display:none}.dsh-mail .dm-assistant{margin:8px 10px;padding:6px;gap:5px}.dsh-mail .dm-assistant input{font-size:11px}.dsh-mail .dm-assistant button{font-size:10px;padding:4px}.dsh-mail .dm-page{padding:16px 12px}.dsh-mail .dm-page-heading{gap:10px;margin-bottom:16px}.dsh-mail .dm-page-heading h2{font-size:19px}.dsh-mail .dm-page-heading .dm-inline{gap:5px}.dsh-mail .dm-calendar .fc-toolbar-title{font-size:15px}.dsh-mail .dm-form-grid{grid-template-columns:1fr}.dsh-mail .dm-form{padding:17px;gap:13px}.dsh-mail .dm-task-row{gap:7px}.dsh-mail .dm-task-row>button:not(.dm-task-title){font-size:10px;padding:4px}.dsh-mail .dm-attachment{flex-wrap:wrap}.dsh-mail .dm-attachment>div{min-width:130px}.dsh-mail .dm-reader-toolbar{padding:8px;gap:4px}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar{font-size:11px;padding:8px 10px}.dsh-mail .dm-empty{padding:35px 18px}}\r
+\r
+.dsh-mail .fc .fc-daygrid-event .fc-event-time{white-space:nowrap;flex-shrink:0}.dsh-mail .fc .fc-daygrid-event-dot{flex-shrink:0}.dsh-mail .fc .fc-event-title{min-width:0}\r
+.dsh-mail .fc .fc-h-event,.dsh-mail .fc .fc-v-event{border-width:0 0 0 4px;border-radius:0}.dsh-mail .fc .fc-h-event .fc-event-main{padding:2px 6px;min-height:22px}.dsh-mail .fc .fc-v-event .fc-event-main{padding:2px 4px}.dsh-mail .fc .fc-daygrid-block-event .fc-event-time,.dsh-mail .fc .fc-daygrid-block-event .fc-event-title{font-weight:500}\r
+.dsh-mail .dm-event-colors{margin:0;padding:12px;border:1px solid var(--dm-border);border-radius:8px;min-width:0}.dsh-mail .dm-event-colors legend{padding:0 5px}.dsh-mail .dm-color-options{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}.dsh-mail .dm-color-options .dm-color-swatch{width:29px;height:29px;min-width:29px;padding:0;border-radius:50%;border:2px solid transparent;font-size:16px}.dsh-mail .dm-color-options [aria-pressed=true]{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail .dm-color-options .dm-field{display:flex;align-items:center;gap:8px}.dsh-mail .dm-color-options input[type=color]{width:38px;height:30px;padding:2px;cursor:pointer}\r
+@container (max-width:680px){.dsh-mail .fc .fc-daygrid-event .fc-event-time{display:none}.dsh-mail .fc .fc-daygrid-event .fc-event-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .fc .fc-daygrid-dot-event{padding:3px 0;min-width:0}}\r
+.dsh-mail .dm-preferences{display:grid;gap:20px}.dsh-mail .dm-preferences fieldset{border:0;padding:0;margin:0;min-width:0}.dsh-mail .dm-preferences legend{font-size:14px;font-weight:600;margin-bottom:12px;padding:0}.dsh-mail .dm-preferences fieldset>p{margin:10px 0 0}.dsh-mail .dm-preferences .dm-check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px}\r
+\r
+/* Mailbird-style workspace. Surfaces and text follow the host theme. */\r
+.dsh-mail{--dm-accent:#2563eb;--dm-blue:color-mix(in srgb,#3b82f6 78%,var(--dsw-alias-label-primary));--dm-hover:color-mix(in srgb,var(--dsw-alias-label-primary) 6%,var(--dm-bg));--dm-selected:color-mix(in srgb,#3b82f6 13%,var(--dm-bg));--dm-soft:color-mix(in srgb,#64748b 5%,var(--dm-bg));flex-direction:row;isolation:isolate}\r
+.dsh-mail svg{flex-shrink:0;vertical-align:middle}\r
+.dsh-mail button,.dsh-mail summary,.dsh-mail input,.dsh-mail select,.dsh-mail textarea,.dsh-mail .dm-message-row{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease}\r
+.dsh-mail button:not(:disabled):hover,.dsh-mail summary:hover{background:var(--dm-hover);border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
+.dsh-mail button:not(:disabled):active{background:var(--dm-selected);box-shadow:inset 0 1px 3px #0002}\r
+.dsh-mail button:disabled{cursor:not-allowed;box-shadow:none}\r
+.dsh-mail .primary{background:#2563eb;color:#fff;border-color:transparent;box-shadow:0 2px 5px #2563eb24}\r
+.dsh-mail .primary:not(:disabled):hover{background:#1d4ed8;color:#fff;border-color:transparent;box-shadow:0 3px 9px #2563eb36}\r
+.dsh-mail .danger{color:color-mix(in srgb,#ef4444 80%,var(--dsw-alias-label-primary))}\r
+.dsh-mail .danger:not(:disabled):hover{background:color-mix(in srgb,#ef4444 12%,var(--dm-bg));border-color:#ef444470}\r
+.dsh-mail input:hover,.dsh-mail select:hover,.dsh-mail textarea:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
+.dsh-mail input:focus,.dsh-mail select:focus,.dsh-mail textarea:focus{border-color:var(--dm-blue)}\r
+.dsh-mail .dm-rail{width:60px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 5px 12px;background:color-mix(in srgb,#64748b 10%,var(--dm-bg));border-right:1px solid var(--dm-border);overflow-y:auto;scrollbar-width:thin}\r
+.dsh-mail .dm-rail-brand{display:grid;place-items:center;color:#fff;background:#2563eb;border-radius:12px;width:38px;min-height:38px;box-shadow:0 3px 10px #2563eb30}\r
+.dsh-mail .dm-rail-pages,.dsh-mail .dm-rail-bottom{display:grid;gap:5px;width:100%}\r
+.dsh-mail .dm-rail-mail{padding-bottom:12px;border-bottom:1px solid var(--dm-border)}\r
+.dsh-mail .dm-rail-bottom{margin-top:auto;padding-top:16px}\r
+.dsh-mail .dm-rail button{position:relative;border:0;background:transparent;color:var(--dm-muted);border-radius:10px;padding:7px 2px;min-height:43px;width:100%;display:flex;flex-direction:column;gap:4px}\r
+.dsh-mail .dm-rail-caption{font-size:9px;line-height:1.2}\r
+.dsh-mail .dm-rail button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-accent)}\r
+.dsh-mail .dm-rail-badge{position:absolute;right:0;top:0;border:2px solid var(--dm-bg);border-radius:10px;background:#2563eb;color:#fff;font-size:9px;font-style:normal;padding:0 4px;min-width:17px;line-height:15px}\r
+.dsh-mail .dm-workspace{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}\r
+.dsh-mail .dm-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;border-bottom:1px solid var(--dm-border);flex:none;background:var(--dm-bg)}\r
+.dsh-mail .dm-workspace-header>div:first-child{min-width:0}\r
+.dsh-mail .dm-workspace-header h1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\r
+.dsh-mail .dm-eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--dm-muted);display:block;margin-bottom:3px}\r
+.dsh-mail .dm-connection{display:flex;align-items:center;gap:7px}\r
+.dsh-mail .dm-dot{background:#16a34a;width:6px;height:6px}\r
+.dsh-mail .dm-sync.is-busy svg{animation:dm-spin 1.2s linear infinite}\r
+@keyframes dm-spin{to{transform:rotate(360deg)}}\r
+.dsh-mail .dm-content{overflow:hidden}\r
+.dsh-mail .dm-content>.dm-page{height:100%;overflow:auto}\r
+.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr);height:100%;min-height:0}\r
+.dsh-mail .dm-pane-divider{position:relative;cursor:col-resize;touch-action:none;background:var(--dm-bg);outline-offset:-1px}\r
+.dsh-mail .dm-pane-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dm-border);transition:background .15s}\r
+.dsh-mail .dm-pane-divider:hover::after,.dsh-mail .dm-pane-divider:focus-visible::after,.dsh-mail .dm-resizing .dm-pane-divider::after{background:var(--dm-blue)}\r
+.dsh-mail .dm-resizing,.dsh-mail .dm-resizing *{cursor:col-resize!important;user-select:none!important}\r
+.dsh-mail .dm-resizing iframe{pointer-events:none}\r
+.dsh-mail .dm-folders{display:none;padding:16px 12px;background:var(--dm-soft);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}\r
+.dsh-mail .dm-folders>button{gap:10px;padding:10px;border-radius:8px;margin-bottom:3px;font-size:12px}\r
+.dsh-mail .dm-folders>button>svg,.dsh-mail .dm-folder-row>button>svg{color:var(--folder-color,var(--dm-blue));fill:color-mix(in srgb,var(--folder-color,var(--dm-blue)) 12%,transparent)}\r
+.dsh-mail .dm-folders>button small{margin-left:auto;border-radius:5px;padding:0 5px;background:var(--dm-hover)}\r
+.dsh-mail .dm-folders .selected{background:var(--dm-selected);color:var(--dsw-alias-label-primary);box-shadow:inset 3px 0 var(--dm-accent);font-weight:600}\r
+.dsh-mail .dm-folders .dm-section-label{font-size:10px;letter-spacing:.4px;margin:16px 4px 8px;min-height:20px}\r
+.dsh-mail .dm-folders>.dm-section-label:first-child{margin-top:0}\r
+.dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}\r
+.dsh-mail .show-folders .dm-folders{display:block;position:absolute;inset:0 auto 0 0;width:min(300px,calc(100% - 20px));z-index:6;box-shadow:12px 0 30px #0003;background:var(--dm-bg)}\r
+.dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0003}\r
+.dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0003}\r
+.dsh-mail .dm-folder-search{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-bg);color:var(--dm-muted);margin-top:7px}\r
+.dsh-mail .dm-folder-search:focus-within{border-color:var(--dm-blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--dm-blue) 12%,transparent)}\r
+.dsh-mail .dm-folder-search input{width:100%;padding:5px 0;border:0;background:transparent;font-size:11px;outline:none}\r
+.dsh-mail .dm-folder-search button{border:0;padding:3px;background:transparent}\r
+.dsh-mail .dm-folder-sort{width:100%;margin:7px 0 8px;font-size:11px;padding:6px 8px;background:var(--dm-bg)}\r
+.dsh-mail .dm-folder-matches{font-size:11px;color:var(--dm-muted);padding:4px 6px 10px}\r
+.dsh-mail .dm-folders .dm-account-folders>summary{font-size:11px;font-weight:600;gap:8px;padding:12px 6px 6px;min-height:35px;border-radius:6px}\r
+.dsh-mail .dm-account-folders>summary>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}\r
+.dsh-mail .dm-account-folders>summary::before{content:'\u203A';font-size:14px;line-height:1;color:var(--dm-muted);transition:transform .15s}\r
+.dsh-mail .dm-account-folders[open]>summary::before{transform:rotate(90deg)}\r
+.dsh-mail .dm-account-folders>summary>.dm-dot{margin-left:auto}\r
+.dsh-mail .dm-folder-row{position:relative;gap:2px;border-radius:7px;flex-wrap:wrap;margin:2px 0}\r
+.dsh-mail .dm-folder-row:hover,.dsh-mail .dm-folder-row:focus-within{background:var(--dm-hover)}\r
+.dsh-mail .dm-folder-row>button:first-child{gap:9px;border-radius:7px;padding:9px 7px;font-size:12px}\r
+.dsh-mail .dm-folder-row small{font-size:10px;font-variant-numeric:tabular-nums;min-width:16px;text-align:right}\r
+.dsh-mail .dm-menu{position:relative;flex:none;border:0;padding:0}\r
+.dsh-mail .dm-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;border:1px solid transparent;border-radius:6px;padding:6px;color:var(--dm-muted)}\r
+.dsh-mail .dm-menu>summary::-webkit-details-marker{display:none}\r
+.dsh-mail .dm-menu[open]>summary{background:var(--dm-selected);color:var(--dm-blue)}\r
+.dsh-mail .dm-menu-panel{position:absolute;right:0;top:calc(100% + 5px);z-index:4;width:200px;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:10px;box-shadow:0 10px 30px #0002;padding:7px}\r
+.dsh-mail .dm-menu-panel>button{justify-content:flex-start;width:100%;border:0;background:transparent;padding:9px 10px;font-size:12px}\r
+.dsh-mail .dm-folder-actions>summary{padding:7px 4px}\r
+.dsh-mail .dm-folder-actions[open]{flex-basis:100%;order:2}\r
+.dsh-mail .dm-folder-actions[open]>summary{position:absolute;right:0;top:-33px}\r
+.dsh-mail .dm-folder-actions .dm-menu-panel{position:static;width:100%;box-shadow:0 3px 10px #0001;margin:3px 0 6px;padding:8px}\r
+.dsh-mail .dm-folder-colors{margin:8px 0 0;padding:9px 2px 2px;min-width:0;border:0;border-top:1px solid var(--dm-border)}\r
+.dsh-mail .dm-folder-colors legend{font-size:11px;padding:0 5px}\r
+.dsh-mail .dm-folder-colors .dm-color-options{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:5px 0 12px;justify-items:center}\r
+.dsh-mail .dm-folder-colors .dm-color-swatch{width:25px;height:25px;min-width:25px;color:#fff;border:1px solid #0001;font-size:13px;padding:0;box-shadow:0 0 0 2px var(--dm-bg)}\r
+.dsh-mail .dm-folder-colors .dm-color-swatch:hover{outline:2px solid var(--dm-blue);outline-offset:2px}\r
+.dsh-mail .dm-custom-color{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-bottom:9px}\r
+.dsh-mail .dm-custom-color input{width:42px;height:29px;padding:2px}\r
+.dsh-mail .dm-folder-colors .dm-inline{gap:4px}\r
+.dsh-mail .dm-folder-colors .dm-inline button{font-size:10px;padding:5px 7px}\r
+.dsh-mail .dm-folder-colors p{font-size:10px;margin-top:9px}\r
+.dsh-mail .dm-list-pane{background:var(--dm-bg);overflow:hidden}\r
+.dsh-mail .dm-list-heading{padding:19px 17px 13px;min-height:57px}\r
+.dsh-mail .dm-list-heading h2{font-size:16px;font-weight:650}\r
+.dsh-mail .dm-count{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--dm-selected);color:var(--dm-blue);font-variant-numeric:tabular-nums}\r
+.dsh-mail .dm-search{margin:0 14px 12px;background:var(--dm-soft);border-color:transparent;border-radius:9px;padding:5px 8px;color:var(--dm-muted)}\r
+.dsh-mail .dm-search:focus-within{border-color:var(--dm-blue);background:var(--dm-bg)}\r
+.dsh-mail .dm-bulk{border-top:0;border-bottom:1px solid var(--dm-border);padding:8px 15px;font-size:10px}\r
+.dsh-mail .dm-bulk>label{display:flex}\r
+.dsh-mail .dm-message-row{position:relative;gap:8px;padding:15px 12px;border-top:0;border-bottom:1px solid var(--dm-border);background:transparent}\r
+.dsh-mail .dm-message-row>input{width:13px;height:13px;margin:9px 0}\r
+.dsh-mail .dm-message-row:hover{background:var(--dm-hover)}\r
+.dsh-mail .dm-message-row.selected{background:var(--dm-selected);box-shadow:inset 3px 0 var(--dm-accent)}\r
+.dsh-mail .dm-message-row .dm-message{align-self:stretch;padding:0}\r
+.dsh-mail .dm-message-row .dm-message:hover{background:transparent;border-color:transparent}\r
+.dsh-mail .dm-sender-avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;flex:none;font-size:10px;font-weight:600;background:color-mix(in srgb,var(--avatar-color) 14%,var(--dm-bg));color:color-mix(in srgb,var(--avatar-color) 60%,var(--dsw-alias-label-primary));margin-top:1px}\r
+.dsh-mail .dm-message-top{gap:5px;margin-bottom:5px;flex-wrap:wrap}\r
+.dsh-mail .dm-message-top strong{max-width:100%;font-size:12px}\r
+.dsh-mail .dm-message-top small{font-size:9px;color:var(--dm-muted)}\r
+.dsh-mail .dm-message h3{font-size:12px;line-height:1.6;margin-bottom:4px}\r
+.dsh-mail .dm-message p{font-size:11px;-webkit-line-clamp:1}\r
+.dsh-mail .unread h3::before{content:'';display:inline-block;width:5px;height:5px;background:var(--dm-blue);border-radius:50%;margin:0 5px 2px 0}\r
+.dsh-mail .dm-message-bottom{gap:5px;font-size:9px;margin-top:8px;align-items:center}\r
+.dsh-mail .dm-row-actions{display:flex;flex-direction:column;gap:3px;flex:none}\r
+.dsh-mail .dm-row-actions button{padding:3px;border:0;background:transparent;min-height:23px;color:var(--dm-muted)}\r
+.dsh-mail .dm-row-actions .is-starred{color:#d97706}\r
+.dsh-mail .is-starred svg{fill:#fbbf24;stroke:#d97706}\r
+.dsh-mail .dm-row-quick{display:grid;gap:3px;opacity:0;pointer-events:none;transition:opacity .15s}\r
+.dsh-mail .dm-message-row:hover .dm-row-quick,.dsh-mail .dm-message-row:focus-within .dm-row-quick{opacity:1;pointer-events:auto}\r
+.dsh-mail .dm-sent-warning{padding:10px 14px;font-size:11px;display:flex;gap:7px;align-items:center;background:color-mix(in srgb,#f59e0b 12%,var(--dm-bg));border-bottom:1px solid var(--dm-border)}\r
+.dsh-mail .dm-sent-warning span{flex:1;min-width:0;overflow-wrap:anywhere}\r
+.dsh-mail .dm-sent-warning button{font-size:10px;padding:4px 7px;flex:none}\r
+.dsh-mail .dm-detail-pane{background:var(--dm-bg)}\r
+.dsh-mail .dm-reader{min-height:100%;display:flex;flex-direction:column}\r
+.dsh-mail .dm-reader>*{flex-shrink:0}\r
+.dsh-mail .dm-reader-toolbar{position:sticky;top:0;z-index:2;padding:10px 17px;gap:5px;min-height:49px;background:var(--dm-soft)}\r
+.dsh-mail .dm-reader-toolbar button{background:transparent;border-color:transparent;padding:6px 8px}\r
+/* Keep draft actions available while scrolling the message editor. */\r
+.dsh-mail .dm-compose-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;min-height:57px;border-bottom:1px solid var(--dm-border);background:var(--dm-card)}\r
+.dsh-mail .dm-compose-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;overflow-wrap:anywhere}\r
+.dsh-mail .dm-compose-toolbar button{font-size:11px;padding:6px 8px}\r
+.dsh-mail .dm-compose-status>button{background:transparent;border-color:transparent}\r
+.dsh-mail .dm-compose-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-left:auto}\r
+.dsh-mail .dm-reader-more{margin-left:auto}\r
+.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100vw - 110px)}\r
+.dsh-mail .dm-reader-heading{padding:10px 20px 12px}\r
+.dsh-mail .dm-reader-heading h2{font-size:20px;line-height:1.4;margin:4px 0 10px;font-weight:650}\r
+.dsh-mail .dm-reader-tags{margin-top:10px;gap:6px;align-items:center}\r
+.dsh-mail .dm-reader-tags button{padding:6px 9px;font-size:11px}\r
+.dsh-mail .dm-snooze-label{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dm-muted);flex-wrap:wrap}\r
+.dsh-mail .dm-reader-tags input{font-size:10px;max-width:180px}\r
+.dsh-mail .dm-mail-body{padding:8px 16px 16px;flex:1}\r
+.dsh-mail .dm-mail-body iframe{display:block;height:180px;min-height:180px}\r
+.dsh-mail .dm-image-notice{padding:5px 20px}\r
+.dsh-mail .dm-attachments{padding:12px 20px 20px}\r
+.dsh-mail .dm-attachment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}\r
+.dsh-mail .dm-attachment-heading h3{margin:0}\r
+.dsh-mail .dm-attachment-heading h3 .dm-attachment-toggle{padding:3px 0;border:0;background:transparent;font-size:13px;font-weight:650}\r
+.dsh-mail .dm-attachment-toggle[aria-expanded=true] svg{transform:rotate(90deg)}\r
+.dsh-mail .dm-attachments.is-collapsed .dm-attachment-heading{margin-bottom:0}\r
+.dsh-mail .dm-attachment-heading button{font-size:11px;padding:5px 8px}\r
+.dsh-mail .dm-attachment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}\r
+.dsh-mail .dm-attachment{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;column-gap:10px;row-gap:4px;min-width:0;border:1px solid var(--dm-border);border-radius:8px;overflow:hidden;padding:8px;background:var(--dm-soft)}\r
+.dsh-mail .dm-attachment>.dm-attachment-art{grid-row:1 / span 2;min-width:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--file-color) 7%,var(--dm-bg));color:color-mix(in srgb,var(--file-color) 70%,var(--dsw-alias-label-primary));border:1px solid var(--dm-border)}\r
+.dsh-mail .dm-file-mark{position:relative;display:flex}\r
+.dsh-mail .dm-file-mark b{position:absolute;left:-3px;bottom:3px;padding:2px 3px;border-radius:3px;background:var(--file-color);color:#fff;font-size:8px;line-height:1.2}\r
+.dsh-mail .dm-file-type{min-width:0;overflow-wrap:anywhere}\r
+.dsh-mail .dm-attachment-art img{display:block;width:100%;height:100%;object-fit:contain}\r
+.dsh-mail .dm-attachment>.dm-attachment-info{padding:0;min-width:0}\r
+.dsh-mail .dm-attachment-info strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}\r
+.dsh-mail .dm-attachment-info small{margin-top:2px}\r
+.dsh-mail .dm-attachment>.dm-attachment-actions{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;padding:0;min-width:0}\r
+.dsh-mail .dm-empty-icon{display:grid;place-items:center;width:68px;height:68px;border-radius:22px;background:var(--dm-selected);color:var(--dm-blue);font-size:32px}\r
+.dsh-mail .dm-assistant{margin:12px 18px;padding:8px 11px;border-color:color-mix(in srgb,var(--dm-blue) 23%,var(--dm-border));background:color-mix(in srgb,var(--dm-blue) 3%,var(--dm-bg));border-radius:12px;min-width:0}\r
+.dsh-mail .dm-assistant>span{color:var(--dm-blue);display:flex}\r
+.dsh-mail .dm-assistant button{color:var(--dm-blue);border-radius:7px;padding:6px 9px}\r
+.dsh-mail .dm-page{padding:28px;max-width:1500px}\r
+.dsh-mail .dm-page-heading{margin-bottom:24px}\r
+.dsh-mail .dm-contact,.dsh-mail .dm-settings-card{background:var(--dm-soft);border-radius:12px}\r
+.dsh-mail .dm-contact:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
+.dsh-mail .dm-avatar{color:var(--dm-blue);background:var(--dm-selected)}\r
+.dsh-mail .dm-settings-layout{display:grid;grid-template-columns:190px minmax(0,1fr);height:100%;overflow:hidden}\r
+.dsh-mail .dm-settings-nav{display:flex;flex-direction:column;gap:6px;padding:22px 12px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto}\r
+.dsh-mail .dm-settings-nav button{justify-content:flex-start;text-align:left;gap:9px;padding:12px 10px;border:0;background:transparent;font-size:12px}\r
+.dsh-mail .dm-settings-nav button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);font-weight:600}\r
+.dsh-mail .dm-settings-main{padding:28px;overflow:auto;min-width:0}\r
+.dsh-mail .dm-settings-main h3{margin:16px 0 10px}\r
+.dsh-mail .dm-settings-main .dm-preferences h3{margin:0}\r
+.dsh-mail .dm-settings-item{width:100%;justify-content:flex-start;text-align:left}\r
+.dsh-mail .dm-notice{background:color-mix(in srgb,#22c55e 9%,var(--dm-bg));border-left:3px solid #16a34a}\r
+.dsh-mail .dm-dialog{box-shadow:0 24px 80px #0005}\r
+@container (max-width:1099px){\r
+  .dsh-mail .dm-mail-layout{grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr)}\r
+  .dsh-mail .dm-folders{display:none}\r
+  .dsh-mail .dm-mobile-folder{display:inline-flex;border:0;background:transparent;padding:5px}\r
+  .dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}\r
+  .dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0005}\r
+  .dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0005}\r
+  .dsh-mail .dm-connection{display:none}\r
+  .dsh-mail .dm-reader-heading{padding:14px 20px}\r
+  .dsh-mail .dm-settings-layout{grid-template-columns:160px minmax(0,1fr)}\r
+  .dsh-mail .dm-settings-main{padding:22px}\r
+}\r
+@container (min-width:760px) and (max-width:800px){.dsh-mail .dm-mail-layout{display:grid}.dsh-mail .dm-list-pane,.dsh-mail .dm-detail-pane,.dsh-mail .has-detail .dm-list-pane{display:flex}.dsh-mail .dm-detail-pane{display:block}}\r
+@container (max-width:759px){\r
+  .dsh-mail .dm-rail{width:52px;padding:13px 4px 8px;gap:14px}\r
+  .dsh-mail .dm-rail-brand{width:34px;min-height:34px;border-radius:10px}\r
+  .dsh-mail .dm-rail button{min-height:44px}\r
+  .dsh-mail .dm-workspace-header{padding:12px 14px;gap:8px}\r
+  .dsh-mail .dm-workspace-header h1{font-size:14px}\r
+  .dsh-mail .dm-top-actions{gap:5px}\r
+  .dsh-mail .dm-top-actions button{font-size:11px;padding:6px 8px}\r
+  .dsh-mail .dm-mail-layout{display:block;min-height:0}\r
+  .dsh-mail .dm-list-pane{height:100%;border-right:0}\r
+  .dsh-mail .dm-detail-pane{display:none;height:100%}\r
+  .dsh-mail .has-detail .dm-list-pane{display:none}\r
+  .dsh-mail .has-detail .dm-detail-pane{display:block}\r
+  .dsh-mail .dm-list-heading{padding:14px 13px 12px;min-height:52px}\r
+  .dsh-mail .dm-assistant{margin:9px 11px;padding:7px;gap:7px}\r
+  .dsh-mail .dm-assistant input{font-size:11px}\r
+  .dsh-mail .dm-assistant button{font-size:10px;padding:5px}\r
+  .dsh-mail .dm-settings-layout{display:flex;flex-direction:column}\r
+  .dsh-mail .dm-settings-nav{flex-direction:row;padding:9px;border-right:0;border-bottom:1px solid var(--dm-border);flex:none}\r
+  .dsh-mail .dm-settings-nav button{font-size:11px;padding:8px;gap:5px;flex:none}\r
+  .dsh-mail .dm-settings-main{padding:18px 14px}\r
+  .dsh-mail .dm-page{padding:18px 14px}\r
+  .dsh-mail .dm-reader-toolbar{padding:10px 8px;gap:3px}\r
+  .dsh-mail .dm-reader-toolbar button{font-size:10px;padding:5px 6px}\r
+  .dsh-mail .dm-reader-heading{padding:12px 18px}\r
+  .dsh-mail .dm-reader-heading h2{font-size:20px}\r
+  .dsh-mail .dm-mail-body{padding:12px 18px}\r
+}\r
+@media (hover:none){.dsh-mail .dm-row-quick{opacity:1;pointer-events:auto}}\r
+@media (prefers-reduced-motion:reduce){.dsh-mail *,.dsh-mail *::before{transition:none!important;animation:none!important}}\r
+\r
+.dsh-mail .dm-rail button:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 16%,var(--dm-bg));color:var(--dm-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}\r
+.dsh-mail .dm-rail button[aria-current]:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 25%,var(--dm-bg));box-shadow:inset 3px 0 var(--dm-accent),inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}\r
+.dsh-mail .dm-rail button svg{transition:transform .15s ease}\r
+.dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}\r
+.dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}\r
+.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:18px;height:18px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}\r
+.dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}\r
+.dsh-mail .dm-reader-title h2{margin:0;min-width:0}\r
+.dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}\r
+.dsh-mail .dm-location-chip{padding:3px 7px;border:0;border-radius:12px;background:color-mix(in srgb,var(--folder-color) 16%,var(--dm-bg));color:color-mix(in srgb,var(--folder-color) 60%,var(--dsw-alias-label-primary));font-size:11px;max-width:230px;overflow:hidden;text-overflow:ellipsis}\r
+.dsh-mail .dm-location-chip:not(:disabled):hover{background:color-mix(in srgb,var(--folder-color) 27%,var(--dm-bg))}\r
+.dsh-mail .dm-add-location{padding:4px 6px;border:0;background:transparent;color:var(--dm-muted);gap:1px}\r
+.dsh-mail .dm-transfer-mode{display:flex;flex-wrap:wrap;gap:14px;border:1px solid var(--dm-border);border-radius:8px;padding:12px;min-width:0}\r
+.dsh-mail .dm-transfer-mode legend{padding:0 5px;font-size:12px}\r
+.dsh-mail .dm-transfer-mode label{display:flex;align-items:center;gap:6px;font-size:12px}\r
+\r
+.dsh-mail .dm-calendar-page{position:relative;display:grid;grid-template-columns:220px minmax(0,1fr);height:100%;min-height:0;min-width:0;overflow:hidden}\r
+.dsh-mail .dm-calendar-sidebar{display:flex;flex-direction:column;min-width:0;gap:14px;padding:18px 14px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto;scrollbar-width:thin}\r
+.dsh-mail .dm-calendar-sidebar-actions{display:flex;gap:6px;align-items:center}\r
+.dsh-mail .dm-calendar-sidebar-actions>.primary{flex:1;min-height:36px}\r
+.dsh-mail .dm-calendar-panel-close,.dsh-mail .dm-calendar-backdrop,.dsh-mail .dm-calendar-mobile-actions{display:none}\r
+.dsh-mail .dm-mini-calendar header{display:flex;align-items:center;gap:4px;margin:6px 0 12px}\r
+.dsh-mail .dm-mini-calendar header strong{flex:1;font-size:12px;font-weight:600}\r
+.dsh-mail .dm-mini-calendar header button{border:0;background:transparent;padding:4px}\r
+.dsh-mail .dm-mini-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px 0;align-items:center;text-align:center}\r
+.dsh-mail .dm-mini-grid .dm-mini-weekday{font-size:10px;color:var(--dm-muted);padding:4px 0 8px}\r
+.dsh-mail .dm-mini-grid button{border:0;background:transparent;padding:0;font-size:11px;width:26px;height:26px;justify-self:center;border-radius:50%}\r
+.dsh-mail .dm-mini-grid button.outside{color:var(--dm-muted);opacity:.5}\r
+.dsh-mail .dm-mini-grid button.chosen{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 0 0 0 1px var(--dm-blue)}\r
+.dsh-mail .dm-mini-grid button[aria-current=date]{background:#2563eb;color:#fff;opacity:1}\r
+.dsh-mail .dm-calendar-sidebar .dm-section-label{margin:4px 0 0;border-top:1px solid var(--dm-border);padding-top:14px}\r
+.dsh-mail .dm-calendar-list{display:grid;gap:10px}\r
+.dsh-mail .dm-calendar-list label{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0}\r
+.dsh-mail .dm-calendar-list label>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
+.dsh-mail .dm-calendar-color{width:9px;height:9px;border-radius:3px;flex:none}\r
+.dsh-mail .dm-calendar-legend{font-size:10px;color:var(--dm-muted)}\r
+.dsh-mail .dm-calendar-tools{display:grid;gap:7px;margin-top:auto;padding-top:16px}\r
+.dsh-mail .dm-calendar-tools :is(button,label){font-size:11px;justify-content:flex-start;border-color:transparent;background:transparent;padding:6px 8px}\r
+.dsh-mail .dm-calendar-tools>span{font-size:9px;overflow-wrap:anywhere;padding:4px 8px}\r
+.dsh-mail .dm-calendar-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:16px 18px 12px}\r
+.dsh-mail .dm-calendar-main>.dm-calendar{flex:1;min-height:0;margin:0;width:100%}\r
+.dsh-mail .dm-calendar .fc-header-toolbar{margin-bottom:14px;gap:10px}\r
+.dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{display:flex;align-items:center;gap:10px;min-width:0}\r
+.dsh-mail .dm-calendar .fc-toolbar-title{font-size:20px;font-weight:600;white-space:nowrap;margin:0}\r
+.dsh-mail .dm-calendar .fc-button{padding:6px 9px;border-radius:6px}\r
+.dsh-mail .dm-calendar .fc-col-header-cell-cushion{padding:9px 6px;font-size:12px;font-weight:500}\r
+.dsh-mail .dm-calendar .fc-col-header-cell{text-align:left}\r
+.dsh-mail .dm-calendar .fc-daygrid-day-top{flex-direction:row}\r
+.dsh-mail .dm-calendar .fc-daygrid-day-number{padding:5px 8px;font-size:12px}\r
+.dsh-mail .dm-calendar .fc-day-today{background:color-mix(in srgb,#3b82f6 4%,var(--dm-bg))}\r
+.dsh-mail .dm-calendar .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number{border-radius:50%;background:#2563eb;color:#fff;min-width:24px;height:24px;padding:2px 5px;margin:4px;text-align:center}\r
+.dsh-mail .dm-calendar .fc-h-event .fc-event-main{padding:2px 7px;min-height:24px;font-size:12px}\r
+.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:0}\r
+@container (max-width:999px){\r
+  .dsh-mail .dm-calendar-page{grid-template-columns:minmax(0,1fr)}\r
+  .dsh-mail .dm-calendar-sidebar{display:none}\r
+  .dsh-mail .dm-calendar-mobile-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}\r
+  .dsh-mail .calendar-panel-open .dm-calendar-sidebar{display:flex;position:absolute;inset:0 auto 0 0;width:240px;z-index:6;background:var(--dm-bg);box-shadow:12px 0 30px #0003}\r
+  .dsh-mail .dm-calendar-panel-close{display:inline-flex;border:0;background:transparent;padding:5px}\r
+  .dsh-mail .dm-calendar-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;background:#0005;z-index:5}\r
+  .dsh-mail .dm-calendar-backdrop:not(:disabled):hover{background:#0005}\r
+}\r
+@container (max-width:759px){\r
+  .dsh-mail .dm-calendar-main{padding:12px 8px 8px}\r
+  .dsh-mail .dm-calendar .fc-header-toolbar{flex-wrap:wrap;gap:10px}\r
+  .dsh-mail .dm-calendar .fc-toolbar-title{font-size:17px}\r
+  .dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{gap:7px}\r
+  .dsh-mail .dm-calendar .fc-button{font-size:10px;padding:5px 7px}\r
+  .dsh-mail .dm-calendar .fc-col-header-cell-cushion{font-size:10px;padding:7px 2px}\r
+  .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}\r
+}\r
+@media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}\r
+\r
+.dsh-mail [data-agent-selected="true"] { outline: 2px solid var(--dm-primary, #2563eb); outline-offset: -2px; }\r
+\r
+.dsh-mail .dm-conversation{margin:0 22px 12px;padding:10px 12px;border:1px solid var(--dm-border);border-radius:8px;background:var(--dm-soft);font-size:12px}\r
+.dsh-mail .dm-conversation summary>span{margin-left:10px;color:var(--dm-muted);font-size:10px}\r
+.dsh-mail .dm-conversation-items{display:grid;gap:4px;max-height:180px;overflow:auto;margin-top:9px}\r
+.dsh-mail .dm-conversation-items>button{display:flex;justify-content:flex-start;gap:8px;text-align:left;padding:8px;font-size:11px;background:var(--dm-bg)}\r
+.dsh-mail .dm-conversation-items>button[aria-current]{background:var(--dm-selected);border-color:var(--dm-blue)}\r
+.dsh-mail .dm-conversation-sender{flex:0 1 110px;overflow:hidden;text-overflow:ellipsis}\r
+.dsh-mail .dm-conversation-subject{flex:1;overflow:hidden;text-overflow:ellipsis}\r
+.dsh-mail .dm-conversation time,.dsh-mail .dm-conversation small{flex:none;font-size:10px;color:var(--dm-muted)}\r
+@container (max-width:759px){\r
+  .dsh-mail .dm-conversation{margin-inline:14px}\r
+  .dsh-mail .dm-conversation summary>span{display:block;margin:4px 0 0}\r
+  .dsh-mail .dm-conversation-items>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}\r
+  .dsh-mail .dm-conversation-subject{grid-row:2;grid-column:1 / -1}\r
+  .dsh-mail .dm-conversation time{grid-row:1;grid-column:2}\r
+  .dsh-mail .dm-conversation small{grid-row:3;grid-column:1 / -1}\r
+}\r
+\r
+.dsh-mail .dm-addresses{display:inline;overflow-wrap:anywhere}\r
+.dsh-mail button.dm-person{display:inline;border:0;background:transparent;color:var(--dm-blue);padding:1px 3px;font:inherit;text-align:left;overflow-wrap:anywhere;white-space:normal}\r
+.dsh-mail button.dm-person:hover{text-decoration:underline;background:var(--dm-soft)}\r
+.dsh-mail .dm-address-line{line-height:1.6}\r
+.dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}\r
+.dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}\r
+.dsh-mail .dm-person-card .dm-form{padding:16px 0 0}\r
+.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}\r
+.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}\r
+.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}\r
+.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}\r
+.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}\r
+.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}\r
+.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}\r
+.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}\r
+.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}\r
+.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}\r
+.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}\r
+.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}\r
+.dsh-mail .dm-ai-actions small{font-size:11px}\r
+@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}\r
+.dsh-mail .dm-reader-sticky{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;background:var(--dm-bg);border-bottom:1px solid var(--dm-border);max-height:42vh;overflow:visible;box-shadow:0 3px 8px #00000008;scrollbar-width:thin}\r
+.dsh-mail .dm-reader-sticky .dm-reader-toolbar{position:static;min-height:40px;padding-block:6px}\r
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:8px 20px 10px;overflow:auto;min-height:0;flex:1 1 auto}\r
+.dsh-mail .dm-reader-sticky .dm-reader-title{margin:4px 0 8px}\r
+.dsh-mail .dm-reader-sticky h2{font-size:19px;overflow-wrap:anywhere}\r
+.dsh-mail .dm-reader-sticky .dm-section-label{margin:0;font-size:10px}\r
+.dsh-mail .dm-reader-sticky .dm-address-line{max-height:4.5em;overflow:auto;overflow-wrap:anywhere}\r
+.dsh-mail .dm-reader>.dm-reader-tags{padding:10px 20px;margin:0;border-bottom:1px solid var(--dm-border)}\r
+.dsh-mail .dm-ai-button{color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary));background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));border-color:color-mix(in srgb,#8b5cf6 48%,var(--dm-border));font-weight:600}\r
+.dsh-mail .dm-ai-button:hover{background:color-mix(in srgb,#8b5cf6 22%,var(--dm-bg))}\r
+.dsh-mail .dm-ai-button:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}\r
+.dsh-mail .dm-ai-panel{border-color:color-mix(in srgb,#8b5cf6 35%,var(--dm-border));background:color-mix(in srgb,#8b5cf6 4%,var(--dm-bg))}\r
+.dsh-mail .dm-ai-panel .dm-ai-edit{min-height:180px;max-height:none;font:inherit;line-height:1.8;padding:14px;background:var(--dm-bg)}\r
+.dsh-mail .dm-body-label{color:var(--dm-muted);font-size:11px;letter-spacing:.05em;margin:4px 0 12px}\r
+.dsh-mail .dm-quoted{margin:18px 0;border:1px solid var(--dm-border);border-left:3px solid #8e95a6;border-radius:5px;background:var(--dm-soft);min-width:0}\r
+.dsh-mail .dm-composer>.dm-quoted{margin:8px 18px 18px}\r
+.dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}\r
+.dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}\r
+.dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}\r
+.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}\r
+.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}\r
+.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}\r
+.dsh-mail .dm-quoted-message>summary::before{content:"\u25B8"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"\u25BE"}\r
+.dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}\r
+.dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}\r
+.dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}\r
+@container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}\r
+\r
+/* Compact composer keeps the action dock outside the scrolling content. */\r
+.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}\r
+.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}\r
+.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}\r
+.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}\r
+.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}\r
+.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}\r
+.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}\r
+.dsh-mail .dm-compose-scroll>*{flex-shrink:0}\r
+.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}\r
+.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}\r
+.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}\r
+.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}\r
+.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}\r
+.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}\r
+.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}\r
+.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}\r
+.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}\r
+.dsh-mail .dm-compose-people summary{cursor:pointer}\r
+.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}\r
+.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}\r
+.dsh-mail .dm-editor-toolbar{align-items:center}\r
+.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}\r
+.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}\r
+.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}\r
+.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}\r
+.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}\r
+.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}\r
+.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}\r
+.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}\r
+.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}\r
+.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}\r
+.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}\r
+.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}\r
+.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}\r
+.dsh-mail .dm-format-insert select{width:100%}\r
+.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}\r
+.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}\r
+.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}\r
+.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}\r
+.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}\r
+.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}\r
+.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}\r
+.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}\r
+.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}\r
+.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}\r
+.dsh-mail .dm-compose-options{position:static}\r
+.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}\r
+.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}\r
+.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}\r
+.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}\r
+.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}\r
+.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}\r
+.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}\r
+.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}\r
+@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}\r
+\r
+.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}\r
+.dm-app>.dsh-mail{flex:1;min-width:0}\r
+.dm-agent-panel{box-sizing:border-box;position:relative;flex:0 0 var(--dm-assistant-width,390px);min-width:0;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}\r
+.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}\r
+.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}\r
+.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}\r
+.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}\r
+.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}\r
+.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
+.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}\r
+.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}\r
+@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:var(--dm-assistant-width,390px);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}\r
+/* Mailbird-inspired quiet chrome and a readable message surface. */\r
+.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}\r
+.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}\r
+.dsh-mail .dm-reader-person>div{flex:1;min-width:0}\r
+.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}\r
+.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}\r
+.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}\r
+.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}\r
+.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}\r
+.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}\r
+.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}\r
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}\r
+.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}\r
+.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}\r
+.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}\r
+.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}\r
+.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}\r
+.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}\r
+.dsh-mail .dm-mail-body{padding:18px 24px}\r
+.dsh-mail .dm-reader .dm-body-label{display:none}\r
+.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}\r
+@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}\r
+\r
+/* Reading actions share the subject row; wrap according to the reading pane. */\r
+.dsh-mail .dm-detail-pane{container:dm-reader / inline-size}\r
+.dsh-mail .dm-reader-sticky{max-height:none}\r
+.dsh-mail .dm-reader-sticky .dm-reader-heading{overflow:visible;flex:none}\r
+.dsh-mail .dm-reader-topline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start}\r
+.dsh-mail .dm-reader-topline>button{padding:6px 4px;border-color:transparent;background:transparent}\r
+.dsh-mail .dm-reader-sticky .dm-reader-title{min-width:0;margin:0;gap:7px}\r
+.dsh-mail .dm-reader-title h2{max-height:4.35em;overflow:auto;scrollbar-width:thin}\r
+.dsh-mail .dm-reader-actions{display:flex;align-items:center;justify-content:flex-end;gap:3px;flex-wrap:wrap;min-width:0}\r
+.dsh-mail .dm-reader-actions>button{font-size:11px;padding:5px 7px;border-color:transparent;background:transparent}\r
+.dsh-mail .dm-reader-actions .dm-reader-more{margin-left:0}\r
+.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100cqw - 28px);max-height:min(60vh,440px);overflow:auto}\r
+@container dm-reader (max-width:700px){.dsh-mail .dm-reader-topline{grid-template-columns:auto minmax(0,1fr);gap:7px}.dsh-mail .dm-reader-actions{grid-column:1/-1}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-reader-actions>button{padding:5px 6px}}\r
+/* The right pane uses the same captured-pointer divider as the mail list. */\r
+.dm-agent-panel>.dm-agent-divider{position:absolute;inset:0 auto 0 -3px;width:6px;z-index:2;cursor:col-resize;touch-action:none;outline-offset:-2px}\r
+.dm-agent-panel>.dm-agent-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dsw-alias-border-l2)}\r
+.dm-agent-panel>.dm-agent-divider:hover::after,.dm-agent-panel>.dm-agent-divider:focus-visible::after,.dm-app.dm-resizing .dm-agent-divider::after{background:var(--dsw-alias-brand-primary,#2563eb)}\r
+.dm-agent-panel>.dm-agent-divider:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563eb)}\r
+.dm-app.dm-resizing,.dm-app.dm-resizing *{cursor:col-resize!important;user-select:none!important}\r
+.dm-app.dm-resizing iframe{pointer-events:none}\r
 \r
 /* Quiet workspace chrome, with one explicit presentation control. */\r
 .dsh-mail .dm-workspace-header{min-height:64px;padding:12px 20px;gap:12px;border-bottom-color:color-mix(in srgb,var(--dm-border) 80%,transparent)}\r
@@ -46468,6 +46470,151 @@ var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:va
 .dm-agent-header-actions>button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;padding:6px;background:transparent;color:inherit}\r
 .dm-agent-header-actions>button:hover{background:var(--dsw-alias-bg-layer-2)}\r
 .dm-agent-header-actions>.dm-presentation-toggle[aria-pressed=true]{color:var(--dsw-alias-brand-primary,#2563eb)}\r
+/* Experience settings are scoped to the Mail surface, including its embedded Agent. */\r
+.dm-app{--dm-brand:#2563eb;--dm-ui-size:14px;--dm-row-space:14px;--dm-reading-size:14px;--dm-ai-color:#7c3aed}\r
+.dm-app .dsh-mail{--dm-accent:var(--dm-brand);--dm-blue:color-mix(in srgb,var(--dm-brand) 80%,var(--dsw-alias-label-primary));--dm-selected:color-mix(in srgb,var(--dm-brand) 11%,var(--dm-bg));font-size:var(--dm-ui-size)}\r
+.dm-app .dsh-mail :is(button,input,textarea,select,.dm-field>span,.dm-setting-switch){font-size:calc(var(--dm-ui-size) - 2px)}\r
+.dm-app[data-density=compact] :is(.dm-contact,.dm-account-card,.dm-settings-card){padding:15px}\r
+.dm-app[data-density=compact] .dm-task-row{padding-block:9px}\r
+.dm-app[data-density=comfortable] :is(.dm-contact,.dm-account-card,.dm-settings-card){padding:26px}\r
+.dm-app[data-density=comfortable] .dm-task-row{padding-block:20px}\r
+.dm-app .dsh-mail .primary,.dm-app .dm-rail-brand{background:var(--dm-brand);border-color:var(--dm-brand)}\r
+.dm-app .dsh-mail button:focus-visible,.dm-app .dsh-mail input:focus-visible,.dm-app .dsh-mail select:focus-visible{outline:2px solid var(--dm-brand);outline-offset:3px}\r
+.dm-app .dm-workspace-header{background:linear-gradient(110deg,color-mix(in srgb,var(--dm-brand) 4%,var(--dm-bg)),var(--dm-bg) 70%)}\r
+.dm-app .dsh-mail .dm-rail{background:linear-gradient(180deg,color-mix(in srgb,var(--dm-brand) 5%,var(--dm-bg)),var(--dm-soft));border-right:1px solid var(--dm-border)}\r
+.dm-app .dm-rail button[aria-current=page]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-brand)}\r
+.dm-app .dsh-mail .dm-message-row{padding-block:var(--dm-row-space);border-bottom-color:color-mix(in srgb,var(--dm-border) 65%,transparent)}\r
+.dm-app .dsh-mail .dm-message h3{font-size:var(--dm-ui-size);font-weight:550;line-height:1.55}\r
+.dm-app .dsh-mail .dm-message-top strong{font-size:calc(var(--dm-ui-size) - 1px)}\r
+.dm-app .dsh-mail .dm-message p{font-size:calc(var(--dm-ui-size) - 2px);line-height:1.6}\r
+.dm-app .dsh-mail .dm-message-row.unread h3{font-weight:700}\r
+.dm-app .dsh-mail .dm-message-row.selected{background:var(--dm-selected);box-shadow:inset 3px 0 var(--dm-brand)}\r
+.dm-app .dm-message-list[data-avatars=false] .dm-sender-avatar{display:none}\r
+.dm-app .dm-message-list[data-snippet="0"] .dm-message p{display:none}\r
+.dm-app .dm-message-list[data-snippet="2"] .dm-message p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden}\r
+.dm-app .dm-reader-heading{background:linear-gradient(115deg,color-mix(in srgb,var(--dm-brand) 3%,var(--dm-bg)),var(--dm-bg))}\r
+.dm-app .dm-reader-title h2{font-size:calc(var(--dm-ui-size) + 5px);line-height:1.5}\r
+.dm-app .dm-reader-person .dm-sender-avatar{box-shadow:0 0 0 4px var(--dm-bg)}\r
+.dm-app .dm-mail-body pre,.dm-app .dm-plain-mail{font-size:var(--dm-reading-size)}\r
+.dm-app .dm-attachment-card{border-radius:12px;background:var(--dm-soft);transition:background .15s,border-color .15s}\r
+.dm-app .dm-conversation-items{border-left:2px solid var(--dm-border);margin-left:16px;padding-left:12px}\r
+.dm-app .dm-conversation-items>button{position:relative}\r
+.dm-app .dm-conversation-items>button::before{content:"";position:absolute;width:7px;height:7px;left:-17px;top:18px;background:var(--dm-brand);border-radius:50%;box-shadow:0 0 0 3px var(--dm-bg)}\r
+.dm-app .dm-heading-icon{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;color:var(--dm-blue);background:var(--dm-selected)}\r
+.dm-app .dm-page-heading{align-items:center;justify-content:flex-start;gap:14px}\r
+.dm-app .dm-page-heading>div:not(.dm-heading-icon){flex:1}\r
+.dm-app .dm-page-heading h2{font-size:calc(var(--dm-ui-size) + 9px);letter-spacing:-.03em}\r
+.dm-app .dm-status-pill{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:500;background:var(--dm-selected);color:var(--dm-blue);overflow-wrap:anywhere}\r
+.dm-app .dm-status-pill.is-error{color:#b42335;background:color-mix(in srgb,#e35d6a 12%,var(--dm-bg))}\r
+.dm-app .dm-task-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 22px}\r
+.dm-app .dm-task-stats>div{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--dm-border);border-radius:14px;background:var(--dm-bg)}\r
+.dm-app .dm-task-stats strong{display:block;font-size:25px;font-weight:650;line-height:1.2;margin-bottom:4px}\r
+.dm-app .dm-task-stats span{font-size:12px;color:var(--dm-muted)}\r
+.dm-app .dm-task-stats .dm-completion-stat svg{width:44px;flex:none}\r
+.dm-app .dm-task-row{margin-bottom:8px;border:1px solid var(--dm-border);border-radius:12px;padding:14px 16px;background:var(--dm-bg)}\r
+.dm-app .dm-task-row.is-overdue{border-left:3px solid #e65d6b}\r
+.dm-app .dm-task-row.is-done .dm-task-title strong{text-decoration:line-through;color:var(--dm-muted)}\r
+.dm-app .dm-contact{background:var(--dm-bg);border-radius:15px;padding:18px;box-shadow:0 3px 12px #00000004;align-items:flex-start}\r
+.dm-app .dm-contact>.dm-avatar{background:color-mix(in srgb,var(--avatar-color,var(--dm-brand)) 16%,var(--dm-bg));color:var(--dm-text);border-radius:12px;width:44px;height:44px;font-size:18px}\r
+.dm-app .dm-contact footer{display:flex;gap:8px;flex-basis:100%;border-top:1px solid var(--dm-border);padding-top:12px;margin-top:6px}\r
+.dm-app .dm-rule-row{border:1px solid var(--dm-border);border-radius:14px;margin-bottom:12px;padding:18px;background:var(--dm-bg)}\r
+.dm-app .dm-rule-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-block:9px}\r
+.dm-app .dm-overview{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:32px 24px;text-align:center;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--dm-brand) 4%,transparent),transparent 70%)}\r
+.dm-app .dm-overview-art{width:min(240px,60%);margin-bottom:12px}\r
+.dm-app .dm-overview h2{font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;margin:10px 0}\r
+.dm-app .dm-overview p{font-size:13px;line-height:1.8;max-width:360px}\r
+.dm-app .dm-overview-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:min(440px,100%);margin:26px 0}\r
+.dm-app .dm-overview-stats>button{display:flex;flex-direction:column;align-items:center;gap:9px;border:1px solid var(--dm-border);background:var(--dm-bg);border-radius:14px;padding:18px 8px;color:var(--dm-blue);box-shadow:0 4px 20px #00000004}\r
+.dm-app .dm-overview-stats strong{font-size:25px;color:var(--dm-text)}\r
+.dm-app .dm-overview-stats span{font-size:11px;color:var(--dm-muted)}\r
+.dm-app .dm-overview-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}\r
+.dm-app .dm-settings-center{background:var(--dm-soft)}\r
+.dm-app .dm-settings-center .dm-settings-nav{background:var(--dm-bg);padding:20px 12px;gap:5px}\r
+.dm-app .dm-settings-title{display:flex;flex-direction:column;gap:7px;padding:6px 10px 18px}\r
+.dm-app .dm-settings-title strong{font-size:20px;letter-spacing:-.03em}\r
+.dm-app .dm-settings-search{display:flex;align-items:center;gap:7px;margin:0 2px 15px;padding:9px;background:var(--dm-soft);border:1px solid var(--dm-border);border-radius:9px}\r
+.dm-app .dm-settings-search input{width:100%;min-width:0;border:0;background:transparent;padding:0;font-size:12px}\r
+.dm-app .dm-settings-nav>button{min-height:42px;border-radius:9px;text-align:left;gap:9px;white-space:normal}\r
+.dm-app .dm-settings-nav>button>span{flex:1}\r
+.dm-app .dm-settings-nav>button[aria-current=page]{color:var(--dm-blue);background:var(--dm-selected)}\r
+.dm-app .dm-settings-version{margin-top:auto;padding:18px 10px;color:var(--dm-muted);font-size:10px}\r
+.dm-app .dm-settings-main{padding:28px;max-width:none}\r
+.dm-app .dm-settings-main>.dm-page-heading{max-width:1050px}\r
+.dm-app .dm-settings-main>.dm-settings-card,.dm-app .dm-settings-main>.dm-settings-group,.dm-app .dm-settings-main>.dm-account-grid{max-width:1050px}\r
+.dm-app .dm-settings-card{border-radius:15px;padding:24px;background:var(--dm-bg);box-shadow:0 3px 16px #00000003}\r
+.dm-app .dm-preferences{gap:22px}\r
+.dm-app .dm-preferences .dm-form-grid{gap:20px 26px}\r
+.dm-app .dm-setting-switch{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:40px;font-size:13px}\r
+.dm-app .dm-setting-switch input{appearance:none;flex:none;width:34px;height:20px;border:1px solid var(--dm-border);background:var(--dm-border);border-radius:20px;position:relative;cursor:pointer;transition:background .15s}\r
+.dm-app .dm-setting-switch input::after{content:"";position:absolute;width:14px;height:14px;left:2px;top:2px;background:#fff;border-radius:50%;box-shadow:0 1px 3px #0003;transition:transform .15s}\r
+.dm-app .dm-setting-switch input:checked{background:var(--dm-brand);border-color:var(--dm-brand)}\r
+.dm-app .dm-setting-switch input:checked::after{transform:translateX(14px)}\r
+.dm-app .dm-accent-picker{display:flex;align-items:center;gap:10px;border:0;min-width:0;padding:0;margin:0}\r
+.dm-app .dm-accent-picker legend{font-size:12px;margin-bottom:8px}\r
+.dm-app .dm-accent-picker button{display:grid;place-items:center;width:28px;height:28px;min-width:28px;padding:0;border:0;border-radius:50%;color:#fff;box-shadow:0 0 0 2px var(--dm-bg)}\r
+.dm-app .dm-accent-picker button[aria-pressed=true]{outline:2px solid var(--dm-brand);outline-offset:3px}\r
+.dm-app .dm-appearance-preview{border:1px solid var(--dm-border);border-radius:13px;display:flex;gap:20px;background:var(--dm-soft);overflow:hidden;min-height:160px;align-items:center}\r
+.dm-app .dm-preview-rail{display:flex;flex-direction:column;gap:23px;align-self:stretch;justify-content:center;padding:18px;background:var(--dm-selected);color:var(--dm-blue)}\r
+.dm-app .dm-appearance-preview>div:last-child{padding:15px 15px 15px 0}\r
+.dm-app .dm-appearance-preview h3{margin:10px 0;font-size:17px}\r
+.dm-app .dm-appearance-preview p{font-size:12px;color:var(--dm-muted);margin-bottom:15px}\r
+.dm-app .dm-preview-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--dm-bg);border-radius:7px;font-size:11px;color:var(--dm-blue)}\r
+.dm-app .dm-settings-save{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-top:20px;border-top:1px solid var(--dm-border)}\r
+.dm-app .dm-settings-save>span{font-size:11px;margin-left:auto}\r
+.dm-app .dm-settings-hint{display:flex;gap:10px;padding:15px;border-radius:10px;background:var(--dm-selected);color:var(--dm-muted);font-size:12px;line-height:1.8}\r
+.dm-app .dm-settings-hint svg{flex:none;margin-top:2px}\r
+.dm-app .dm-account-grid{display:grid;gap:14px;margin:16px 0}\r
+.dm-app .dm-account-card{padding:20px;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:14px}\r
+.dm-app .dm-account-card header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}\r
+.dm-app .dm-account-card header>div{flex:1;min-width:120px;overflow-wrap:anywhere}\r
+.dm-app .dm-account-card header p{font-size:12px;color:var(--dm-muted);margin-top:4px}\r
+.dm-app .dm-account-card dl{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;margin-bottom:16px}\r
+.dm-app .dm-account-card dt{color:var(--dm-muted);margin-bottom:5px}\r
+.dm-app .dm-account-card dd{margin:0}\r
+.dm-app .dm-account-card footer{display:flex;gap:7px;flex-wrap:wrap;border-top:1px solid var(--dm-border);padding-top:16px;margin-top:16px}\r
+.dm-app .dm-resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}\r
+.dm-app .dm-resource-card{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:18px;border-radius:12px;background:var(--dm-bg);white-space:normal;text-align:left}\r
+.dm-app .dm-resource-card>svg{color:var(--dm-blue)}\r
+.dm-app .dm-resource-card p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:var(--dm-muted);line-height:1.7}\r
+.dm-app .dm-resource-card>span{display:flex;align-items:center;font-size:11px;color:var(--dm-blue)}\r
+.dm-app .dm-storage-total{display:block;font-size:30px;margin:16px 0}\r
+.dm-app .dm-storage-bar{display:flex;height:14px;gap:3px;border-radius:10px;overflow:hidden;background:var(--dm-soft)}\r
+.dm-app .dm-storage-legend{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 26px}\r
+.dm-app .dm-storage-legend>span{font-size:11px;display:flex;align-items:center;gap:6px}\r
+.dm-app .dm-storage-legend i{width:8px;height:8px;border-radius:50%}\r
+.dm-app .dm-cleanup-list{max-height:240px;overflow:auto;margin:12px 0}\r
+.dm-app .dm-cleanup-list label{display:flex;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid var(--dm-border);font-size:12px}\r
+.dm-app .dm-cleanup-list label>span{flex:1;overflow-wrap:anywhere}\r
+.dm-app .dm-cleanup-confirm{background:var(--dm-selected);border:1px solid var(--dm-border);padding:18px;margin-top:20px;border-radius:12px;overflow-wrap:anywhere}\r
+.dm-app .dm-cleanup-confirm ul{max-height:200px;overflow:auto;padding-left:20px}\r
+.dm-app .dm-cleanup-confirm button{margin-right:8px}\r
+.dm-app .dm-about-brand{display:flex;gap:18px;align-items:center;margin-bottom:25px}\r
+.dm-app .dm-about-brand>svg{color:var(--dm-blue)}\r
+.dm-app .dm-about-brand h3{font-size:20px}\r
+.dm-app .dm-about-brand p{font-size:12px;color:var(--dm-muted);margin-top:6px}\r
+.dm-app .dm-timing-list{margin:15px 0}\r
+.dm-app .dm-timing-list>div{display:flex;gap:15px;padding:9px 0;border-bottom:1px solid var(--dm-border);font-size:12px}\r
+.dm-app .dm-timing-list code{flex:1;overflow-wrap:anywhere}\r
+.dm-app progress{width:100%;height:7px;accent-color:var(--dm-brand);border:0;border-radius:10px;margin:12px 0}\r
+.dm-app .dm-tool-progress{padding:12px 15px;border:1px solid var(--dm-border);background:var(--dm-bg);border-radius:10px}\r
+.dm-app .dm-tool-progress>div{display:flex;align-items:center;gap:7px;font-size:11px;margin:7px 0}\r
+.dm-app .dm-tool-progress>div>span{flex:1;overflow-wrap:anywhere}\r
+.dm-app .dm-tool-progress svg{color:var(--dm-blue)}\r
+.dm-app .dm-skeleton{margin:15px;padding:25px 16px;border-radius:12px;min-height:120px;background:linear-gradient(100deg,var(--dm-soft),var(--dm-bg),var(--dm-soft));color:var(--dm-muted);font-size:12px}\r
+.dm-app[data-motion=off] *,.dm-app[data-motion=off] *::before,.dm-app[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}\r
+.dm-app .dm-resizing *{transition:none!important}\r
+@container(max-width:900px){.dm-app .dm-task-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dm-app .dm-settings-main{padding:20px}.dm-app .dm-settings-card{padding:18px}}\r
+@container(max-width:600px){.dm-app .dm-settings-center{display:flex;flex-direction:column}.dm-app .dm-settings-center .dm-settings-nav{flex:none;max-height:175px;width:100%;display:flex;flex-direction:row;flex-wrap:wrap;overflow:auto;padding:10px;border-right:0;border-bottom:1px solid var(--dm-border)}.dm-app .dm-settings-title,.dm-app .dm-settings-version{display:none}.dm-app .dm-settings-search{flex-basis:100%;margin:0 0 6px}.dm-app .dm-settings-nav>button{font-size:11px;min-height:32px;padding:6px 9px}.dm-app .dm-settings-nav>button>svg:last-child{display:none}.dm-app .dm-settings-main{min-height:0;flex:1;overflow:auto;padding:16px}.dm-app .dm-settings-main .dm-form-grid{grid-template-columns:1fr}.dm-app .dm-task-stats>div{padding:12px;gap:9px}.dm-app .dm-task-stats strong{font-size:20px}.dm-app .dm-overview{padding:20px 14px}.dm-app .dm-overview-stats{gap:7px}.dm-app .dm-settings-save>span{margin-left:0;flex-basis:100%}}\r
+\r
+.dm-app .dm-notification-counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}\r
+.dm-app .dm-notification-counts>div{display:grid;gap:7px;padding:14px;border:1px solid var(--dm-border);border-radius:12px;background:var(--dm-soft)}\r
+.dm-app .dm-notification-counts strong{font-size:24px}.dm-app .dm-notification-counts svg{color:var(--dm-blue)}\r
+.dm-app .dm-notification-counts small{color:var(--dm-muted);white-space:nowrap}\r
+.dm-app .dm-notification-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;margin:8px 0;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:10px}\r
+.dm-app .dm-notification-row>span{display:grid;gap:4px;flex:1;min-width:0}.dm-app .dm-notification-row strong,.dm-app .dm-notification-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
+.dm-app .dm-notification-row small{color:var(--dm-muted)}.dm-app .dm-notification-row>svg{color:var(--dm-blue);flex:none}\r
+.dm-app .dm-notification-history{border-top:1px solid var(--dm-border);padding-top:12px;margin-top:18px}.dm-app .dm-notification-history>summary{color:var(--dm-muted);cursor:pointer}\r
+@container(max-width:600px){.dm-app .dm-notification-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}\r
 `;
 
 // ui/event-color.mjs
@@ -46492,8 +46639,77 @@ function eventAppearance(event, calendars, options) {
 }
 
 // src/settings.mjs
-var DEFAULT_SETTINGS = { calendarTimeZone: "Asia/Hong_Kong", eventTimeZone: "Asia/Hong_Kong", calendarView: "dayGridMonth", firstDay: 1, defaultAccountId: "", syncIntervalMinutes: 2, markReadOnOpen: true, folderSort: "name-asc", loadRemoteImages: false, mailFolderWidth: 240, mailListWidth: 340, desktopNotifications: true };
+var DEFAULT_SETTINGS = {
+  calendarTimeZone: "Asia/Hong_Kong",
+  eventTimeZone: "Asia/Hong_Kong",
+  calendarView: "dayGridMonth",
+  firstDay: 1,
+  defaultAccountId: "",
+  syncIntervalMinutes: 2,
+  markReadOnOpen: true,
+  folderSort: "name-asc",
+  loadRemoteImages: false,
+  mailFolderWidth: 240,
+  mailListWidth: 340,
+  desktopNotifications: true,
+  theme: "host",
+  accent: "blue",
+  density: "standard",
+  interfaceSize: "standard",
+  motion: "auto",
+  showAvatars: true,
+  snippetLines: 1,
+  pageSize: 50,
+  groupThreads: false,
+  readingSize: 14,
+  markReadDelay: 0,
+  composeFormat: "rich",
+  expandRecipients: false,
+  notifyMail: true,
+  notifyCalendar: true,
+  notifyTasks: true,
+  notificationSound: true,
+  quietHours: false,
+  quietStart: "22:00",
+  quietEnd: "08:00",
+  eventReminder: 15,
+  taskPriority: "normal",
+  aiLanguage: "\u7B80\u4F53\u4E2D\u6587",
+  aiStyle: "professional",
+  rememberAssistant: false
+};
 var CALENDAR_VIEWS = [["dayGridMonth", "\u6708"], ["timeGridWeek", "\u5468"], ["timeGridDay", "\u65E5"], ["listWeek", "\u65E5\u7A0B"]];
+var ACCENTS = { blue: "#2563eb", violet: "#7c3aed", teal: "#0d9488", green: "#15803d", rose: "#be185d", orange: "#c2410c" };
+var SETTING_FIELDS = {
+  theme: ["\u4E3B\u9898", [["host", "\u8DDF\u968F\u5BBF\u4E3B"], ["light", "\u6D45\u8272"], ["dark", "\u6DF1\u8272"]]],
+  accent: ["\u5F3A\u8C03\u8272", [["blue", "\u6D77\u84DD"], ["violet", "\u7D2B\u7F57\u5170"], ["teal", "\u9752\u7EFF"], ["green", "\u68EE\u6797"], ["rose", "\u73AB\u7470"], ["orange", "\u6696\u6A59"]]],
+  density: ["\u754C\u9762\u5BC6\u5EA6", [["compact", "\u7D27\u51D1"], ["standard", "\u6807\u51C6"], ["comfortable", "\u5BBD\u677E"]]],
+  interfaceSize: ["\u754C\u9762\u5B57\u53F7", [["small", "\u5C0F"], ["standard", "\u6807\u51C6"], ["large", "\u5927"]]],
+  motion: ["\u52A8\u6001\u6548\u679C", [["auto", "\u81EA\u52A8 \xB7 \u9075\u5FAA\u7CFB\u7EDF\u8BBE\u7F6E"], ["off", "\u5173\u95ED"]]],
+  showAvatars: ["\u663E\u793A\u53D1\u4EF6\u4EBA\u5934\u50CF", "boolean"],
+  snippetLines: ["\u90AE\u4EF6\u6458\u8981", [[0, "\u4E0D\u663E\u793A"], [1, "1 \u884C"], [2, "2 \u884C"]]],
+  pageSize: ["\u6BCF\u9875\u90AE\u4EF6\u6570", [[25, "25 \u5C01"], [50, "50 \u5C01"], [100, "100 \u5C01"]]],
+  groupThreads: ["\u9ED8\u8BA4\u5408\u5E76\u5F53\u524D\u9875\u90AE\u4EF6\u5F80\u6765", "boolean"],
+  readingSize: ["\u9605\u8BFB\u5B57\u53F7", [[14, "14 px"], [16, "16 px"], [18, "18 px"], [20, "20 px"]]],
+  markReadOnOpen: ["\u6253\u5F00\u90AE\u4EF6\u65F6\u81EA\u52A8\u6807\u4E3A\u5DF2\u8BFB", "boolean"],
+  markReadDelay: ["\u81EA\u52A8\u5DF2\u8BFB\u5EF6\u8FDF", [[0, "\u7ACB\u5373"], [1, "1 \u79D2"], [3, "3 \u79D2"], [5, "5 \u79D2"]]],
+  loadRemoteImages: ["\u9ED8\u8BA4\u52A0\u8F7D\u5916\u90E8\u56FE\u7247\uFF08HTTPS\uFF09", "boolean"],
+  composeFormat: ["\u65B0\u8349\u7A3F\u9ED8\u8BA4\u683C\u5F0F", [["rich", "\u5BCC\u6587\u672C"], ["plain", "\u7EAF\u6587\u672C"]]],
+  expandRecipients: ["\u9ED8\u8BA4\u5C55\u5F00\u6284\u9001\u548C\u5BC6\u9001", "boolean"],
+  desktopNotifications: ["\u542F\u7528 Windows \u7CFB\u7EDF\u901A\u77E5", "boolean"],
+  notifyMail: ["\u65B0\u90AE\u4EF6\u901A\u77E5", "boolean"],
+  notifyCalendar: ["\u65E5\u5386\u63D0\u9192", "boolean"],
+  notifyTasks: ["\u5F85\u529E\u4E0E\u8DDF\u8FDB\u63D0\u9192", "boolean"],
+  notificationSound: ["\u64AD\u653E\u7CFB\u7EDF\u901A\u77E5\u58F0\u97F3", "boolean"],
+  quietHours: ["\u542F\u7528\u514D\u6253\u6270\u65F6\u6BB5", "boolean"],
+  quietStart: ["\u514D\u6253\u6270\u5F00\u59CB", "time"],
+  quietEnd: ["\u514D\u6253\u6270\u7ED3\u675F", "time"],
+  eventReminder: ["\u65B0\u4E8B\u4EF6\u9ED8\u8BA4\u63D0\u9192", [[0, "\u5F00\u59CB\u65F6"], [5, "\u63D0\u524D 5 \u5206\u949F"], [15, "\u63D0\u524D 15 \u5206\u949F"], [30, "\u63D0\u524D 30 \u5206\u949F"], [60, "\u63D0\u524D 1 \u5C0F\u65F6"]]],
+  taskPriority: ["\u65B0\u5F85\u529E\u9ED8\u8BA4\u4F18\u5148\u7EA7", [["normal", "\u666E\u901A"], ["high", "\u9AD8"], ["low", "\u4F4E"]]],
+  aiLanguage: ["\u9ED8\u8BA4\u7FFB\u8BD1\u8BED\u8A00", "language"],
+  aiStyle: ["\u9ED8\u8BA4\u56DE\u590D\u98CE\u683C", [["professional", "\u81EA\u7136\u4E13\u4E1A"], ["concise", "\u7B80\u6D01\u76F4\u63A5"], ["friendly", "\u53CB\u597D\u4EB2\u5207"], ["formal", "\u6B63\u5F0F\u793C\u8C8C"]]],
+  rememberAssistant: ["\u8BB0\u4F4F\u90AE\u7BB1\u52A9\u624B\u5C55\u5F00\u72B6\u6001", "boolean"]
+};
 function preferredAccount(accounts, settings) {
   const available = accounts.filter((a3) => a3.enabled && !a3.local && !a3.deleted);
   return available.find((a3) => a3.id === settings.defaultAccountId) || available[0];
@@ -46538,6 +46754,10 @@ function senderAppearance(message) {
 // ui/icons.jsx
 var import_react = __toESM(require("react"), 1);
 var paths = {
+  palette: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-4c-1-1 0-3 2-3h2a3 3 0 0 0 3-3 9 9 0 0 0-9-8Z" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "7", cy: "10", r: ".7" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "11", cy: "7", r: ".7" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "16", cy: "8", r: ".7" })),
+  activity: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 12h4l3-8 4 16 3-8h4" })),
+  check: /* @__PURE__ */ import_react.default.createElement("path", { d: "m5 12 4 4L19 6" }),
+  filter: /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 5h18l-7 8v6l-4 2v-8Z" }),
   mail: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3", y: "5", width: "18", height: "14", rx: "3" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m3 7 9 6 9-6" })),
   inbox: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m5 4-3 9v7h20v-7l-3-9Z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M2 13h6l2 3h4l2-3h6" })),
   sent: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m22 2-7 20-4-9-9-4Z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m11 13 5-5" })),
@@ -46586,6 +46806,199 @@ var paths = {
 };
 function Icon({ name, size = 18 }) {
   return /* @__PURE__ */ import_react.default.createElement("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.7", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true", focusable: "false" }, paths[name] || paths.folder);
+}
+
+// ui/settings-center.jsx
+var import_react2 = __toESM(require("react"), 1);
+var groups = [
+  ["\u90AE\u7BB1\u8D26\u53F7", "mail", "\u8FDE\u63A5\u72B6\u6001\u4E0E\u81EA\u52A8\u540C\u6B65", ["defaultAccountId", "syncIntervalMinutes"]],
+  ["\u5916\u89C2\u4E0E\u52A8\u6548", "palette", "\u8BA9\u5DE5\u4F5C\u53F0\u9002\u5408\u4F60\u7684\u4E60\u60EF", ["theme", "accent", "density", "interfaceSize", "motion"]],
+  ["\u90AE\u4EF6\u4E0E\u9605\u8BFB", "read", "\u5217\u8868\u3001\u9605\u8BFB\u4E0E\u56FE\u7247", ["showAvatars", "snippetLines", "pageSize", "groupThreads", "readingSize", "markReadOnOpen", "markReadDelay", "loadRemoteImages"]],
+  ["\u5199\u4FE1\u3001\u7B7E\u540D\u4E0E\u6A21\u677F", "draft", "\u5199\u4FE1\u65B9\u5F0F\u4E0E\u5E38\u7528\u5185\u5BB9", ["composeFormat", "expandRecipients"]],
+  ["\u901A\u77E5", "bell", "\u63D0\u9192\u3001\u58F0\u97F3\u4E0E\u514D\u6253\u6270", ["desktopNotifications", "notifyMail", "notifyCalendar", "notifyTasks", "notificationSound", "quietHours", "quietStart", "quietEnd"]],
+  ["\u65E5\u5386\u4E0E\u5F85\u529E", "calendar", "\u65F6\u533A\u3001\u89C6\u56FE\u4E0E\u9ED8\u8BA4\u63D0\u9192", ["calendarTimeZone", "eventTimeZone", "calendarView", "firstDay", "eventReminder", "taskPriority"]],
+  ["AI \u52A9\u624B", "sparkle", "\u5FEB\u6377\u529F\u80FD\u4E0E\u5171\u540C\u4F1A\u8BDD", ["aiLanguage", "aiStyle", "rememberAssistant"]],
+  ["\u5B58\u50A8\u4E0E\u5907\u4EFD", "archive", "\u5360\u7528\u3001\u4E34\u65F6\u6587\u4EF6\u4E0E\u6570\u636E\u8FC1\u79FB", []],
+  ["\u8BCA\u65AD\u4E0E\u5173\u4E8E", "activity", "\u8FD0\u884C\u72B6\u6001\u4E0E\u8131\u654F\u8BCA\u65AD", []]
+];
+var formatBytes = (n3) => n3 < 1024 ? `${n3} B` : n3 < 1048576 ? `${(n3 / 1024).toFixed(1)} KB` : `${(n3 / 1048576).toFixed(1)} MB`;
+var timestamp = (value) => value ? new Date(value).toLocaleString("zh-CN") : "\u5C1A\u672A\u540C\u6B65";
+function SettingsCenter() {
+  const { state, settingsSection, setSettingsSection } = useMail(), [search, setSearch] = (0, import_react2.useState)("");
+  const selected = groups.find((g4) => g4[0] === settingsSection) || groups[0];
+  const matches2 = groups.filter(([name, , description, keys2]) => `${name} ${description} ${keys2.map((key) => SETTING_FIELDS[key]?.[0] || key).join(" ")}`.toLowerCase().includes(search.trim().toLowerCase()));
+  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-layout dm-settings-center" }, /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-settings-nav", "aria-label": "\u8BBE\u7F6E\u5206\u7C7B" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-settings-title" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "\u4E2A\u6027\u5316\u5DE5\u4F5C\u53F0"), /* @__PURE__ */ import_react2.default.createElement("strong", null, "\u8BBE\u7F6E\u4E2D\u5FC3")), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-settings-search" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "search", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u641C\u7D22\u8BBE\u7F6E", value: search, onChange: (e3) => setSearch(e3.target.value), placeholder: "\u67E5\u627E\u8BBE\u7F6E\u2026" })), matches2.map(([name, icon]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-current": selected[0] === name ? "page" : void 0, onClick: () => setSettingsSection(name) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 18 }), /* @__PURE__ */ import_react2.default.createElement("span", null, name), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 12 }))), !matches2.length && /* @__PURE__ */ import_react2.default.createElement("p", { role: "status", className: "dm-muted" }, "\u6CA1\u6709\u5339\u914D\u7684\u8BBE\u7F6E"), /* @__PURE__ */ import_react2.default.createElement("small", { className: "dm-settings-version" }, "DSH Mail ", state.version)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-settings-main" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-heading-icon" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: selected[1], size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, selected[0]), /* @__PURE__ */ import_react2.default.createElement("p", null, selected[2]))), /* @__PURE__ */ import_react2.default.createElement(PreferenceSection, { key: selected[0], group: selected }), selected[0] === "\u90AE\u7BB1\u8D26\u53F7" && /* @__PURE__ */ import_react2.default.createElement(Accounts, null), selected[0] === "\u5199\u4FE1\u3001\u7B7E\u540D\u4E0E\u6A21\u677F" && /* @__PURE__ */ import_react2.default.createElement(WritingResources, null), selected[0] === "\u5B58\u50A8\u4E0E\u5907\u4EFD" && /* @__PURE__ */ import_react2.default.createElement(Storage, null), selected[0] === "\u8BCA\u65AD\u4E0E\u5173\u4E8E" && /* @__PURE__ */ import_react2.default.createElement(Diagnostics, null)));
+}
+function PreferenceSection({ group: [name, , , keys2] }) {
+  const { state, act, setAppearancePreview } = useMail(), [form, setForm] = (0, import_react2.useState)({ ...DEFAULT_SETTINGS, ...state.settings }), [saving, setSaving] = (0, import_react2.useState)(false), [message, setMessage] = (0, import_react2.useState)(""), [error, setError] = (0, import_react2.useState)("");
+  const saved = { ...DEFAULT_SETTINGS, ...state.settings }, dirty = keys2.some((key) => form[key] !== saved[key]);
+  (0, import_react2.useEffect)(() => () => setAppearancePreview(null), []);
+  if (!keys2.length) return null;
+  const change = (key, value) => {
+    const next = { ...form, [key]: value };
+    setForm(next);
+    setMessage("");
+    if (name === "\u5916\u89C2\u4E0E\u52A8\u6548") setAppearancePreview(Object.fromEntries(keys2.map((k3) => [k3, next[k3]])));
+  };
+  const reset2 = (defaults2) => {
+    const next = { ...form, ...Object.fromEntries(keys2.map((key) => [key, defaults2[key]])) };
+    setForm(next);
+    if (name === "\u5916\u89C2\u4E0E\u52A8\u6548") setAppearancePreview(Object.fromEntries(keys2.map((k3) => [k3, next[k3]])));
+    setMessage("");
+  };
+  const field = (key) => {
+    if (["calendarTimeZone", "eventTimeZone"].includes(key)) return /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { key, label: key === "calendarTimeZone" ? "\u65E5\u5386\u663E\u793A\u4E0E\u514D\u6253\u6270\u65F6\u533A" : "\u65B0\u4E8B\u4EF6\u9ED8\u8BA4\u65F6\u533A", value: form[key], onChange: (v3) => change(key, v3) });
+    if (key === "defaultAccountId") return /* @__PURE__ */ import_react2.default.createElement(Field, { key, label: "\u9ED8\u8BA4\u53D1\u4EF6\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form[key], onChange: (e3) => change(key, e3.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u81EA\u52A8\u9009\u62E9\u5DF2\u542F\u7528\u90AE\u7BB1"), state.accounts.filter((a3) => !a3.local && a3.enabled).map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name, " \xB7 ", a3.email))));
+    if (key === "syncIntervalMinutes") return /* @__PURE__ */ import_react2.default.createElement(Field, { key, label: "\u5168\u5C40\u81EA\u52A8\u540C\u6B65\u95F4\u9694\uFF08\u5206\u949F\uFF09", type: "number", min: "1", max: "60", value: form[key], onChange: (e3) => change(key, Number(e3.target.value)) });
+    const [label, type] = key === "calendarView" ? ["\u9ED8\u8BA4\u65E5\u5386\u89C6\u56FE", CALENDAR_VIEWS] : key === "firstDay" ? ["\u6BCF\u5468\u8D77\u59CB\u65E5", ["\u661F\u671F\u65E5", "\u661F\u671F\u4E00", "\u661F\u671F\u4E8C", "\u661F\u671F\u4E09", "\u661F\u671F\u56DB", "\u661F\u671F\u4E94", "\u661F\u671F\u516D"].map((v3, i4) => [i4, v3])] : SETTING_FIELDS[key];
+    if (type === "boolean") return /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-setting-switch", key }, /* @__PURE__ */ import_react2.default.createElement("span", null, label), /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", role: "switch", checked: form[key], onChange: (e3) => change(key, e3.target.checked) }));
+    if (key === "accent") return /* @__PURE__ */ import_react2.default.createElement("fieldset", { className: "dm-accent-picker", key }, /* @__PURE__ */ import_react2.default.createElement("legend", null, label), type.map(([value, caption]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: value, title: caption, "aria-label": `\u5F3A\u8C03\u8272\uFF1A${caption}`, "aria-pressed": form[key] === value, style: { background: ACCENTS[value] }, onClick: () => change(key, value) }, form[key] === value && /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "check", size: 17 }))));
+    return /* @__PURE__ */ import_react2.default.createElement(Field, { key, label }, Array.isArray(type) ? /* @__PURE__ */ import_react2.default.createElement("select", { value: form[key], onChange: (e3) => change(key, typeof DEFAULT_SETTINGS[key] === "number" ? Number(e3.target.value) : e3.target.value) }, type.map(([value, caption]) => /* @__PURE__ */ import_react2.default.createElement("option", { key: value, value }, caption))) : /* @__PURE__ */ import_react2.default.createElement("input", { type: type === "time" ? "time" : "text", maxLength: 80, value: form[key], onChange: (e3) => change(key, e3.target.value) }));
+  };
+  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-settings-card dm-preferences", onSubmit: async (e3) => {
+    e3.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await act({ action: "settings.save", value: Object.fromEntries(keys2.map((key) => [key, form[key]])) });
+      setAppearancePreview(null);
+      setMessage("\u5DF2\u4FDD\u5B58\u5230\u672C\u673A");
+    } catch (e4) {
+      setError(e4.message);
+    } finally {
+      setSaving(false);
+    }
+  } }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, keys2.map(field)), name === "\u5916\u89C2\u4E0E\u52A8\u6548" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-appearance-preview" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-preview-rail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "inbox" }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar" }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task" })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-status-pill" }, "\u5B9E\u65F6\u9884\u89C8"), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u628A\u4ECA\u5929\u7684\u5DE5\u4F5C\u5B89\u6392\u597D"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6E05\u6670\u7684\u5C42\u6B21\uFF0C\u9002\u5408\u81EA\u5DF1\u7684\u9605\u8BFB\u8282\u594F\u3002"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-preview-chip" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 14 }), " \u90AE\u4EF6"), " ", /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-preview-chip dm-ai-button" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), " AI \u52A9\u624B"))), name === "AI \u52A9\u624B" && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-settings-hint" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 18 }), "\u5FEB\u6377 AI \u4E0E\u4FA7\u680F\u4F7F\u7528\u540C\u4E00\u4F1A\u8BDD\u3001\u6A21\u578B\u548C\u90AE\u4EF6\u5DE5\u5177\u3002\u53D1\u9001\u4E0E\u6C38\u4E45\u64CD\u4F5C\u4ECD\u9700\u4F60\u786E\u8BA4\uFF1B\u5355\u6B21\u8981\u6C42\u4F18\u5148\u4E8E\u9ED8\u8BA4\u98CE\u683C\u3002"), name === "\u90AE\u4EF6\u4E0E\u9605\u8BFB" && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u9605\u8BFB\u5B57\u53F7\u53EA\u8C03\u6574\u663E\u793A\uFF1BHTML \u539F\u6587\u7684\u989C\u8272\u4E0E\u6392\u7248\u4FDD\u7559\u3002\u8FDC\u7A0B\u56FE\u7247\u5F00\u542F\u540E\u4F1A\u8BF7\u6C42\u90AE\u4EF6\u4E2D\u7684 HTTPS \u56FE\u7247\u3002"), name === "\u901A\u77E5" && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u514D\u6253\u6270\u91C7\u7528\u65E5\u5386\u663E\u793A\u65F6\u533A\uFF1B\u671F\u95F4\u4ECD\u4FDD\u7559\u5E94\u7528\u5185\u63D0\u9192\uFF0C\u7ED3\u675F\u540E\u4E0D\u8865\u53D1\u65E7\u901A\u77E5\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: async () => {
+    try {
+      await act({ action: "notifications.test" });
+      setMessage("\u6D4B\u8BD5\u901A\u77E5\u5DF2\u63D0\u4EA4\uFF0C\u8BF7\u68C0\u67E5 Windows \u901A\u77E5\u4E2D\u5FC3\u3002");
+    } catch (e3) {
+      setError(e3.message);
+    }
+  } }, "\u6D4B\u8BD5\u7CFB\u7EDF\u901A\u77E5")), error && /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert", className: "dm-error-text" }, error), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-settings-save" }, /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit", className: "primary", disabled: !dirty || saving }, saving ? "\u6B63\u5728\u4FDD\u5B58\u2026" : "\u4FDD\u5B58\u8BBE\u7F6E"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !dirty || saving, onClick: () => reset2(saved) }, "\u53D6\u6D88\u4FEE\u6539"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: saving, onClick: () => reset2(DEFAULT_SETTINGS) }, "\u6062\u590D\u672C\u5206\u7C7B\u9ED8\u8BA4"), /* @__PURE__ */ import_react2.default.createElement("span", { role: "status", className: "dm-muted" }, message || (dirty ? "\u6709\u672A\u4FDD\u5B58\u7684\u4FEE\u6539" : "\u5DF2\u4FDD\u5B58"))));
+}
+function Accounts() {
+  const { state, setModal, act, run: run3 } = useMail();
+  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, "\u5DF2\u8FDE\u63A5\u7684\u90AE\u7BB1", /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "account" }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u6DFB\u52A0\u90AE\u7BB1")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-account-grid" }, state.accounts.filter((a3) => !a3.local).map((account) => /* @__PURE__ */ import_react2.default.createElement(AccountCard, { key: account.id, account }))), !state.accounts.some((a3) => !a3.local) && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-settings-hint" }, "\u8FDE\u63A5 IMAP \u90AE\u7BB1\u540E\uFF0C\u5728\u8FD9\u91CC\u7BA1\u7406\u540C\u6B65\u72B6\u6001\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u6682\u505C\u81EA\u52A8\u540C\u6B65\u4E0D\u5F71\u54CD\u624B\u52A8\u540C\u6B65\u3001\u9605\u8BFB\u548C\u53D1\u4FE1\u3002\u5DF2\u5F00\u59CB\u7684\u540C\u6B65\u4F1A\u5B8C\u6210\u5F53\u524D\u64CD\u4F5C\u3002DSH \u5B8C\u5168\u9000\u51FA\u540E\u540C\u6B65\u6682\u505C\u3002"));
+}
+function AccountCard({ account: a3 }) {
+  const { act, run: run3, setModal } = useMail(), [interval, setInterval2] = (0, import_react2.useState)(a3.syncIntervalMinutes || ""), [paused, setPaused] = (0, import_react2.useState)(!!a3.syncPaused), [saving, setSaving] = (0, import_react2.useState)(false), [message, setMessage] = (0, import_react2.useState)("");
+  (0, import_react2.useEffect)(() => {
+    setInterval2(a3.syncIntervalMinutes || "");
+    setPaused(!!a3.syncPaused);
+  }, [a3.syncIntervalMinutes, a3.syncPaused]);
+  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-account-card" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-avatar" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail" })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h3", null, a3.name), /* @__PURE__ */ import_react2.default.createElement("p", null, a3.email)), /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-status-pill ${a3.error ? "is-error" : ""}` }, a3.syncPaused ? "\u81EA\u52A8\u540C\u6B65\u5DF2\u6682\u505C" : { connected: "\u5DF2\u8FDE\u63A5", syncing: "\u540C\u6B65\u4E2D", error: "\u8FDE\u63A5\u5F02\u5E38" }[a3.status] || "\u7B49\u5F85\u540C\u6B65")), /* @__PURE__ */ import_react2.default.createElement("dl", null, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u6700\u8FD1\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement("dd", null, timestamp(a3.lastSyncedAt))), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u4E0B\u6B21\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement("dd", null, a3.syncPaused ? "\u5DF2\u6682\u505C" : timestamp(a3.nextSyncAt)))), a3.error && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-error-text" }, a3.error.message), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: `\u540C\u6B65\u95F4\u9694 ${a3.name}` }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "number", min: "1", max: "60", placeholder: "\u7EE7\u627F\u5168\u5C40", value: interval, onChange: (e3) => setInterval2(e3.target.value) })), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-setting-switch" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6682\u505C\u81EA\u52A8\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", role: "switch", checked: paused, onChange: (e3) => setPaused(e3.target.checked) }))), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: saving, onClick: () => run3(async () => {
+    setSaving(true);
+    try {
+      await act({ action: "accounts.sync-settings", id: a3.id, paused, interval: interval === "" ? null : Number(interval) });
+      setMessage("\u540C\u6B65\u8BBE\u7F6E\u5DF2\u4FDD\u5B58");
+    } finally {
+      setSaving(false);
+    }
+  }) }, "\u4FDD\u5B58\u540C\u6B65\u8BBE\u7F6E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "account", value: a3 }) }, "\u914D\u7F6E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+    await act({ action: "accounts.test", accountId: a3.id });
+    setMessage("\u8FDE\u63A5\u6D4B\u8BD5\u901A\u8FC7");
+  }) }, "\u6D4B\u8BD5\u8FDE\u63A5"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "sync", accountId: a3.id }, "\u5DF2\u5B89\u6392\u624B\u52A8\u540C\u6B65")) }, "\u91CD\u8BD5\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(() => act({ action: "accounts.remove", id: a3.id }, "\u8D26\u53F7\u5DF2\u65AD\u5F00\uFF0C\u7F13\u5B58\u90AE\u4EF6\u4FDD\u7559")) }, "\u65AD\u5F00\u8FDE\u63A5")), message && /* @__PURE__ */ import_react2.default.createElement("small", { role: "status" }, message));
+}
+function WritingResources() {
+  const { state, setModal } = useMail();
+  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, [["signatures", "\u7B7E\u540D"], ["templates", "\u6A21\u677F"]].map(([kind, label]) => /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-group", key: kind }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, label, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind, value: { name: "", text: "", subject: "" }, title: `\u7F16\u8F91${label}` }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 14 }), "\u65B0", label)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-resource-grid" }, state[kind].map((v3) => /* @__PURE__ */ import_react2.default.createElement("button", { className: "dm-resource-card", key: v3.id, "data-mail-entity": v3.id, onClick: () => setModal({ type: "resource", kind, value: v3, title: `\u7F16\u8F91${label}` }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "draft", size: 20 }), /* @__PURE__ */ import_react2.default.createElement("strong", null, v3.name), v3.subject && /* @__PURE__ */ import_react2.default.createElement("small", null, v3.subject), /* @__PURE__ */ import_react2.default.createElement("p", null, v3.text || "\u6682\u65E0\u7EAF\u6587\u672C\u9884\u89C8"), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u7F16\u8F91 ", /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 12 }))))))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u8D26\u53F7\u9ED8\u8BA4\u7B7E\u540D\u5728\u300C\u90AE\u7BB1\u8D26\u53F7 \u2192 \u914D\u7F6E\u300D\u4E2D\u9009\u62E9\u3002"));
+}
+function Storage() {
+  const { request, act, run: run3, download } = useMail(), [data, setData] = (0, import_react2.useState)(null), [error, setError] = (0, import_react2.useState)(""), [selected, setSelected] = (0, import_react2.useState)([]), [preview, setPreview] = (0, import_react2.useState)(null), [busy, setBusy] = (0, import_react2.useState)(false);
+  const load = () => request({ action: "storage.read" }).then(setData).catch((e3) => setError(e3.message));
+  (0, import_react2.useEffect)(() => {
+    load();
+  }, []);
+  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u672C\u5730\u5B58\u50A8"), !data && !error && /* @__PURE__ */ import_react2.default.createElement("p", { role: "status" }, "\u6B63\u5728\u7EDF\u8BA1\u5360\u7528\u2026"), data && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("strong", { className: "dm-storage-total" }, formatBytes(data.total)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-storage-bar", "aria-label": "\u5B58\u50A8\u5206\u7C7B\u5360\u6BD4" }, Object.entries(data.sizes).map(([key, bytes], i4) => bytes > 0 && /* @__PURE__ */ import_react2.default.createElement("span", { key, title: `${key}: ${formatBytes(bytes)}`, style: { flex: bytes, background: Object.values(ACCENTS)[i4] } }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-storage-legend" }, Object.entries(data.sizes).map(([key, bytes], i4) => /* @__PURE__ */ import_react2.default.createElement("span", { key }, /* @__PURE__ */ import_react2.default.createElement("i", { style: { background: Object.values(ACCENTS)[i4] } }), { database: "\u6570\u636E\u5E93", raw: "\u539F\u59CB\u90AE\u4EF6", blobs: "\u9644\u4EF6", exports: "\u5BFC\u51FA\u6587\u4EF6", restored: "\u6062\u590D\u7684\u6570\u636E" }[key], " ", /* @__PURE__ */ import_react2.default.createElement("strong", null, formatBytes(bytes))))), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u53EF\u6E05\u7406\u7684\u4E34\u65F6\u5BFC\u51FA"), data.temporary.length ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-check" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: selected.length === data.temporary.length, onChange: (e3) => setSelected(e3.target.checked ? data.temporary.map((f3) => f3.id) : []) }), "\u9009\u62E9\u5168\u90E8\u4E34\u65F6\u5BFC\u51FA"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-cleanup-list" }, data.temporary.map((f3) => /* @__PURE__ */ import_react2.default.createElement("label", { key: f3.id }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: selected.includes(f3.id), onChange: (e3) => setSelected(e3.target.checked ? [...selected, f3.id] : selected.filter((id) => id !== f3.id)) }), /* @__PURE__ */ import_react2.default.createElement("span", null, f3.filename), /* @__PURE__ */ import_react2.default.createElement("small", null, formatBytes(f3.size))))), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !selected.length || busy, onClick: () => run3(async () => {
+    setBusy(true);
+    try {
+      setPreview(await request({ action: "storage.preview", ids: selected }));
+    } finally {
+      setBusy(false);
+    }
+  }) }, "\u9884\u89C8\u6E05\u7406")) : /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u6CA1\u6709\u53EF\u6E05\u7406\u7684\u4E34\u65F6\u5BFC\u51FA\u3002")), preview && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-cleanup-confirm", role: "region", "aria-label": "\u6838\u5BF9\u4E34\u65F6\u6587\u4EF6\u6E05\u7406" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u786E\u8BA4\u6E05\u7406 ", preview.files.length, " \u4E2A\u6587\u4EF6 \xB7 ", formatBytes(preview.bytes)), /* @__PURE__ */ import_react2.default.createElement("ul", null, preview.files.map((f3) => /* @__PURE__ */ import_react2.default.createElement("li", { key: f3.id }, f3.filename, " \xB7 ", formatBytes(f3.size)))), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6E05\u7406\u8FD9\u4E9B\u5BFC\u51FA\u526F\u672C\u4E0D\u4F1A\u5220\u9664\u90AE\u4EF6\u3001\u8349\u7A3F\u9644\u4EF6\u6216\u5B8C\u6574\u5907\u4EFD\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, disabled: busy, onClick: async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await act({ action: "storage.clean", id: preview.id }, "\u4E34\u65F6\u6587\u4EF6\u5DF2\u6E05\u7406");
+      setPreview(null);
+      setSelected([]);
+      await load();
+    } catch (e3) {
+      setError(e3.message);
+      setPreview(null);
+    } finally {
+      setBusy(false);
+    }
+  } }, "\u786E\u8BA4\u6E05\u7406"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPreview(null) }, "\u53D6\u6D88")), error && /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert", className: "dm-error-text" }, error, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: load }, "\u91CD\u8BD5"))), /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u5BFC\u5165\u3001\u5907\u4EFD\u4E0E\u6062\u590D"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u5907\u4EFD\u5305\u542B\u672C\u5730\u90AE\u4EF6\u3001\u89C4\u5219\u3001\u65E5\u5386\u4E0E\u5F85\u529E\uFF0C\u4E0D\u5305\u542B\u6388\u6743\u7801\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "import", size: 16 }), "\u5BFC\u5165\u90AE\u4EF6", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".eml,.mbox", onChange: (e3) => {
+    const file = e3.target.files[0];
+    if (file) run3(async () => {
+      await act({ action: "mail.import", ...await fileData(file), format: file.name.endsWith(".mbox") ? "mbox" : "eml" }, "\u5BFC\u5165\u5B8C\u6210");
+      await load();
+    });
+  } })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "backup.create" }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 }), "\u5BFC\u51FA\u5B8C\u6574\u5907\u4EFD"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\u6062\u590D\u5907\u4EFD", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".zip", onChange: (e3) => {
+    const file = e3.target.files[0];
+    if (file) run3(async () => {
+      await act({ action: "backup.restore", ...await fileData(file) }, "\u5907\u4EFD\u5DF2\u6062\u590D\uFF0C\u8BF7\u91CD\u65B0\u8FDE\u63A5\u8D26\u53F7");
+      await load();
+    });
+  } }))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u6062\u590D\u4EC5\u5141\u8BB8\u5199\u5165\u7A7A\u6570\u636E\u914D\u7F6E\uFF1B\u89C4\u5219\u4FDD\u6301\u505C\u7528\uFF0C\u8349\u7A3F\u4E0D\u4F1A\u81EA\u52A8\u53D1\u9001\u3002\u7528\u9014\u4E0D\u660E\u7684\u5386\u53F2\u6587\u4EF6\u53D7\u5230\u4FDD\u62A4\u3002")));
+}
+function Diagnostics() {
+  const { state, request, download } = useMail(), [data, setData] = (0, import_react2.useState)(null), [error, setError] = (0, import_react2.useState)("");
+  const load = () => request({ action: "diagnostics.read" }).then(setData).catch((e3) => setError(e3.message));
+  (0, import_react2.useEffect)(() => {
+    load();
+  }, []);
+  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-about-brand" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 36 }), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h3", null, "DSH Mail ", state.version), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u672C\u5730\u90AE\u4EF6 \xB7 \u65E5\u7A0B \xB7 AI \u534F\u4F5C"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: load }, "\u5237\u65B0\u8BCA\u65AD"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => download({ action: "diagnostics.export" }) }, "\u5BFC\u51FA\u8131\u654F\u8BCA\u65AD"), /* @__PURE__ */ import_react2.default.createElement("a", { href: "https://github.com/xiaoxinblast/dsh-mail", target: "_blank", rel: "noreferrer" }, "GitHub \u4E0E\u66F4\u65B0\u8BF4\u660E \u2197")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u8BCA\u65AD\u5BFC\u51FA\u4E0D\u542B\u90AE\u4EF6\u4E3B\u9898\u3001\u6B63\u6587\u3001\u90AE\u7BB1\u5730\u5740\u3001\u51ED\u636E\u6216\u5B8C\u6574\u672C\u5730\u8DEF\u5F84\u3002"), error && /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert" }, error)), data && /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u6B63\u6587\u7D22\u5F15"), /* @__PURE__ */ import_react2.default.createElement("progress", { max: data.coverage.total || 1, value: data.coverage.indexed }), /* @__PURE__ */ import_react2.default.createElement("p", null, data.coverage.indexed, " / ", data.coverage.total, " \u5C01\u5DF2\u5EFA\u7ACB\u6B63\u6587\u7D22\u5F15"), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u6700\u8FD1\u64CD\u4F5C\u8017\u65F6"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-timing-list" }, data.timings.slice(-15).reverse().map((item, i4) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i4 }, /* @__PURE__ */ import_react2.default.createElement("code", null, item.action), /* @__PURE__ */ import_react2.default.createElement("span", null, item.ms, " ms"), /* @__PURE__ */ import_react2.default.createElement("small", { className: item.ok ? "" : "dm-error-text" }, item.ok ? "\u5B8C\u6210" : "\u5931\u8D25")))), data.accounts.map((a3) => /* @__PURE__ */ import_react2.default.createElement("p", { key: a3.account }, "\u90AE\u7BB1 ", a3.account, " \xB7 ", a3.status, " ", a3.error && `\xB7 ${a3.error}`))), /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u8FD0\u884C\u8FB9\u754C"), /* @__PURE__ */ import_react2.default.createElement("p", null, "DSH \u5B8C\u5168\u9000\u51FA\u540E\uFF0C\u540C\u6B65\u3001\u89C4\u5219\u3001\u63D0\u9192\u53CA\u5B9A\u65F6\u53D1\u9001\u6682\u505C\u3002\u9519\u8FC7\u65F6\u95F4\u7684\u53D1\u9001\u9700\u91CD\u65B0\u786E\u8BA4\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u5FEB\u6377 AI \u4E0E\u4FA7\u680F\u5171\u7528\u90AE\u7BB1\u52A9\u624B\u6A21\u578B\u548C\u5DE5\u5177\uFF1B\u53D1\u9001\u4E0E\u6C38\u4E45\u64CD\u4F5C\u4ECD\u9700\u786E\u8BA4\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6CA1\u6709\u5DF2\u8BFB\u56DE\u6267\u65F6\uFF0C\u9605\u8BFB\u72B6\u6001\u663E\u793A\u672A\u77E5\u3002")));
+}
+
+// ui/editor-state.mjs
+function listActive(editor, type) {
+  if (editor.isActive(type)) return true;
+  const { selection, doc: doc3 } = editor.state;
+  if (selection.empty) return false;
+  let found2 = false, all = true;
+  doc3.nodesBetween(selection.from, selection.to, (node, position) => {
+    if (!node.isTextblock || !node.content.size) return;
+    found2 = true;
+    const at = doc3.resolve(position + 1);
+    let nested = false;
+    for (let depth = at.depth; depth > 0; depth--) if (at.node(depth).type.name === type) nested = true;
+    if (!nested) all = false;
+  });
+  return found2 && all;
+}
+
+// ui/experience.mjs
+function experienceStyle(settings) {
+  const theme = settings.theme === "dark" ? { "--dsw-alias-bg-layer-1": "#151b28", "--dsw-alias-bg-layer-2": "#1e2738", "--dsw-alias-border-l2": "#354158", "--dsw-alias-label-primary": "#e9eef8", "--dsw-alias-label-secondary": "#a8b5cd", colorScheme: "dark" } : settings.theme === "light" ? { "--dsw-alias-bg-layer-1": "#ffffff", "--dsw-alias-bg-layer-2": "#f4f6fb", "--dsw-alias-border-l2": "#dce3ef", "--dsw-alias-label-primary": "#202c43", "--dsw-alias-label-secondary": "#5b6a83", colorScheme: "light" } : {};
+  if (settings.theme === "dark" || settings.theme === "light") {
+    const dark = settings.theme === "dark", base2 = theme["--dsw-alias-bg-layer-1"], surface = theme["--dsw-alias-bg-layer-2"], text2 = theme["--dsw-alias-label-primary"], muted = theme["--dsw-alias-label-secondary"], border = theme["--dsw-alias-border-l2"];
+    Object.assign(theme, {
+      "--dsw-alias-bg-base": base2,
+      "--dsw-alias-bg-module-platform": base2,
+      "--dsw-alias-bg-overlay": surface,
+      "--dsw-specific-input-major": surface,
+      "--dsw-specific-bubble": dark ? "#24324b" : "#edf2ff",
+      "--dsw-specific-bubble-highlight": dark ? "#35486a" : "#dce7ff",
+      "--dsw-specific-menu": surface,
+      "--dsw-specific-selector": surface,
+      "--dsw-alias-border-l1": border,
+      "--dsw-alias-border-l3": border,
+      "--dsw-alias-border-l4": border,
+      "--dsw-alias-label-primary-bluish": text2,
+      "--dsw-alias-label-primary-dimmed": text2,
+      "--dsw-alias-label-tertiary": muted,
+      "--dsw-alias-label-caption": muted,
+      "--dsw-alias-label-dimmed": dark ? "#7888a2" : "#8a96ab",
+      "--dsw-alias-interactive-bg-hover": dark ? "#ffffff0d" : "#17212b0a",
+      "--dsw-alias-interactive-bg-hover-solid": surface,
+      "--dsw-alias-state-business-tertiary": dark ? "#24324b" : "#edf2ff"
+    });
+  }
+  return { ...theme, "--dm-brand": ACCENTS[settings.accent] || ACCENTS.blue, "--dm-ui-size": `${{ small: 12, standard: 14, large: 16 }[settings.interfaceSize] || 14}px`, "--dm-reading-size": `${settings.readingSize || 14}px`, "--dm-row-space": `${{ compact: 9, standard: 14, comfortable: 20 }[settings.density] || 14}px` };
 }
 
 // ui/state.mjs
@@ -46821,9 +47234,10 @@ function sendTimeLabel(instant, zone = "Asia/Shanghai") {
 }
 
 // ui/workbench.jsx
-var Ctx = (0, import_react2.createContext)(null);
-var useMail = () => (0, import_react2.useContext)(Ctx);
-var date = (v3) => v3 ? new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Hong_Kong" }).format(new Date(v3)) : "\u2014";
+var Ctx = (0, import_react3.createContext)(null);
+var useMail = () => (0, import_react3.useContext)(Ctx);
+var dateFormatter = new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Hong_Kong" });
+var date = (v3) => v3 ? dateFormatter.format(new Date(v3)) : "\u2014";
 var addr = (v3) => Array.isArray(v3) ? addressPeople(v3).map((a3) => a3.name ? `"${a3.name.replace(/"/g, '\\"')}" <${a3.address}>` : a3.address).join(", ") : v3 || "";
 var people = (value) => addressPeople(value).filter((p3) => /^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(p3?.address));
 var MAIL_FONTS = { "": "\u9ED8\u8BA4\u5B57\u4F53", Arial: "Arial", Calibri: "Calibri", "Microsoft YaHei": "\u5FAE\u8F6F\u96C5\u9ED1", SimSun: "\u5B8B\u4F53", SimHei: "\u9ED1\u4F53", Georgia: "Georgia", "Times New Roman": "Times New Roman", "Courier New": "\u7B49\u5BBD\u5B57\u4F53" };
@@ -46834,31 +47248,31 @@ var colorInputValue = (value, fallback) => {
   return rgb ? "#" + rgb.slice(1).map((n3) => Number(n3).toString(16).padStart(2, "0")).join("") : fallback;
 };
 var editableEvent = (event) => event.rrule ? { ...event, seriesId: event.eventId, id: void 0, revision: void 0, recurrenceId: event.start, rrule: "" } : { ...event, id: event.eventId };
-var statusText = { draft: "\u8349\u7A3F", queued: "\u7B49\u5F85\u53D1\u9001", sending: "\u53D1\u9001\u4E2D", sent: "\u5DF2\u53D1\u9001", uncertain: "\u53D1\u9001\u7ED3\u679C\u672A\u77E5", failed: "\u53D1\u9001\u5931\u8D25", "needs-confirmation": "\u5F85\u91CD\u65B0\u786E\u8BA4", connected: "\u5DF2\u8FDE\u63A5", syncing: "\u540C\u6B65\u4E2D", error: "\u8FDE\u63A5\u5F02\u5E38", disconnected: "\u5F85\u8FDE\u63A5" };
+var statusText = { draft: "\u8349\u7A3F", queued: "\u7B49\u5F85\u53D1\u9001", sending: "\u6B63\u5728\u53D1\u9001", sent: "\u5DF2\u53D1\u9001", uncertain: "\u53D1\u9001\u7ED3\u679C\u672A\u77E5", failed: "\u53D1\u9001\u5931\u8D25", "needs-confirmation": "\u5F85\u91CD\u65B0\u786E\u8BA4", connected: "\u5DF2\u8FDE\u63A5", syncing: "\u540C\u6B65\u4E2D", error: "\u8FDE\u63A5\u5F02\u5E38", disconnected: "\u5F85\u8FDE\u63A5" };
 var EMPTY = { accounts: [], folders: [], drafts: [], rules: [], events: [], previews: [], jobs: [], tasks: [], contacts: [], calendars: [], signatures: [], templates: [], notifications: [], labels: [], "saved-searches": [], logs: [] };
 function Button({ children, primary, danger, className = "", ...props }) {
-  return /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: `${primary ? "primary" : ""} ${danger ? "danger" : ""} ${className}`, title: typeof children === "string" ? children : props["aria-label"], ...props }, children);
+  return /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: `${primary ? "primary" : ""} ${danger ? "danger" : ""} ${className}`, title: typeof children === "string" ? children : props["aria-label"], ...props }, children);
 }
 function PresentationToggle({ presentation, assistant = false }) {
   if (!presentation) return null;
   const label = presentation.fullscreen ? assistant ? "\u6536\u56DE\u90AE\u4EF6\u4E0E\u52A9\u624B" : presentation.origin === "sidebar" ? "\u6536\u56DE\u4FA7\u680F" : "\u9000\u51FA\u90AE\u4EF6\u5168\u5C4F" : assistant ? "\u5168\u5C4F\u663E\u793A\u90AE\u4EF6\u4E0E\u52A9\u624B" : "\u5168\u5C4F\u663E\u793A\u90AE\u4EF6";
-  return /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-presentation-toggle", "aria-label": label, "aria-pressed": presentation.fullscreen, "aria-disabled": presentation.transitioning || void 0, onMouseDown: (event) => event.preventDefault(), onClick: presentation.toggle }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: presentation.fullscreen ? "collapse" : "expand", size: 17 }), presentation.fullscreen && !assistant && /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-presentation-label" }, presentation.origin === "sidebar" ? "\u6536\u56DE\u4FA7\u680F" : "\u9000\u51FA\u5168\u5C4F"));
+  return /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-presentation-toggle", "aria-label": label, "aria-pressed": presentation.fullscreen, "aria-disabled": presentation.transitioning || void 0, onMouseDown: (event) => event.preventDefault(), onClick: presentation.toggle }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: presentation.fullscreen ? "collapse" : "expand", size: 17 }), presentation.fullscreen && !assistant && /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-presentation-label" }, presentation.origin === "sidebar" ? "\u6536\u56DE\u4FA7\u680F" : "\u9000\u51FA\u5168\u5C4F"));
 }
 function Field({ label, children, ...props }) {
-  return /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-field" }, /* @__PURE__ */ import_react2.default.createElement("span", null, label), children || /* @__PURE__ */ import_react2.default.createElement("input", { ...props }));
+  return /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-field" }, /* @__PURE__ */ import_react3.default.createElement("span", null, label), children ? import_react3.default.isValidElement(children) && ["input", "select", "textarea"].includes(children.type) ? import_react3.default.cloneElement(children, { "aria-label": children.props["aria-label"] || label }) : children : /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": label, ...props }));
 }
 var COMMON_ZONES = { "Asia/Shanghai": "\u5317\u4EAC", "Asia/Hong_Kong": "\u9999\u6E2F", "Asia/Tokyo": "\u4E1C\u4EAC", "Asia/Singapore": "\u65B0\u52A0\u5761", "Europe/London": "\u4F26\u6566", "America/New_York": "\u7EBD\u7EA6", "America/Los_Angeles": "\u6D1B\u6749\u77F6", UTC: "\u534F\u8C03\u4E16\u754C\u65F6" };
 var TIME_ZONES = [.../* @__PURE__ */ new Set([...Object.keys(COMMON_ZONES), ...Intl.supportedValuesOf("timeZone")])];
 function TimeZoneField({ label, value, onChange }) {
-  return /* @__PURE__ */ import_react2.default.createElement(Field, { label }, /* @__PURE__ */ import_react2.default.createElement("select", { value, onChange: (e3) => onChange(e3.target.value) }, [.../* @__PURE__ */ new Set([value, ...TIME_ZONES])].filter(Boolean).map((zone) => /* @__PURE__ */ import_react2.default.createElement("option", { key: zone, value: zone }, COMMON_ZONES[zone] ? `${COMMON_ZONES[zone]} \xB7 ${zone}` : zone))));
+  return /* @__PURE__ */ import_react3.default.createElement(Field, { label }, /* @__PURE__ */ import_react3.default.createElement("select", { value, onChange: (e3) => onChange(e3.target.value) }, [.../* @__PURE__ */ new Set([value, ...TIME_ZONES])].filter(Boolean).map((zone) => /* @__PURE__ */ import_react3.default.createElement("option", { key: zone, value: zone }, COMMON_ZONES[zone] ? `${COMMON_ZONES[zone]} \xB7 ${zone}` : zone))));
 }
 function Empty({ icon = "\u2709", title, children }) {
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-empty" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-empty-icon" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: { "\u2709": "mail", "\u2727": "sparkle", "\u25A6": "calendar", "\u2713": "task", "\u2659": "contacts", "\u2637": "rules" }[icon] || "mail", size: 32 })), /* @__PURE__ */ import_react2.default.createElement("h2", null, title), /* @__PURE__ */ import_react2.default.createElement("p", null, children));
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-empty" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-empty-icon" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: { "\u2709": "mail", "\u2727": "sparkle", "\u25A6": "calendar", "\u2713": "task", "\u2659": "contacts", "\u2637": "rules" }[icon] || "mail", size: 32 })), /* @__PURE__ */ import_react3.default.createElement("h2", null, title), /* @__PURE__ */ import_react3.default.createElement("p", null, children));
 }
 function Modal({ title, children, close: close2 }) {
   const { error } = useMail();
-  const ref = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => {
+  const ref = (0, import_react3.useRef)(null), titleId = (0, import_react3.useId)();
+  (0, import_react3.useEffect)(() => {
     ref.current.showModal();
     const el = ref.current;
     const cancel = (e3) => {
@@ -46871,7 +47285,7 @@ function Modal({ title, children, close: close2 }) {
       el.close();
     };
   }, []);
-  return /* @__PURE__ */ import_react2.default.createElement("dialog", { ref, className: "dm-dialog" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, title), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5173\u95ED", onClick: close2 }, "\xD7")), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, error), children);
+  return /* @__PURE__ */ import_react3.default.createElement("dialog", { ref, className: "dm-dialog", "aria-labelledby": titleId }, /* @__PURE__ */ import_react3.default.createElement("header", null, /* @__PURE__ */ import_react3.default.createElement("h2", { id: titleId }, title), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u5173\u95ED", onClick: close2 }, "\xD7")), error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-alert", role: "alert" }, error), children);
 }
 async function fileData(file) {
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -46889,10 +47303,11 @@ function deliverFile(result) {
   setTimeout(() => URL.revokeObjectURL(url), 3e4);
 }
 function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, renderSlot, conversationSlot, visible = true, presentation }) {
-  const [assistantOpen, setAssistantOpen] = (0, import_react2.useState)(false), [assistantBinding, setAssistantBinding] = (0, import_react2.useState)(null), [contextReady, setContextReady] = (0, import_react2.useState)("");
-  const [assistantError, setAssistantError] = (0, import_react2.useState)(""), [assistantSubject, setAssistantSubject] = (0, import_react2.useState)("");
-  const assistantLayout = (0, import_react2.useRef)(null), assistantId = (0, import_react2.useId)();
-  const [assistantWidth, setAssistantWidth] = (0, import_react2.useState)(() => {
+  const [appearancePreview, setAppearancePreview] = (0, import_react3.useState)(null);
+  const [assistantOpen, setAssistantOpen] = (0, import_react3.useState)(false), [assistantBinding, setAssistantBinding] = (0, import_react3.useState)(null), [contextReady, setContextReady] = (0, import_react3.useState)("");
+  const [assistantError, setAssistantError] = (0, import_react3.useState)(""), [assistantSubject, setAssistantSubject] = (0, import_react3.useState)("");
+  const assistantLayout = (0, import_react3.useRef)(null), assistantId = (0, import_react3.useId)(), quickCandidates = (0, import_react3.useRef)(/* @__PURE__ */ new Map());
+  const [assistantWidth, setAssistantWidth] = (0, import_react3.useState)(() => {
     try {
       const value2 = localStorage.getItem("dsh-mail.assistant-width");
       return value2 === null ? DEFAULT_ASSISTANT_WIDTH : Number(value2);
@@ -46900,8 +47315,8 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
       return DEFAULT_ASSISTANT_WIDTH;
     }
   });
-  const [appWidth, setAppWidth] = (0, import_react2.useState)(0), [assistantResizing, setAssistantResizing] = (0, import_react2.useState)(false);
-  (0, import_react2.useEffect)(() => {
+  const [appWidth, setAppWidth] = (0, import_react3.useState)(0), [assistantResizing, setAssistantResizing] = (0, import_react3.useState)(false);
+  (0, import_react3.useEffect)(() => {
     const element = assistantLayout.current, observer = new ResizeObserver(() => setAppWidth(element.clientWidth));
     observer.observe(element);
     setAppWidth(element.clientWidth);
@@ -46915,28 +47330,38 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
     } catch {
     }
   };
-  const sessionId = assistantOpen ? assistantBinding?.sessionId || ownerSessionId : ownerSessionId;
-  const [state, setState] = (0, import_react2.useState)(EMPTY), [tab, setTab] = (0, import_react2.useState)("\u90AE\u4EF6"), [error, setError] = (0, import_react2.useState)(""), [notice, setNotice] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(0), [modal, setModal] = (0, import_react2.useState)(null), [selected, setSelected] = (0, import_react2.useState)(null), [compose, setCompose] = (0, import_react2.useState)(null), [query, setQuery] = (0, import_react2.useState)({ inbox: true });
+  const sessionId = assistantBinding?.sessionId || ownerSessionId;
+  const assistantConnection = (0, import_react3.useRef)(null), assistantMounted = (0, import_react3.useRef)(true);
+  const ensureAssistant = (0, import_react3.useCallback)(async () => {
+    if (!assistantHost) throw new Error("\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002");
+    if (!assistantConnection.current) assistantConnection.current = assistantHost.connect(ownerSessionId).then((binding) => {
+      if (!assistantMounted.current) {
+        binding.reference.release();
+        throw new Error("\u90AE\u7BB1\u5DE5\u4F5C\u53F0\u5DF2\u5173\u95ED\u3002");
+      }
+      setAssistantBinding(binding);
+      return binding;
+    }).catch((error2) => {
+      assistantConnection.current = null;
+      throw error2;
+    });
+    return assistantConnection.current;
+  }, [assistantHost, ownerSessionId]);
+  const [state, setState] = (0, import_react3.useState)(EMPTY), [tab, setTab] = (0, import_react3.useState)("\u90AE\u4EF6"), [error, setError] = (0, import_react3.useState)(""), [notice, setNotice] = (0, import_react3.useState)(""), [busy, setBusy] = (0, import_react3.useState)(0), [modal, setModal] = (0, import_react3.useState)(null), [selected, setSelected] = (0, import_react3.useState)(null), [compose, setCompose] = (0, import_react3.useState)(null), [query, setQuery] = (0, import_react3.useState)({ inbox: true });
   const contextKey = JSON.stringify([sessionId, tab === "\u90AE\u4EF6" ? compose ? compose.sourceMessageId || null : selected : null, tab === "\u90AE\u4EF6" ? compose?.id : null]);
-  (0, import_react2.useEffect)(() => {
-    if (!assistantOpen || !assistantHost) return;
+  (0, import_react3.useEffect)(() => {
+    if (!assistantOpen || !assistantHost || assistantBinding) return;
     setAssistantError("");
-    let cancelled = false, binding;
-    assistantHost.connect(ownerSessionId).then((value2) => {
-      binding = value2;
-      if (cancelled) binding.reference.release();
-      else setAssistantBinding(value2);
-    }).catch((e3) => {
+    let cancelled = false;
+    ensureAssistant().catch((e3) => {
       if (!cancelled) setAssistantError(e3.message);
     });
     return () => {
       cancelled = true;
-      binding?.reference.release();
-      setAssistantBinding(null);
     };
-  }, [assistantOpen, assistantHost, ownerSessionId]);
-  (0, import_react2.useEffect)(() => {
-    if (!assistantOpen || !assistantBinding) return;
+  }, [assistantOpen, assistantHost, ensureAssistant, assistantBinding]);
+  (0, import_react3.useEffect)(() => {
+    if (!assistantBinding) return;
     let cancelled = false;
     const [id, messageId, draftId] = JSON.parse(contextKey);
     setAssistantError("");
@@ -46952,21 +47377,57 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
       cancelled = true;
     };
   }, [contextKey, assistantOpen, assistantBinding, call]);
-  const root = (0, import_react2.useRef)(null), live = (0, import_react2.useRef)(true), tick = (0, import_react2.useRef)(false), [settingsSection, setSettingsSection] = (0, import_react2.useState)("\u90AE\u7BB1\u8D26\u53F7");
-  const [folderMenu, setFolderMenu] = (0, import_react2.useState)(false), [drafts, setDrafts] = (0, import_react2.useState)(false), folderTrigger = (0, import_react2.useRef)(null), folderId = (0, import_react2.useId)();
-  (0, import_react2.useEffect)(() => {
+  const root = (0, import_react3.useRef)(null), live = (0, import_react3.useRef)(true), tick = (0, import_react3.useRef)(false), [settingsSection, setSettingsSection] = (0, import_react3.useState)("\u90AE\u7BB1\u8D26\u53F7");
+  const [folderMenu, setFolderMenu] = (0, import_react3.useState)(false), [drafts, setDrafts] = (0, import_react3.useState)(false), folderTrigger = (0, import_react3.useRef)(null), folderId = (0, import_react3.useId)();
+  (0, import_react3.useEffect)(() => {
     if (tab !== "\u90AE\u4EF6") setFolderMenu(false);
   }, [tab]);
-  const appliedView = (0, import_react2.useRef)({ epoch: null, sequence: 0 }), [navigation, setNavigation] = (0, import_react2.useState)(null), [draftTouched, setDraftTouched] = (0, import_react2.useState)(false);
-  const request = (0, import_react2.useCallback)((operation, signal) => call(sessionId, operation, signal), [sessionId, call]);
-  const refresh = (0, import_react2.useCallback)(async () => {
-    const result = await request({ action: "state" });
-    if (live.current) setState((previous) => reconcileState(previous, result));
-    return result;
-  }, [request]);
-  (0, import_react2.useEffect)(() => {
+  const appliedView = (0, import_react3.useRef)({ epoch: null, sequence: 0 }), [navigation, setNavigation] = (0, import_react3.useState)(null), [draftTouched, setDraftTouched] = (0, import_react3.useState)(false);
+  const request = (0, import_react3.useCallback)((operation, signal) => call(sessionId, operation, signal), [sessionId, call]);
+  const versions = (0, import_react3.useRef)({}), epoch = (0, import_react3.useRef)(null), refreshing = (0, import_react3.useRef)(null), refreshAgain = (0, import_react3.useRef)(false);
+  const [foreground, setForeground] = (0, import_react3.useState)(() => document.visibilityState !== "hidden");
+  (0, import_react3.useEffect)(() => {
+    const changed = () => setForeground(document.visibilityState !== "hidden");
+    document.addEventListener("visibilitychange", changed);
+    return () => document.removeEventListener("visibilitychange", changed);
+  }, []);
+  const resources = ["accounts", "folders", "settings", "drafts", "previews", "notifications", "labels", "saved-searches", "calendars", ...tab === "\u65E5\u5386" ? ["events"] : [], ...tab === "\u5F85\u529E" ? ["tasks"] : [], ...tab === "\u89C4\u5219" || modal?.type === "rule" ? ["rules"] : [], ...tab === "\u8BBE\u7F6E" || compose ? ["signatures", "templates"] : [], ...["activity", "transfer"].includes(modal?.type) ? ["jobs"] : [], ...modal?.type === "activity" ? ["logs"] : []];
+  const resourcesKey = JSON.stringify(resources);
+  const latestRefresh = (0, import_react3.useRef)(null);
+  latestRefresh.current = { request, resourcesKey };
+  const refresh = (0, import_react3.useCallback)(() => {
+    refreshAgain.current = true;
+    if (refreshing.current) return refreshing.current;
+    const work = (async () => {
+      let result;
+      do {
+        refreshAgain.current = false;
+        const latest = latestRefresh.current;
+        result = await latest.request({ action: "ui.state", resources: JSON.parse(latest.resourcesKey), epoch: epoch.current, versions: versions.current });
+        if (latest.request !== latestRefresh.current.request) {
+          refreshAgain.current = true;
+          continue;
+        }
+        if (epoch.current !== result.epoch) versions.current = {};
+        epoch.current = result.epoch;
+        Object.assign(versions.current, result.versions);
+        if (live.current) setState((previous) => reconcileState(previous, { ...previous, ...result.changes, summary: result.summary, version: result.version, mailVersion: result.mailVersion, workbench: result.workbench, contactVersion: result.contactVersion }));
+      } while (refreshAgain.current);
+      return result;
+    })();
+    refreshing.current = work.finally(() => {
+      refreshing.current = null;
+    });
+    return refreshing.current;
+  }, [request, resourcesKey]);
+  (0, import_react3.useEffect)(() => {
     live.current = true;
-    if (!visible) return;
+    return () => {
+      live.current = false;
+    };
+  }, []);
+  (0, import_react3.useEffect)(() => {
+    if (!visible || !foreground) return;
     const run4 = async () => {
       if (tick.current) return;
       tick.current = true;
@@ -46981,18 +47442,17 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
     run4();
     const timer = setInterval(run4, 5e3);
     return () => {
-      live.current = false;
       clearInterval(timer);
     };
-  }, [refresh, visible]);
-  (0, import_react2.useEffect)(() => {
+  }, [refresh, visible, foreground]);
+  (0, import_react3.useEffect)(() => {
     const update = (event) => {
-      if (visible && event.detail?.sessionId === sessionId) refresh().catch((e3) => setError(e3.message));
+      if (visible && foreground && event.detail?.sessionId === sessionId) refresh().catch((e3) => setError(e3.message));
     };
     window.addEventListener("dsh-mail:workbench", update);
     return () => window.removeEventListener("dsh-mail:workbench", update);
-  }, [refresh, visible, sessionId]);
-  (0, import_react2.useEffect)(() => {
+  }, [refresh, visible, foreground, sessionId]);
+  (0, import_react3.useEffect)(() => {
     const view = state.workbench;
     if (!visible || !sessionId || !view || view.sessionId !== sessionId || view.expiresAt <= Date.now() || appliedView.current.epoch === view.epoch && appliedView.current.sequence >= view.sequence) return;
     if (compose && draftTouched || modal) {
@@ -47008,8 +47468,8 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
       setTab({ mail: "\u90AE\u4EF6", calendar: "\u65E5\u5386", tasks: "\u5F85\u529E", contacts: "\u8054\u7CFB\u4EBA", rules: "\u89C4\u5219", settings: "\u8BBE\u7F6E" }[view.page] || "\u90AE\u4EF6");
       if (view.query) setQuery({ ...view.query });
       setSelected(view.messageId || null);
-      setCompose(view.draftId ? state.drafts.find((draft) => draft.id === view.draftId) || null : null);
-      if (view.settingsSection) setSettingsSection(view.settingsSection);
+      setCompose(view.draftId ? await request({ action: "drafts.read", id: view.draftId }) : null);
+      if (view.settingsSection) setSettingsSection({ "\u7B7E\u540D\u4E0E\u6A21\u677F": "\u5199\u4FE1\u3001\u7B7E\u540D\u4E0E\u6A21\u677F", "\u6570\u636E\u7BA1\u7406": "\u5B58\u50A8\u4E0E\u5907\u4EFD" }[view.settingsSection] || view.settingsSection);
       if (view.previewId) {
         const preview = state.previews.find((item) => item.id === view.previewId);
         if (preview) setModal({ type: "preview", value: preview });
@@ -47029,16 +47489,16 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
       cancelled = true;
     };
   }, [state.workbench, visible, sessionId, compose, draftTouched, modal, request]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     setDraftTouched(false);
   }, [compose?.id]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (compose && state.drafts.find((d2) => d2.id === compose.id)?.status === "sent") {
       setCompose(null);
-      setNotice("\u90AE\u4EF6\u5DF2\u6210\u529F\u63D0\u4EA4\u7ED9 SMTP \u670D\u52A1\u5668\uFF0C\u5DF2\u4ECE\u8349\u7A3F\u7BB1\u79FB\u9664\u3002\u53EF\u5728\u5DF2\u53D1\u9001\u4E2D\u6838\u67E5\u526F\u672C\u3002");
+      setNotice("\u5DF2\u53D1\u9001");
     }
   }, [state.drafts, compose?.id]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!navigation?.entityId) return;
     const frame = requestAnimationFrame(() => {
       for (const item of root.current?.querySelectorAll("[data-mail-entity]") || []) item.dataset.agentSelected = String(item.dataset.mailEntity === navigation.entityId);
@@ -47046,6 +47506,11 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
     });
     return () => cancelAnimationFrame(frame);
   }, [navigation, tab, state.tasks, state.contacts, state.rules, state.signatures, state.templates, state.labels, state["saved-searches"]]);
+  (0, import_react3.useEffect)(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(""), 4500);
+    return () => clearTimeout(timer);
+  }, [notice]);
   const act = async (operation, success) => {
     setError("");
     setBusy((n3) => n3 + 1);
@@ -47095,18 +47560,39 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
     setCompose(null);
     setFolderMenu(false);
   };
-  const value = { state, error, request, act, run: run3, refresh, setModal, openMessage, setCompose, setTab, setQuery, query, selected, setSelected, compose, busy, settingsSection, setSettingsSection, navigation, setDraftTouched, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId, showParticipant, newDraft, download: (operation) => run3(async () => deliverFile(await act(operation))), setNotice };
-  return /* @__PURE__ */ import_react2.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react2.default.createElement("div", { ref: assistantLayout, className: `dm-app ${assistantOpen ? "has-assistant" : ""} ${assistantResizing ? "dm-resizing" : ""} ${presentation?.fullscreen ? "is-workspace-fullscreen" : ""}`, "data-mail-fullscreen": presentation?.fullscreen || void 0, "data-mail-transitioning": presentation?.transitioning || void 0, style: { "--dm-assistant-width": `${assistantSizes.width}px` } }, /* @__PURE__ */ import_react2.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
+  const value = (0, import_react3.useMemo)(() => ({ quickCandidates: quickCandidates.current, state, error, request, act, run: run3, refresh, setModal, openMessage, setCompose, setTab, setQuery, query, selected, setSelected, compose, busy, settingsSection, setSettingsSection, navigation, setDraftTouched, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId, showParticipant, newDraft, download: (operation) => run3(async () => deliverFile(await act(operation))), setNotice, setAppearancePreview, ensureAssistant: assistantHost ? ensureAssistant : null, setAssistantOpen, call, assistantBinding }), [state, error, request, refresh, query, selected, compose, busy, settingsSection, navigation, folderMenu, drafts, assistantBinding]);
+  const experience = { ...DEFAULT_SETTINGS, ...state.settings, ...appearancePreview };
+  const restoredAssistant = (0, import_react3.useRef)(false);
+  (0, import_react3.useEffect)(() => {
+    if (!state.settings) return;
+    if (!restoredAssistant.current) {
+      restoredAssistant.current = true;
+      if (state.settings.rememberAssistant && localStorage.getItem("dsh-mail.assistant-open") === "true") setAssistantOpen(true);
+    }
+  }, [state.settings]);
+  (0, import_react3.useEffect)(() => {
+    if (state.settings?.rememberAssistant && restoredAssistant.current) localStorage.setItem("dsh-mail.assistant-open", String(assistantOpen));
+  }, [assistantOpen, state.settings?.rememberAssistant]);
+  (0, import_react3.useEffect)(() => {
+    assistantMounted.current = true;
+    return () => {
+      assistantMounted.current = false;
+      assistantConnection.current?.then((binding) => binding.reference.release()).catch(() => {
+      });
+      assistantConnection.current = null;
+    };
+  }, [assistantHost, ownerSessionId]);
+  return /* @__PURE__ */ import_react3.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react3.default.createElement("div", { ref: assistantLayout, "data-theme": experience.theme, "data-density": experience.density, "data-font": experience.interfaceSize, "data-motion": experience.motion, className: `dm-app ${assistantOpen ? "has-assistant" : ""} ${assistantResizing ? "dm-resizing" : ""} ${presentation?.fullscreen ? "is-workspace-fullscreen" : ""}`, "data-mail-fullscreen": presentation?.fullscreen || void 0, "data-mail-transitioning": presentation?.transitioning || void 0, style: { ...experienceStyle(experience), "--dm-assistant-width": `${assistantSizes.width}px` } }, /* @__PURE__ */ import_react3.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react3.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react3.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react3.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
     setTab("\u90AE\u4EF6");
     setFolderMenu(!folderMenu);
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u6587\u4EF6\u5939"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages" }, [["\u65E5\u5386", "calendar"], ["\u5F85\u529E", "task"], ["\u8054\u7CFB\u4EBA", "contacts"], ["\u89C4\u5219", "rules"]].map(([name, icon]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name, "aria-current": tab === name ? "page" : void 0, onClick: () => setTab(name) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, name), name === "\u5F85\u529E" && state.tasks.some((t3) => !t3.done) && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.tasks.filter((t3) => !t3.done).length)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-bottom" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u901A\u77E5\u4E0E\u4EFB\u52A1", onClick: () => {
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "folder", size: 21 }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-rail-caption" }, "\u6587\u4EF6\u5939"))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-rail-pages" }, [["\u65E5\u5386", "calendar"], ["\u5F85\u529E", "task"], ["\u8054\u7CFB\u4EBA", "contacts"], ["\u89C4\u5219", "rules"]].map(([name, icon]) => /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name, "aria-current": tab === name ? "page" : void 0, onClick: () => setTab(name) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-rail-caption" }, name), name === "\u5F85\u529E" && (state.summary?.tasks ?? state.tasks.filter((t3) => !t3.done).length) > 0 && /* @__PURE__ */ import_react3.default.createElement("i", { className: "dm-rail-badge" }, state.summary?.tasks ?? state.tasks.filter((t3) => !t3.done).length)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-rail-bottom" }, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u901A\u77E5\u4E0E\u4EFB\u52A1", onClick: () => {
     setFolderMenu(false);
     setModal({ type: "activity" });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react2.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react2.default.createElement(PresentationToggle, { presentation }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "\u90AE\u7BB1 AI \u52A9\u624B", "aria-expanded": assistantOpen, onClick: () => setAssistantOpen(!assistantOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "AI \u52A9\u624B")), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, "aria-label": "\u5199\u90AE\u4EF6", onClick: newDraft }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5199\u90AE\u4EF6")))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react2.default.createElement("span", null, error), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, notice), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react2.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react2.default.createElement(MailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react2.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react2.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react2.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react2.default.createElement(RulesView, null) : /* @__PURE__ */ import_react2.default.createElement(SettingsView, null))), modal && /* @__PURE__ */ import_react2.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5\u4E0E\u64CD\u4F5C\u8BB0\u5F55", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react2.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react2.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react2.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react2.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react2.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react2.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react2.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react2.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react2.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react2.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react2.default.createElement(Activity, null))), assistantOpen && /* @__PURE__ */ import_react2.default.createElement("aside", { id: assistantId, className: "dm-agent-panel", "aria-label": "\u90AE\u7BB1 AI \u5BF9\u8BDD" }, /* @__PURE__ */ import_react2.default.createElement(PaneDivider, { key: assistantSizes.overlay ? "overlay" : "split", name: "\u8C03\u6574 AI \u52A9\u624B\u5BBD\u5EA6", width: assistantSizes.width, min: assistantSizes.min, max: assistantSizes.max, direction: -1, paneId: assistantId, kind: "agent", setResizing: setAssistantResizing, onChange: setAssistantWidth, onSave: saveAssistantWidth, onReset: () => saveAssistantWidth(assistantPaneSizes(DEFAULT_ASSISTANT_WIDTH, appWidth).width) }), /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), "\u90AE\u7BB1\u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-header-actions" }, /* @__PURE__ */ import_react2.default.createElement(PresentationToggle, { presentation, assistant: true }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u5173\u95ED\u90AE\u7BB1\u52A9\u624B", onClick: () => setAssistantOpen(false) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 18 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-context" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5F53\u524D\u4E0A\u4E0B\u6587"), /* @__PURE__ */ import_react2.default.createElement("strong", null, tab === "\u90AE\u4EF6" ? compose ? compose.subject || "\u65B0\u90AE\u4EF6\u8349\u7A3F" : assistantSubject || (selected ? "\u5F53\u524D\u6253\u5F00\u7684\u90AE\u4EF6" : "\u90AE\u7BB1\u5DE5\u4F5C\u53F0") : tab), /* @__PURE__ */ import_react2.default.createElement("small", null, "\u6BCF\u8F6E\u8BFB\u53D6\u5F53\u524D\u90AE\u4EF6\u6B63\u6587\u3001\u5B8C\u6574\u5F15\u7528\u53CA\u5DF2\u4FDD\u5B58\u8349\u7A3F")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-conversation" }, assistantError ? /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert" }, assistantError, " \u5173\u95ED\u4FA7\u680F\u540E\u53EF\u91CD\u65B0\u8FDE\u63A5\u3002") : !assistantHost ? /* @__PURE__ */ import_react2.default.createElement("p", null, "\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002") : assistantBinding && contextReady === contextKey ? /* @__PURE__ */ import_react2.default.createElement(SessionProvider, { session: assistantBinding.reference }, renderSlot(conversationSlot, {})) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u8FDE\u63A5\u90AE\u4EF6\u4E0A\u4E0B\u6587\u2026")))));
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react3.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react3.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react3.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", state.drafts.some((d2) => d2.status === "sending") ? "\u6B63\u5728\u53D1\u9001" : busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react3.default.createElement(PresentationToggle, { presentation }), /* @__PURE__ */ import_react3.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-ai-button", "aria-label": "\u90AE\u7BB1 AI \u52A9\u624B", "aria-expanded": assistantOpen, onClick: () => setAssistantOpen(!assistantOpen) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 16 }), /* @__PURE__ */ import_react3.default.createElement("span", null, "AI \u52A9\u624B")), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, "aria-label": "\u5199\u90AE\u4EF6", onClick: newDraft }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 16 }), /* @__PURE__ */ import_react3.default.createElement("span", null, "\u5199\u90AE\u4EF6")))), error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react3.default.createElement("span", null, error), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react3.default.createElement("span", null, notice), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react3.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react3.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react3.default.createElement(StableMailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react3.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react3.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react3.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react3.default.createElement(RulesView, null) : /* @__PURE__ */ import_react3.default.createElement(SettingsCenter, null))), modal && /* @__PURE__ */ import_react3.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react3.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react3.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react3.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react3.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react3.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react3.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react3.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react3.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react3.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react3.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react3.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react3.default.createElement(Activity, null))), assistantOpen && /* @__PURE__ */ import_react3.default.createElement("aside", { id: assistantId, className: "dm-agent-panel", "aria-label": "\u90AE\u7BB1 AI \u5BF9\u8BDD" }, /* @__PURE__ */ import_react3.default.createElement(PaneDivider, { key: assistantSizes.overlay ? "overlay" : "split", name: "\u8C03\u6574 AI \u52A9\u624B\u5BBD\u5EA6", width: assistantSizes.width, min: assistantSizes.min, max: assistantSizes.max, direction: -1, paneId: assistantId, kind: "agent", setResizing: setAssistantResizing, onChange: setAssistantWidth, onSave: saveAssistantWidth, onReset: () => saveAssistantWidth(assistantPaneSizes(DEFAULT_ASSISTANT_WIDTH, appWidth).width) }), /* @__PURE__ */ import_react3.default.createElement("header", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 17 }), "\u90AE\u7BB1\u52A9\u624B"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-agent-header-actions" }, /* @__PURE__ */ import_react3.default.createElement(PresentationToggle, { presentation, assistant: true }), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", "aria-label": "\u5173\u95ED\u90AE\u7BB1\u52A9\u624B", onClick: () => setAssistantOpen(false) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "close", size: 18 })))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-agent-context" }, /* @__PURE__ */ import_react3.default.createElement("span", null, "\u5F53\u524D\u4E0A\u4E0B\u6587"), /* @__PURE__ */ import_react3.default.createElement("strong", null, tab === "\u90AE\u4EF6" ? compose ? compose.subject || "\u65B0\u90AE\u4EF6\u8349\u7A3F" : assistantSubject || (selected ? "\u5F53\u524D\u6253\u5F00\u7684\u90AE\u4EF6" : "\u90AE\u7BB1\u5DE5\u4F5C\u53F0") : tab), /* @__PURE__ */ import_react3.default.createElement("small", null, "\u6BCF\u8F6E\u8BFB\u53D6\u5F53\u524D\u90AE\u4EF6\u6B63\u6587\u3001\u5B8C\u6574\u5F15\u7528\u53CA\u5DF2\u4FDD\u5B58\u8349\u7A3F")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-agent-conversation" }, assistantError ? /* @__PURE__ */ import_react3.default.createElement("p", { role: "alert" }, assistantError, " \u5173\u95ED\u4FA7\u680F\u540E\u53EF\u91CD\u65B0\u8FDE\u63A5\u3002") : !assistantHost ? /* @__PURE__ */ import_react3.default.createElement("p", null, "\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002") : assistantBinding && contextReady === contextKey ? /* @__PURE__ */ import_react3.default.createElement(SessionProvider, { session: assistantBinding.reference }, renderSlot(conversationSlot, {})) : /* @__PURE__ */ import_react3.default.createElement("p", null, "\u6B63\u5728\u8FDE\u63A5\u90AE\u4EF6\u4E0A\u4E0B\u6587\u2026")))));
 }
 function Menu({ label, children, className = "", icon = "more", caption, closeOnAction = false, style: style2 }) {
-  const ref = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => {
+  const ref = (0, import_react3.useRef)(null);
+  (0, import_react3.useEffect)(() => {
     const close2 = (e3) => {
       if (!ref.current?.open) return;
       if (e3.type === "keydown" && e3.key === "Escape") {
@@ -47123,34 +47609,40 @@ function Menu({ label, children, className = "", icon = "more", caption, closeOn
       document.removeEventListener("keydown", close2);
     };
   }, []);
-  return /* @__PURE__ */ import_react2.default.createElement("details", { ref, className: `dm-menu ${className}`, style: style2 }, /* @__PURE__ */ import_react2.default.createElement("summary", { "aria-label": label, title: label }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon }), caption), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-menu-panel", onClick: (event) => {
+  return /* @__PURE__ */ import_react3.default.createElement("details", { ref, className: `dm-menu ${className}`, style: style2 }, /* @__PURE__ */ import_react3.default.createElement("summary", { "aria-label": label, title: label }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon }), caption), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-menu-panel", onClick: (event) => {
     if (closeOnAction && event.target.closest("button")) ref.current.open = false;
   } }, children));
 }
 function FolderColorMenu({ folder }) {
-  const { act, run: run3, setModal, busy } = useMail(), [custom, setCustom] = (0, import_react2.useState)(folder.color || folderAppearance(folder).color);
-  (0, import_react2.useEffect)(() => setCustom(folder.color || folderAppearance(folder).color), [folder.color, folder.role]);
+  const { act, run: run3, setModal, busy } = useMail(), [custom, setCustom] = (0, import_react3.useState)(folder.color || folderAppearance(folder).color);
+  (0, import_react3.useEffect)(() => setCustom(folder.color || folderAppearance(folder).color), [folder.color, folder.role]);
   const save = (color) => run3(() => act({ action: "folders.color", id: folder.id, color }));
-  return /* @__PURE__ */ import_react2.default.createElement(Menu, { label: `\u7BA1\u7406\u6587\u4EF6\u5939 ${folder.path}`, className: "dm-folder-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement(Menu, { label: `\u7BA1\u7406\u6587\u4EF6\u5939 ${folder.path}`, className: "dm-folder-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: (e3) => {
     e3.currentTarget.closest("details").open = false;
     setModal({ type: "folder", value: folder });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), "\u7BA1\u7406\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement("fieldset", { className: "dm-folder-colors" }, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u6587\u4EF6\u5939\u989C\u8272"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-color-options" }, FOLDER_COLORS.map(([name, color]) => /* @__PURE__ */ import_react2.default.createElement("button", { key: color, type: "button", className: "dm-color-swatch", "aria-label": `\u6587\u4EF6\u5939\u989C\u8272\uFF1A${name}`, title: name, "aria-pressed": folder.color === color, style: { background: color, color: eventAppearance({ color }, []).textColor }, disabled: busy > 0, onClick: () => save(color) }, folder.color === color ? "\u2713" : ""))), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": `\u81EA\u5B9A\u4E49\u6587\u4EF6\u5939\u989C\u8272 ${folder.path}`, type: "color", value: custom, onChange: (e3) => setCustom(e3.target.value) })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => save(custom) }, "\u5E94\u7528\u989C\u8272"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0 || !folder.color, onClick: () => save("") }, "\u6062\u590D\u9ED8\u8BA4")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u4EC5\u5728\u672C\u673A\u663E\u793A\uFF0C\u5305\u542B\u5728\u5907\u4EFD\u4E2D\u3002")));
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "folder", size: 16 }), "\u7BA1\u7406\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react3.default.createElement("fieldset", { className: "dm-folder-colors" }, /* @__PURE__ */ import_react3.default.createElement("legend", null, "\u6587\u4EF6\u5939\u989C\u8272"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-color-options" }, FOLDER_COLORS.map(([name, color]) => /* @__PURE__ */ import_react3.default.createElement("button", { key: color, type: "button", className: "dm-color-swatch", "aria-label": `\u6587\u4EF6\u5939\u989C\u8272\uFF1A${name}`, title: name, "aria-pressed": folder.color === color, style: { background: color, color: eventAppearance({ color }, []).textColor }, disabled: busy > 0, onClick: () => save(color) }, folder.color === color ? "\u2713" : ""))), /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": `\u81EA\u5B9A\u4E49\u6587\u4EF6\u5939\u989C\u8272 ${folder.path}`, type: "color", value: custom, onChange: (e3) => setCustom(e3.target.value) })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: busy > 0, onClick: () => save(custom) }, "\u5E94\u7528\u989C\u8272"), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: busy > 0 || !folder.color, onClick: () => save("") }, "\u6062\u590D\u9ED8\u8BA4")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u4EC5\u5728\u672C\u673A\u663E\u793A\uFF0C\u5305\u542B\u5728\u5907\u4EFD\u4E2D\u3002")));
 }
 function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResizing, paneId, kind, direction = 1 }) {
-  const drag = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => () => {
+  const drag = (0, import_react3.useRef)(null), dragFrame = (0, import_react3.useRef)(0);
+  (0, import_react3.useEffect)(() => () => {
     if (drag.current) setResizing(false);
   }, [setResizing]);
   const finish = (event, cancel = false) => {
     const current = drag.current;
     if (!current || current.pointerId !== event.pointerId) return;
     drag.current = null;
+    cancelAnimationFrame(dragFrame.current);
     setResizing(false);
-    if (cancel) onChange(current.width);
-    else onSave(current.value);
+    if (cancel) {
+      current.target?.style.setProperty(current.property, `${current.width}px`);
+      onChange(current.width);
+    } else {
+      onChange(current.value);
+      onSave(current.value);
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
-  return /* @__PURE__ */ import_react2.default.createElement(
+  return /* @__PURE__ */ import_react3.default.createElement(
     "div",
     {
       role: "separator",
@@ -47169,14 +47661,15 @@ function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResi
         event.preventDefault();
         event.currentTarget.focus();
         event.currentTarget.setPointerCapture(event.pointerId);
-        drag.current = { pointerId: event.pointerId, x: event.clientX, width, value: width };
+        drag.current = { pointerId: event.pointerId, x: event.clientX, width, value: width, target: event.currentTarget.closest(kind === "agent" ? ".dm-app" : ".dm-mail-layout"), property: kind === "agent" ? "--dm-assistant-width" : "--dm-list-width" };
         setResizing(true);
       },
       onPointerMove: (event) => {
         const current = drag.current;
         if (!current || current.pointerId !== event.pointerId) return;
         current.value = Math.round(Math.max(min, Math.min(max, current.width + direction * (event.clientX - current.x))));
-        onChange(current.value);
+        cancelAnimationFrame(dragFrame.current);
+        dragFrame.current = requestAnimationFrame(() => current.target?.style.setProperty(current.property, `${current.value}px`));
       },
       onPointerUp: (event) => finish(event),
       onPointerCancel: (event) => finish(event, true),
@@ -47193,22 +47686,27 @@ function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResi
     }
   );
 }
+var StableMailView = import_react3.default.memo(MailView);
 function MailView({ active, navigation }) {
+  const bodyCache = (0, import_react3.useRef)(/* @__PURE__ */ new Map());
   const { state, query, setQuery, selected, setSelected, compose, setCompose, setModal, act, run: run3, request, download, setTab, setSettingsSection, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId } = useMail();
-  const [result, setResult] = (0, import_react2.useState)({ items: [], total: 0 }), [checked, setChecked] = (0, import_react2.useState)([]), [q3, setQ] = (0, import_react2.useState)(""), [advanced, setAdvanced] = (0, import_react2.useState)(false), [destination, setDestination] = (0, import_react2.useState)(""), [groupThreads, setGroupThreads] = (0, import_react2.useState)(false);
-  const activeQuery = JSON.stringify(query);
-  const [folderQuery, setFolderQuery] = (0, import_react2.useState)(""), [folderSort, setFolderSort] = (0, import_react2.useState)(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [sorting, setSorting] = (0, import_react2.useState)(false);
-  const folderPanel = (0, import_react2.useRef)(null), folderSearch = (0, import_react2.useRef)(null);
-  const layout = (0, import_react2.useRef)(null), layoutId = (0, import_react2.useId)(), [dimensions, setDimensions] = (0, import_react2.useState)({ width: 1e3, root: 1064 }), [paneWidths, setPaneWidths] = (0, import_react2.useState)(DEFAULT_SETTINGS), [resizing, setResizing] = (0, import_react2.useState)(false);
-  (0, import_react2.useEffect)(() => {
+  const [result, setResult] = (0, import_react3.useState)({ items: [], total: 0 }), [checked, setChecked] = (0, import_react3.useState)([]), [q3, setQ] = (0, import_react3.useState)(""), [advanced, setAdvanced] = (0, import_react3.useState)(false), [destination, setDestination] = (0, import_react3.useState)(""), [groupThreads, setGroupThreads] = (0, import_react3.useState)(false);
+  const [searchLoading, setSearchLoading] = (0, import_react3.useState)(false), [searchError, setSearchError] = (0, import_react3.useState)(""), [searchRetry, setSearchRetry] = (0, import_react3.useState)(0);
+  const pageSize = state.settings?.pageSize || 50;
+  (0, import_react3.useEffect)(() => setGroupThreads(state.settings?.groupThreads ?? false), [state.settings?.groupThreads]);
+  const activeQuery = JSON.stringify(query), folderScope = JSON.stringify(state.folders.map(({ id, path, role, missing, deleted }) => [id, path, role, missing, deleted]));
+  const [folderQuery, setFolderQuery] = (0, import_react3.useState)(""), [folderSort, setFolderSort] = (0, import_react3.useState)(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [sorting, setSorting] = (0, import_react3.useState)(false);
+  const folderPanel = (0, import_react3.useRef)(null), folderSearch = (0, import_react3.useRef)(null);
+  const layout = (0, import_react3.useRef)(null), layoutId = (0, import_react3.useId)(), [dimensions, setDimensions] = (0, import_react3.useState)({ width: 1e3, root: 1064 }), [paneWidths, setPaneWidths] = (0, import_react3.useState)(DEFAULT_SETTINGS), [resizing, setResizing] = (0, import_react3.useState)(false);
+  (0, import_react3.useEffect)(() => {
     const element = layout.current, root = element.closest(".dsh-mail"), observer = new ResizeObserver(() => {
-      if (element.clientWidth) setDimensions({ width: element.clientWidth, root: root.clientWidth });
+      if (element.clientWidth) setDimensions((old) => old.width === element.clientWidth && old.root === root.clientWidth ? old : { width: element.clientWidth, root: root.clientWidth });
     });
     observer.observe(element);
     observer.observe(root);
     return () => observer.disconnect();
   }, []);
-  (0, import_react2.useEffect)(() => setPaneWidths({ mailFolderWidth: state.settings?.mailFolderWidth ?? DEFAULT_SETTINGS.mailFolderWidth, mailListWidth: state.settings?.mailListWidth ?? DEFAULT_SETTINGS.mailListWidth }), [state.settings?.mailFolderWidth, state.settings?.mailListWidth]);
+  (0, import_react3.useEffect)(() => setPaneWidths({ mailFolderWidth: state.settings?.mailFolderWidth ?? DEFAULT_SETTINGS.mailFolderWidth, mailListWidth: state.settings?.mailListWidth ?? DEFAULT_SETTINGS.mailListWidth }), [state.settings?.mailFolderWidth, state.settings?.mailListWidth]);
   const sizes = mailPaneSizes(dimensions.width, dimensions.root, paneWidths);
   const saveWidth = (key, width) => run3(async () => {
     try {
@@ -47218,7 +47716,7 @@ function MailView({ active, navigation }) {
       throw error;
     }
   });
-  const divider = (key, name, width, min, max, kind) => /* @__PURE__ */ import_react2.default.createElement(PaneDivider, { name, width, min, max, paneId: `${layoutId}-${kind}`, kind, setResizing, onChange: (value) => setPaneWidths((current) => ({ ...current, [key]: value })), onSave: (value) => saveWidth(key, value), onReset: () => {
+  const divider = (key, name, width, min, max, kind) => /* @__PURE__ */ import_react3.default.createElement(PaneDivider, { name, width, min, max, paneId: `${layoutId}-${kind}`, kind, setResizing, onChange: (value) => setPaneWidths((current) => ({ ...current, [key]: value })), onSave: (value) => saveWidth(key, value), onReset: () => {
     setPaneWidths((current) => ({ ...current, [key]: DEFAULT_SETTINGS[key] }));
     saveWidth(key, DEFAULT_SETTINGS[key]);
   } });
@@ -47226,7 +47724,7 @@ function MailView({ active, navigation }) {
     setFolderMenu(false);
     folderTrigger.current?.focus();
   };
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (navigation?.page !== "mail") return;
     setDrafts(navigation.section === "drafts");
     setQ(query.q || "");
@@ -47234,11 +47732,11 @@ function MailView({ active, navigation }) {
     setAdvanced(!!(query.from || query.after || query.before || query.seen === false || query.hasAttachment));
     setFolderMenu(false);
   }, [navigation?.id]);
-  (0, import_react2.useEffect)(() => setFolderSort(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [state.settings?.folderSort]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => setFolderSort(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [state.settings?.folderSort]);
+  (0, import_react3.useEffect)(() => {
     if (!active) setFolderMenu(false);
   }, [active]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!folderMenu) return;
     folderSearch.current?.focus();
     const keydown = (e3) => {
@@ -47279,18 +47777,21 @@ function MailView({ active, navigation }) {
     });
   };
   const folders = visibleFolders(state.folders, folderSort, folderQuery).filter((folder) => !isInboxFolder(folder)), missingSent = state.accounts.filter((a3) => !a3.local && !sentFolders([a3], state.folders).length);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!active || drafts) return;
-    let cancelled = false;
-    request({ action: "search", ...query, groupThreads }).then((r3) => {
-      if (!cancelled) setResult(r3);
-    }).catch(() => {
+    const controller = new AbortController();
+    setSearchLoading(true);
+    setSearchError("");
+    request({ action: "search", ...query, limit: pageSize, groupThreads }, controller.signal).then((r3) => {
+      if (!controller.signal.aborted) setResult(r3);
+    }).catch((e3) => {
+      if (!controller.signal.aborted) setSearchError(e3.message);
+    }).finally(() => {
+      if (!controller.signal.aborted) setSearchLoading(false);
     });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeQuery, active, drafts, groupThreads, state.mailVersion, state.folders, state.accounts, request]);
-  (0, import_react2.useEffect)(() => {
+    return () => controller.abort();
+  }, [activeQuery, folderScope, active, drafts, groupThreads, pageSize, state.mailVersion, request, searchRetry]);
+  (0, import_react3.useEffect)(() => {
     setChecked([]);
     setQ(query.q || "");
   }, [activeQuery]);
@@ -47307,59 +47808,78 @@ function MailView({ active, navigation }) {
     if (r3.kind === "purge") setModal({ type: "preview", value: r3 });
     setChecked([]);
   });
-  const shown = groupThreads ? result.items.filter((m3, i4, all) => all.findIndex((x4) => x4.accountId === m3.accountId && x4.threadId === m3.threadId) === i4) : result.items;
-  const source = query.folderId ? state.folders.find((f3) => f3.id === query.folderId)?.path : query.sent ? "\u5DF2\u53D1\u9001" : query.starred ? "\u661F\u6807\u90AE\u4EF6" : query.inbox ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : "\u641C\u7D22\u7ED3\u679C";
-  return /* @__PURE__ */ import_react2.default.createElement("div", { ref: layout, style: { "--dm-folder-width": `${sizes.folder}px`, "--dm-list-width": `${sizes.list}px` }, className: `dm-mail-layout ${selected || compose ? "has-detail" : ""} ${folderMenu ? "show-folders" : ""} ${resizing ? "dm-resizing" : ""}` }, folderMenu && /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "dm-folder-backdrop", "aria-label": "\u5173\u95ED\u6587\u4EF6\u5939\u5217\u8868", tabIndex: -1, onClick: closeFolders }), /* @__PURE__ */ import_react2.default.createElement("aside", { id: folderId, ref: folderPanel, className: "dm-folders", "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", role: folderMenu ? "dialog" : void 0, "aria-modal": folderMenu || void 0, inert: !folderMenu }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-folder-close", "aria-label": "\u5173\u95ED\u6587\u4EF6\u5939\u9762\u677F", onClick: closeFolders }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 16 }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, "\u7BA1\u7406\u6587\u4EF6\u5939", /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u65B0\u5EFA\u6587\u4EF6\u5939", onClick: () => setModal({ type: "folder" }) }, "\uFF0B")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-folder-search" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "search", size: 15 }), /* @__PURE__ */ import_react2.default.createElement("input", { ref: folderSearch, "aria-label": "\u67E5\u627E\u6587\u4EF6\u5939", placeholder: "\u67E5\u627E\u6587\u4EF6\u5939\u2026", value: folderQuery, onChange: (e3) => setFolderQuery(e3.target.value) }), folderQuery && /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u6E05\u7A7A\u6587\u4EF6\u5939\u67E5\u627E", onClick: () => {
-    setFolderQuery("");
-    folderSearch.current.focus();
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 14 }))), /* @__PURE__ */ import_react2.default.createElement("select", { className: "dm-folder-sort", "aria-label": "\u6587\u4EF6\u5939\u6392\u5E8F", value: folderSort, disabled: sorting, onChange: (e3) => changeSort(e3.target.value) }, FOLDER_SORTS.map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label))), folderQuery.trim() && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-folder-matches", role: "status" }, folders.length ? `\u627E\u5230 ${folders.length} \u4E2A\u6587\u4EF6\u5939` : "\u6CA1\u6709\u5339\u914D\u7684\u6587\u4EF6\u5939"), state.accounts.filter((account) => !folderQuery.trim() || folders.some((f3) => f3.accountId === account.id)).map((account) => /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-account-folders", key: account.id, open: true }, /* @__PURE__ */ import_react2.default.createElement("summary", { title: account.email }, /* @__PURE__ */ import_react2.default.createElement("span", null, account.name), /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${account.error ? "bad" : ""}` })), folders.filter((f3) => f3.accountId === account.id).map((f3) => {
-    const appearance = folderAppearance(f3);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-folder-row", key: f3.id, style: { "--folder-color": appearance.color } }, /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", title: f3.path, className: query.folderId === f3.id ? "selected" : "", "aria-current": query.folderId === f3.id ? "page" : void 0, onClick: () => filter({ accountId: account.id, folderId: f3.id }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: appearance.icon, size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, f3.name || f3.path), /* @__PURE__ */ import_react2.default.createElement("small", { title: f3.count == null ? "\u5C1A\u672A\u540C\u6B65\u6570\u91CF" : `${f3.count} \u5C01\u90AE\u4EF6` }, f3.count ?? "\u2014")), /* @__PURE__ */ import_react2.default.createElement(FolderColorMenu, { folder: f3 }));
-  }))), state["saved-searches"].length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, "\u4FDD\u5B58\u7684\u641C\u7D22"), state["saved-searches"].map((s4) => /* @__PURE__ */ import_react2.default.createElement("button", { key: s4.id, onClick: () => filter(s4.query) }, "\u2315 ", s4.name))), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "account" }) }, "\uFF0B \u6DFB\u52A0\u90AE\u7BB1")), /* @__PURE__ */ import_react2.default.createElement("section", { id: `${layoutId}-list`, className: "dm-list-pane" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-list-heading" }, /* @__PURE__ */ import_react2.default.createElement("h2", { title: drafts ? "\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1" : source }, drafts ? "\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1" : source), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-count" }, drafts ? pendingDrafts(state.drafts).length : result.total)), query.sent && !drafts && missingSent.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-sent-warning", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, missingSent.map((a3) => a3.name).join("\u3001"), "\u5C1A\u672A\u6620\u5C04\u6709\u6548\u7684\u5DF2\u53D1\u9001\u6587\u4EF6\u5939\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
-    setSettingsSection("\u90AE\u7BB1\u8D26\u53F7");
-    setTab("\u8BBE\u7F6E");
-  } }, "\u914D\u7F6E")), drafts ? /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-list" }, pendingDrafts(state.drafts).length === 0 && /* @__PURE__ */ import_react2.default.createElement(Empty, { title: "\u8FD8\u6CA1\u6709\u8349\u7A3F" }, "\u65B0\u5EFA\u4E00\u5C01\u90AE\u4EF6\uFF0C\u6216\u8BA9 AI \u4E3A\u4F60\u51C6\u5907\u56DE\u590D\u3002"), pendingDrafts(state.drafts).map((d2) => /* @__PURE__ */ import_react2.default.createElement("button", { className: "dm-message", key: d2.id, onClick: () => setCompose(d2) }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-top" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, d2.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("small", null, statusText[d2.status], d2.status === "queued" && d2.sendAt ? ` \xB7 ${sendTimeLabel(d2.sendAt, d2.sendTimeZone)}` : "")), /* @__PURE__ */ import_react2.default.createElement("p", null, addr(d2.to) || "\u5C1A\u672A\u586B\u5199\u6536\u4EF6\u4EBA"), d2.receipt && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u6536\u5230\u56DE\u6267 \xB7 ", d2.receipt.disposition), d2.replyReceivedAt && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5DF2\u6536\u5230\u56DE\u590D")))) : /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-search", onSubmit: (e3) => {
-    e3.preventDefault();
-    setQuery({ ...query, q: q3, offset: 0 });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "search", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u641C\u7D22\u90AE\u4EF6", placeholder: "\u641C\u7D22\u4E3B\u9898\u3001\u6B63\u6587\u3001\u8054\u7CFB\u4EBA\u2026", value: q3, onChange: (e3) => setQ(e3.target.value) }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit" }, "\u641C\u7D22"), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-expanded": advanced, onClick: () => setAdvanced(!advanced) }, "\u7B5B\u9009")), advanced && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-advanced" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA", value: query.from || "", onChange: (e3) => setQuery({ ...query, from: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5F00\u59CB\u65E5\u671F", type: "date", value: query.after || "", onChange: (e3) => setQuery({ ...query, after: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u7ED3\u675F\u65E5\u671F\uFF08\u4E0D\u542B\uFF09", type: "date", value: query.before || "", onChange: (e3) => setQuery({ ...query, before: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: query.seen === false, onChange: (e3) => setQuery({ ...query, seen: e3.target.checked ? false : void 0, offset: 0 }) }), "\u53EA\u770B\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!query.hasAttachment, onChange: (e3) => setQuery({ ...query, hasAttachment: e3.target.checked ? true : void 0, offset: 0 }) }), "\u5305\u542B\u9644\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: groupThreads, onChange: (e3) => setGroupThreads(e3.target.checked) }), "\u5F53\u524D\u9875\u5408\u5E76\u540C\u4E00\u90AE\u4EF6\u5F80\u6765"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "saved-searches", value: { name: q3 || "\u6211\u7684\u641C\u7D22", query } }) }, "\u4FDD\u5B58\u641C\u7D22")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-bulk" }, /* @__PURE__ */ import_react2.default.createElement("label", { title: "\u9009\u62E9\u5F53\u524D\u9875" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", "aria-label": "\u9009\u62E9\u5F53\u524D\u9875", checked: result.items.length > 0 && checked.length === result.items.length, onChange: (e3) => setChecked(e3.target.checked ? result.items.map((m3) => m3.id) : []) })), /* @__PURE__ */ import_react2.default.createElement("span", null, checked.length ? `\u5DF2\u9009 ${checked.length}` : "\u9009\u62E9\u90AE\u4EF6\u4EE5\u6279\u91CF\u6574\u7406"), checked.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => operate("star", true) }, "\u52A0\u661F"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => operate("read", true) }, "\u5DF2\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => operate("trash") }, "\u5220\u9664"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: checked, format: "eml" }) }, "\u5BFC\u51FA"))), checked.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-bulk" }, /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u76EE\u6807\u6587\u4EF6\u5939", value: destination, onChange: (e3) => setDestination(e3.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u9009\u62E9\u76EE\u6807\u6587\u4EF6\u5939"), state.folders.filter((f3) => !f3.missing).map((f3) => /* @__PURE__ */ import_react2.default.createElement("option", { value: f3.id, key: f3.id }, state.accounts.find((a3) => a3.id === f3.accountId)?.name, " / ", f3.path))), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !destination, onClick: () => operate("move") }, "\u79FB\u52A8"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !destination, onClick: () => operate("copy") }, "\u590D\u5236"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => operate("purge") }, "\u6C38\u4E45\u5220\u9664\u2026")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-list" }, !shown.length && /* @__PURE__ */ import_react2.default.createElement(Empty, { title: state.accounts.length ? "\u8FD9\u91CC\u8FD8\u6CA1\u6709\u90AE\u4EF6" : "\u628A\u90AE\u7BB1\u5E26\u8FDB\u4F60\u7684\u5DE5\u4F5C\u53F0" }, state.accounts.length ? "\u53EF\u8C03\u6574\u7B5B\u9009\u6761\u4EF6\uFF0C\u6216\u67E5\u770B\u8BBE\u7F6E\u4E2D\u7684\u540C\u6B65\u72B6\u6001\u3002" : /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, "\u8FDE\u63A5\u7F51\u6613 163 \u6216\u5176\u4ED6 IMAP \u90AE\u7BB1\uFF0C\u5728\u8FD9\u91CC\u9605\u8BFB\u3001\u6574\u7406\uFF0C\u5E76\u4E0E AI \u4E00\u8D77\u5904\u7406\u90AE\u4EF6\u3002", /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "account" }) }, "\u8FDE\u63A5\u7B2C\u4E00\u4E2A\u90AE\u7BB1"))), shown.map((m3) => {
+  const shown = (0, import_react3.useMemo)(() => groupThreads ? result.items.filter((m3, i4, all) => all.findIndex((x4) => x4.accountId === m3.accountId && x4.threadId === m3.threadId) === i4) : result.items, [groupThreads, result.items]);
+  const messageRows = (0, import_react3.useMemo)(() => shown.map((m3) => {
     const avatar = senderAppearance(m3), positions = messageFolderLocations(m3, state.folders), attachments = downloadableAttachments(m3);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { key: m3.id, className: `dm-message-row ${selected === m3.id ? "selected" : ""} ${!m3.seen ? "unread" : ""}` }, positions.length > 0 && /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-folder-corner", role: "img", "aria-label": `\u6240\u5728\u6587\u4EF6\u5939\uFF1A${positions.map(({ folder }) => folder.path).join("\u3001")}`, title: `${state.accounts.find((a3) => a3.id === m3.accountId)?.name || ""} / ${positions.map(({ folder }) => folder.path).join("\u3001")}`, style: { "--folder-color": `linear-gradient(135deg, ${positions.map(({ folder }, i4) => `${folderAppearance(folder).color} ${i4 / positions.length * 100}% ${(i4 + 1) / positions.length * 100}%`).join(", ")})` } }), /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", "aria-label": `\u9009\u62E9 ${m3.subject}`, checked: checked.includes(m3.id), onChange: (e3) => setChecked(e3.target.checked ? [...checked, m3.id] : checked.filter((k3) => k3 !== m3.id)) }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": avatar.color }, "aria-hidden": "true" }, avatar.text), /* @__PURE__ */ import_react2.default.createElement("button", { className: "dm-message", onClick: () => {
+    return /* @__PURE__ */ import_react3.default.createElement("div", { key: m3.id, className: `dm-message-row ${selected === m3.id ? "selected" : ""} ${!m3.seen ? "unread" : ""}` }, positions.length > 0 && /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-folder-corner", role: "img", "aria-label": `\u6240\u5728\u6587\u4EF6\u5939\uFF1A${positions.map(({ folder }) => folder.path).join("\u3001")}`, title: `${state.accounts.find((a3) => a3.id === m3.accountId)?.name || ""} / ${positions.map(({ folder }) => folder.path).join("\u3001")}`, style: { "--folder-color": `linear-gradient(135deg, ${positions.map(({ folder }, i4) => `${folderAppearance(folder).color} ${i4 / positions.length * 100}% ${(i4 + 1) / positions.length * 100}%`).join(", ")})` } }), /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", "aria-label": `\u9009\u62E9 ${m3.subject}`, checked: checked.includes(m3.id), onChange: (e3) => setChecked(e3.target.checked ? [...checked, m3.id] : checked.filter((k3) => k3 !== m3.id)) }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": avatar.color }, "aria-hidden": "true" }, avatar.text), /* @__PURE__ */ import_react3.default.createElement("button", { className: "dm-message", onClick: () => {
       setSelected(m3.id);
       setCompose(null);
-    } }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-top" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("small", null, date(m3.date))), /* @__PURE__ */ import_react2.default.createElement("h3", null, m3.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("p", null, m3.snippet || (m3.bodyLoaded ? "\u65E0\u7EAF\u6587\u672C\u6B63\u6587" : "\u6B63\u6587\u7B49\u5F85\u540C\u6B65")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-message-bottom" }, /* @__PURE__ */ import_react2.default.createElement("span", null, state.accounts.find((a3) => a3.id === m3.accountId)?.name), !!attachments.length && /* @__PURE__ */ import_react2.default.createElement("span", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 12 }), " ", attachments.length), m3.labels?.map((x4) => /* @__PURE__ */ import_react2.default.createElement("span", { key: x4, style: { color: state.labels.find((label) => label.name === x4)?.color || "var(--dm-accent)", border: "1px solid currentColor", padding: "0 4px", borderRadius: 3 } }, x4)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-row-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-star ${m3.starred ? "is-starred" : ""}`, "aria-label": `${m3.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "star", value: !m3.starred })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "star", size: 16 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-row-quick" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": `${m3.seen ? "\u6807\u4E3A\u672A\u8BFB" : "\u6807\u4E3A\u5DF2\u8BFB"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "read", value: !m3.seen })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: m3.seen ? "mail" : "read", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": `\u5F52\u6863 ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "archive" })) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })))));
-  })), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !query.offset, onClick: () => setQuery({ ...query, offset: Math.max(0, (query.offset || 0) - 50) }) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react2.default.createElement("span", null, result.total ? (query.offset || 0) + 1 : 0, "\u2013", Math.min((query.offset || 0) + 50, result.total), " / ", result.total), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: !result.nextOffset, onClick: () => setQuery({ ...query, offset: result.nextOffset }) }, "\u4E0B\u4E00\u9875")), result.coverage && result.coverage.indexed < result.coverage.total && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-index-status" }, "\u6B63\u6587\u7D22\u5F15 ", result.coverage.indexed, " / ", result.coverage.total, " \xB7 \u672A\u5B8C\u6210\u90E8\u5206\u4E0D\u5728\u6B63\u6587\u641C\u7D22\u7ED3\u679C\u4E2D"))), sizes.handles > 0 && divider("mailListWidth", "\u8C03\u6574\u90AE\u4EF6\u5217\u8868\u5BBD\u5EA6", sizes.list, 260, sizes.listMax, "list"), /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-detail-pane" }, compose ? /* @__PURE__ */ import_react2.default.createElement(Composer, { key: `${compose.id}:${["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id)?.status || compose.status : compose.status}`, initial: ["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id) || compose : compose, active }) : selected ? /* @__PURE__ */ import_react2.default.createElement(Reader, { key: selected, id: selected, active }) : /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2727", title: "\u7ED9\u6BCF\u5C01\u90AE\u4EF6\u4E00\u4E2A\u6E05\u6670\u7684\u4E0B\u4E00\u6B65" }, "\u9009\u62E9\u90AE\u4EF6\u5F00\u59CB\u9605\u8BFB\uFF0C\u6216\u6253\u5F00\u53F3\u4E0A\u65B9 AI \u52A9\u624B\uFF0C\u67E5\u627E\u3001\u603B\u7ED3\u548C\u51C6\u5907\u56DE\u590D\u3002")));
+    } }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-message-top" }, /* @__PURE__ */ import_react3.default.createElement("strong", null, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react3.default.createElement("small", null, date(m3.date))), /* @__PURE__ */ import_react3.default.createElement("h3", null, m3.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react3.default.createElement("p", null, m3.snippet || (m3.bodyLoaded ? "\u65E0\u7EAF\u6587\u672C\u6B63\u6587" : "\u6B63\u6587\u7B49\u5F85\u540C\u6B65")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-message-bottom" }, /* @__PURE__ */ import_react3.default.createElement("span", null, state.accounts.find((a3) => a3.id === m3.accountId)?.name), !!attachments.length && /* @__PURE__ */ import_react3.default.createElement("span", null, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "attachment", size: 12 }), " ", attachments.length), m3.labels?.map((x4) => /* @__PURE__ */ import_react3.default.createElement("span", { key: x4, style: { color: state.labels.find((label) => label.name === x4)?.color || "var(--dm-accent)", border: "1px solid currentColor", padding: "0 4px", borderRadius: 3 } }, x4)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-row-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { className: `dm-star ${m3.starred ? "is-starred" : ""}`, "aria-label": `${m3.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "star", value: !m3.starred })) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "star", size: 16 })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-row-quick" }, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": `${m3.seen ? "\u6807\u4E3A\u672A\u8BFB" : "\u6807\u4E3A\u5DF2\u8BFB"} ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "read", value: !m3.seen })) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: m3.seen ? "mail" : "read", size: 16 })), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": `\u5F52\u6863 ${m3.subject}`, onClick: () => run3(() => act({ action: "messages.action", ids: [m3.id], operation: "archive" })) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "archive", size: 16 })))));
+  }), [shown, checked, selected, state.folders, state.accounts, state.labels, request]);
+  const source = query.folderId ? state.folders.find((f3) => f3.id === query.folderId)?.path : query.sent ? "\u5DF2\u53D1\u9001" : query.starred ? "\u661F\u6807\u90AE\u4EF6" : query.inbox ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : "\u641C\u7D22\u7ED3\u679C";
+  return /* @__PURE__ */ import_react3.default.createElement("div", { ref: layout, style: { "--dm-folder-width": `${sizes.folder}px`, "--dm-list-width": `${sizes.list}px` }, className: `dm-mail-layout ${selected || compose ? "has-detail" : ""} ${folderMenu ? "show-folders" : ""} ${resizing ? "dm-resizing" : ""}` }, folderMenu && /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "dm-folder-backdrop", "aria-label": "\u5173\u95ED\u6587\u4EF6\u5939\u5217\u8868", tabIndex: -1, onClick: closeFolders }), /* @__PURE__ */ import_react3.default.createElement("aside", { id: folderId, ref: folderPanel, className: "dm-folders", "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", role: folderMenu ? "dialog" : void 0, "aria-modal": folderMenu || void 0, inert: !folderMenu }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-section-label" }, "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-folder-close", "aria-label": "\u5173\u95ED\u6587\u4EF6\u5939\u9762\u677F", onClick: closeFolders }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "close", size: 16 }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-section-label" }, "\u7BA1\u7406\u6587\u4EF6\u5939", /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u65B0\u5EFA\u6587\u4EF6\u5939", onClick: () => setModal({ type: "folder" }) }, "\uFF0B")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-folder-search" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "search", size: 15 }), /* @__PURE__ */ import_react3.default.createElement("input", { ref: folderSearch, "aria-label": "\u67E5\u627E\u6587\u4EF6\u5939", placeholder: "\u67E5\u627E\u6587\u4EF6\u5939\u2026", value: folderQuery, onChange: (e3) => setFolderQuery(e3.target.value) }), folderQuery && /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u6E05\u7A7A\u6587\u4EF6\u5939\u67E5\u627E", onClick: () => {
+    setFolderQuery("");
+    folderSearch.current.focus();
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "close", size: 14 }))), /* @__PURE__ */ import_react3.default.createElement("select", { className: "dm-folder-sort", "aria-label": "\u6587\u4EF6\u5939\u6392\u5E8F", value: folderSort, disabled: sorting, onChange: (e3) => changeSort(e3.target.value) }, FOLDER_SORTS.map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label))), folderQuery.trim() && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-folder-matches", role: "status" }, folders.length ? `\u627E\u5230 ${folders.length} \u4E2A\u6587\u4EF6\u5939` : "\u6CA1\u6709\u5339\u914D\u7684\u6587\u4EF6\u5939"), state.accounts.filter((account) => !folderQuery.trim() || folders.some((f3) => f3.accountId === account.id)).map((account) => /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-account-folders", key: account.id, open: true }, /* @__PURE__ */ import_react3.default.createElement("summary", { title: account.email }, /* @__PURE__ */ import_react3.default.createElement("span", null, account.name), /* @__PURE__ */ import_react3.default.createElement("span", { className: `dm-dot ${account.error ? "bad" : ""}` })), folders.filter((f3) => f3.accountId === account.id).map((f3) => {
+    const appearance = folderAppearance(f3);
+    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-folder-row", key: f3.id, style: { "--folder-color": appearance.color } }, /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", title: f3.path, className: query.folderId === f3.id ? "selected" : "", "aria-current": query.folderId === f3.id ? "page" : void 0, onClick: () => filter({ accountId: account.id, folderId: f3.id }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: appearance.icon, size: 17 }), /* @__PURE__ */ import_react3.default.createElement("span", null, f3.name || f3.path), /* @__PURE__ */ import_react3.default.createElement("small", { title: f3.count == null ? "\u5C1A\u672A\u540C\u6B65\u6570\u91CF" : `${f3.count} \u5C01\u90AE\u4EF6` }, f3.count ?? "\u2014")), /* @__PURE__ */ import_react3.default.createElement(FolderColorMenu, { folder: f3 }));
+  }))), state["saved-searches"].length > 0 && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-section-label" }, "\u4FDD\u5B58\u7684\u641C\u7D22"), state["saved-searches"].map((s4) => /* @__PURE__ */ import_react3.default.createElement("button", { key: s4.id, onClick: () => filter(s4.query) }, "\u2315 ", s4.name))), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "account" }) }, "\uFF0B \u6DFB\u52A0\u90AE\u7BB1")), /* @__PURE__ */ import_react3.default.createElement("section", { id: `${layoutId}-list`, className: "dm-list-pane" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-list-heading" }, /* @__PURE__ */ import_react3.default.createElement("h2", { title: drafts ? "\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1" : source }, drafts ? "\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1" : source), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-count" }, drafts ? pendingDrafts(state.drafts).length : result.total)), query.sent && !drafts && missingSent.length > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-sent-warning", role: "status" }, /* @__PURE__ */ import_react3.default.createElement("span", null, missingSent.map((a3) => a3.name).join("\u3001"), "\u5C1A\u672A\u6620\u5C04\u6709\u6548\u7684\u5DF2\u53D1\u9001\u6587\u4EF6\u5939\u3002"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => {
+    setSettingsSection("\u90AE\u7BB1\u8D26\u53F7");
+    setTab("\u8BBE\u7F6E");
+  } }, "\u914D\u7F6E")), drafts ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-message-list" }, pendingDrafts(state.drafts).length === 0 && /* @__PURE__ */ import_react3.default.createElement(Empty, { title: "\u8FD8\u6CA1\u6709\u8349\u7A3F" }, "\u65B0\u5EFA\u4E00\u5C01\u90AE\u4EF6\uFF0C\u6216\u8BA9 AI \u4E3A\u4F60\u51C6\u5907\u56DE\u590D\u3002"), pendingDrafts(state.drafts).map((d2) => /* @__PURE__ */ import_react3.default.createElement("button", { className: "dm-message", key: d2.id, onClick: () => run3(async () => setCompose(await request({ action: "drafts.read", id: d2.id }))) }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-message-top" }, /* @__PURE__ */ import_react3.default.createElement("strong", null, d2.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react3.default.createElement("small", null, statusText[d2.status], d2.status === "queued" && d2.sendAt ? ` \xB7 ${sendTimeLabel(d2.sendAt, d2.sendTimeZone)}` : "")), /* @__PURE__ */ import_react3.default.createElement("p", null, addr(d2.to) || "\u5C1A\u672A\u586B\u5199\u6536\u4EF6\u4EBA"), d2.receipt && /* @__PURE__ */ import_react3.default.createElement("small", null, "\u6536\u5230\u56DE\u6267 \xB7 ", d2.receipt.disposition), d2.replyReceivedAt && /* @__PURE__ */ import_react3.default.createElement("small", null, "\u5DF2\u6536\u5230\u56DE\u590D")))) : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-search", onSubmit: (e3) => {
+    e3.preventDefault();
+    setQuery({ ...query, q: q3, offset: 0 });
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "search", size: 16 }), /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": "\u641C\u7D22\u90AE\u4EF6", placeholder: "\u641C\u7D22\u4E3B\u9898\u3001\u6B63\u6587\u3001\u8054\u7CFB\u4EBA\u2026", value: q3, onChange: (e3) => setQ(e3.target.value) }), /* @__PURE__ */ import_react3.default.createElement("button", { type: "submit" }, "\u641C\u7D22"), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", "aria-expanded": advanced, onClick: () => setAdvanced(!advanced) }, "\u7B5B\u9009")), advanced && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-advanced" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA", value: query.from || "", onChange: (e3) => setQuery({ ...query, from: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5F00\u59CB\u65E5\u671F", type: "date", value: query.after || "", onChange: (e3) => setQuery({ ...query, after: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u7ED3\u675F\u65E5\u671F\uFF08\u4E0D\u542B\uFF09", type: "date", value: query.before || "", onChange: (e3) => setQuery({ ...query, before: e3.target.value, offset: 0 }) }), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: query.seen === false, onChange: (e3) => setQuery({ ...query, seen: e3.target.checked ? false : void 0, offset: 0 }) }), "\u53EA\u770B\u672A\u8BFB"), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: !!query.hasAttachment, onChange: (e3) => setQuery({ ...query, hasAttachment: e3.target.checked ? true : void 0, offset: 0 }) }), "\u5305\u542B\u9644\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: groupThreads, onChange: (e3) => setGroupThreads(e3.target.checked) }), "\u5F53\u524D\u9875\u5408\u5E76\u540C\u4E00\u90AE\u4EF6\u5F80\u6765"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "saved-searches", value: { name: q3 || "\u6211\u7684\u641C\u7D22", query } }) }, "\u4FDD\u5B58\u641C\u7D22")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-bulk" }, /* @__PURE__ */ import_react3.default.createElement("label", { title: "\u9009\u62E9\u5F53\u524D\u9875" }, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", "aria-label": "\u9009\u62E9\u5F53\u524D\u9875", checked: result.items.length > 0 && checked.length === result.items.length, onChange: (e3) => setChecked(e3.target.checked ? result.items.map((m3) => m3.id) : []) })), /* @__PURE__ */ import_react3.default.createElement("span", null, checked.length ? `\u5DF2\u9009 ${checked.length}` : "\u9009\u62E9\u90AE\u4EF6\u4EE5\u6279\u91CF\u6574\u7406"), checked.length > 0 && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => operate("star", true) }, "\u52A0\u661F"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => operate("read", true) }, "\u5DF2\u8BFB"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => operate("trash") }, "\u5220\u9664"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: checked, format: "eml" }) }, "\u5BFC\u51FA"))), checked.length > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-bulk" }, /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": "\u76EE\u6807\u6587\u4EF6\u5939", value: destination, onChange: (e3) => setDestination(e3.target.value) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u9009\u62E9\u76EE\u6807\u6587\u4EF6\u5939"), state.folders.filter((f3) => !f3.missing).map((f3) => /* @__PURE__ */ import_react3.default.createElement("option", { value: f3.id, key: f3.id }, state.accounts.find((a3) => a3.id === f3.accountId)?.name, " / ", f3.path))), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !destination, onClick: () => operate("move") }, "\u79FB\u52A8"), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !destination, onClick: () => operate("copy") }, "\u590D\u5236"), /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => operate("purge") }, "\u6C38\u4E45\u5220\u9664\u2026")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-message-list", "aria-busy": searchLoading, "data-avatars": state.settings?.showAvatars !== false, "data-snippet": state.settings?.snippetLines ?? 1 }, searchError && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-warning", role: "alert" }, searchError, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setSearchRetry((n3) => n3 + 1) }, "\u91CD\u8BD5\u641C\u7D22")), searchLoading && !shown.length && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-skeleton", role: "status" }, "\u6B63\u5728\u52A0\u8F7D\u90AE\u4EF6\u2026"), !searchLoading && !searchError && !shown.length && /* @__PURE__ */ import_react3.default.createElement(Empty, { title: state.accounts.length ? "\u8FD9\u91CC\u8FD8\u6CA1\u6709\u90AE\u4EF6" : "\u628A\u90AE\u7BB1\u5E26\u8FDB\u4F60\u7684\u5DE5\u4F5C\u53F0" }, state.accounts.length ? "\u53EF\u8C03\u6574\u7B5B\u9009\u6761\u4EF6\uFF0C\u6216\u67E5\u770B\u8BBE\u7F6E\u4E2D\u7684\u540C\u6B65\u72B6\u6001\u3002" : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, "\u8FDE\u63A5\u7F51\u6613 163 \u6216\u5176\u4ED6 IMAP \u90AE\u7BB1\uFF0C\u5728\u8FD9\u91CC\u9605\u8BFB\u3001\u6574\u7406\uFF0C\u5E76\u4E0E AI \u4E00\u8D77\u5904\u7406\u90AE\u4EF6\u3002", /* @__PURE__ */ import_react3.default.createElement("br", null), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "account" }) }, "\u8FDE\u63A5\u7B2C\u4E00\u4E2A\u90AE\u7BB1"))), messageRows), /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !query.offset, onClick: () => setQuery({ ...query, offset: Math.max(0, (query.offset || 0) - pageSize) }) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react3.default.createElement("span", null, result.total ? (query.offset || 0) + 1 : 0, "\u2013", Math.min((query.offset || 0) + pageSize, result.total), " / ", result.total), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !result.nextOffset, onClick: () => setQuery({ ...query, offset: result.nextOffset }) }, "\u4E0B\u4E00\u9875")), result.coverage && result.coverage.indexed < result.coverage.total && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-index-status" }, "\u6B63\u6587\u7D22\u5F15 ", result.coverage.indexed, " / ", result.coverage.total, " \xB7 \u672A\u5B8C\u6210\u90E8\u5206\u4E0D\u5728\u6B63\u6587\u641C\u7D22\u7ED3\u679C\u4E2D"))), sizes.handles > 0 && divider("mailListWidth", "\u8C03\u6574\u90AE\u4EF6\u5217\u8868\u5BBD\u5EA6", sizes.list, 260, sizes.listMax, "list"), /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-detail-pane" }, compose ? /* @__PURE__ */ import_react3.default.createElement(Composer, { key: `${compose.id}:${["queued", "sending"].includes(compose.status) ? state.drafts.find((d2) => d2.id === compose.id)?.status || compose.status : compose.status}`, initial: ["queued", "sending"].includes(compose.status) ? { ...compose, ...state.drafts.find((d2) => d2.id === compose.id) } : compose, active }) : selected ? /* @__PURE__ */ import_react3.default.createElement(Reader, { key: selected, id: selected, active, cache: bodyCache.current }) : /* @__PURE__ */ import_react3.default.createElement(MailboxOverview, null)));
 }
 function AddressButtons({ value }) {
   const { setModal, state } = useMail();
-  return /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-addresses" }, people(value).map((person, i4) => {
+  return /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-addresses" }, people(value).map((person, i4) => {
     const contact = state.contacts.find((c3) => c3.email.toLowerCase() === person.address.toLowerCase());
-    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, { key: `${person.address}:${i4}` }, i4 > 0 && /* @__PURE__ */ import_react2.default.createElement("span", null, "\uFF0C"), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "dm-person", title: `${person.address} \xB7 \u8054\u7CFB\u4EBA\u64CD\u4F5C`, onClick: () => setModal({ type: "person", value: person }) }, displayName(contact?.name) || personLabel(person)));
+    return /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, { key: `${person.address}:${i4}` }, i4 > 0 && /* @__PURE__ */ import_react3.default.createElement("span", null, "\uFF0C"), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "dm-person", title: `${person.address} \xB7 \u8054\u7CFB\u4EBA\u64CD\u4F5C`, onClick: () => setModal({ type: "person", value: person }) }, displayName(contact?.name) || personLabel(person)));
   }));
 }
 function ContactCard({ person }) {
-  const { state, run: run3, setNotice, setModal, newDraft, showParticipant } = useMail();
-  const contact = state.contacts.find((c3) => c3.email.toLowerCase() === person.address.toLowerCase());
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-person-card" }, /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, person.address, " \xB7 ", contact ? "\u5DF2\u5728\u8054\u7CFB\u4EBA\u4E2D" : "\u5C1A\u672A\u6DFB\u52A0\u5230\u8054\u7CFB\u4EBA"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-person-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  const { run: run3, request, setNotice, setModal, newDraft, showParticipant } = useMail(), [contact, setContact] = (0, import_react3.useState)(void 0), [error, setError] = (0, import_react3.useState)("");
+  (0, import_react3.useEffect)(() => {
+    let live = true;
+    request({ action: "contacts.lookup", email: person.address }).then((value) => {
+      if (live) setContact(value);
+    }).catch((e3) => {
+      if (live) setError(e3.message);
+    });
+    return () => {
+      live = false;
+    };
+  }, [person.address, request]);
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-person-card" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, person.address, " \xB7 ", contact ? "\u5DF2\u5728\u8054\u7CFB\u4EBA\u4E2D" : contact === void 0 ? "\u6B63\u5728\u67E5\u8BE2\u8054\u7CFB\u4EBA\u2026" : "\u5C1A\u672A\u6DFB\u52A0\u5230\u8054\u7CFB\u4EBA"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-person-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => {
     await navigator.clipboard.writeText(person.address);
     setNotice("\u90AE\u7BB1\u5730\u5740\u5DF2\u590D\u5236");
-  }) }, "\u590D\u5236\u90AE\u7BB1"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
+  }) }, "\u590D\u5236\u90AE\u7BB1"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => {
     setModal(null);
     newDraft(person);
-  } }, "\u7ED9\u4ED6\u5199\u4FE1"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => showParticipant(person.address) }, "\u5F80\u6765\u90AE\u4EF6")), /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: contact || { name: person.name, email: person.address, group: "" } }));
+  } }, "\u7ED9\u4ED6\u5199\u4FE1"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => showParticipant(person.address) }, "\u5F80\u6765\u90AE\u4EF6")), error && /* @__PURE__ */ import_react3.default.createElement("p", { role: "alert" }, error), contact !== void 0 && /* @__PURE__ */ import_react3.default.createElement(ContactForm, { value: contact || { name: person.name, email: person.address, group: "" } }));
 }
 var AI_LABELS = { compose: "AI \u5199\u4FE1", polish: "\u6DA6\u8272", translateDraft: "\u7FFB\u8BD1\u8349\u7A3F", translateMessage: "\u7FFB\u8BD1\u672C\u90AE\u4EF6", summary: "\u603B\u7ED3\u90AE\u4EF6", reply: "AI \u56DE\u590D" };
 var aiLanguage = (task) => task === "polish" ? "preserve" : task === "reply" ? "original" : "\u7B80\u4F53\u4E2D\u6587";
-function AiPanel({ task: initialTask, messageId, replySource, prepare, apply: apply4, close: close2, active = true }) {
-  const { request } = useMail();
-  const [task, setTask] = (0, import_react2.useState)(initialTask), [language, setLanguage] = (0, import_react2.useState)(aiLanguage(initialTask)), [custom, setCustom] = (0, import_react2.useState)(""), [instruction, setInstruction] = (0, import_react2.useState)(""), [result, setResult] = (0, import_react2.useState)(null), [loading, setLoading] = (0, import_react2.useState)(false), [error, setError] = (0, import_react2.useState)(""), [note, setNote] = (0, import_react2.useState)("");
-  const pending = (0, import_react2.useRef)(null), sequence = (0, import_react2.useRef)(0), applying = (0, import_react2.useRef)(false), [applyingResult, setApplyingResult] = (0, import_react2.useState)(false);
+function AiPanel({ task: initialTask, messageId, sourceId, replySource, prepare, apply: apply4, close: close2, active = true }) {
+  const { request, state, ensureAssistant, call, setAssistantOpen, quickCandidates } = useMail();
+  const [progress, setProgress] = (0, import_react3.useState)([]);
+  const currentRun = (0, import_react3.useRef)(null);
+  const [task, setTask] = (0, import_react3.useState)(initialTask), [language, setLanguage] = (0, import_react3.useState)(["polish", "reply"].includes(initialTask) ? aiLanguage(initialTask) : ["\u7B80\u4F53\u4E2D\u6587", "\u82F1\u8BED", "\u65E5\u8BED"].includes(state.settings?.aiLanguage || "\u7B80\u4F53\u4E2D\u6587") ? state.settings?.aiLanguage || "\u7B80\u4F53\u4E2D\u6587" : "custom"), [custom, setCustom] = (0, import_react3.useState)(state.settings?.aiLanguage || ""), [instruction, setInstruction] = (0, import_react3.useState)(""), [result, setResult] = (0, import_react3.useState)(null), [loading, setLoading] = (0, import_react3.useState)(false), [error, setError] = (0, import_react3.useState)(""), [note, setNote] = (0, import_react3.useState)("");
+  const pending = (0, import_react3.useRef)(null), sequence = (0, import_react3.useRef)(0), applying = (0, import_react3.useRef)(false), [applyingResult, setApplyingResult] = (0, import_react3.useState)(false);
+  const candidateKey = `${sourceId || messageId}:${task}`;
   const cancel = () => {
+    quickCandidates.delete(candidateKey);
     sequence.current++;
     pending.current?.abort();
     pending.current = null;
+    const run3 = currentRun.current;
+    currentRun.current = null;
+    if (run3) call(run3.sessionId, { action: "assistant.quick.cancel", id: run3.id }).catch(() => {
+    });
     setLoading(false);
   };
-  const generate = async () => {
+  const generate = async (resume) => {
     cancel();
     const seq = sequence.current, controller = new AbortController();
     pending.current = controller;
@@ -47367,11 +47887,49 @@ function AiPanel({ task: initialTask, messageId, replySource, prepare, apply: ap
     setError("");
     setNote("");
     setResult(null);
+    setProgress([]);
     try {
-      const prepared = prepare ? await prepare(task) : { args: { messageId } };
+      const prepared = resume?.prepared || (prepare ? await prepare(task) : { args: { messageId } });
       if (seq !== sequence.current) return;
-      const response = await request({ action: "ai.generate", task, language: language === "custom" ? custom.trim() : language, instruction, ...prepared.args }, controller.signal);
-      if (seq === sequence.current) setResult({ ...response, clientToken: prepared.token, clientRevision: prepared.revision });
+      const args = { task, language: language === "custom" ? custom.trim() : language, instruction, ...prepared.args };
+      let response;
+      if (!ensureAssistant) response = await request({ action: "ai.generate", ...args }, controller.signal);
+      else {
+        const binding = await ensureAssistant();
+        controller.signal.throwIfAborted();
+        const started = resume?.run ? await call(binding.sessionId, { action: "assistant.quick.read", id: resume.run.id }, controller.signal) : await call(binding.sessionId, { action: "assistant.quick.start", ...args });
+        quickCandidates.set(candidateKey, { prepared, run: { id: started.id, sessionId: binding.sessionId } });
+        currentRun.current = { id: started.id, sessionId: binding.sessionId };
+        if (controller.signal.aborted) {
+          if (!controller.keepRunning) await call(binding.sessionId, { action: "assistant.quick.cancel", id: started.id });
+          controller.signal.throwIfAborted();
+        }
+        let run3 = started;
+        while (["preparing", "running"].includes(run3.status)) {
+          setProgress(run3.progress || []);
+          await new Promise((resolve, reject) => {
+            const abort = () => {
+              clearTimeout(timer);
+              reject(controller.signal.reason);
+            };
+            const timer = setTimeout(() => {
+              controller.signal.removeEventListener("abort", abort);
+              resolve();
+            }, 350);
+            controller.signal.addEventListener("abort", abort, { once: true });
+          });
+          controller.signal.throwIfAborted();
+          run3 = await call(binding.sessionId, { action: "assistant.quick.read", id: started.id }, controller.signal);
+        }
+        currentRun.current = null;
+        setProgress(run3.progress || []);
+        if (run3.status !== "completed") throw new Error(run3.error || "\u52A9\u624B\u672A\u5B8C\u6210\u672C\u6B21\u4EFB\u52A1");
+        response = run3.result;
+      }
+      const candidate = { ...response, clientToken: prepared.token, clientRevision: prepared.revision };
+      quickCandidates.set(candidateKey, { prepared, result: candidate });
+      if (quickCandidates.size > 40) quickCandidates.delete(quickCandidates.keys().next().value);
+      if (seq === sequence.current) setResult(candidate);
     } catch (e3) {
       if (seq === sequence.current) setError(e3.message);
     } finally {
@@ -47381,16 +47939,19 @@ function AiPanel({ task: initialTask, messageId, replySource, prepare, apply: ap
       }
     }
   };
-  (0, import_react2.useEffect)(() => {
-    if (["translateMessage", "summary"].includes(initialTask)) generate();
+  (0, import_react3.useEffect)(() => {
+    const saved = quickCandidates.get(candidateKey);
+    if (saved?.result) setResult(saved.result);
+    else if (saved?.run || ["translateMessage", "summary"].includes(initialTask)) generate(saved);
     return () => {
       sequence.current++;
-      pending.current?.abort();
+      if (pending.current) {
+        pending.current.keepRunning = true;
+        pending.current.abort();
+      }
+      currentRun.current = null;
     };
   }, []);
-  (0, import_react2.useEffect)(() => {
-    if (!active) cancel();
-  }, [active]);
   const applyResult = async (includeSubject) => {
     if (applying.current) return;
     applying.current = true;
@@ -47408,23 +47969,26 @@ function AiPanel({ task: initialTask, messageId, replySource, prepare, apply: ap
     }
   };
   const tasks = messageId ? ["translateMessage", "summary"] : [...replySource ? ["reply"] : [], "compose", "polish", "translateDraft"];
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-ai-panel", "aria-label": "\u90AE\u4EF6\u5185 AI" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 16 }), AI_LABELS[task]), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5173\u95ED\u90AE\u4EF6\u5185 AI", onClick: close2 }, "\xD7")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "1 \u586B\u5199\u8981\u6C42 \u2192 2 \u7F16\u8F91\u751F\u6210\u7ED3\u679C \u2192 3 \u5E94\u7528\u5230\u4E0B\u65B9\u6B63\u6587\u3002\u53D1\u9001\u524D\u4ECD\u9700\u9884\u89C8\u786E\u8BA4\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-ai-controls" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "AI \u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: task, onChange: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-ai-panel", "aria-label": "\u90AE\u4EF6\u5185 AI" }, /* @__PURE__ */ import_react3.default.createElement("header", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 16 }), AI_LABELS[task]), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u5173\u95ED\u90AE\u4EF6\u5185 AI", onClick: () => {
+    cancel();
+    close2();
+  } }, "\xD7")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "1 \u586B\u5199\u8981\u6C42 \u2192 2 \u7F16\u8F91\u751F\u6210\u7ED3\u679C \u2192 3 \u5E94\u7528\u5230\u4E0B\u65B9\u6B63\u6587\u3002\u53D1\u9001\u524D\u4ECD\u9700\u9884\u89C8\u786E\u8BA4\u3002"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-ai-controls" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "AI \u64CD\u4F5C" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: task, onChange: (e3) => {
     cancel();
     setTask(e3.target.value);
     setLanguage(aiLanguage(e3.target.value));
     setResult(null);
     setError("");
-  } }, tasks.map((t3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: t3, value: t3 }, AI_LABELS[t3])))), task !== "summary" && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u8F93\u51FA\u8BED\u8A00" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: language, onChange: (e3) => setLanguage(e3.target.value) }, task === "polish" && /* @__PURE__ */ import_react2.default.createElement("option", { value: "preserve" }, "\u4FDD\u7559\u8349\u7A3F\u8BED\u8A00"), task === "reply" && /* @__PURE__ */ import_react2.default.createElement("option", { value: "original" }, "\u8DDF\u968F\u539F\u4FE1\u8BED\u8A00"), ["\u7B80\u4F53\u4E2D\u6587", "\u82F1\u8BED", "\u65E5\u8BED"].map((l4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: l4 }, l4)), /* @__PURE__ */ import_react2.default.createElement("option", { value: "custom" }, "\u81EA\u5B9A\u4E49\u8BED\u8A00"))), language === "custom" && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u76EE\u6807\u8BED\u8A00", value: custom, onChange: (e3) => setCustom(e3.target.value) })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: task === "reply" ? "\u56DE\u590D\u8981\u6C42\uFF08\u53EF\u9009\uFF09" : "\u5199\u4F5C\u6216\u5904\u7406\u8981\u6C42\uFF08\u53EF\u9009\uFF09" }, /* @__PURE__ */ import_react2.default.createElement("textarea", { rows: 2, value: instruction, onChange: (e3) => setInstruction(e3.target.value), placeholder: task === "compose" ? "\u4F8B\u5982\uFF1A\u5411\u5BA2\u6237\u8BF4\u660E\u9879\u76EE\u5DF2\u4EA4\u4ED8\uFF0C\u8BF7\u5BF9\u65B9\u5468\u4E94\u524D\u786E\u8BA4\u3002" : "\u8865\u5145\u5E0C\u671B\u4FDD\u7559\u7684\u5185\u5BB9\u3001\u8BED\u6C14\u6216\u5176\u4ED6\u8981\u6C42\u2026" })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-ai-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", disabled: !active || loading || applyingResult || language === "custom" && !custom.trim(), onClick: generate }, loading ? "\u6B63\u5728\u751F\u6210\u2026" : result ? "\u91CD\u65B0\u751F\u6210" : "\u751F\u6210"), loading && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
+  } }, tasks.map((t3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: t3, value: t3 }, AI_LABELS[t3])))), task !== "summary" && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u8F93\u51FA\u8BED\u8A00" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: language, onChange: (e3) => setLanguage(e3.target.value) }, task === "polish" && /* @__PURE__ */ import_react3.default.createElement("option", { value: "preserve" }, "\u4FDD\u7559\u8349\u7A3F\u8BED\u8A00"), task === "reply" && /* @__PURE__ */ import_react3.default.createElement("option", { value: "original" }, "\u8DDF\u968F\u539F\u4FE1\u8BED\u8A00"), ["\u7B80\u4F53\u4E2D\u6587", "\u82F1\u8BED", "\u65E5\u8BED"].map((l4) => /* @__PURE__ */ import_react3.default.createElement("option", { key: l4 }, l4)), /* @__PURE__ */ import_react3.default.createElement("option", { value: "custom" }, "\u81EA\u5B9A\u4E49\u8BED\u8A00"))), language === "custom" && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u76EE\u6807\u8BED\u8A00", value: custom, onChange: (e3) => setCustom(e3.target.value) })), /* @__PURE__ */ import_react3.default.createElement(Field, { label: task === "reply" ? "\u56DE\u590D\u8981\u6C42\uFF08\u53EF\u9009\uFF09" : "\u5199\u4F5C\u6216\u5904\u7406\u8981\u6C42\uFF08\u53EF\u9009\uFF09" }, /* @__PURE__ */ import_react3.default.createElement("textarea", { rows: 2, value: instruction, onChange: (e3) => setInstruction(e3.target.value), placeholder: task === "compose" ? "\u4F8B\u5982\uFF1A\u5411\u5BA2\u6237\u8BF4\u660E\u9879\u76EE\u5DF2\u4EA4\u4ED8\uFF0C\u8BF7\u5BF9\u65B9\u5468\u4E94\u524D\u786E\u8BA4\u3002" : "\u8865\u5145\u5E0C\u671B\u4FDD\u7559\u7684\u5185\u5BB9\u3001\u8BED\u6C14\u6216\u5176\u4ED6\u8981\u6C42\u2026" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-ai-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-ai-button", disabled: !active || loading || applyingResult || language === "custom" && !custom.trim(), onClick: () => generate() }, loading ? "\u6B63\u5728\u751F\u6210\u2026" : result ? "\u91CD\u65B0\u751F\u6210" : "\u751F\u6210"), loading && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => {
     cancel();
     setNote("\u5DF2\u53D6\u6D88\u751F\u6210");
-  } }, "\u53D6\u6D88\u751F\u6210"), /* @__PURE__ */ import_react2.default.createElement("small", { className: "dm-muted" }, "\u4EC5\u5904\u7406\u5F53\u524D\u90AE\u4EF6\u6216\u8349\u7A3F")), error && /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert", className: "dm-warning" }, error), note && /* @__PURE__ */ import_react2.default.createElement("p", { role: "status" }, note), result && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-ai-result" }, /* @__PURE__ */ import_react2.default.createElement("small", { className: "dm-muted" }, result.model), result.subject !== void 0 && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "AI \u751F\u6210\u4E3B\u9898", value: result.subject, onChange: (e3) => setResult({ ...result, subject: e3.target.value }) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "AI \u751F\u6210\u6B63\u6587\uFF08\u53EF\u7F16\u8F91\uFF09" }, /* @__PURE__ */ import_react2.default.createElement("textarea", { className: "dm-ai-edit", rows: 8, value: result.text, onChange: (e3) => setResult({ ...result, text: e3.target.value }) })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-ai-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: async () => {
+  } }, "\u53D6\u6D88\u751F\u6210"), /* @__PURE__ */ import_react3.default.createElement("small", { className: "dm-muted" }, "\u4E0E\u4FA7\u680F\u5171\u7528\u6A21\u578B\u53CA\u90AE\u4EF6\u5DE5\u5177"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setAssistantOpen(true) }, "\u5728\u52A9\u624B\u4E2D\u67E5\u770B")), progress.length > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-tool-progress", "aria-label": "\u5FEB\u6377 AI \u5DE5\u5177\u8FDB\u5EA6" }, progress.slice(-6).map((item, i4) => /* @__PURE__ */ import_react3.default.createElement("div", { key: i4 }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: item.status === "completed" ? "check" : item.status === "failed" ? "close" : "activity", size: 14 }), /* @__PURE__ */ import_react3.default.createElement("span", null, { "thread.read": "\u67E5\u627E\u5F80\u6765\u90AE\u4EF6", "message.read": "\u8BFB\u53D6\u90AE\u4EF6", search: "\u641C\u7D22\u90AE\u4EF6", "resources.save": "\u4FDD\u5B58\u5F85\u529E\u6216\u8D44\u6E90", "send.preview": "\u51C6\u5907\u53D1\u9001\u9884\u89C8", "drafts.save": "\u4FDD\u5B58\u8349\u7A3F", "drafts.reply": "\u51C6\u5907\u56DE\u590D\u8349\u7A3F", "assistant.read": "\u8BFB\u53D6\u4EFB\u52A1\u4E0A\u4E0B\u6587" }[item.action] || "\u5904\u7406\u90AE\u4EF6\u64CD\u4F5C"), /* @__PURE__ */ import_react3.default.createElement("small", null, { running: "\u6267\u884C\u4E2D", completed: "\u5DF2\u5B8C\u6210", failed: "\u5931\u8D25" }[item.status])))), error && /* @__PURE__ */ import_react3.default.createElement("p", { role: "alert", className: "dm-warning" }, error), note && /* @__PURE__ */ import_react3.default.createElement("p", { role: "status" }, note), result && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-ai-result" }, /* @__PURE__ */ import_react3.default.createElement("small", { className: "dm-muted" }, result.model), result.subject !== void 0 && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "AI \u751F\u6210\u4E3B\u9898", value: result.subject, onChange: (e3) => setResult({ ...result, subject: e3.target.value }) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "AI \u751F\u6210\u6B63\u6587\uFF08\u53EF\u7F16\u8F91\uFF09" }, /* @__PURE__ */ import_react3.default.createElement("textarea", { className: "dm-ai-edit", rows: 8, value: result.text, onChange: (e3) => setResult({ ...result, text: e3.target.value }) })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-ai-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: async () => {
     try {
       await navigator.clipboard.writeText([result.subject, result.text].filter(Boolean).join("\n\n"));
       setNote("AI \u7ED3\u679C\u5DF2\u590D\u5236");
     } catch (e3) {
       setError(e3.message);
     }
-  } }, "\u590D\u5236\u7ED3\u679C"), !messageId && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u5E94\u7528\u6B63\u6587"), result.subject !== void 0 && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: applyingResult, onClick: () => applyResult(true) }, "\u5E94\u7528\u4E3B\u9898\u548C\u6B63\u6587")), task === "reply" && messageId && /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u521B\u5EFA\u56DE\u590D\u8349\u7A3F"))));
+  } }, "\u590D\u5236\u7ED3\u679C"), !messageId && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u5E94\u7528\u6B63\u6587"), result.subject !== void 0 && /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: applyingResult, onClick: () => applyResult(true) }, "\u5E94\u7528\u4E3B\u9898\u548C\u6B63\u6587")), task === "reply" && messageId && /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, disabled: applyingResult, onClick: () => applyResult(false) }, "\u521B\u5EFA\u56DE\u590D\u8349\u7A3F"))));
 }
 function mailtoRecipient(href) {
   if (!/^mailto:/i.test(href)) return "";
@@ -47435,40 +47999,54 @@ function mailtoRecipient(href) {
     return "";
   }
 }
-function Reader({ id, active }) {
-  const { request, act, run: run3, state, setSelected, setCompose, setModal, download, setQuery, busy, newDraft } = useMail();
-  const [message, setMessage] = (0, import_react2.useState)(null), [plain, setPlain] = (0, import_react2.useState)(false), [remoteOverride, setRemote] = (0, import_react2.useState)(null), [headers, setHeaders] = (0, import_react2.useState)(false), [html2, setHtml] = (0, import_react2.useState)(""), [localError, setLocalError] = (0, import_react2.useState)(""), [thread, setThread] = (0, import_react2.useState)({ items: [], total: 0 });
-  const [attachmentsOpen, setAttachmentsOpen] = (0, import_react2.useState)(true), attachmentsId = (0, import_react2.useId)(), [aiTask, setAiTask] = (0, import_react2.useState)(null), [conversationOpen, setConversationOpen] = (0, import_react2.useState)(false);
+function Reader({ id, active, cache }) {
+  const { request, act, run: run3, refresh, state, setSelected, setCompose, setModal, download, setQuery, busy, newDraft } = useMail();
+  const [message, setMessage] = (0, import_react3.useState)(null), [plain, setPlain] = (0, import_react3.useState)(false), [remoteOverride, setRemote] = (0, import_react3.useState)(null), [headers, setHeaders] = (0, import_react3.useState)(false), [html2, setHtml] = (0, import_react3.useState)(""), [localError, setLocalError] = (0, import_react3.useState)(""), [thread, setThread] = (0, import_react3.useState)({ items: [], total: 0 });
+  const [readRetry, setReadRetry] = (0, import_react3.useState)(0), [threadError, setThreadError] = (0, import_react3.useState)("");
+  const [attachmentsOpen, setAttachmentsOpen] = (0, import_react3.useState)(true), attachmentsId = (0, import_react3.useId)(), [aiTask, setAiTask] = (0, import_react3.useState)(null), [conversationOpen, setConversationOpen] = (0, import_react3.useState)(false);
   const remote = remoteOverride ?? state.settings?.loadRemoteImages ?? DEFAULT_SETTINGS.loadRemoteImages;
   const imageAttachments = JSON.stringify(message?.attachments?.map(({ id: id2, cid, size, contentType }) => ({ id: id2, cid, size, contentType })) || []);
-  (0, import_react2.useEffect)(() => {
-    if (!active) return;
+  (0, import_react3.useEffect)(() => {
+    if (!active || message?.id !== id) return;
     let cancelled = false;
+    setThreadError("");
     request({ action: "thread.read", id }).then((r3) => {
       if (!cancelled) setThread(r3);
-    }).catch(() => {
+    }).catch((e3) => {
+      if (!cancelled) setThreadError(e3.message);
     });
     return () => {
       cancelled = true;
     };
-  }, [id, active, state.mailVersion, request]);
-  (0, import_react2.useEffect)(() => {
+  }, [id, message?.id, active, state.mailVersion, request, readRetry]);
+  (0, import_react3.useEffect)(() => {
     if (!active) return;
     let cancelled = false;
-    request({ action: "message.read", id }).then(async (m3) => {
+    setLocalError("");
+    request({ action: "message.read", id, acknowledge: true }).then(async (m3) => {
       if (cancelled) return;
+      if (m3.notificationsChanged) run3(refresh);
       setMessage((previous) => JSON.stringify(previous) === JSON.stringify(m3) ? previous : m3);
-      if (!m3.seen && (state.settings?.markReadOnOpen ?? DEFAULT_SETTINGS.markReadOnOpen)) run3(() => act({ action: "messages.action", ids: [id], operation: "read", value: true }));
     }).catch((e3) => {
       if (!cancelled) setLocalError(e3.message);
     });
     return () => {
       cancelled = true;
     };
-  }, [id, active, state.mailVersion, request]);
-  (0, import_react2.useEffect)(() => {
+  }, [id, active, state.mailVersion, request, readRetry]);
+  (0, import_react3.useEffect)(() => {
+    if (!active || !message || message.seen || !(state.settings?.markReadOnOpen ?? true)) return;
+    const timer = setTimeout(() => run3(() => act({ action: "messages.action", ids: [id], operation: "read", value: true })), (state.settings?.markReadDelay || 0) * 1e3);
+    return () => clearTimeout(timer);
+  }, [id, active, message?.seen, state.settings?.markReadOnOpen, state.settings?.markReadDelay]);
+  (0, import_react3.useEffect)(() => {
     if (!message || !active) return;
     let cancelled = false;
+    const cacheKey = JSON.stringify([id, message.html, imageAttachments, remote]);
+    if (cache.has(cacheKey)) {
+      setHtml(cache.get(cacheKey));
+      return;
+    }
     (async () => {
       const doc3 = new DOMParser().parseFromString(purify_default.sanitize(message.html || "", { FORBID_TAGS: ["script", "form", "input", "button", "iframe", "object", "embed", "video", "audio", "svg", "math"], FORBID_ATTR: ["srcset", "background", "ping", "data-mail-recipient"] }), "text/html");
       decorateHtmlQuotes(doc3);
@@ -47504,7 +48082,14 @@ function Reader({ id, active }) {
         } else if (!remote || !/^https:\/\//i.test(src)) image.removeAttribute("src");
       }
       const csp = `default-src 'none'; script-src 'none'; img-src data: ${remote ? "https:" : ""}; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'`;
-      if (!cancelled) setHtml(`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}button[data-mail-recipient]{display:inline;padding:0;border:0;background:none;color:#0645ad;font:inherit;text-decoration:underline;cursor:pointer}${QUOTE_FRAME_CSS}</style></head><body>${doc3.body.innerHTML}</body></html>`);
+      const safeHtml = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="referrer" content="no-referrer"><style>body{font:15px/1.65 system-ui;margin:18px;overflow-wrap:anywhere;background:white;color:#17212b}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap}button[data-mail-recipient]{display:inline;padding:0;border:0;background:none;color:#0645ad;font:inherit;text-decoration:underline;cursor:pointer}${QUOTE_FRAME_CSS}</style></head><body>${doc3.body.innerHTML}</body></html>`;
+      if (!cancelled) {
+        if (safeHtml.length + cacheKey.length < 5e5) {
+          cache.set(cacheKey, safeHtml);
+          if (cache.size > 12) cache.delete(cache.keys().next().value);
+        }
+        setHtml(safeHtml);
+      }
     })().catch((e3) => {
       if (!cancelled) setLocalError(e3.message);
     });
@@ -47512,42 +48097,52 @@ function Reader({ id, active }) {
       cancelled = true;
     };
   }, [message?.html, imageAttachments, remote, active, request]);
-  if (localError) return /* @__PURE__ */ import_react2.default.createElement(Empty, { title: "\u90AE\u4EF6\u6682\u65F6\u65E0\u6CD5\u6253\u5F00" }, localError, /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setSelected(null) }, "\u8FD4\u56DE\u5217\u8868"));
-  if (!message) return /* @__PURE__ */ import_react2.default.createElement(Empty, { title: "\u6B63\u5728\u8BFB\u53D6\u90AE\u4EF6\u2026" }, "\u4ECE\u672C\u673A\u7F13\u5B58\u6216\u90AE\u7BB1\u670D\u52A1\u5668\u8BFB\u53D6\u3002");
+  if (localError) return /* @__PURE__ */ import_react3.default.createElement(Empty, { title: "\u90AE\u4EF6\u6682\u65F6\u65E0\u6CD5\u6253\u5F00" }, localError, /* @__PURE__ */ import_react3.default.createElement("br", null), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setReadRetry((n3) => n3 + 1) }, "\u91CD\u8BD5\u6253\u5F00"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setSelected(null) }, "\u8FD4\u56DE\u5217\u8868"));
+  if (!message) return /* @__PURE__ */ import_react3.default.createElement(Empty, { title: "\u6B63\u5728\u8BFB\u53D6\u90AE\u4EF6\u2026" }, "\u4ECE\u672C\u673A\u7F13\u5B58\u6216\u90AE\u7BB1\u670D\u52A1\u5668\u8BFB\u53D6\u3002");
   const attachments = downloadableAttachments(message);
   const action = (operation, value) => run3(() => act({ action: "messages.action", ids: [id], operation, value }));
   const reply = (mode, ai = false) => run3(async () => setCompose({ ...await act({ action: "drafts.reply", id, mode }), ...ai ? { aiStart: "reply" } : {} }));
   const threadItems = [...new Map([...thread.items, ...thread.current ? [thread.current] : []].map((m3) => [m3.id, m3])).values()].sort((a3, b3) => Date.parse(b3.date) - Date.parse(a3.date) || a3.id.localeCompare(b3.id));
-  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-topline" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
+  return /* @__PURE__ */ import_react3.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react3.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-topline" }, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react3.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
     const folder = location.folder;
-    return /* @__PURE__ */ import_react2.default.createElement(Button, { key: folder.id, className: "dm-location-chip", title: folder.path, style: { "--folder-color": folderAppearance(folder).color }, onClick: () => {
+    return /* @__PURE__ */ import_react3.default.createElement(Button, { key: folder.id, className: "dm-location-chip", title: folder.path, style: { "--folder-color": folderAppearance(folder).color }, onClick: () => {
       setQuery({ accountId: message.accountId, folderId: folder.id });
       setSelected(location.id);
-    } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 13 }), folder.name || folder.path);
-  }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-actions", role: "group", "aria-label": "\u90AE\u4EF6\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more", closeOnAction: true }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react2.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) }))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-person" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": senderAppearance(message).color }, "aria-hidden": "true" }, senderAppearance(message).text), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-from" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.from })), /* @__PURE__ */ import_react2.default.createElement("time", { className: "dm-muted", dateTime: message.date }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.cc }))))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), label))), headers && /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), thread.total > 1 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react2.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react2.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
+    } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "folder", size: 13 }), folder.name || folder.path);
+  }), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-actions", role: "group", "aria-label": "\u90AE\u4EF6\u64CD\u4F5C" }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react3.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more", closeOnAction: true }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react3.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) }))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-person" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": senderAppearance(message).color }, "aria-hidden": "true" }, senderAppearance(message).text), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-from" }, /* @__PURE__ */ import_react3.default.createElement("strong", null, /* @__PURE__ */ import_react3.default.createElement(AddressButtons, { value: message.from })), /* @__PURE__ */ import_react3.default.createElement("time", { className: "dm-muted", dateTime: message.date }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react3.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react3.default.createElement(AddressButtons, { value: message.cc }))))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 14 }), label))), headers && /* @__PURE__ */ import_react3.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), threadError && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-warning", role: "alert" }, "\u5F80\u6765\u90AE\u4EF6\u52A0\u8F7D\u5931\u8D25\uFF1A", threadError, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setReadRetry((n3) => n3 + 1) }, "\u91CD\u8BD5\u5F80\u6765")), thread.total > 1 && /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react3.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react3.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react3.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
     const more = await act({ action: "thread.read", id, offset: thread.nextOffset });
     setThread((previous) => ({ ...more, items: [...previous.items, ...more.items] }));
-  }) }, "\u52A0\u8F7D\u66F4\u65E9\u7684\u90AE\u4EF6")), aiTask && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { key: `${id}:${aiTask}`, task: aiTask, messageId: id, active, close: () => setAiTask(null), apply: async (result) => {
+  }) }, "\u52A0\u8F7D\u66F4\u65E9\u7684\u90AE\u4EF6")), aiTask && /* @__PURE__ */ import_react3.default.createElement(AiPanel, { key: `${id}:${aiTask}`, task: aiTask, messageId: id, active, close: () => setAiTask(null), apply: async (result) => {
     const draft = await act({ action: "drafts.reply", id, mode: "reply" });
     const next = await act({ action: "drafts.save", draft: { id: draft.id, revision: draft.revision, text: `${result.text}
 
 ${draft.text || ""}`, html: "" } });
     setCompose(next);
-  } }), !plain && message.html && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-image-notice" }, remote ? "\u5DF2\u5141\u8BB8\u672C\u5C01\u90AE\u4EF6\u52A0\u8F7D HTTPS \u8FDC\u7A0B\u56FE\u7247" : "\u8FDC\u7A0B\u56FE\u7247\u5DF2\u963B\u6B62", /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setRemote(!remote) }, remote ? "\u963B\u6B62\u56FE\u7247" : "\u52A0\u8F7D\u56FE\u7247")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-mail-body" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-body-label" }, "\u5F53\u524D\u90AE\u4EF6\u6B63\u6587"), !plain && message.html ? html2 ? /* @__PURE__ */ import_react2.default.createElement(MailBodyFrame, { key: `${id}:${remote}`, html: html2, onMailLink: newDraft }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u6574\u7406\u90AE\u4EF6\u6B63\u6587\u2026") : /* @__PURE__ */ import_react2.default.createElement(PlainMail, { text: message.text || "\uFF08\u65E0\u7EAF\u6587\u672C\u6B63\u6587\uFF09" })), attachments.length > 0 && /* @__PURE__ */ import_react2.default.createElement("section", { className: `dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`, "aria-label": "\u90AE\u4EF6\u9644\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-attachment-heading" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-attachment-toggle", "aria-label": attachmentsOpen ? "\u6536\u8D77\u9644\u4EF6" : "\u5C55\u5F00\u9644\u4EF6", "aria-expanded": attachmentsOpen, "aria-controls": attachmentsId, onClick: () => setAttachmentsOpen(!attachmentsOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 14 }), "\u9644\u4EF6 \xB7 ", attachments.length)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "attachments.export", ids: attachments.map((a3) => a3.id) }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "export", size: 14 }), "\u6253\u5305\u4E0B\u8F7D\u5168\u90E8\u9644\u4EF6")), /* @__PURE__ */ import_react2.default.createElement("div", { id: attachmentsId, className: "dm-attachment-grid", hidden: !attachmentsOpen }, attachments.map((a3) => /* @__PURE__ */ import_react2.default.createElement(AttachmentCard, { key: a3.id || a3.part, attachment: a3, messageId: id })))));
+  } }), !plain && message.html && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-image-notice" }, remote ? "\u5DF2\u5141\u8BB8\u672C\u5C01\u90AE\u4EF6\u52A0\u8F7D HTTPS \u8FDC\u7A0B\u56FE\u7247" : "\u8FDC\u7A0B\u56FE\u7247\u5DF2\u963B\u6B62", /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setRemote(!remote) }, remote ? "\u963B\u6B62\u56FE\u7247" : "\u52A0\u8F7D\u56FE\u7247")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-mail-body" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-body-label" }, "\u5F53\u524D\u90AE\u4EF6\u6B63\u6587"), !plain && message.html ? html2 ? /* @__PURE__ */ import_react3.default.createElement(MailBodyFrame, { key: `${id}:${remote}`, html: html2, onMailLink: newDraft }) : /* @__PURE__ */ import_react3.default.createElement("p", null, "\u6B63\u5728\u6574\u7406\u90AE\u4EF6\u6B63\u6587\u2026") : /* @__PURE__ */ import_react3.default.createElement(PlainMail, { text: message.text || "\uFF08\u65E0\u7EAF\u6587\u672C\u6B63\u6587\uFF09" })), attachments.length > 0 && /* @__PURE__ */ import_react3.default.createElement("section", { className: `dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`, "aria-label": "\u90AE\u4EF6\u9644\u4EF6" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-attachment-heading" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-attachment-toggle", "aria-label": attachmentsOpen ? "\u6536\u8D77\u9644\u4EF6" : "\u5C55\u5F00\u9644\u4EF6", "aria-expanded": attachmentsOpen, "aria-controls": attachmentsId, onClick: () => setAttachmentsOpen(!attachmentsOpen) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "next", size: 14 }), "\u9644\u4EF6 \xB7 ", attachments.length)), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "attachments.export", ids: attachments.map((a3) => a3.id) }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "export", size: 14 }), "\u6253\u5305\u4E0B\u8F7D\u5168\u90E8\u9644\u4EF6")), /* @__PURE__ */ import_react3.default.createElement("div", { id: attachmentsId, className: "dm-attachment-grid", hidden: !attachmentsOpen }, attachments.map((a3) => /* @__PURE__ */ import_react3.default.createElement(AttachmentCard, { key: a3.id || a3.part, attachment: a3, messageId: id })))));
 }
 function MailBodyFrame({ html: html2, onMailLink }) {
-  const cleanup = (0, import_react2.useRef)(null), openDraft = (0, import_react2.useRef)(onMailLink);
-  (0, import_react2.useEffect)(() => {
+  const { state } = useMail(), bodyFrame = (0, import_react3.useRef)(null), readingSize = state.settings?.readingSize || 14;
+  (0, import_react3.useEffect)(() => {
+    if (bodyFrame.current?.contentDocument?.body) bodyFrame.current.contentDocument.body.style.fontSize = `${readingSize}px`;
+  }, [readingSize]);
+  const cleanup = (0, import_react3.useRef)(null), openDraft = (0, import_react3.useRef)(onMailLink);
+  (0, import_react3.useEffect)(() => {
     openDraft.current = onMailLink;
   }, [onMailLink]);
-  (0, import_react2.useEffect)(() => () => cleanup.current?.(), []);
+  (0, import_react3.useEffect)(() => () => cleanup.current?.(), []);
   const loaded = (event) => {
     cleanup.current?.();
     const frame = event.currentTarget, doc3 = frame.contentDocument;
     if (!doc3?.body) return;
+    doc3.body.style.fontSize = `${readingSize}px`;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom), height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
+      if (frame.style.height !== height) frame.style.height = height;
+    };
     const resize = () => {
-      const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom);
-      frame.style.height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
+      if (!raf) raf = requestAnimationFrame(measure);
     };
     const click = (event2) => {
       const address = event2.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
@@ -47558,11 +48153,12 @@ function MailBodyFrame({ html: html2, onMailLink }) {
     resize();
     doc3.addEventListener("click", click);
     cleanup.current = () => {
+      cancelAnimationFrame(raf);
       observer.disconnect();
       doc3.removeEventListener("click", click);
     };
   };
-  return /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, onLoad: loaded });
+  return /* @__PURE__ */ import_react3.default.createElement("iframe", { ref: bodyFrame, title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, onLoad: loaded });
 }
 function safeQuoteDocument(html2) {
   const doc3 = new DOMParser().parseFromString(purify_default.sanitize(html2, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] }), "text/html");
@@ -47570,18 +48166,18 @@ function safeQuoteDocument(html2) {
   return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#485166;background:#f5f6fa;overflow-wrap:anywhere;margin:12px}img{max-width:100%}pre{white-space:pre-wrap}${QUOTE_FRAME_CSS}</style>${doc3.body.innerHTML}`;
 }
 function LinkedText({ text: text2 }) {
-  return text2.split(/(https?:\/\/[^\s<>]+)/gi).map((part, i4) => /^https?:\/\//i.test(part) && URL.canParse(part) ? /* @__PURE__ */ import_react2.default.createElement("a", { key: i4, href: part, target: "_blank", rel: "noopener noreferrer" }, part) : part);
+  return text2.split(/(https?:\/\/[^\s<>]+)/gi).map((part, i4) => /^https?:\/\//i.test(part) && URL.canParse(part) ? /* @__PURE__ */ import_react3.default.createElement("a", { key: i4, href: part, target: "_blank", rel: "noopener noreferrer" }, part) : part);
 }
 function PlainMail({ text: text2 }) {
   let number = 0;
-  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, quotedTextSections(text2).map((part, i4) => part.quoted ? /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted dm-quoted-message", key: i4, open: true }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u90AE\u4EF6 \xB7 ", ++number, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u539F\u6587\u4FDD\u7559")), /* @__PURE__ */ import_react2.default.createElement("pre", null, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: part.text }))) : /* @__PURE__ */ import_react2.default.createElement("pre", { key: i4 }, /* @__PURE__ */ import_react2.default.createElement(LinkedText, { text: part.text }))));
+  return /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, quotedTextSections(text2).map((part, i4) => part.quoted ? /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-quoted dm-quoted-message", key: i4, open: true }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u5F15\u7528\u90AE\u4EF6 \xB7 ", ++number, /* @__PURE__ */ import_react3.default.createElement("span", null, "\u539F\u6587\u4FDD\u7559")), /* @__PURE__ */ import_react3.default.createElement("pre", null, /* @__PURE__ */ import_react3.default.createElement(LinkedText, { text: part.text }))) : /* @__PURE__ */ import_react3.default.createElement("pre", { key: i4 }, /* @__PURE__ */ import_react3.default.createElement(LinkedText, { text: part.text }))));
 }
 function AttachmentCard({ attachment: a3, messageId }) {
-  const { request, run: run3, setModal, download, act } = useMail(), ref = (0, import_react2.useRef)(null), [thumbnail, setThumbnail] = (0, import_react2.useState)(null), [failed, setFailed] = (0, import_react2.useState)(false);
+  const { request, run: run3, setModal, download, act } = useMail(), ref = (0, import_react3.useRef)(null), [thumbnail, setThumbnail] = (0, import_react3.useState)(null), [failed, setFailed] = (0, import_react3.useState)(false);
   const image = /^image\/(png|jpeg|gif|webp|avif|bmp)$/i.test(a3.contentType || "");
   const extension = a3.filename?.includes(".") ? a3.filename.split(".").pop().toLowerCase() : "";
   const [label, mark, color] = a3.contentType === "application/pdf" || extension === "pdf" ? ["PDF", "PDF", "#dc2626"] : /word/i.test(a3.contentType) || ["doc", "docx", "rtf"].includes(extension) ? ["Word", "W", "#2563eb"] : /spreadsheet|excel/i.test(a3.contentType) || ["xls", "xlsx", "csv"].includes(extension) ? ["Excel", "X", "#15803d"] : /presentation|powerpoint/i.test(a3.contentType) || ["ppt", "pptx"].includes(extension) ? ["PowerPoint", "P", "#c2410c"] : /zip|compressed/i.test(a3.contentType) || ["zip", "rar", "7z"].includes(extension) ? ["\u538B\u7F29\u6587\u4EF6", "ZIP", "#a16207"] : image ? ["\u56FE\u7247", "IMG", "#7c3aed"] : [extension && extension.length <= 8 ? extension.toUpperCase() : "\u6587\u4EF6", "FILE", "#64748b"];
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!image) return;
     let cancelled = false;
     const observer = new IntersectionObserver(([entry]) => {
@@ -47601,27 +48197,38 @@ function AttachmentCard({ attachment: a3, messageId }) {
     };
   }, [a3.id, image, request]);
   const preview = () => run3(async () => setModal({ type: "attachment", value: thumbnail || await request({ action: "attachments.read", id: a3.id }) }));
-  return /* @__PURE__ */ import_react2.default.createElement("div", { ref, className: "dm-attachment", style: { "--file-color": color } }, /* @__PURE__ */ import_react2.default.createElement("div", { className: `dm-attachment-art ${thumbnail ? "has-image" : ""}` }, thumbnail ? /* @__PURE__ */ import_react2.default.createElement("img", { src: `data:${thumbnail.contentType};base64,${thumbnail.base64}`, alt: `${a3.filename} \u7F29\u7565\u56FE`, loading: "lazy", onError: () => {
+  return /* @__PURE__ */ import_react3.default.createElement("div", { ref, className: "dm-attachment", style: { "--file-color": color } }, /* @__PURE__ */ import_react3.default.createElement("div", { className: `dm-attachment-art ${thumbnail ? "has-image" : ""}` }, thumbnail ? /* @__PURE__ */ import_react3.default.createElement("img", { src: `data:${thumbnail.contentType};base64,${thumbnail.base64}`, alt: `${a3.filename} \u7F29\u7565\u56FE`, loading: "lazy", onError: () => {
     setThumbnail(null);
     setFailed(true);
-  } }) : /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-file-mark", "aria-hidden": "true" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "draft", size: 32 }), /* @__PURE__ */ import_react2.default.createElement("b", null, mark)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-attachment-info" }, /* @__PURE__ */ import_react2.default.createElement("strong", { title: a3.filename }, a3.filename), /* @__PURE__ */ import_react2.default.createElement("small", { className: "dm-file-type" }, label, " \xB7 ", (a3.size / 1024).toFixed(1), " KB"), failed && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u7F29\u7565\u56FE\u672A\u52A0\u8F7D\uFF0C\u53EF\u5C1D\u8BD5\u9884\u89C8\u6216\u4E0B\u8F7D")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-attachment-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: preview }, "\u9884\u89C8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "attachments.read", id: a3.id }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "export", size: 13 }), "\u4E0B\u8F7D"), a3.contentType === "text/calendar" && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  } }) : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-file-mark", "aria-hidden": "true" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "draft", size: 32 }), /* @__PURE__ */ import_react3.default.createElement("b", null, mark)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-attachment-info" }, /* @__PURE__ */ import_react3.default.createElement("strong", { title: a3.filename }, a3.filename), /* @__PURE__ */ import_react3.default.createElement("small", { className: "dm-file-type" }, label, " \xB7 ", (a3.size / 1024).toFixed(1), " KB"), failed && /* @__PURE__ */ import_react3.default.createElement("small", null, "\u7F29\u7565\u56FE\u672A\u52A0\u8F7D\uFF0C\u53EF\u5C1D\u8BD5\u9884\u89C8\u6216\u4E0B\u8F7D")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-attachment-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: preview }, "\u9884\u89C8"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "attachments.read", id: a3.id }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "export", size: 13 }), "\u4E0B\u8F7D"), a3.contentType === "text/calendar" && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => {
     const data = await request({ action: "attachments.read", id: a3.id });
     await act({ action: "events.import", ics: new TextDecoder().decode(Uint8Array.from(atob(data.base64), (c3) => c3.charCodeAt(0))), sourceMessageId: messageId }, "\u4F1A\u8BAE\u5DF2\u5BFC\u5165\u672C\u5730\u65E5\u5386");
   }) }, "\u52A0\u5165\u65E5\u5386")));
 }
 function Composer({ initial, active }) {
   const { state, act, run: run3, request, refresh, setCompose, setModal, setDraftTouched } = useMail();
-  const [draft, setDraft] = (0, import_react2.useState)(initial), [saving, setSaving] = (0, import_react2.useState)("\u5DF2\u4FDD\u5B58"), [rich, setRich] = (0, import_react2.useState)(true), [scheduleError, setScheduleError] = (0, import_react2.useState)(""), [sendMode, setSendMode] = (0, import_react2.useState)(initial.scheduledAt ? "scheduled" : "now"), [sendAt, setSendAt] = (0, import_react2.useState)(initial.scheduledAt ? DateTime.fromISO(initial.scheduledAt, { zone: initial.sendTimeZone || "Asia/Shanghai" }).toFormat("yyyy-MM-dd'T'HH:mm") : ""), [sendZone, setSendZone] = (0, import_react2.useState)(initial.sendTimeZone || "Asia/Shanghai"), [dirty, setDirty] = (0, import_react2.useState)(false), [aiOpen, setAiOpen] = (0, import_react2.useState)(!!initial.aiStart);
-  const [extraRecipients, setExtraRecipients] = (0, import_react2.useState)(!!(addr(initial.cc) || addr(initial.bcc)));
-  const [format, setFormat] = (0, import_react2.useState)({});
-  const scroll = (0, import_react2.useRef)(null);
-  (0, import_react2.useEffect)(() => {
+  const [draft, setDraft] = (0, import_react3.useState)(initial), [saving, setSaving] = (0, import_react3.useState)("\u5DF2\u4FDD\u5B58"), [rich, setRich] = (0, import_react3.useState)(initial.editorMode !== "plain"), [scheduleError, setScheduleError] = (0, import_react3.useState)(""), [sendMode, setSendMode] = (0, import_react3.useState)(initial.scheduledAt ? "scheduled" : "now"), [sendAt, setSendAt] = (0, import_react3.useState)(initial.scheduledAt ? DateTime.fromISO(initial.scheduledAt, { zone: initial.sendTimeZone || "Asia/Shanghai" }).toFormat("yyyy-MM-dd'T'HH:mm") : ""), [sendZone, setSendZone] = (0, import_react3.useState)(initial.sendTimeZone || "Asia/Shanghai"), [dirty, setDirty] = (0, import_react3.useState)(false), [aiOpen, setAiOpen] = (0, import_react3.useState)(!!initial.aiStart);
+  const [extraRecipients, setExtraRecipients] = (0, import_react3.useState)(!!(addr(initial.cc) || addr(initial.bcc) || state.settings?.expandRecipients));
+  const [format, setFormat] = (0, import_react3.useState)({}), [recipientQuery, setRecipientQuery] = (0, import_react3.useState)(""), [recipientOptions, setRecipientOptions] = (0, import_react3.useState)([]);
+  (0, import_react3.useEffect)(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => request({ action: "resources.list", kind: "contacts", q: recipientQuery.slice(-80), limit: 50 }, controller.signal).then((r3) => {
+      if (!controller.signal.aborted) setRecipientOptions(r3.items);
+    }).catch(() => {
+    }), 150);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [recipientQuery, state.contactVersion, request]);
+  const scroll = (0, import_react3.useRef)(null);
+  (0, import_react3.useEffect)(() => {
     if (aiOpen) scroll.current?.querySelector(".dm-ai-panel")?.scrollIntoView({ block: "nearest" });
   }, [aiOpen]);
-  const element = (0, import_react2.useRef)(null), editor = (0, import_react2.useRef)(null), current = (0, import_react2.useRef)(initial), generation = (0, import_react2.useRef)(0), savedGeneration = (0, import_react2.useRef)(0), chain = (0, import_react2.useRef)(Promise.resolve()), mounted = (0, import_react2.useRef)(true);
-  const quoted = (0, import_react2.useRef)(draftTextParts(initial).quoted);
+  const element = (0, import_react3.useRef)(null), editor = (0, import_react3.useRef)(null), current = (0, import_react3.useRef)(initial), generation = (0, import_react3.useRef)(0), savedGeneration = (0, import_react3.useRef)(0), chain = (0, import_react3.useRef)(Promise.resolve()), mounted = (0, import_react3.useRef)(true);
+  const quoted = (0, import_react3.useRef)(draftTextParts(initial).quoted);
   const editableText = () => quoted.current ? draftTextParts({ ...current.current, quotedText: quoted.current }).current.replace(/\n\n$/, "") : current.current.text || "";
-  const originalDoc = (0, import_react2.useRef)(null);
+  const originalDoc = (0, import_react3.useRef)(null);
   if (!originalDoc.current) {
     const doc3 = new DOMParser().parseFromString(purify_default.sanitize(initial.html || ""), "text/html"), q3 = initial.sourceMessageId ? doc3.querySelector("[data-mail-quote]") : null;
     if (q3) {
@@ -47662,9 +48269,12 @@ function Composer({ initial, active }) {
       change({ scheduledAt: null, sendTimeZone: zone });
     }
   };
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!element.current || !editable) return;
-    const selection = ({ editor: e3 }) => setFormat({ ...e3.getAttributes("textStyle"), ...Object.fromEntries(["bold", "italic", "underline", "strike", "bulletList", "orderedList"].map((key) => [key, e3.isActive(key)])), undo: e3.can().undo(), redo: e3.can().redo() });
+    const selection = ({ editor: e3 }) => queueMicrotask(() => {
+      if (editor.current !== e3) return;
+      setFormat({ ...e3.getAttributes("textStyle"), ...Object.fromEntries(["bold", "italic", "underline", "strike", "bulletList", "orderedList"].map((key) => [key, ["bulletList", "orderedList"].includes(key) ? listActive(e3, key) : e3.isActive(key)])), undo: e3.can().undo(), redo: e3.can().redo() });
+    });
     editor.current = new Editor({ element: element.current, extensions: [src_default, TextStyleKit, src_default2.configure({ allowBase64: true })], content: originalDoc.current.current || textHtml(draftTextParts(initial).current), onTransaction: selection, onUpdate: ({ editor: e3 }) => change({ html: e3.getHTML(), text: e3.getText() }) });
     selection({ editor: editor.current });
     return () => {
@@ -47693,14 +48303,14 @@ function Composer({ initial, active }) {
     chain.current = next;
     return next;
   };
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (!dirty || !editable) return;
     const timer = setTimeout(() => {
       queueSave().catch((e3) => setSaving(`\u4FDD\u5B58\u5931\u8D25\uFF1A${e3.message}`));
     }, 800);
     return () => clearTimeout(timer);
   }, [draft, dirty]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     mounted.current = true;
     return () => {
       if (editable && generation.current !== savedGeneration.current) queueSave().catch((e3) => run3(() => {
@@ -47723,85 +48333,92 @@ function Composer({ initial, active }) {
       if (inline) editor.current?.chain().focus().setImage({ src: `data:${a3.contentType};base64,${(await fileData(file)).base64}`, alt: `cid:${cid}` }).run();
     }
   });
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-composer" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-toolbar" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-status" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u2190 \u5173\u95ED", onClick: () => run3(async () => {
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-composer" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-toolbar" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-status" }, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u2190 \u5173\u95ED", onClick: () => run3(async () => {
     if (editable && dirty) await queueSave();
     setCompose(null);
-  }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 15 }), "\u5173\u95ED"), /* @__PURE__ */ import_react2.default.createElement("strong", null, initial.sourceMessageId ? "\u56DE\u590D\u90AE\u4EF6" : "\u5199\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, saving)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-actions", role: "group", "aria-label": "\u8349\u7A3F\u64CD\u4F5C" }, editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u4FDD\u5B58\u8349\u7A3F", onClick: () => run3(queueSave) }, "\u4FDD\u5B58"), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u4E22\u5F03\u8349\u7A3F", onClick: () => run3(async () => {
+  }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "back", size: 15 }), "\u5173\u95ED"), /* @__PURE__ */ import_react3.default.createElement("strong", null, initial.sourceMessageId ? "\u56DE\u590D\u90AE\u4EF6" : "\u5199\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-muted" }, editable ? saving : statusText[draft.status] || saving)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-actions", role: "group", "aria-label": "\u8349\u7A3F\u64CD\u4F5C" }, editable ? /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u4FDD\u5B58\u8349\u7A3F", onClick: () => run3(queueSave) }, "\u4FDD\u5B58"), /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, "aria-label": "\u4E22\u5F03\u8349\u7A3F", onClick: () => run3(async () => {
     await act({ action: "drafts.delete", id: draft.id });
     setCompose(null);
-  }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 15 }))) : draft.status === "queued" ? /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "trash", size: 15 }))) : draft.status === "queued" ? /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     const d2 = await act({ action: "drafts.cancel", id: draft.id });
     setCompose(null);
     queueMicrotask(() => setCompose(d2));
-  }) }, "\u53D6\u6D88\u53D1\u9001") : null)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-scroll", ref: scroll }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-fields" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA" }, /* @__PURE__ */ import_react2.default.createElement("select", { disabled: !editable, value: draft.accountId, onChange: (e3) => change({ accountId: e3.target.value }) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name && a3.name !== a3.email ? `${a3.name} <${a3.email}>` : a3.email)))), /* @__PURE__ */ import_react2.default.createElement("datalist", { id: "dm-contacts" }, state.contacts.map((c3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c3.id, value: c3.email }, c3.name))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-recipient-row" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u6536\u4EF6\u4EBA", value: addr(draft.to), list: "dm-contacts", disabled: !editable, onChange: (e3) => change({ to: e3.target.value }), placeholder: "\u586B\u5199\u90AE\u7BB1\u5730\u5740" }), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-expanded": extraRecipients, onClick: () => setExtraRecipients(!extraRecipients) }, "\u6284\u9001 / \u5BC6\u9001")), extraRecipients && [["cc", "\u6284\u9001"], ["bcc", "\u5BC6\u9001"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Field, { key, label, value: addr(draft[key]), list: "dm-contacts", disabled: !editable, onChange: (e3) => change({ [key]: e3.target.value }), placeholder: "\u591A\u4E2A\u5730\u5740\u7528\u9017\u53F7\u5206\u9694" })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4E3B\u9898", value: draft.subject || "", disabled: !editable, onChange: (e3) => change({ subject: e3.target.value }), placeholder: "\u6DFB\u52A0\u90AE\u4EF6\u4E3B\u9898" })), editable && people([draft.to, draft.cc, draft.bcc]).length > 0 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-compose-people" }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u8054\u7CFB\u4EBA\u64CD\u4F5C"), /* @__PURE__ */ import_react2.default.createElement("div", { "aria-label": "\u6536\u4EF6\u5730\u5740\u5FEB\u6377\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: [...people(draft.to), ...people(draft.cc), ...people(draft.bcc)] }))), editable && aiOpen && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { task: initial.aiStart || "compose", replySource: initial.sourceMessageId, active, close: () => setAiOpen(false), prepare: async (task) => {
+  }) }, "\u53D6\u6D88\u53D1\u9001") : null)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-scroll", ref: scroll }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-fields" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u53D1\u4EF6\u4EBA" }, /* @__PURE__ */ import_react3.default.createElement("select", { disabled: !editable, value: draft.accountId, onChange: (e3) => change({ accountId: e3.target.value }) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: a3.id, value: a3.id }, a3.name && a3.name !== a3.email ? `${a3.name} <${a3.email}>` : a3.email)))), /* @__PURE__ */ import_react3.default.createElement("datalist", { id: "dm-contacts" }, recipientOptions.map((c3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: c3.id, value: c3.email }, c3.name))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-recipient-row" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u6536\u4EF6\u4EBA", value: addr(draft.to), list: "dm-contacts", disabled: !editable, onChange: (e3) => {
+    setRecipientQuery(e3.target.value.split(/[,，;]/).at(-1).trim());
+    change({ to: e3.target.value });
+  }, placeholder: "\u586B\u5199\u90AE\u7BB1\u5730\u5740" }), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-expanded": extraRecipients, onClick: () => setExtraRecipients(!extraRecipients) }, "\u6284\u9001 / \u5BC6\u9001")), extraRecipients && [["cc", "\u6284\u9001"], ["bcc", "\u5BC6\u9001"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement(Field, { key, label, value: addr(draft[key]), list: "dm-contacts", disabled: !editable, onChange: (e3) => {
+    setRecipientQuery(e3.target.value.split(/[,，;]/).at(-1).trim());
+    change({ [key]: e3.target.value });
+  }, placeholder: "\u591A\u4E2A\u5730\u5740\u7528\u9017\u53F7\u5206\u9694" })), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4E3B\u9898", value: draft.subject || "", disabled: !editable, onChange: (e3) => change({ subject: e3.target.value }), placeholder: "\u6DFB\u52A0\u90AE\u4EF6\u4E3B\u9898" })), editable && people([draft.to, draft.cc, draft.bcc]).length > 0 && /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-compose-people" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u8054\u7CFB\u4EBA\u64CD\u4F5C"), /* @__PURE__ */ import_react3.default.createElement("div", { "aria-label": "\u6536\u4EF6\u5730\u5740\u5FEB\u6377\u64CD\u4F5C" }, /* @__PURE__ */ import_react3.default.createElement(AddressButtons, { value: [...people(draft.to), ...people(draft.cc), ...people(draft.bcc)] }))), editable && aiOpen && /* @__PURE__ */ import_react3.default.createElement(AiPanel, { sourceId: initial.id, task: initial.aiStart || "compose", replySource: initial.sourceMessageId, active, close: () => setAiOpen(false), prepare: async (task) => {
     const saved = await queueSave();
-    return { args: task === "reply" ? { messageId: initial.sourceMessageId } : { draftId: saved.id, revision: saved.revision }, token: savedGeneration.current, revision: saved.revision };
+    return { args: { draftId: saved.id, revision: saved.revision, ...task === "reply" ? { messageId: initial.sourceMessageId } : {} }, token: savedGeneration.current, revision: saved.revision };
   }, apply: async (result, includeSubject) => {
     if (result.clientToken !== generation.current || result.clientRevision !== current.current.revision) throw new Error("\u8349\u7A3F\u5DF2\u7ECF\u6539\u53D8\uFF0C\u8BF7\u91CD\u65B0\u751F\u6210\u6216\u590D\u5236\u7ED3\u679C\uFF1B\u8F83\u65B0\u7684\u5185\u5BB9\u5DF2\u4FDD\u7559\u3002");
     const html2 = rich ? textHtml(result.text) : "";
     if (rich) editor.current?.commands.setContent(html2, { emitUpdate: false });
     change({ text: result.text, html: html2, ...includeSubject && result.subject !== void 0 ? { subject: result.subject } : {} });
-  } }), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor-toolbar", role: "toolbar", "aria-label": "\u6B63\u6587\u683C\u5F0F" }, /* @__PURE__ */ import_react2.default.createElement("select", { className: "dm-font-family", "aria-label": "\u5B57\u4F53", title: "\u5B57\u4F53", disabled: !rich, value: format.fontFamily || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontFamily(e3.target.value).run() : editor.current?.chain().focus().unsetFontFamily().run() }, [.../* @__PURE__ */ new Set([...Object.keys(MAIL_FONTS), ...format.fontFamily ? [format.fontFamily] : []])].map((font) => /* @__PURE__ */ import_react2.default.createElement("option", { key: font, value: font }, MAIL_FONTS[font] || font))), /* @__PURE__ */ import_react2.default.createElement("select", { className: "dm-font-size", "aria-label": "\u5B57\u53F7", title: "\u5B57\u53F7", disabled: !rich, value: format.fontSize || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontSize(e3.target.value).run() : editor.current?.chain().focus().unsetFontSize().run() }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u5B57\u53F7"), [.../* @__PURE__ */ new Set(["12px", "14px", "16px", "18px", "20px", "24px", "32px", ...format.fontSize ? [format.fontSize] : []])].map((size) => /* @__PURE__ */ import_react2.default.createElement("option", { key: size, value: size }, size.replace("px", "")))), rich && [["\u6587\u5B57\u989C\u8272", "textColor", "color", "#1f2937", "setColor", "unsetColor"], ["\u80CC\u666F\u9AD8\u4EAE", "highlight", "backgroundColor", "#fff2a8", "setBackgroundColor", "unsetBackgroundColor"]].map(([label, icon, key, fallback, command2, reset2]) => /* @__PURE__ */ import_react2.default.createElement(Menu, { key, label, icon, className: "dm-format-palette", closeOnAction: true, style: { "--format-color": format[key] || fallback } }, /* @__PURE__ */ import_react2.default.createElement("strong", null, label), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-format-swatches" }, TEXT_COLORS.map(([name, color]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: color, "aria-label": `${label}\uFF1A${name}`, title: name, style: { background: color }, onClick: () => editor.current?.chain().focus()[command2](color).run() }))), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react2.default.createElement("input", { type: "color", "aria-label": `\u81EA\u5B9A\u4E49${label}`, value: colorInputValue(format[key], fallback), onChange: (e3) => editor.current?.chain().focus()[command2](e3.target.value).run() })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => editor.current?.chain().focus()[reset2]().run() }, key === "color" ? "\u6062\u590D\u9ED8\u8BA4\u989C\u8272" : "\u6E05\u9664\u9AD8\u4EAE"))), [["\u7C97\u4F53", "bold", "toggleBold"], ["\u659C\u4F53", "italic", "toggleItalic"], ["\u4E0B\u5212\u7EBF", "underline", "toggleUnderline"], ["\u5220\u9664\u7EBF", "strike", "toggleStrike"], ["\u65E0\u5E8F\u5217\u8868", "bulletList", "toggleBulletList"], ["\u6709\u5E8F\u5217\u8868", "orderedList", "toggleOrderedList"]].map(([label, icon, command2]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: icon, className: "dm-format-button", "aria-label": label, title: label, "aria-pressed": !!format[icon], disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 17 }))), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-format-divider" }), [["\u64A4\u9500", "undo"], ["\u91CD\u505A", "redo"]].map(([label, command2]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: command2, className: "dm-format-button", "aria-label": label, title: label, disabled: !rich || !format[command2], onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: command2, size: 17 }))), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-format-button", "aria-label": "\u6E05\u9664\u683C\u5F0F", title: "\u6E05\u9664\u683C\u5F0F", disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus().unsetAllMarks().clearNodes().run() }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "clearFormat", size: 17 })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-format-button", "aria-label": rich ? "\u7EAF\u6587\u672C" : "\u5BCC\u6587\u672C", title: rich ? "\u5207\u6362\u5230\u7EAF\u6587\u672C\uFF08\u79FB\u9664\u6B63\u6587\u683C\u5F0F\uFF09" : "\u5207\u6362\u5230\u5BCC\u6587\u672C", onClick: () => {
+  } }), editable && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-editor-toolbar", role: "toolbar", "aria-label": "\u6B63\u6587\u683C\u5F0F" }, /* @__PURE__ */ import_react3.default.createElement("select", { className: "dm-font-family", "aria-label": "\u5B57\u4F53", title: "\u5B57\u4F53", disabled: !rich, value: format.fontFamily || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontFamily(e3.target.value).run() : editor.current?.chain().focus().unsetFontFamily().run() }, [.../* @__PURE__ */ new Set([...Object.keys(MAIL_FONTS), ...format.fontFamily ? [format.fontFamily] : []])].map((font) => /* @__PURE__ */ import_react3.default.createElement("option", { key: font, value: font }, MAIL_FONTS[font] || font))), /* @__PURE__ */ import_react3.default.createElement("select", { className: "dm-font-size", "aria-label": "\u5B57\u53F7", title: "\u5B57\u53F7", disabled: !rich, value: format.fontSize || "", onChange: (e3) => e3.target.value ? editor.current?.chain().focus().setFontSize(e3.target.value).run() : editor.current?.chain().focus().unsetFontSize().run() }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u5B57\u53F7"), [.../* @__PURE__ */ new Set(["12px", "14px", "16px", "18px", "20px", "24px", "32px", ...format.fontSize ? [format.fontSize] : []])].map((size) => /* @__PURE__ */ import_react3.default.createElement("option", { key: size, value: size }, size.replace("px", "")))), rich && [["\u6587\u5B57\u989C\u8272", "textColor", "color", "#1f2937", "setColor", "unsetColor"], ["\u80CC\u666F\u9AD8\u4EAE", "highlight", "backgroundColor", "#fff2a8", "setBackgroundColor", "unsetBackgroundColor"]].map(([label, icon, key, fallback, command2, reset2]) => /* @__PURE__ */ import_react3.default.createElement(Menu, { key, label, icon, className: "dm-format-palette", closeOnAction: true, style: { "--format-color": format[key] || fallback } }, /* @__PURE__ */ import_react3.default.createElement("strong", null, label), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-format-swatches" }, TEXT_COLORS.map(([name, color]) => /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", key: color, "aria-label": `${label}\uFF1A${name}`, title: name, style: { background: color }, onClick: () => editor.current?.chain().focus()[command2](color).run() }))), /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react3.default.createElement("input", { type: "color", "aria-label": `\u81EA\u5B9A\u4E49${label}`, value: colorInputValue(format[key], fallback), onChange: (e3) => editor.current?.chain().focus()[command2](e3.target.value).run() })), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => editor.current?.chain().focus()[reset2]().run() }, key === "color" ? "\u6062\u590D\u9ED8\u8BA4\u989C\u8272" : "\u6E05\u9664\u9AD8\u4EAE"))), [["\u7C97\u4F53", "bold", "toggleBold"], ["\u659C\u4F53", "italic", "toggleItalic"], ["\u4E0B\u5212\u7EBF", "underline", "toggleUnderline"], ["\u5220\u9664\u7EBF", "strike", "toggleStrike"], ["\u65E0\u5E8F\u5217\u8868", "bulletList", "toggleBulletList"], ["\u6709\u5E8F\u5217\u8868", "orderedList", "toggleOrderedList"]].map(([label, icon, command2]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: icon, className: "dm-format-button", "aria-label": label, title: label, "aria-pressed": !!format[icon], disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 17 }))), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-format-divider" }), [["\u64A4\u9500", "undo"], ["\u91CD\u505A", "redo"]].map(([label, command2]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: command2, className: "dm-format-button", "aria-label": label, title: label, disabled: !rich || !format[command2], onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus()[command2]().run() }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: command2, size: 17 }))), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-format-button", "aria-label": "\u6E05\u9664\u683C\u5F0F", title: "\u6E05\u9664\u683C\u5F0F", disabled: !rich, onMouseDown: (e3) => e3.preventDefault(), onClick: () => editor.current?.chain().focus().unsetAllMarks().clearNodes().run() }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "clearFormat", size: 17 })), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-format-button", "aria-label": rich ? "\u7EAF\u6587\u672C" : "\u5BCC\u6587\u672C", title: rich ? "\u5207\u6362\u5230\u7EAF\u6587\u672C\uFF08\u79FB\u9664\u6B63\u6587\u683C\u5F0F\uFF09" : "\u5207\u6362\u5230\u5BCC\u6587\u672C", onClick: () => {
     if (rich) change({ text: editor.current ? editor.current.getText() : editableText(), html: "" });
     else {
       const html2 = textHtml(editableText());
       editor.current?.commands.setContent(html2, { emitUpdate: false });
       change({ html: html2 });
     }
+    change({ editorMode: rich ? "plain" : "rich" });
     setRich(!rich);
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: rich ? "code" : "richText", size: 17 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u6A21\u677F\u4E0E\u7B7E\u540D", icon: "template", className: "dm-format-insert" }, /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u63D2\u5165\u6A21\u677F", onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: rich ? "code" : "richText", size: 17 })), /* @__PURE__ */ import_react3.default.createElement(Menu, { label: "\u6A21\u677F\u4E0E\u7B7E\u540D", icon: "template", className: "dm-format-insert" }, /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": "\u63D2\u5165\u6A21\u677F", onChange: (e3) => {
     const t3 = state.templates.find((t4) => t4.id === e3.target.value);
     if (t3) {
       const html2 = t3.html || textHtml(t3.text);
       editor.current?.commands.setContent(html2, { emitUpdate: false });
       change({ subject: t3.subject || draft.subject, text: t3.text || editor.current?.getText() || "", html: rich ? html2 : "" });
     }
-  } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u63D2\u5165\u6A21\u677F"), state.templates.map((t3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: t3.id, value: t3.id }, t3.name))), /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u63D2\u5165\u7B7E\u540D", onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u63D2\u5165\u6A21\u677F"), state.templates.map((t3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: t3.id, value: t3.id }, t3.name))), /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": "\u63D2\u5165\u7B7E\u540D", onChange: (e3) => {
     const s4 = state.signatures.find((s5) => s5.id === e3.target.value);
     if (s4) {
       if (rich) editor.current?.commands.insertContent(s4.html || textHtml(s4.text));
       else change({ text: `${editableText()}
 ${s4.text || ""}`, html: "" });
     }
-  } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: s4.id, value: s4.id }, s4.name))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-body" }, editable ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-editor", ref: element, hidden: !rich }), /* @__PURE__ */ import_react2.default.createElement("textarea", { className: "dm-plain-editor", "aria-label": "\u90AE\u4EF6\u7EAF\u6587\u672C\u6B63\u6587", hidden: rich, value: editableText(), onChange: (e3) => change({ text: e3.target.value, html: "" }) })) : /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-sent-body" }, draft.text)), quoted.current && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-quoted" }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u5F15\u7528\u5F80\u6765 \xB7 \u968F\u6B64\u90AE\u4EF6\u53D1\u9001\uFF08\u539F\u6587\u4FDD\u7559\uFF09"), originalDoc.current.quote && rich ? /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u56DE\u590D\u5F15\u7528\u539F\u6587", sandbox: "", srcDoc: safeQuoteDocument(originalDoc.current.quote) }) : /* @__PURE__ */ import_react2.default.createElement("pre", null, quoted.current)), draft.status === "queued" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, "\u5DF2\u6392\u961F\uFF1A", sendTimeLabel(draft.sendAt, draft.sendTimeZone), "\u3002\u6295\u9012\u5F00\u59CB\u524D\u53EF\u53D6\u6D88\uFF1B\u5F00\u59CB\u540E\u4E0D\u80FD\u64A4\u56DE\u3002"), draft.error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert" }, typeof draft.error === "string" ? draft.error : draft.error.message), draft.status === "sent" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice" }, draft.receipt ? `\u6536\u5230\u56DE\u6267\uFF1A${draft.receipt.disposition}` : "\u9605\u8BFB\u72B6\u6001\u672A\u77E5\uFF1A\u5C1A\u672A\u6536\u5230\u56DE\u6267", draft.sentCopyError && /* @__PURE__ */ import_react2.default.createElement("p", null, draft.sentCopyError.message))), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-compose-footer" }, !!draft.attachments?.length && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-attachments" }, draft.attachments.map((a3) => /* @__PURE__ */ import_react2.default.createElement("span", { key: a3.id, className: "dm-chip" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 13 }), a3.filename, editable && /* @__PURE__ */ import_react2.default.createElement("button", { "aria-label": `\u79FB\u9664 ${a3.filename}`, onClick: () => change({ attachments: draft.attachments.filter((x4) => x4.id !== a3.id) }) }, "\xD7")))), editable && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-dock" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-compose-tools" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button", title: "\u6DFB\u52A0\u9644\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "attachment", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u9644\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u6DFB\u52A0\u9644\u4EF6", type: "file", multiple: true, onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react3.default.createElement("option", { key: s4.id, value: s4.id }, s4.name))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-body" }, editable ? /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-editor", ref: element, hidden: !rich }), /* @__PURE__ */ import_react3.default.createElement("textarea", { className: "dm-plain-editor", "aria-label": "\u90AE\u4EF6\u7EAF\u6587\u672C\u6B63\u6587", hidden: rich, value: editableText(), onChange: (e3) => change({ text: e3.target.value, html: "" }) })) : /* @__PURE__ */ import_react3.default.createElement("pre", { className: "dm-sent-body" }, draft.text)), quoted.current && /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-quoted" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u5F15\u7528\u5F80\u6765 \xB7 \u968F\u6B64\u90AE\u4EF6\u53D1\u9001\uFF08\u539F\u6587\u4FDD\u7559\uFF09"), originalDoc.current.quote && rich ? /* @__PURE__ */ import_react3.default.createElement("iframe", { title: "\u56DE\u590D\u5F15\u7528\u539F\u6587", sandbox: "", srcDoc: safeQuoteDocument(originalDoc.current.quote) }) : /* @__PURE__ */ import_react3.default.createElement("pre", null, quoted.current)), draft.status === "queued" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notice", role: "status" }, "\u5DF2\u6392\u961F\uFF1A", sendTimeLabel(draft.sendAt, draft.sendTimeZone), "\u3002\u6295\u9012\u5F00\u59CB\u524D\u53EF\u53D6\u6D88\uFF1B\u5F00\u59CB\u540E\u4E0D\u80FD\u64A4\u56DE\u3002"), draft.error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-alert" }, typeof draft.error === "string" ? draft.error : draft.error.message), draft.status === "sent" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notice" }, draft.receipt ? `\u6536\u5230\u56DE\u6267\uFF1A${draft.receipt.disposition}` : "\u9605\u8BFB\u72B6\u6001\u672A\u77E5\uFF1A\u5C1A\u672A\u6536\u5230\u56DE\u6267", draft.sentCopyError && /* @__PURE__ */ import_react3.default.createElement("p", null, draft.sentCopyError.message))), /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-compose-footer" }, !!draft.attachments?.length && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-attachments" }, draft.attachments.map((a3) => /* @__PURE__ */ import_react3.default.createElement("span", { key: a3.id, className: "dm-chip" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "attachment", size: 13 }), a3.filename, editable && /* @__PURE__ */ import_react3.default.createElement("button", { "aria-label": `\u79FB\u9664 ${a3.filename}`, onClick: () => change({ attachments: draft.attachments.filter((x4) => x4.id !== a3.id) }) }, "\xD7")))), editable && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-dock" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-compose-tools" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-file-button", title: "\u6DFB\u52A0\u9644\u4EF6" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "attachment", size: 17 }), /* @__PURE__ */ import_react3.default.createElement("span", null, "\u9644\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": "\u6DFB\u52A0\u9644\u4EF6", type: "file", multiple: true, onChange: (e3) => {
     attach([...e3.target.files]);
     e3.target.value = "";
-  } })), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button", title: "\u63D2\u5165\u56FE\u7247" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "image", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u56FE\u7247"), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u63D2\u5165\u56FE\u7247", type: "file", accept: "image/png,image/jpeg,image/gif,image/webp", onChange: (e3) => {
+  } })), /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-file-button", title: "\u63D2\u5165\u56FE\u7247" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "image", size: 17 }), /* @__PURE__ */ import_react3.default.createElement("span", null, "\u56FE\u7247"), /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": "\u63D2\u5165\u56FE\u7247", type: "file", accept: "image/png,image/jpeg,image/gif,image/webp", onChange: (e3) => {
     attach([...e3.target.files], true);
     e3.target.value = "";
-  } })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "AI \u5199\u4FE1", onClick: () => setAiOpen(!aiOpen), "aria-expanded": aiOpen }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "AI \u5199\u4FE1")), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u53D1\u9001\u9009\u9879", icon: "calendar", caption: sendMode === "scheduled" ? "\u5B9A\u65F6\u53D1\u9001" : "\u53D1\u9001\u9009\u9879", className: `dm-compose-options ${sendMode === "scheduled" || draft.requestReceipt || draft.followUpAt ? "is-active" : ""}` }, /* @__PURE__ */ import_react2.default.createElement("strong", null, "\u53D1\u9001\u9009\u9879"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-send-options" }, /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!draft.requestReceipt, onChange: (e3) => change({ requestReceipt: e3.target.checked }) }), "\u8BF7\u6C42\u5DF2\u8BFB\u56DE\u6267"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u9001\u65B9\u5F0F" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: sendMode, onChange: (e3) => {
+  } })), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-ai-button", "aria-label": "AI \u5199\u4FE1", onClick: () => setAiOpen(!aiOpen), "aria-expanded": aiOpen }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 17 }), /* @__PURE__ */ import_react3.default.createElement("span", null, "AI \u5199\u4FE1")), /* @__PURE__ */ import_react3.default.createElement(Menu, { label: "\u53D1\u9001\u9009\u9879", icon: "calendar", caption: sendMode === "scheduled" ? "\u5B9A\u65F6\u53D1\u9001" : "\u53D1\u9001\u9009\u9879", className: `dm-compose-options ${sendMode === "scheduled" || draft.requestReceipt || draft.followUpAt ? "is-active" : ""}` }, /* @__PURE__ */ import_react3.default.createElement("strong", null, "\u53D1\u9001\u9009\u9879"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-send-options" }, /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: !!draft.requestReceipt, onChange: (e3) => change({ requestReceipt: e3.target.checked }) }), "\u8BF7\u6C42\u5DF2\u8BFB\u56DE\u6267"), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u53D1\u9001\u65B9\u5F0F" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: sendMode, onChange: (e3) => {
     setSendMode(e3.target.value);
     change({ scheduledAt: null, sendTimeZone: sendZone });
-  } }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "now" }, "\u7ACB\u5373\u53D1\u9001\uFF08\u786E\u8BA4\u540E 10 \u79D2\uFF09"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "scheduled" }, "\u5B9A\u65F6\u53D1\u9001"))), sendMode === "scheduled" && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u8BA1\u5212\u53D1\u9001\u65F6\u95F4", type: "datetime-local", value: sendAt, onChange: (e3) => {
+  } }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "now" }, "\u7ACB\u5373\u53D1\u9001\uFF08\u786E\u8BA4\u540E 10 \u79D2\uFF09"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "scheduled" }, "\u5B9A\u65F6\u53D1\u9001"))), sendMode === "scheduled" && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u8BA1\u5212\u53D1\u9001\u65F6\u95F4", type: "datetime-local", value: sendAt, onChange: (e3) => {
     updateSchedule(e3.target.value, sendZone);
-  } }), /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { label: "\u53D1\u9001\u65F6\u533A", value: sendZone, onChange: (zone) => {
+  } }), /* @__PURE__ */ import_react3.default.createElement(TimeZoneField, { label: "\u53D1\u9001\u65F6\u533A", value: sendZone, onChange: (zone) => {
     updateSchedule(sendAt, zone);
-  } })), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u672A\u56DE\u590D\u65F6\u63D0\u9192", type: "datetime-local", value: draft.followUpAt ? DateTime.fromISO(draft.followUpAt).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => change({ followUpAt: e3.target.value ? new Date(e3.target.value).toISOString() : null }) })), scheduleError && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning", role: "alert" }, scheduleError), editable && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-send-limit", role: "note" }, "\u5B9A\u65F6\u53D1\u9001\u7531\u672C\u673A DSH Host \u6267\u884C\uFF0C\u5FC5\u987B\u4FDD\u6301\u5E94\u7528\u8FD0\u884C\u53CA\u8054\u7F51\u3002\u9000\u51FA\u6216\u4F11\u7720\u9519\u8FC7\u65F6\u95F4\u540E\u9700\u91CD\u65B0\u786E\u8BA4\uFF1B\u53D1\u9001\u5931\u8D25\u6216\u7ED3\u679C\u672A\u77E5\u4E0D\u4F1A\u81EA\u52A8\u91CD\u53D1\u3002\u6392\u961F\u540E\u53EF\u5728\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1\u53D6\u6D88\u3002"))), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, className: "dm-compose-send", "aria-label": "\u9884\u89C8\u5E76\u53D1\u9001 \u2192", onClick: preview }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sent", size: 16 }), "\u9884\u89C8\u5E76\u53D1\u9001"))));
+  } })), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u672A\u56DE\u590D\u65F6\u63D0\u9192", type: "datetime-local", value: draft.followUpAt ? DateTime.fromISO(draft.followUpAt).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => change({ followUpAt: e3.target.value ? new Date(e3.target.value).toISOString() : null }) })), scheduleError && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-warning", role: "alert" }, scheduleError), editable && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-send-limit", role: "note" }, "\u5B9A\u65F6\u53D1\u9001\u7531\u672C\u673A DSH Host \u6267\u884C\uFF0C\u5FC5\u987B\u4FDD\u6301\u5E94\u7528\u8FD0\u884C\u53CA\u8054\u7F51\u3002\u9000\u51FA\u6216\u4F11\u7720\u9519\u8FC7\u65F6\u95F4\u540E\u9700\u91CD\u65B0\u786E\u8BA4\uFF1B\u53D1\u9001\u5931\u8D25\u6216\u7ED3\u679C\u672A\u77E5\u4E0D\u4F1A\u81EA\u52A8\u91CD\u53D1\u3002\u6392\u961F\u540E\u53EF\u5728\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1\u53D6\u6D88\u3002"))), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, className: "dm-compose-send", "aria-label": "\u9884\u89C8\u5E76\u53D1\u9001 \u2192", onClick: preview }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sent", size: 16 }), "\u9884\u89C8\u5E76\u53D1\u9001"))));
 }
 function Preview({ value }) {
   const { act, run: run3, setModal, setCompose, state } = useMail();
   const p3 = state.previews.find((p4) => p4.id === value.id) || value, detail = p3.details;
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u8BF7\u6838\u5BF9\u4EE5\u4E0B\u5177\u4F53\u5185\u5BB9\u3002\u786E\u8BA4\u4EC5\u5BF9\u5F53\u524D\u9884\u89C8\u6709\u6548\u3002"), p3.kind === "send" ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("dl", null, /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u53D1\u4EF6\u4EBA"), /* @__PURE__ */ import_react2.default.createElement("dd", null, detail.from), /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u6536\u4EF6\u4EBA"), /* @__PURE__ */ import_react2.default.createElement("dd", null, addr(detail.to)), /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u6284\u9001 / \u5BC6\u9001"), /* @__PURE__ */ import_react2.default.createElement("dd", null, addr(detail.cc), " / ", addr(detail.bcc)), /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u4E3B\u9898"), /* @__PURE__ */ import_react2.default.createElement("dd", null, detail.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("dt", null, "\u53D1\u9001\u65F6\u95F4"), /* @__PURE__ */ import_react2.default.createElement("dd", null, detail.scheduledAt ? sendTimeLabel(detail.scheduledAt, detail.sendTimeZone) : "\u786E\u8BA4\u540E 10 \u79D2")), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u7EAF\u6587\u672C\u6B63\u6587"), /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-preview-body" }, detail.text || "\uFF08\u65E0\u7EAF\u6587\u672C\uFF09"), detail.html && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("h3", null, "HTML \u6B63\u6587"), /* @__PURE__ */ import_react2.default.createElement("iframe", { title: "\u53D1\u9001 HTML \u9884\u89C8", sandbox: "", style: { width: "100%", height: 220, border: "1px solid var(--dm-border)" }, srcDoc: `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.6 system-ui;color:#17212b;background:white;overflow-wrap:anywhere}img{max-width:100%}</style>${purify_default.sanitize(detail.html, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math"] })}` })), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u9644\u4EF6\uFF1A", detail.attachments?.map((a3) => a3.filename).join("\u3001") || "\u65E0"), detail.calendarEvents?.map((event, i4) => /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning", key: i4 }, /* @__PURE__ */ import_react2.default.createElement("div", null, "\u4F1A\u8BAE\uFF1A", event.title, /* @__PURE__ */ import_react2.default.createElement("p", null, event.start, " \u2014 ", event.end, " \xB7 ", event.timeZone), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u7EC4\u7EC7\u8005\uFF1A", event.organizer, " \xB7 \u4E0E\u4F1A\u8005\uFF1A", addr(event.attendees), " \xB7 ", event.method))))) : /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("h3", null, p3.kind === "purge" ? "\u6C38\u4E45\u5220\u9664\u90AE\u4EF6" : p3.kind === "folder-delete" ? "\u6C38\u4E45\u5220\u9664\u6587\u4EF6\u5939" : "\u5BF9\u5386\u53F2\u90AE\u4EF6\u5E94\u7528\u89C4\u5219"), /* @__PURE__ */ import_react2.default.createElement("p", null, detail.folder || "", " \xB7 ", detail.count, " \u5C01\u90AE\u4EF6"), detail.samples?.map((m3) => /* @__PURE__ */ import_react2.default.createElement("p", { key: m3.id }, m3.subject)), detail.rule && /* @__PURE__ */ import_react2.default.createElement("p", null, "\u89C4\u5219\uFF1A", detail.rule.name)), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning" }, detail.warning || "\u64CD\u4F5C\u5C06\u6309\u4EE5\u4E0A\u76EE\u6807\u6267\u884C\uFF0C\u8BF7\u6838\u5BF9\u8D26\u53F7\u4E0E\u8303\u56F4\u3002"), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, danger: p3.kind.includes("delete") || p3.kind === "purge", onClick: () => run3(async () => {
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u8BF7\u6838\u5BF9\u4EE5\u4E0B\u5177\u4F53\u5185\u5BB9\u3002\u786E\u8BA4\u4EC5\u5BF9\u5F53\u524D\u9884\u89C8\u6709\u6548\u3002"), p3.kind === "send" ? /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("dl", null, /* @__PURE__ */ import_react3.default.createElement("dt", null, "\u53D1\u4EF6\u4EBA"), /* @__PURE__ */ import_react3.default.createElement("dd", null, detail.from), /* @__PURE__ */ import_react3.default.createElement("dt", null, "\u6536\u4EF6\u4EBA"), /* @__PURE__ */ import_react3.default.createElement("dd", null, addr(detail.to)), /* @__PURE__ */ import_react3.default.createElement("dt", null, "\u6284\u9001 / \u5BC6\u9001"), /* @__PURE__ */ import_react3.default.createElement("dd", null, addr(detail.cc), " / ", addr(detail.bcc)), /* @__PURE__ */ import_react3.default.createElement("dt", null, "\u4E3B\u9898"), /* @__PURE__ */ import_react3.default.createElement("dd", null, detail.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react3.default.createElement("dt", null, "\u53D1\u9001\u65F6\u95F4"), /* @__PURE__ */ import_react3.default.createElement("dd", null, detail.scheduledAt ? sendTimeLabel(detail.scheduledAt, detail.sendTimeZone) : "\u786E\u8BA4\u540E 10 \u79D2")), /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u7EAF\u6587\u672C\u6B63\u6587"), /* @__PURE__ */ import_react3.default.createElement("pre", { className: "dm-preview-body" }, detail.text || "\uFF08\u65E0\u7EAF\u6587\u672C\uFF09"), detail.html && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("h3", null, "HTML \u6B63\u6587"), /* @__PURE__ */ import_react3.default.createElement("iframe", { title: "\u53D1\u9001 HTML \u9884\u89C8", sandbox: "", style: { width: "100%", height: 220, border: "1px solid var(--dm-border)" }, srcDoc: `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.6 system-ui;color:#17212b;background:white;overflow-wrap:anywhere}img{max-width:100%}</style>${purify_default.sanitize(detail.html, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math"] })}` })), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u9644\u4EF6\uFF1A", detail.attachments?.map((a3) => a3.filename).join("\u3001") || "\u65E0"), detail.calendarEvents?.map((event, i4) => /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-warning", key: i4 }, /* @__PURE__ */ import_react3.default.createElement("div", null, "\u4F1A\u8BAE\uFF1A", event.title, /* @__PURE__ */ import_react3.default.createElement("p", null, event.start, " \u2014 ", event.end, " \xB7 ", event.timeZone), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u7EC4\u7EC7\u8005\uFF1A", event.organizer, " \xB7 \u4E0E\u4F1A\u8005\uFF1A", addr(event.attendees), " \xB7 ", event.method))))) : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("h3", null, p3.kind === "purge" ? "\u6C38\u4E45\u5220\u9664\u90AE\u4EF6" : p3.kind === "folder-delete" ? "\u6C38\u4E45\u5220\u9664\u6587\u4EF6\u5939" : "\u5BF9\u5386\u53F2\u90AE\u4EF6\u5E94\u7528\u89C4\u5219"), /* @__PURE__ */ import_react3.default.createElement("p", null, detail.folder || "", " \xB7 ", detail.count, " \u5C01\u90AE\u4EF6"), detail.samples?.map((m3) => /* @__PURE__ */ import_react3.default.createElement("p", { key: m3.id }, m3.subject)), detail.rule && /* @__PURE__ */ import_react3.default.createElement("p", null, "\u89C4\u5219\uFF1A", detail.rule.name)), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-warning" }, detail.warning || "\u64CD\u4F5C\u5C06\u6309\u4EE5\u4E0A\u76EE\u6807\u6267\u884C\uFF0C\u8BF7\u6838\u5BF9\u8D26\u53F7\u4E0E\u8303\u56F4\u3002"), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, danger: p3.kind.includes("delete") || p3.kind === "purge", onClick: () => run3(async () => {
     await act({ action: "preview.confirm", id: p3.id }, p3.kind === "send" ? "\u5DF2\u8FDB\u5165\u53D1\u4EF6\u7BB1\uFF0C\u53EF\u5728\u6295\u9012\u524D\u53D6\u6D88" : "\u5DF2\u5F00\u59CB\u6267\u884C");
     setModal(null);
     setCompose(null);
-  }) }, "\u786E\u8BA4", p3.kind === "send" ? "\u53D1\u9001" : "\u6267\u884C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  }) }, "\u786E\u8BA4", p3.kind === "send" ? "\u53D1\u9001" : "\u6267\u884C"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => {
     await act({ action: "preview.reject", id: p3.id });
     setModal(null);
   }) }, "\u53D6\u6D88\u64CD\u4F5C")));
 }
 function AccountForm({ value }) {
   const { state, act, run: run3, setModal } = useMail();
-  const [form, setForm] = (0, import_react2.useState)(value || { name: "", email: "", imapHost: "imap.163.com", imapPort: 993, imapSecure: true, smtpHost: "smtp.163.com", smtpPort: 465, smtpSecure: true, enabled: true, folders: {} }), [password, setPassword] = (0, import_react2.useState)(""), [test, setTest] = (0, import_react2.useState)("");
+  const [form, setForm] = (0, import_react3.useState)(value || { name: "", email: "", imapHost: "imap.163.com", imapPort: 993, imapSecure: true, smtpHost: "smtp.163.com", smtpPort: 465, smtpSecure: true, enabled: true, folders: {} }), [password, setPassword] = (0, import_react3.useState)(""), [test, setTest] = (0, import_react3.useState)("");
   const field = (name) => ({ value: form[name] ?? "", onChange: (e3) => setForm({ ...form, [name]: ["imapPort", "smtpPort"].includes(name) ? Number(e3.target.value) : e3.target.value }) });
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       await act({ action: "accounts.save", account: form, password }, "\u8D26\u53F7\u5DF2\u4FDD\u5B58\uFF0C\u6B63\u5728\u540C\u6B65");
       setPassword("");
       setModal(null);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement("p", null, "\u7F51\u6613\u90AE\u7BB1\u8BF7\u5148\u5F00\u542F IMAP\uFF0FSMTP\uFF0C\u5E76\u751F\u6210\u5BA2\u6237\u7AEF\u6388\u6743\u7801\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u90AE\u7BB1\u5730\u5740", required: true, type: "email", ...field("email") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u663E\u793A\u540D\u79F0", ...field("name") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5BA2\u6237\u7AEF\u6388\u6743\u7801", type: "password", autoComplete: "new-password", value: password, onChange: (e3) => setPassword(e3.target.value), placeholder: value ? "\u7559\u7A7A\u4FDD\u7559\u539F\u6388\u6743\u7801" : "\u4E0D\u662F\u7F51\u9875\u767B\u5F55\u5BC6\u7801" }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u767B\u5F55\u7528\u6237\u540D\uFF08\u7559\u7A7A\u7528\u90AE\u7BB1\u5730\u5740\uFF09", ...field("username") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "IMAP \u670D\u52A1\u5668", required: true, ...field("imapHost") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "IMAP \u7AEF\u53E3", type: "number", required: true, ...field("imapPort") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "SMTP \u670D\u52A1\u5668", required: true, ...field("smtpHost") }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "SMTP \u7AEF\u53E3", type: "number", required: true, ...field("smtpPort") })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.imapSecure, onChange: (e3) => setForm({ ...form, imapSecure: e3.target.checked }) }), "IMAP \u9690\u5F0F TLS"), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.smtpSecure, onChange: (e3) => setForm({ ...form, smtpSecure: e3.target.checked }) }), "SMTP \u9690\u5F0F TLS"), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.enabled, onChange: (e3) => setForm({ ...form, enabled: e3.target.checked }) }), "\u542F\u7528\u8D26\u53F7")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u672A\u9009\u62E9\u9690\u5F0F TLS \u65F6\u8981\u6C42 STARTTLS\uFF1B\u4E0D\u4F1A\u964D\u7EA7\u5230\u660E\u6587\u8FDE\u63A5\u3002\u6388\u6743\u7801\u4F7F\u7528 Windows DPAPI \u4FDD\u5B58\u5728\u672C\u673A\u3002\u8BF7\u5728\u7F51\u6613\u7F51\u9875\u5C06\u5BA2\u6237\u7AEF\u6536\u4FE1\u8303\u56F4\u8BBE\u4E3A\u201C\u5168\u90E8\u90AE\u4EF6\u201D\u3002"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u9ED8\u8BA4\u7B7E\u540D" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.signatureId || "", onChange: (e3) => setForm({ ...form, signatureId: e3.target.value }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u4E0D\u4F7F\u7528\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: s4.id, value: s4.id }, s4.name)))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u65B0\u5EFA\u90AE\u4EF6\u3001\u56DE\u590D\u548C\u8F6C\u53D1\u65F6\u63D2\u5165\u6B64\u7B7E\u540D\uFF1B\u5DF2\u4FDD\u5B58\u7684\u8349\u7A3F\u4FDD\u6301\u539F\u5185\u5BB9\u3002"), value && /* @__PURE__ */ import_react2.default.createElement("details", null, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u7279\u6B8A\u6587\u4EF6\u5939\u6620\u5C04"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, [["sent", "\u5DF2\u53D1\u9001"], ["drafts", "\u8349\u7A3F"], ["trash", "\u5E9F\u7EB8\u7BD3"], ["junk", "\u5783\u573E\u90AE\u4EF6"], ["archive", "\u5F52\u6863"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Field, { label, key }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.folders?.[key] || "", onChange: (e3) => setForm({ ...form, folders: { ...form.folders, [key]: e3.target.value } }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9"), state.folders.filter((f3) => f3.accountId === form.id).map((f3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: f3.id, value: f3.id }, f3.path))))))), /* @__PURE__ */ import_react2.default.createElement("p", { role: "status" }, test), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u5E76\u8FDE\u63A5"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  } }, /* @__PURE__ */ import_react3.default.createElement("p", null, "\u7F51\u6613\u90AE\u7BB1\u8BF7\u5148\u5F00\u542F IMAP\uFF0FSMTP\uFF0C\u5E76\u751F\u6210\u5BA2\u6237\u7AEF\u6388\u6743\u7801\u3002"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u90AE\u7BB1\u5730\u5740", required: true, type: "email", ...field("email") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u663E\u793A\u540D\u79F0", ...field("name") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5BA2\u6237\u7AEF\u6388\u6743\u7801", type: "password", autoComplete: "new-password", value: password, onChange: (e3) => setPassword(e3.target.value), placeholder: value ? "\u7559\u7A7A\u4FDD\u7559\u539F\u6388\u6743\u7801" : "\u4E0D\u662F\u7F51\u9875\u767B\u5F55\u5BC6\u7801" }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u767B\u5F55\u7528\u6237\u540D\uFF08\u7559\u7A7A\u7528\u90AE\u7BB1\u5730\u5740\uFF09", ...field("username") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "IMAP \u670D\u52A1\u5668", required: true, ...field("imapHost") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "IMAP \u7AEF\u53E3", type: "number", required: true, ...field("imapPort") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "SMTP \u670D\u52A1\u5668", required: true, ...field("smtpHost") }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "SMTP \u7AEF\u53E3", type: "number", required: true, ...field("smtpPort") })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: form.imapSecure, onChange: (e3) => setForm({ ...form, imapSecure: e3.target.checked }) }), "IMAP \u9690\u5F0F TLS"), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: form.smtpSecure, onChange: (e3) => setForm({ ...form, smtpSecure: e3.target.checked }) }), "SMTP \u9690\u5F0F TLS"), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: form.enabled, onChange: (e3) => setForm({ ...form, enabled: e3.target.checked }) }), "\u542F\u7528\u8D26\u53F7")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u672A\u9009\u62E9\u9690\u5F0F TLS \u65F6\u8981\u6C42 STARTTLS\uFF1B\u4E0D\u4F1A\u964D\u7EA7\u5230\u660E\u6587\u8FDE\u63A5\u3002\u6388\u6743\u7801\u4F7F\u7528 Windows DPAPI \u4FDD\u5B58\u5728\u672C\u673A\u3002\u8BF7\u5728\u7F51\u6613\u7F51\u9875\u5C06\u5BA2\u6237\u7AEF\u6536\u4FE1\u8303\u56F4\u8BBE\u4E3A\u201C\u5168\u90E8\u90AE\u4EF6\u201D\u3002"), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u9ED8\u8BA4\u7B7E\u540D" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.signatureId || "", onChange: (e3) => setForm({ ...form, signatureId: e3.target.value }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u4E0D\u4F7F\u7528\u7B7E\u540D"), state.signatures.map((s4) => /* @__PURE__ */ import_react3.default.createElement("option", { key: s4.id, value: s4.id }, s4.name)))), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u65B0\u5EFA\u90AE\u4EF6\u3001\u56DE\u590D\u548C\u8F6C\u53D1\u65F6\u63D2\u5165\u6B64\u7B7E\u540D\uFF1B\u5DF2\u4FDD\u5B58\u7684\u8349\u7A3F\u4FDD\u6301\u539F\u5185\u5BB9\u3002"), value && /* @__PURE__ */ import_react3.default.createElement("details", null, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u7279\u6B8A\u6587\u4EF6\u5939\u6620\u5C04"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form-grid" }, [["sent", "\u5DF2\u53D1\u9001"], ["drafts", "\u8349\u7A3F"], ["trash", "\u5E9F\u7EB8\u7BD3"], ["junk", "\u5783\u573E\u90AE\u4EF6"], ["archive", "\u5F52\u6863"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement(Field, { label, key }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.folders?.[key] || "", onChange: (e3) => setForm({ ...form, folders: { ...form.folders, [key]: e3.target.value } }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9"), state.folders.filter((f3) => f3.accountId === form.id).map((f3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: f3.id, value: f3.id }, f3.path))))))), /* @__PURE__ */ import_react3.default.createElement("p", { role: "status" }, test), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u5E76\u8FDE\u63A5"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => {
     setTest("\u6B63\u5728\u6D4B\u8BD5 IMAP \u4E0E SMTP\u2026");
     try {
       await act(password ? { action: "accounts.test", account: form, password } : { action: "accounts.test", accountId: form.id });
@@ -47809,53 +48426,53 @@ function AccountForm({ value }) {
     } catch (e3) {
       setTest(e3.message);
     }
-  }) }, "\u6D4B\u8BD5\u8FDE\u63A5"), /* @__PURE__ */ import_react2.default.createElement("a", { href: "https://mail.163.com/", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00\u7F51\u6613\u90AE\u7BB1 \u2197")));
+  }) }, "\u6D4B\u8BD5\u8FDE\u63A5"), /* @__PURE__ */ import_react3.default.createElement("a", { href: "https://mail.163.com/", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00\u7F51\u6613\u90AE\u7BB1 \u2197")));
 }
 function TransferForm({ message }) {
-  const { state, act, run: run3, setModal, setNotice, busy } = useMail(), [operation, setOperation] = (0, import_react2.useState)("copy"), [destinationId, setDestinationId] = (0, import_react2.useState)(""), [search, setSearch] = (0, import_react2.useState)(""), [jobId, setJobId] = (0, import_react2.useState)("");
+  const { state, act, run: run3, setModal, setNotice, busy } = useMail(), [operation, setOperation] = (0, import_react3.useState)("copy"), [destinationId, setDestinationId] = (0, import_react3.useState)(""), [search, setSearch] = (0, import_react3.useState)(""), [jobId, setJobId] = (0, import_react3.useState)("");
   const job = state.jobs.find((item2) => item2.id === jobId), item = job?.items[0], locations = new Set((message.locations || [{ folderId: message.folderId }]).map((location) => location.folderId));
   const folders = visibleFolders(state.folders, state.settings?.folderSort, search).filter((folder) => folder.selectable !== false), target = state.folders.find((folder) => folder.id === destinationId);
   const locked = !!jobId || busy > 0;
   const waiting = !!jobId && (!job || ["queued", "running"].includes(job.status));
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (job?.status === "completed" && item?.status === "done" && !item.result?.unknown) {
       setNotice(operation === "copy" ? "\u90AE\u4EF6\u5DF2\u590D\u5236\u5230\u76EE\u6807\u6587\u4EF6\u5939\uFF0C\u539F\u90AE\u4EF6\u4FDD\u7559" : "\u90AE\u4EF6\u5DF2\u79FB\u52A8\u5230\u76EE\u6807\u6587\u4EF6\u5939");
       setModal(null);
     }
   }, [job?.status, item?.status]);
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form dm-transfer", onSubmit: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form dm-transfer", onSubmit: (e3) => {
     e3.preventDefault();
     if (!target || locations.has(target.id) || locked) return;
     run3(async () => {
       const job2 = await act({ action: "messages.action", ids: [message.id], operation, destinationId });
       setJobId(job2.id);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement("p", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u5F53\u524D\u4F4D\u7F6E\uFF1A", state.folders.find((folder) => folder.id === message.folderId)?.path || "\u5F85\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement("fieldset", { className: "dm-transfer-mode", disabled: locked }, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u5904\u7406\u65B9\u5F0F"), [["copy", "\u590D\u5236\uFF0C\u4FDD\u7559\u539F\u90AE\u4EF6"], ["move", "\u79FB\u52A8\uFF0C\u79BB\u5F00\u539F\u4F4D\u7F6E"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("label", { key }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "radio", name: "transfer-mode", value: key, checked: operation === key, onChange: () => setOperation(key) }), label))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u67E5\u627E\u76EE\u6807\u6587\u4EF6\u5939", value: search, disabled: locked, onChange: (e3) => setSearch(e3.target.value), placeholder: "\u8F93\u5165\u540D\u79F0\u6216\u5B8C\u6574\u8DEF\u5F84" }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u76EE\u6807\u6587\u4EF6\u5939" }, /* @__PURE__ */ import_react2.default.createElement("select", { required: true, value: destinationId, disabled: locked, onChange: (e3) => setDestinationId(e3.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9\u76EE\u6807\u6587\u4EF6\u5939"), state.accounts.map((account) => /* @__PURE__ */ import_react2.default.createElement("optgroup", { key: account.id, label: account.name }, folders.filter((folder) => folder.accountId === account.id).map((folder) => /* @__PURE__ */ import_react2.default.createElement("option", { key: folder.id, value: folder.id, disabled: locations.has(folder.id) }, folder.path, locations.has(folder.id) ? "\uFF08\u5DF2\u5728\u6B64\u6587\u4EF6\u5939\uFF09" : "")))))), !folders.length && /* @__PURE__ */ import_react2.default.createElement("p", { role: "status" }, "\u6CA1\u6709\u5339\u914D\u7684\u6587\u4EF6\u5939\u3002"), waiting && /* @__PURE__ */ import_react2.default.createElement("p", { role: "status" }, "\u6B63\u5728", operation === "copy" ? "\u590D\u5236" : "\u79FB\u52A8", "\u90AE\u4EF6\uFF0C\u53EF\u5728\u201C\u901A\u77E5\u4E0E\u4EFB\u52A1\u201D\u4E2D\u67E5\u770B\u8FDB\u5EA6\u3002"), jobId && job && !waiting && job.status !== "completed" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning", role: "alert" }, item?.result?.message || item?.error?.message || job.error?.message || "\u64CD\u4F5C\u5C1A\u672A\u5B8C\u6210\uFF0C\u8BF7\u6838\u67E5\u76EE\u6807\u6587\u4EF6\u5939\u548C\u4EFB\u52A1\u8BB0\u5F55\u540E\u518D\u5904\u7406\u3002"), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit", className: "primary", disabled: locked || !target || locations.has(target.id) }, operation === "copy" ? "\u590D\u5236\u90AE\u4EF6" : "\u79FB\u52A8\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal(null) }, waiting ? "\u5173\u95ED\uFF0C\u540E\u53F0\u7EE7\u7EED" : "\u53D6\u6D88")));
+  } }, /* @__PURE__ */ import_react3.default.createElement("p", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u5F53\u524D\u4F4D\u7F6E\uFF1A", state.folders.find((folder) => folder.id === message.folderId)?.path || "\u5F85\u540C\u6B65"), /* @__PURE__ */ import_react3.default.createElement("fieldset", { className: "dm-transfer-mode", disabled: locked }, /* @__PURE__ */ import_react3.default.createElement("legend", null, "\u5904\u7406\u65B9\u5F0F"), [["copy", "\u590D\u5236\uFF0C\u4FDD\u7559\u539F\u90AE\u4EF6"], ["move", "\u79FB\u52A8\uFF0C\u79BB\u5F00\u539F\u4F4D\u7F6E"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("label", { key }, /* @__PURE__ */ import_react3.default.createElement("input", { type: "radio", name: "transfer-mode", value: key, checked: operation === key, onChange: () => setOperation(key) }), label))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u67E5\u627E\u76EE\u6807\u6587\u4EF6\u5939", value: search, disabled: locked, onChange: (e3) => setSearch(e3.target.value), placeholder: "\u8F93\u5165\u540D\u79F0\u6216\u5B8C\u6574\u8DEF\u5F84" }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u76EE\u6807\u6587\u4EF6\u5939" }, /* @__PURE__ */ import_react3.default.createElement("select", { required: true, value: destinationId, disabled: locked, onChange: (e3) => setDestinationId(e3.target.value) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9\u76EE\u6807\u6587\u4EF6\u5939"), state.accounts.map((account) => /* @__PURE__ */ import_react3.default.createElement("optgroup", { key: account.id, label: account.name }, folders.filter((folder) => folder.accountId === account.id).map((folder) => /* @__PURE__ */ import_react3.default.createElement("option", { key: folder.id, value: folder.id, disabled: locations.has(folder.id) }, folder.path, locations.has(folder.id) ? "\uFF08\u5DF2\u5728\u6B64\u6587\u4EF6\u5939\uFF09" : "")))))), !folders.length && /* @__PURE__ */ import_react3.default.createElement("p", { role: "status" }, "\u6CA1\u6709\u5339\u914D\u7684\u6587\u4EF6\u5939\u3002"), waiting && /* @__PURE__ */ import_react3.default.createElement("p", { role: "status" }, "\u6B63\u5728", operation === "copy" ? "\u590D\u5236" : "\u79FB\u52A8", "\u90AE\u4EF6\uFF0C\u53EF\u5728\u201C\u901A\u77E5\u4E0E\u4EFB\u52A1\u201D\u4E2D\u67E5\u770B\u8FDB\u5EA6\u3002"), jobId && job && !waiting && job.status !== "completed" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-warning", role: "alert" }, item?.result?.message || item?.error?.message || job.error?.message || "\u64CD\u4F5C\u5C1A\u672A\u5B8C\u6210\uFF0C\u8BF7\u6838\u67E5\u76EE\u6807\u6587\u4EF6\u5939\u548C\u4EFB\u52A1\u8BB0\u5F55\u540E\u518D\u5904\u7406\u3002"), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { type: "submit", className: "primary", disabled: locked || !target || locations.has(target.id) }, operation === "copy" ? "\u590D\u5236\u90AE\u4EF6" : "\u79FB\u52A8\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal(null) }, waiting ? "\u5173\u95ED\uFF0C\u540E\u53F0\u7EE7\u7EED" : "\u53D6\u6D88")));
 }
 function FolderForm({ value }) {
   const { state, act, run: run3, setModal, download } = useMail();
-  const [operation, setOperation] = (0, import_react2.useState)(value ? "rename" : "create"), [path, setPath] = (0, import_react2.useState)(value?.path || ""), [accountId, setAccountId] = (0, import_react2.useState)(value?.accountId || state.accounts[0]?.id || ""), [structureOnly, setStructureOnly] = (0, import_react2.useState)(false);
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  const [operation, setOperation] = (0, import_react3.useState)(value ? "rename" : "create"), [path, setPath] = (0, import_react3.useState)(value?.path || ""), [accountId, setAccountId] = (0, import_react3.useState)(value?.accountId || state.accounts[0]?.id || ""), [structureOnly, setStructureOnly] = (0, import_react3.useState)(false);
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       const r3 = await act({ action: "folders.action", operation, id: value?.id, accountId, path, structureOnly });
       setModal(r3.kind === "folder-delete" ? { type: "preview", value: r3 } : null);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: operation, onChange: (e3) => setOperation(e3.target.value) }, (value ? [["rename", "\u91CD\u547D\u540D / \u79FB\u52A8"], ["copy", "\u590D\u5236\u6587\u4EF6\u5939"], ["delete", "\u5220\u9664\u6587\u4EF6\u5939\u2026"]] : [["create", "\u65B0\u5EFA\u6587\u4EF6\u5939"]]).map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u76EE\u6807\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: accountId, disabled: operation === "rename" || operation === "delete", onChange: (e3) => setAccountId(e3.target.value) }, state.accounts.map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name)))), operation !== "delete" && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u6587\u4EF6\u5939\u5B8C\u6574\u8DEF\u5F84", required: true, value: path, onChange: (e3) => setPath(e3.target.value), placeholder: "\u9879\u76EE/\u5BA2\u6237 A" }), operation === "copy" && /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: structureOnly, onChange: (e3) => setStructureOnly(e3.target.checked) }), "\u53EA\u590D\u5236\u7ED3\u6784\uFF0C\u4E0D\u590D\u5236\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u540C\u540D\u76EE\u6807\u4E0D\u4F1A\u88AB\u8986\u76D6\u3002\u590D\u5236\u5F00\u59CB\u524D\u4F1A\u56FA\u5B9A\u6E90\u6587\u4EF6\u5939\u548C\u90AE\u4EF6\u8303\u56F4\u3002"), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit", className: "primary" }, operation === "delete" ? "\u751F\u6210\u5220\u9664\u9884\u89C8" : "\u6267\u884C"), value && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", folderId: value.id, format: "mbox" }) }, "\u5BFC\u51FA MBOX")));
+  } }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u64CD\u4F5C" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: operation, onChange: (e3) => setOperation(e3.target.value) }, (value ? [["rename", "\u91CD\u547D\u540D / \u79FB\u52A8"], ["copy", "\u590D\u5236\u6587\u4EF6\u5939"], ["delete", "\u5220\u9664\u6587\u4EF6\u5939\u2026"]] : [["create", "\u65B0\u5EFA\u6587\u4EF6\u5939"]]).map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label)))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u76EE\u6807\u8D26\u53F7" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: accountId, disabled: operation === "rename" || operation === "delete", onChange: (e3) => setAccountId(e3.target.value) }, state.accounts.map((a3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: a3.id, value: a3.id }, a3.name)))), operation !== "delete" && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u6587\u4EF6\u5939\u5B8C\u6574\u8DEF\u5F84", required: true, value: path, onChange: (e3) => setPath(e3.target.value), placeholder: "\u9879\u76EE/\u5BA2\u6237 A" }), operation === "copy" && /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: structureOnly, onChange: (e3) => setStructureOnly(e3.target.checked) }), "\u53EA\u590D\u5236\u7ED3\u6784\uFF0C\u4E0D\u590D\u5236\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u540C\u540D\u76EE\u6807\u4E0D\u4F1A\u88AB\u8986\u76D6\u3002\u590D\u5236\u5F00\u59CB\u524D\u4F1A\u56FA\u5B9A\u6E90\u6587\u4EF6\u5939\u548C\u90AE\u4EF6\u8303\u56F4\u3002"), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { type: "submit", className: "primary" }, operation === "delete" ? "\u751F\u6210\u5220\u9664\u9884\u89C8" : "\u6267\u884C"), value && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "mail.export", folderId: value.id, format: "mbox" }) }, "\u5BFC\u51FA MBOX")));
 }
 function MiniCalendar({ value, firstDay, timeZone, onSelect, onMonth }) {
   const selected = DateTime.fromISO(value, { zone: timeZone }), month = selected.startOf("month"), start = month.minus({ days: (month.weekday % 7 - firstDay + 7) % 7 }), today = DateTime.now().setZone(timeZone).toISODate();
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-mini-calendar" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, month.toFormat("yyyy\u5E74M\u6708")), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5C0F\u6708\u5386\u4E0A\u4E00\u6708", onClick: () => onMonth(month.minus({ months: 1 }).toISODate()) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 15 })), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5C0F\u6708\u5386\u4E0B\u4E00\u6708", onClick: () => onMonth(month.plus({ months: 1 }).toISODate()) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "next", size: 15 }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-mini-grid" }, Array.from({ length: 7 }, (_3, i4) => /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-mini-weekday", key: `weekday-${i4}` }, ["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"][(firstDay + i4) % 7])), Array.from({ length: 42 }, (_3, i4) => {
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-mini-calendar" }, /* @__PURE__ */ import_react3.default.createElement("header", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, month.toFormat("yyyy\u5E74M\u6708")), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u5C0F\u6708\u5386\u4E0A\u4E00\u6708", onClick: () => onMonth(month.minus({ months: 1 }).toISODate()) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "back", size: 15 })), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u5C0F\u6708\u5386\u4E0B\u4E00\u6708", onClick: () => onMonth(month.plus({ months: 1 }).toISODate()) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "next", size: 15 }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-mini-grid" }, Array.from({ length: 7 }, (_3, i4) => /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-mini-weekday", key: `weekday-${i4}` }, ["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"][(firstDay + i4) % 7])), Array.from({ length: 42 }, (_3, i4) => {
     const day = start.plus({ days: i4 }), iso = day.toISODate();
-    return /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: iso, "aria-label": `\u8DF3\u8F6C\u5230 ${iso}`, "aria-current": iso === today ? "date" : void 0, className: `${day.month !== month.month ? "outside" : ""} ${iso === value ? "chosen" : ""}`, onClick: () => onSelect(iso) }, day.day);
+    return /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", key: iso, "aria-label": `\u8DF3\u8F6C\u5230 ${iso}`, "aria-current": iso === today ? "date" : void 0, className: `${day.month !== month.month ? "outside" : ""} ${iso === value ? "chosen" : ""}`, onClick: () => onSelect(iso) }, day.day);
   })));
 }
 function CalendarView() {
   const { state, request, setModal, act, run: run3, download, setTab, setSettingsSection, navigation } = useMail();
-  const settings = { ...DEFAULT_SETTINGS, ...state.settings }, ref = (0, import_react2.useRef)(null), calendar = (0, import_react2.useRef)(null), calendars = (0, import_react2.useRef)(state.calendars), preferences = (0, import_react2.useRef)(settings), navigationRef = (0, import_react2.useRef)(navigation);
+  const settings = { ...DEFAULT_SETTINGS, ...state.settings }, ref = (0, import_react3.useRef)(null), calendar = (0, import_react3.useRef)(null), calendars = (0, import_react3.useRef)(state.calendars), preferences = (0, import_react3.useRef)(settings), navigationRef = (0, import_react3.useRef)(navigation);
   navigationRef.current = navigation;
-  const [selectedIds, setSelectedIds] = (0, import_react2.useState)(state.calendars.map((item) => item.id)), [calendarDate, setCalendarDate] = (0, import_react2.useState)(DateTime.now().setZone(settings.calendarTimeZone).toISODate()), [panelOpen, setPanelOpen] = (0, import_react2.useState)(false);
-  const selected = (0, import_react2.useRef)(selectedIds), selectionKey = JSON.stringify(selectedIds), lastData = (0, import_react2.useRef)({ events: state.events, calendars: state.calendars, selectionKey }), panelTrigger = (0, import_react2.useRef)(null), panel = (0, import_react2.useRef)(null);
+  const [selectedIds, setSelectedIds] = (0, import_react3.useState)(state.calendars.map((item) => item.id)), [calendarDate, setCalendarDate] = (0, import_react3.useState)(DateTime.now().setZone(settings.calendarTimeZone).toISODate()), [panelOpen, setPanelOpen] = (0, import_react3.useState)(false);
+  const selected = (0, import_react3.useRef)(selectedIds), selectionKey = JSON.stringify(selectedIds), lastData = (0, import_react3.useRef)({ events: state.events, calendars: state.calendars, selectionKey }), panelTrigger = (0, import_react3.useRef)(null), panel = (0, import_react3.useRef)(null);
   calendars.current = state.calendars;
   preferences.current = settings;
   selected.current = selectedIds;
@@ -47868,16 +48485,16 @@ function CalendarView() {
     if (!selectedIds.length) setSelectedIds([calendarId]);
     setModal({ type: "event", value: { calendarId } });
   };
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (panelOpen) panel.current?.querySelector("button")?.focus();
   }, [panelOpen]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     setSelectedIds((current) => {
       const known = lastData.current.calendars.map((item) => item.id);
       return [...current.filter((id) => state.calendars.some((item) => item.id === id)), ...state.calendars.filter((item) => !known.includes(item.id)).map((item) => item.id)];
     });
   }, [state.calendars]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const c3 = new Calendar(ref.current, {
       plugins: [index, index2, index3, index4, index5],
       locale: l77,
@@ -47950,160 +48567,186 @@ function CalendarView() {
       calendar.current = null;
     };
   }, []);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     calendar.current?.setOption("timeZone", settings.calendarTimeZone);
     calendar.current?.setOption("firstDay", settings.firstDay);
   }, [settings.calendarTimeZone, settings.firstDay]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     calendar.current?.changeView(settings.calendarView);
   }, [settings.calendarView]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (navigation?.page !== "calendar") return;
     if (navigation.calendarId && state.calendars.some((item) => item.id === navigation.calendarId)) setSelectedIds((ids) => ids.includes(navigation.calendarId) ? ids : [...ids, navigation.calendarId]);
     if (navigation.date) calendar.current?.gotoDate(navigation.date);
   }, [navigation?.id]);
-  (0, import_react2.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const previous = lastData.current;
     if (previous.events !== state.events || previous.calendars !== state.calendars || previous.selectionKey !== selectionKey) calendar.current?.refetchEvents();
     lastData.current = { events: state.events, calendars: state.calendars, selectionKey };
   }, [state.events, state.calendars, selectionKey]);
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: `dm-calendar-page ${panelOpen ? "calendar-panel-open" : ""}`, onKeyDown: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: `dm-calendar-page ${panelOpen ? "calendar-panel-open" : ""}`, onKeyDown: (e3) => {
     if (panelOpen && e3.key === "Escape" && !e3.defaultPrevented) {
       e3.preventDefault();
       closePanel();
     }
-  } }, panelOpen && /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "dm-calendar-backdrop", "aria-label": "\u5173\u95ED\u65E5\u5386\u5217\u8868", tabIndex: -1, onClick: closePanel }), /* @__PURE__ */ import_react2.default.createElement("aside", { ref: panel, className: "dm-calendar-sidebar", "aria-label": "\u65E5\u5386\u5217\u8868" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-calendar-sidebar-actions" }, /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: newEvent }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u65B0\u4E8B\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-calendar-panel-close", "aria-label": "\u6536\u8D77\u65E5\u5386\u5217\u8868", onClick: closePanel }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 16 }))), /* @__PURE__ */ import_react2.default.createElement(MiniCalendar, { value: calendarDate, firstDay: settings.firstDay, timeZone: settings.calendarTimeZone, onSelect: (date2) => {
+  } }, panelOpen && /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "dm-calendar-backdrop", "aria-label": "\u5173\u95ED\u65E5\u5386\u5217\u8868", tabIndex: -1, onClick: closePanel }), /* @__PURE__ */ import_react3.default.createElement("aside", { ref: panel, className: "dm-calendar-sidebar", "aria-label": "\u65E5\u5386\u5217\u8868" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-calendar-sidebar-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: newEvent }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 16 }), "\u65B0\u4E8B\u4EF6"), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-calendar-panel-close", "aria-label": "\u6536\u8D77\u65E5\u5386\u5217\u8868", onClick: closePanel }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "close", size: 16 }))), /* @__PURE__ */ import_react3.default.createElement(MiniCalendar, { value: calendarDate, firstDay: settings.firstDay, timeZone: settings.calendarTimeZone, onSelect: (date2) => {
     calendar.current?.gotoDate(date2);
     if (panelOpen) closePanel();
-  }, onMonth: (date2) => calendar.current?.gotoDate(date2) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, "\u6211\u7684\u65E5\u5386", /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u65B0\u5EFA\u65E5\u5386", onClick: () => setModal({ type: "resource", kind: "calendars", value: { name: "", color: "#22dbf4" } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 15 }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-calendar-list" }, state.calendars.map((item) => /* @__PURE__ */ import_react2.default.createElement("label", { key: item.id }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", "aria-label": `\u663E\u793A\u65E5\u5386\uFF1A${item.name}`, checked: selectedIds.includes(item.id), onChange: (e3) => setSelectedIds((ids) => e3.target.checked ? [...ids, item.id] : ids.filter((id) => id !== item.id)) }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-calendar-color", style: { background: item.color } }), /* @__PURE__ */ import_react2.default.createElement("span", null, item.name)))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-calendar-legend" }, "\u672A\u7ED3\u675F\u4F7F\u7528\u6B63\u5E38\u8272\uFF0C\u5DF2\u7ED3\u675F\u81EA\u52A8\u6DE1\u5316\u3002"), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-calendar-tools" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\u5BFC\u5165 ICS", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".ics", onChange: (e3) => run3(async () => {
+  }, onMonth: (date2) => calendar.current?.gotoDate(date2) }), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-section-label" }, "\u6211\u7684\u65E5\u5386", /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": "\u65B0\u5EFA\u65E5\u5386", onClick: () => setModal({ type: "resource", kind: "calendars", value: { name: "", color: "#22dbf4" } }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 15 }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-calendar-list" }, state.calendars.map((item) => /* @__PURE__ */ import_react3.default.createElement("label", { key: item.id }, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", "aria-label": `\u663E\u793A\u65E5\u5386\uFF1A${item.name}`, checked: selectedIds.includes(item.id), onChange: (e3) => setSelectedIds((ids) => e3.target.checked ? [...ids, item.id] : ids.filter((id) => id !== item.id)) }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-calendar-color", style: { background: item.color } }), /* @__PURE__ */ import_react3.default.createElement("span", null, item.name)))), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-calendar-legend" }, "\u672A\u7ED3\u675F\u4F7F\u7528\u6B63\u5E38\u8272\uFF0C\u5DF2\u7ED3\u675F\u81EA\u52A8\u6DE1\u5316\u3002"), /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-calendar-tools" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-file-button" }, "\u5BFC\u5165 ICS", /* @__PURE__ */ import_react3.default.createElement("input", { type: "file", accept: ".ics", onChange: (e3) => run3(async () => {
     if (e3.target.files[0]) await act({ action: "events.import", ics: await e3.target.files[0].text(), calendarId: selectedIds[0] || "default" }, "\u5DF2\u5BFC\u5165\u65E5\u5386");
-  }) })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "events.export" }) }, "\u5BFC\u51FA ICS"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
-    setSettingsSection("\u90AE\u4EF6\u4E0E\u65E5\u5386\u504F\u597D");
+  }) })), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "events.export" }) }, "\u5BFC\u51FA ICS"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => {
+    setSettingsSection("\u65E5\u5386\u4E0E\u5F85\u529E");
     setTab("\u8BBE\u7F6E");
-  } }, "\u65E5\u5386\u504F\u597D"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, "\u663E\u793A\u65F6\u533A ", settings.calendarTimeZone))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-calendar-main" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-calendar-mobile-actions" }, /* @__PURE__ */ import_react2.default.createElement("button", { ref: panelTrigger, type: "button", "aria-label": "\u6253\u5F00\u65E5\u5386\u5217\u8868", "aria-expanded": panelOpen, onClick: () => panelOpen ? closePanel() : setPanelOpen(true) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "menu", size: 17 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: newEvent }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u65B0\u4E8B\u4EF6")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-calendar", ref })));
+  } }, "\u65E5\u5386\u504F\u597D"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-muted" }, "\u663E\u793A\u65F6\u533A ", settings.calendarTimeZone))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-calendar-main" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-calendar-mobile-actions" }, /* @__PURE__ */ import_react3.default.createElement("button", { ref: panelTrigger, type: "button", "aria-label": "\u6253\u5F00\u65E5\u5386\u5217\u8868", "aria-expanded": panelOpen, onClick: () => panelOpen ? closePanel() : setPanelOpen(true) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "menu", size: 17 }), "\u65E5\u5386"), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: newEvent }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 16 }), "\u65B0\u4E8B\u4EF6")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-calendar", ref })));
 }
 function EventForm({ value }) {
   const { state, act, run: run3, setModal, setCompose, setTab, openMessage } = useMail();
   const zone = state.settings?.eventTimeZone || DEFAULT_SETTINGS.eventTimeZone;
-  const defaults2 = { title: "", start: DateTime.now().setZone(zone).plus({ hours: 1 }).startOf("hour").toISO(), end: DateTime.now().setZone(zone).plus({ hours: 2 }).startOf("hour").toISO(), timeZone: zone, calendarId: "default", reminderMinutes: 15, description: "", location: "", rrule: "", color: value?.id || value?.recurrenceId ? void 0 : "#22dbf4" };
-  const [form, setForm] = (0, import_react2.useState)({ ...defaults2, ...value }), [attendees, setAttendees] = (0, import_react2.useState)(addr(value?.attendees)), [accountId, setAccountId] = (0, import_react2.useState)(state.accounts.find((a3) => !a3.local)?.id || "");
+  const defaults2 = { title: "", start: DateTime.now().setZone(zone).plus({ hours: 1 }).startOf("hour").toISO(), end: DateTime.now().setZone(zone).plus({ hours: 2 }).startOf("hour").toISO(), timeZone: zone, calendarId: "default", reminderMinutes: state.settings?.eventReminder ?? 15, description: "", location: "", rrule: "", color: value?.id || value?.recurrenceId ? void 0 : "#22dbf4" };
+  const [form, setForm] = (0, import_react3.useState)({ ...defaults2, ...value }), [attendees, setAttendees] = (0, import_react3.useState)(addr(value?.attendees)), [accountId, setAccountId] = (0, import_react3.useState)(state.accounts.find((a3) => !a3.local)?.id || "");
   const change = (key, v3) => setForm({ ...form, [key]: v3 });
   const time = (key) => form.allDay ? form[key]?.slice(0, 10) : DateTime.fromISO(form[key], { zone: form.timeZone }).toFormat("yyyy-MM-dd'T'HH:mm");
   const save = () => act({ action: "events.save", event: form });
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       await save();
       setModal(null);
     });
-  } }, form.recurrenceId && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice" }, "\u6B63\u5728\u7F16\u8F91\u672C\u6B21\u91CD\u590D\u4E8B\u4EF6\uFF0C\u5176\u4ED6\u65E5\u671F\u4FDD\u6301\u539F\u5B89\u6392\u3002"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4E8B\u4EF6\u540D\u79F0", required: true, value: form.title, onChange: (e3) => change("title", e3.target.value) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5F00\u59CB", type: form.allDay ? "date" : "datetime-local", value: time("start"), onChange: (e3) => change("start", e3.target.value), required: true }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: form.allDay ? "\u7ED3\u675F\uFF08\u4E0D\u5305\u542B\u5F53\u5929\uFF09" : "\u7ED3\u675F", type: form.allDay ? "date" : "datetime-local", value: time("end"), onChange: (e3) => change("end", e3.target.value), required: true }), /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { label: "\u4E8B\u4EF6\u65F6\u533A", value: form.timeZone, onChange: (zone2) => change("timeZone", zone2) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.calendarId, onChange: (e3) => change("calendarId", e3.target.value) }, state.calendars.map((c3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: c3.id, value: c3.id }, c3.name)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u63D0\u524D\u63D0\u9192\uFF08\u5206\u949F\uFF09", type: "number", min: "0", value: form.reminderMinutes, onChange: (e3) => change("reminderMinutes", Number(e3.target.value)) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u91CD\u590D" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: ["", "FREQ=DAILY", "FREQ=WEEKLY", "FREQ=MONTHLY", "FREQ=YEARLY"].includes(form.rrule) ? form.rrule : "custom", onChange: (e3) => change("rrule", e3.target.value === "custom" ? "FREQ=WEEKLY;COUNT=10" : e3.target.value) }, [["", "\u4E0D\u91CD\u590D"], ["FREQ=DAILY", "\u6BCF\u5929"], ["FREQ=WEEKLY", "\u6BCF\u5468"], ["FREQ=MONTHLY", "\u6BCF\u6708"], ["FREQ=YEARLY", "\u6BCF\u5E74"], ["custom", "\u81EA\u5B9A\u4E49\u89C4\u5219"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label))))), /* @__PURE__ */ import_react2.default.createElement("fieldset", { className: "dm-event-colors" }, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u4E8B\u4EF6\u989C\u8272"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-color-options" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-pressed": !form.color, onClick: () => change("color", "") }, "\u8DDF\u968F\u65E5\u5386\u989C\u8272"), EVENT_COLORS.map(([name, color]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: color, className: "dm-color-swatch", "aria-label": `\u4E8B\u4EF6\u989C\u8272\uFF1A${name}`, "aria-pressed": form.color === color, title: name, style: { backgroundColor: color, color: eventAppearance({ color }, []).textColor }, onClick: () => change("color", color) }, form.color === color ? "\u2713" : "")), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u81EA\u5B9A\u4E49\u989C\u8272", type: "color", value: eventColor(form, state.calendars), onInput: (e3) => change("color", e3.target.value), onChange: (e3) => change("color", e3.target.value) })), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, form.color ? `\u6B64\u4E8B\u4EF6\u4F7F\u7528 ${form.color}` : "\u4F7F\u7528\u6240\u5C5E\u65E5\u5386\u7684\u989C\u8272")), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!form.allDay, onChange: (e3) => {
+  } }, form.recurrenceId && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notice" }, "\u6B63\u5728\u7F16\u8F91\u672C\u6B21\u91CD\u590D\u4E8B\u4EF6\uFF0C\u5176\u4ED6\u65E5\u671F\u4FDD\u6301\u539F\u5B89\u6392\u3002"), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4E8B\u4EF6\u540D\u79F0", required: true, value: form.title, onChange: (e3) => change("title", e3.target.value) }), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5F00\u59CB", type: form.allDay ? "date" : "datetime-local", value: time("start"), onChange: (e3) => change("start", e3.target.value), required: true }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: form.allDay ? "\u7ED3\u675F\uFF08\u4E0D\u5305\u542B\u5F53\u5929\uFF09" : "\u7ED3\u675F", type: form.allDay ? "date" : "datetime-local", value: time("end"), onChange: (e3) => change("end", e3.target.value), required: true }), /* @__PURE__ */ import_react3.default.createElement(TimeZoneField, { label: "\u4E8B\u4EF6\u65F6\u533A", value: form.timeZone, onChange: (zone2) => change("timeZone", zone2) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u65E5\u5386" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.calendarId, onChange: (e3) => change("calendarId", e3.target.value) }, state.calendars.map((c3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: c3.id, value: c3.id }, c3.name)))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u63D0\u524D\u63D0\u9192\uFF08\u5206\u949F\uFF09", type: "number", min: "0", value: form.reminderMinutes, onChange: (e3) => change("reminderMinutes", Number(e3.target.value)) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u91CD\u590D" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: ["", "FREQ=DAILY", "FREQ=WEEKLY", "FREQ=MONTHLY", "FREQ=YEARLY"].includes(form.rrule) ? form.rrule : "custom", onChange: (e3) => change("rrule", e3.target.value === "custom" ? "FREQ=WEEKLY;COUNT=10" : e3.target.value) }, [["", "\u4E0D\u91CD\u590D"], ["FREQ=DAILY", "\u6BCF\u5929"], ["FREQ=WEEKLY", "\u6BCF\u5468"], ["FREQ=MONTHLY", "\u6BCF\u6708"], ["FREQ=YEARLY", "\u6BCF\u5E74"], ["custom", "\u81EA\u5B9A\u4E49\u89C4\u5219"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label))))), /* @__PURE__ */ import_react3.default.createElement("fieldset", { className: "dm-event-colors" }, /* @__PURE__ */ import_react3.default.createElement("legend", null, "\u4E8B\u4EF6\u989C\u8272"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-color-options" }, /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-pressed": !form.color, onClick: () => change("color", "") }, "\u8DDF\u968F\u65E5\u5386\u989C\u8272"), EVENT_COLORS.map(([name, color]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: color, className: "dm-color-swatch", "aria-label": `\u4E8B\u4EF6\u989C\u8272\uFF1A${name}`, "aria-pressed": form.color === color, title: name, style: { backgroundColor: color, color: eventAppearance({ color }, []).textColor }, onClick: () => change("color", color) }, form.color === color ? "\u2713" : "")), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u81EA\u5B9A\u4E49\u989C\u8272", type: "color", value: eventColor(form, state.calendars), onInput: (e3) => change("color", e3.target.value), onChange: (e3) => change("color", e3.target.value) })), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-muted" }, form.color ? `\u6B64\u4E8B\u4EF6\u4F7F\u7528 ${form.color}` : "\u4F7F\u7528\u6240\u5C5E\u65E5\u5386\u7684\u989C\u8272")), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: !!form.allDay, onChange: (e3) => {
     const allDay = e3.target.checked, start = DateTime.fromISO(form.start, { zone: form.timeZone }), end = DateTime.fromISO(form.end, { zone: form.timeZone });
     setForm({ ...form, allDay, ...allDay ? { start: start.toISODate(), end: (end.startOf("day") > start.startOf("day") ? end : start.plus({ days: 1 })).toISODate() } : {} });
-  } }), "\u5168\u5929\u4E8B\u4EF6"), form.rrule && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u91CD\u590D\u89C4\u5219\uFF08RRULE\uFF09", value: form.rrule, onChange: (e3) => change("rrule", e3.target.value) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5730\u70B9", value: form.location, onChange: (e3) => change("location", e3.target.value) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5907\u6CE8" }, /* @__PURE__ */ import_react2.default.createElement("textarea", { value: form.description, onChange: (e3) => change("description", e3.target.value) })), form.sourceMessageId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => {
+  } }), "\u5168\u5929\u4E8B\u4EF6"), form.rrule && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u91CD\u590D\u89C4\u5219\uFF08RRULE\uFF09", value: form.rrule, onChange: (e3) => change("rrule", e3.target.value) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5730\u70B9", value: form.location, onChange: (e3) => change("location", e3.target.value) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5907\u6CE8" }, /* @__PURE__ */ import_react3.default.createElement("textarea", { value: form.description, onChange: (e3) => change("description", e3.target.value) })), form.sourceMessageId && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => {
     openMessage(form.sourceMessageId);
     setModal(null);
-  } }, "\u67E5\u770B\u6765\u6E90\u90AE\u4EF6 \u2197"), /* @__PURE__ */ import_react2.default.createElement("details", null, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u4F1A\u8BAE\u9080\u8BF7\u4E0E\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u53D1\u4EF6\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: accountId, onChange: (e3) => setAccountId(e3.target.value) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.email)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u9080\u8BF7\u5BF9\u8C61", value: attendees, onChange: (e3) => setAttendees(e3.target.value), placeholder: "email@example.com" }), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => {
+  } }, "\u67E5\u770B\u6765\u6E90\u90AE\u4EF6 \u2197"), /* @__PURE__ */ import_react3.default.createElement("details", null, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u4F1A\u8BAE\u9080\u8BF7\u4E0E\u56DE\u590D"), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u53D1\u4EF6\u8D26\u53F7" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: accountId, onChange: (e3) => setAccountId(e3.target.value) }, state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: a3.id, value: a3.id }, a3.email)))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u9080\u8BF7\u5BF9\u8C61", value: attendees, onChange: (e3) => setAttendees(e3.target.value), placeholder: "email@example.com" }), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => {
     const event = await save();
     const draft = await act({ action: "events.invite", id: event.id, accountId, attendees: attendees.split(/[,;]/).filter(Boolean).map((s4) => ({ address: s4.trim() })) });
     setModal(null);
     setCompose(draft);
     setTab("\u90AE\u4EF6");
-  }) }, "\u51C6\u5907\u9080\u8BF7\u90AE\u4EF6"), form.organizer && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, [["ACCEPTED", "\u63A5\u53D7"], ["TENTATIVE", "\u6682\u5B9A"], ["DECLINED", "\u62D2\u7EDD"]].map(([response, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: response, onClick: () => run3(async () => {
+  }) }, "\u51C6\u5907\u9080\u8BF7\u90AE\u4EF6"), form.organizer && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-inline" }, [["ACCEPTED", "\u63A5\u53D7"], ["TENTATIVE", "\u6682\u5B9A"], ["DECLINED", "\u62D2\u7EDD"]].map(([response, label]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: response, onClick: () => run3(async () => {
     const draft = await act({ action: "events.rsvp", id: form.id, accountId, response });
     setModal(null);
     setCompose(draft);
     setTab("\u90AE\u4EF6");
-  }) }, label, "\u5E76\u51C6\u5907\u56DE\u590D")))), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u4E8B\u4EF6"), form.seriesId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setForm(state.events.find((e3) => e3.id === form.seriesId)) }, "\u7F16\u8F91\u6574\u7EC4\u91CD\u590D\u4E8B\u4EF6"), (form.id || form.recurrenceId) && /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  }) }, label, "\u5E76\u51C6\u5907\u56DE\u590D")))), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u4E8B\u4EF6"), form.seriesId && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setForm(state.events.find((e3) => e3.id === form.seriesId)) }, "\u7F16\u8F91\u6574\u7EC4\u91CD\u590D\u4E8B\u4EF6"), (form.id || form.recurrenceId) && /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     await act(form.id ? { action: "events.delete", id: form.id } : { action: "events.save", event: { ...form, status: "CANCELLED" } });
     setModal(null);
   }) }, "\u5220\u9664\u672C\u5730\u4E8B\u4EF6")));
 }
+function MailboxOverview() {
+  const { state, newDraft, setTab, setAssistantOpen, setQuery } = useMail(), summary = state.summary || {};
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-overview" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-overview-art", "aria-hidden": "true" }, /* @__PURE__ */ import_react3.default.createElement("svg", { viewBox: "0 0 240 160" }, /* @__PURE__ */ import_react3.default.createElement("rect", { x: "42", y: "20", width: "146", height: "112", rx: "17", fill: "var(--dm-soft)", stroke: "var(--dm-border)" }), /* @__PURE__ */ import_react3.default.createElement("rect", { x: "56", y: "39", width: "120", height: "78", rx: "12", fill: "var(--dm-bg)", stroke: "var(--dm-brand)", strokeWidth: "2" }), /* @__PURE__ */ import_react3.default.createElement("path", { d: "m58 46 58 42 58-42", fill: "none", stroke: "var(--dm-brand)", strokeWidth: "3", strokeLinejoin: "round" }), /* @__PURE__ */ import_react3.default.createElement("circle", { cx: "185", cy: "117", r: "24", fill: "var(--dm-brand)" }), /* @__PURE__ */ import_react3.default.createElement("path", { d: "m174 117 8 8 14-17", fill: "none", stroke: "white", strokeWidth: "3" }), /* @__PURE__ */ import_react3.default.createElement("circle", { cx: "37", cy: "58", r: "8", fill: "var(--dm-selected)" }), /* @__PURE__ */ import_react3.default.createElement("path", { d: "m197 30 4-10 4 10 10 4-10 4-4 10-4-10-10-4Z", fill: "var(--dm-ai-color,#7c3aed)", opacity: ".6" }))), /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-eyebrow" }, "\u8BA9\u91CD\u8981\u7684\u4E8B\uFF0C\u6E05\u6670\u53EF\u89C1"), /* @__PURE__ */ import_react3.default.createElement("h2", null, "\u90AE\u4EF6\u4E0E\u4E0B\u4E00\u6B65\uFF0C\u90FD\u5728\u8FD9\u91CC"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u9009\u62E9\u4E00\u5C01\u90AE\u4EF6\u5F00\u59CB\u9605\u8BFB\uFF0C\u6216\u4E0E\u52A9\u624B\u4E00\u8D77\u5B89\u6392\u4ECA\u5929\u3002"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-overview-stats" }, [["\u672A\u8BFB\u90AE\u4EF6", summary.unread ?? 0, "mail", () => setQuery({ seen: false })], ["\u661F\u6807\u90AE\u4EF6", summary.starred ?? 0, "star", () => setQuery({ starred: true })], ["\u5F85\u529E\u4E8B\u9879", summary.tasks ?? 0, "task", () => setTab("\u5F85\u529E")]].map(([label, count, icon, open]) => /* @__PURE__ */ import_react3.default.createElement("button", { key: label, onClick: open }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 20 }), /* @__PURE__ */ import_react3.default.createElement("strong", null, count), /* @__PURE__ */ import_react3.default.createElement("span", null, label)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-overview-actions" }, /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: newDraft }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 16 }), "\u5199\u4E00\u5C01\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-ai-button", onClick: () => setAssistantOpen(true) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "sparkle", size: 16 }), "\u4E0E\u90AE\u7BB1\u52A9\u624B\u804A\u804A")));
+}
+function TaskStats({ tasks }) {
+  const { state } = useMail(), today = DateTime.now().setZone(state.settings?.calendarTimeZone || DEFAULT_SETTINGS.calendarTimeZone).toISODate(), done = tasks.filter((t3) => t3.done).length;
+  const counts = [["\u4ECA\u65E5\u5230\u671F", tasks.filter((t3) => !t3.done && t3.due && DateTime.fromISO(t3.due).setZone(state.settings?.calendarTimeZone || DEFAULT_SETTINGS.calendarTimeZone).toISODate() === today).length, "calendar"], ["\u5DF2\u7ECF\u903E\u671F", tasks.filter((t3) => !t3.done && t3.due && Date.parse(t3.due) < Date.now()).length, "activity"], ["\u5DF2\u5B8C\u6210", done, "check"]];
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-task-stats" }, counts.map(([label, count, icon]) => /* @__PURE__ */ import_react3.default.createElement("div", { key: label }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-heading-icon" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 20 })), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, count), /* @__PURE__ */ import_react3.default.createElement("span", null, label)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-completion-stat" }, /* @__PURE__ */ import_react3.default.createElement("svg", { viewBox: "0 0 44 44", "aria-label": `\u5B8C\u6210 ${done} / ${tasks.length}`, role: "img" }, /* @__PURE__ */ import_react3.default.createElement("circle", { cx: "22", cy: "22", r: "17", fill: "none", stroke: "var(--dm-border)", strokeWidth: "4" }), /* @__PURE__ */ import_react3.default.createElement("circle", { cx: "22", cy: "22", r: "17", fill: "none", stroke: "var(--dm-brand)", strokeWidth: "4", strokeDasharray: `${tasks.length ? done / tasks.length * 106.8 : 0} 106.8`, transform: "rotate(-90 22 22)" })), /* @__PURE__ */ import_react3.default.createElement("span", null, "\u5171 ", tasks.length, " \u9879")));
+}
 function TasksView() {
-  const { state, act, run: run3, setModal, openMessage, navigation } = useMail(), [filter, setFilter] = (0, import_react2.useState)("open");
-  (0, import_react2.useEffect)(() => {
-    if (navigation?.page === "tasks") setFilter("all");
-  }, [navigation?.id]);
+  const { state, act, run: run3, setModal, openMessage, navigation } = useMail(), [filter, setFilter] = (0, import_react3.useState)("open"), [taskPage, setTaskPage] = (0, import_react3.useState)(0);
+  const appliedNavigation = (0, import_react3.useRef)(null);
+  (0, import_react3.useEffect)(() => {
+    if (navigation?.page !== "tasks" || appliedNavigation.current === navigation.id) return;
+    const all = state.tasks.toSorted((a3, b3) => (a3.due || "9999").localeCompare(b3.due || "9999")), index6 = all.findIndex((t3) => t3.id === navigation.entityId);
+    if (navigation.entityId && index6 < 0) return;
+    appliedNavigation.current = navigation.id;
+    setFilter("all");
+    setTaskPage(Math.max(0, Math.floor(index6 / 50)));
+  }, [navigation?.id, state.tasks]);
   const tasks = state.tasks.filter((t3) => filter === "all" || (filter === "done" ? t3.done : !t3.done)).sort((a3, b3) => (a3.due || "9999").localeCompare(b3.due || "9999"));
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u8BB0\u4E0B\u4E0B\u4E00\u6B65\uFF0C\u8BA9\u91CD\u8981\u90AE\u4EF6\u6709\u7740\u843D\u3002")), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "task" }) }, "\uFF0B \u65B0\u5F85\u529E")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-tabs" }, [["open", "\u672A\u5B8C\u6210"], ["done", "\u5DF2\u5B8C\u6210"], ["all", "\u5168\u90E8"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key, "aria-pressed": filter === key, onClick: () => setFilter(key) }, label))), !tasks.length && /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2713", title: "\u6CA1\u6709\u5F85\u529E\u4E8B\u9879" }, "\u4ECE\u90AE\u4EF6\u63D0\u53D6\u4EFB\u52A1\uFF0C\u6216\u6DFB\u52A0\u81EA\u5DF1\u7684\u5B89\u6392\u3002"), tasks.map((task) => /* @__PURE__ */ import_react2.default.createElement("article", { key: task.id, "data-mail-entity": task.id, "data-agent-selected": navigation?.entityId === task.id, className: "dm-task-row" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", "aria-label": `\u5B8C\u6210 ${task.title}`, checked: !!task.done, onChange: (e3) => run3(() => act({ action: "resources.save", kind: "tasks", value: { ...task, done: e3.target.checked } })) }), /* @__PURE__ */ import_react2.default.createElement("button", { className: "dm-task-title", onClick: () => setModal({ type: "task", value: task }) }, /* @__PURE__ */ import_react2.default.createElement("strong", null, task.title), /* @__PURE__ */ import_react2.default.createElement("small", null, task.due ? date(task.due) : "\u672A\u8BBE\u7F6E\u622A\u6B62\u65E5\u671F", " \xB7 ", { high: "\u9AD8\u4F18\u5148\u7EA7", normal: "\u666E\u901A", low: "\u4F4E\u4F18\u5148\u7EA7" }[task.priority || "normal"])), task.sourceMessageId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => openMessage(task.sourceMessageId) }, "\u6765\u6E90\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: task.title, sourceMessageId: task.sourceMessageId, description: task.evidence || "" } }) }, "\u5B89\u6392\u65F6\u95F4"))));
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react3.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h2", null, "\u5F85\u529E"), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u8BB0\u4E0B\u4E0B\u4E00\u6B65\uFF0C\u8BA9\u91CD\u8981\u90AE\u4EF6\u6709\u7740\u843D\u3002")), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "task" }) }, "\uFF0B \u65B0\u5F85\u529E")), /* @__PURE__ */ import_react3.default.createElement(TaskStats, { tasks: state.tasks }), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-tabs" }, [["open", "\u672A\u5B8C\u6210"], ["done", "\u5DF2\u5B8C\u6210"], ["all", "\u5168\u90E8"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement(Button, { key, "aria-pressed": filter === key, onClick: () => {
+    setFilter(key);
+    setTaskPage(0);
+  } }, label))), !tasks.length && /* @__PURE__ */ import_react3.default.createElement(Empty, { icon: "\u2713", title: "\u6CA1\u6709\u5F85\u529E\u4E8B\u9879" }, "\u4ECE\u90AE\u4EF6\u63D0\u53D6\u4EFB\u52A1\uFF0C\u6216\u6DFB\u52A0\u81EA\u5DF1\u7684\u5B89\u6392\u3002"), tasks.slice(taskPage * 50, (taskPage + 1) * 50).map((task) => /* @__PURE__ */ import_react3.default.createElement("article", { key: task.id, "data-mail-entity": task.id, "data-agent-selected": navigation?.entityId === task.id, className: `dm-task-row ${task.done ? "is-done" : task.due && Date.parse(task.due) < Date.now() ? "is-overdue" : ""}` }, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", "aria-label": `\u5B8C\u6210 ${task.title}`, checked: !!task.done, onChange: (e3) => run3(() => act({ action: "resources.save", kind: "tasks", value: { ...task, done: e3.target.checked } })) }), /* @__PURE__ */ import_react3.default.createElement("button", { className: "dm-task-title", onClick: () => setModal({ type: "task", value: task }) }, /* @__PURE__ */ import_react3.default.createElement("strong", null, task.title), /* @__PURE__ */ import_react3.default.createElement("small", null, task.due ? date(task.due) : "\u672A\u8BBE\u7F6E\u622A\u6B62\u65E5\u671F", " \xB7 ", { high: "\u9AD8\u4F18\u5148\u7EA7", normal: "\u666E\u901A", low: "\u4F4E\u4F18\u5148\u7EA7" }[task.priority || "normal"])), task.sourceMessageId && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => openMessage(task.sourceMessageId) }, "\u6765\u6E90\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: task.title, sourceMessageId: task.sourceMessageId, description: task.evidence || "" } }) }, "\u5B89\u6392\u65F6\u95F4"))), tasks.length > 50 && /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !taskPage, onClick: () => setTaskPage((n3) => n3 - 1) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react3.default.createElement("span", null, taskPage + 1, " / ", Math.ceil(tasks.length / 50)), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: (taskPage + 1) * 50 >= tasks.length, onClick: () => setTaskPage((n3) => n3 + 1) }, "\u4E0B\u4E00\u9875")));
 }
 function TaskForm({ value }) {
-  const { act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react2.useState)({ title: "", priority: "normal", evidence: "", ...value });
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  const { state, act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react3.useState)({ title: "", priority: state.settings?.taskPriority || "normal", evidence: "", ...value });
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       await act({ action: "resources.save", kind: "tasks", value: form });
       setModal(null);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4E8B\u9879", required: true, value: form.title, onChange: (e3) => setForm({ ...form, title: e3.target.value }) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u622A\u6B62\u65E5\u671F", type: "datetime-local", value: form.due ? DateTime.fromISO(form.due).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => setForm({ ...form, due: e3.target.value ? new Date(e3.target.value).toISOString() : null }) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4F18\u5148\u7EA7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.priority, onChange: (e3) => setForm({ ...form, priority: e3.target.value }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "high" }, "\u9AD8"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "normal" }, "\u666E\u901A"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "low" }, "\u4F4E")))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5907\u6CE8 / \u90AE\u4EF6\u4F9D\u636E" }, /* @__PURE__ */ import_react2.default.createElement("textarea", { value: form.evidence, onChange: (e3) => setForm({ ...form, evidence: e3.target.value }) })), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u5F85\u529E"), form.id && /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  } }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4E8B\u9879", required: true, value: form.title, onChange: (e3) => setForm({ ...form, title: e3.target.value }) }), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u622A\u6B62\u65E5\u671F", type: "datetime-local", value: form.due ? DateTime.fromISO(form.due).toFormat("yyyy-MM-dd'T'HH:mm") : "", onChange: (e3) => setForm({ ...form, due: e3.target.value ? new Date(e3.target.value).toISOString() : null }) }), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4F18\u5148\u7EA7" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.priority, onChange: (e3) => setForm({ ...form, priority: e3.target.value }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "high" }, "\u9AD8"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "normal" }, "\u666E\u901A"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "low" }, "\u4F4E")))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5907\u6CE8 / \u90AE\u4EF6\u4F9D\u636E" }, /* @__PURE__ */ import_react3.default.createElement("textarea", { value: form.evidence, onChange: (e3) => setForm({ ...form, evidence: e3.target.value }) })), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u5F85\u529E"), form.id && /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     await act({ action: "resources.delete", kind: "tasks", id: form.id });
     setModal(null);
   }) }, "\u5220\u9664")));
 }
 function ContactsView() {
-  const { state, setModal, showParticipant, act, run: run3, download, navigation } = useMail(), [search, setSearch] = (0, import_react2.useState)("");
-  const contacts = state.contacts.filter((c3) => `${c3.name} ${c3.email} ${c3.group}`.toLowerCase().includes(search.toLowerCase()));
-  (0, import_react2.useEffect)(() => {
-    if (navigation?.page === "contacts") setSearch("");
+  const { state, setModal, showParticipant, run: run3, download, navigation, request, act } = useMail(), [search, setSearch] = (0, import_react3.useState)(""), [offset2, setOffset] = (0, import_react3.useState)(0), [targetId, setTargetId] = (0, import_react3.useState)(void 0), [result, setResult] = (0, import_react3.useState)({ items: [], total: 0 }), [loading, setLoading] = (0, import_react3.useState)(false), [error, setError] = (0, import_react3.useState)(""), [retry, setRetry] = (0, import_react3.useState)(0);
+  (0, import_react3.useEffect)(() => {
+    if (navigation?.page === "contacts") {
+      setSearch("");
+      setOffset(0);
+      setTargetId(navigation.entityId || void 0);
+    }
   }, [navigation?.id]);
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u8054\u7CFB\u4EBA"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u4E3B\u52A8\u53D1\u4FE1\u5BF9\u8C61\u4F1A\u81EA\u52A8\u52A0\u5165\uFF1B\u59D3\u540D\u4E0E\u5206\u7EC4\u53EF\u968F\u65F6\u7F16\u8F91\u3002")), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "contact" }) }, "\uFF0B \u8054\u7CFB\u4EBA")), /* @__PURE__ */ import_react2.default.createElement("input", { className: "dm-wide-search", "aria-label": "\u641C\u7D22\u8054\u7CFB\u4EBA", placeholder: "\u641C\u7D22\u59D3\u540D\u3001\u90AE\u7BB1\u6216\u5206\u7EC4", value: search, onChange: (e3) => setSearch(e3.target.value) }), !contacts.length && /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2659", title: "\u901A\u8BAF\u5F55\u8FD8\u662F\u7A7A\u7684" }, "\u6DFB\u52A0\u8054\u7CFB\u4EBA\uFF0C\u6216\u5BFC\u5165 CSV / vCard\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-contact-grid" }, contacts.map((c3) => /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-contact", key: c3.id, "data-mail-entity": c3.id, "data-agent-selected": navigation?.entityId === c3.id }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-avatar" }, (c3.name || c3.email).slice(0, 1).toUpperCase()), /* @__PURE__ */ import_react2.default.createElement("h3", null, c3.name || c3.email), /* @__PURE__ */ import_react2.default.createElement("p", null, c3.email), /* @__PURE__ */ import_react2.default.createElement("small", null, c3.group || "\u672A\u5206\u7EC4"), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "contact", value: c3 }) }, "\u7F16\u8F91"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => showParticipant(c3.email) }, "\u5F80\u6765\u90AE\u4EF6"))))), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\u5BFC\u5165 CSV / vCard", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".csv,.vcf", onChange: (e3) => run3(async () => {
+  (0, import_react3.useEffect)(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    const timer = setTimeout(() => request({ action: "resources.list", kind: "contacts", q: search, offset: offset2, limit: 50, targetId }, controller.signal).then((r3) => {
+      if (!controller.signal.aborted) {
+        setResult(r3);
+        if (targetId) {
+          setOffset(r3.offset);
+          setTargetId(void 0);
+        }
+        setError("");
+      }
+    }).catch((e3) => {
+      if (!controller.signal.aborted) setError(e3.message);
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    }), search ? 180 : 0);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [search, offset2, targetId, retry, state.contactVersion, request]);
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react3.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-heading-icon" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "contacts", size: 26 })), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h2", null, "\u8054\u7CFB\u4EBA ", /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-count" }, result.total)), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u4E3B\u52A8\u53D1\u4FE1\u5BF9\u8C61\u4F1A\u81EA\u52A8\u52A0\u5165\uFF1B\u59D3\u540D\u4E0E\u5206\u7EC4\u53EF\u968F\u65F6\u7F16\u8F91\u3002")), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "contact" }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "plus", size: 16 }), "\u8054\u7CFB\u4EBA")), /* @__PURE__ */ import_react3.default.createElement("input", { className: "dm-wide-search", "aria-label": "\u641C\u7D22\u8054\u7CFB\u4EBA", placeholder: "\u641C\u7D22\u59D3\u540D\u3001\u90AE\u7BB1\u6216\u5206\u7EC4", value: search, onChange: (e3) => {
+    setSearch(e3.target.value);
+    setOffset(0);
+  } }), error && /* @__PURE__ */ import_react3.default.createElement("p", { role: "alert" }, error, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setRetry((n3) => n3 + 1) }, "\u91CD\u8BD5")), loading && /* @__PURE__ */ import_react3.default.createElement("p", { role: "status", className: "dm-muted" }, "\u6B63\u5728\u67E5\u627E\u8054\u7CFB\u4EBA\u2026"), !loading && !result.total && /* @__PURE__ */ import_react3.default.createElement(Empty, { icon: "\u2659", title: search ? "\u6CA1\u6709\u5339\u914D\u7684\u8054\u7CFB\u4EBA" : "\u901A\u8BAF\u5F55\u8FD8\u662F\u7A7A\u7684" }, "\u6DFB\u52A0\u8054\u7CFB\u4EBA\uFF0C\u6216\u5BFC\u5165 CSV / vCard\u3002"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-contact-grid", "aria-busy": loading }, result.items.map((c3) => /* @__PURE__ */ import_react3.default.createElement("article", { className: "dm-contact", key: c3.id, "data-mail-entity": c3.id, "data-agent-selected": navigation?.entityId === c3.id }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-avatar", style: { "--avatar-color": senderAppearance({ from: [{ name: c3.name, address: c3.email }] }).color } }, (c3.name || c3.email).slice(0, 1).toUpperCase()), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h3", null, c3.name || c3.email), /* @__PURE__ */ import_react3.default.createElement("p", null, c3.email), /* @__PURE__ */ import_react3.default.createElement("small", { className: "dm-status-pill" }, c3.group || "\u672A\u5206\u7EC4")), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "contact", value: c3 }) }, "\u7F16\u8F91"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => showParticipant(c3.email) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail", size: 14 }), "\u5F80\u6765\u90AE\u4EF6"))))), /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-pagination" }, /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: !offset2, onClick: () => setOffset(Math.max(0, offset2 - 50)) }, "\u4E0A\u4E00\u9875"), /* @__PURE__ */ import_react3.default.createElement("span", null, result.total ? offset2 + 1 : 0, "\u2013", Math.min(offset2 + 50, result.total), " / ", result.total), /* @__PURE__ */ import_react3.default.createElement(Button, { disabled: result.nextOffset == null, onClick: () => setOffset(result.nextOffset) }, "\u4E0B\u4E00\u9875")), /* @__PURE__ */ import_react3.default.createElement("footer", { className: "dm-inline" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "dm-file-button" }, "\u5BFC\u5165 CSV / vCard", /* @__PURE__ */ import_react3.default.createElement("input", { type: "file", accept: ".csv,.vcf", onChange: (e3) => run3(async () => {
     const f3 = e3.target.files[0];
-    if (f3) await act({ action: "contacts.import", text: await f3.text(), format: f3.name.endsWith(".vcf") ? "vcard" : "csv" }, "\u8054\u7CFB\u4EBA\u5BFC\u5165\u5DF2\u5B8C\u6210\uFF0C\u8BF7\u67E5\u770B\u7ED3\u679C");
-  }) })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "contacts.export", format: "csv" }) }, "\u5BFC\u51FA CSV"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "contacts.export", format: "vcard" }) }, "\u5BFC\u51FA vCard")));
+    if (f3) {
+      await act({ action: "contacts.import", text: await f3.text(), format: f3.name.endsWith(".vcf") ? "vcard" : "csv" }, "\u8054\u7CFB\u4EBA\u5BFC\u5165\u5DF2\u5B8C\u6210");
+      setRetry((n3) => n3 + 1);
+    }
+  }) })), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "contacts.export", format: "csv" }) }, "\u5BFC\u51FA CSV"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "contacts.export", format: "vcard" }) }, "\u5BFC\u51FA vCard")));
 }
 function ContactForm({ value }) {
-  const { act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react2.useState)({ name: "", email: "", group: "", ...value });
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  const { act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react3.useState)({ name: "", email: "", group: "", ...value });
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       await act({ action: "resources.save", kind: "contacts", value: form });
       setModal(null);
     });
-  } }, [["name", "\u59D3\u540D"], ["email", "\u90AE\u7BB1"], ["group", "\u5206\u7EC4"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement(Field, { key, label, required: key === "email", type: key === "email" ? "email" : "text", value: form[key], onChange: (e3) => setForm({ ...form, [key]: e3.target.value }) })), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u8054\u7CFB\u4EBA"), form.id && /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  } }, [["name", "\u59D3\u540D"], ["email", "\u90AE\u7BB1"], ["group", "\u5206\u7EC4"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement(Field, { key, label, required: key === "email", type: key === "email" ? "email" : "text", value: form[key], onChange: (e3) => setForm({ ...form, [key]: e3.target.value }) })), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u8054\u7CFB\u4EBA"), form.id && /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     await act({ action: "resources.delete", kind: "contacts", id: form.id });
     setModal(null);
   }) }, "\u5220\u9664")));
 }
 function RulesView() {
   const { state, act, run: run3, setModal } = useMail();
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "\u89C4\u5219\u4E0E\u8FC7\u6EE4\u5668"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u89C4\u5219\u5728\u672C\u673A\u8FD0\u884C\uFF0C\u542F\u7528\u540E\u5E94\u7528\u4E8E\u65B0\u540C\u6B65\u7684\u90AE\u4EF6\u3002")), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "rule" }) }, "\uFF0B \u65B0\u89C4\u5219")), !state.rules.length && /* @__PURE__ */ import_react2.default.createElement(Empty, { icon: "\u2637", title: "\u628A\u91CD\u590D\u6574\u7406\u4EA4\u7ED9\u89C4\u5219" }, "\u6309\u53D1\u4EF6\u4EBA\u3001\u4E3B\u9898\u6216\u6B63\u6587\u5339\u914D\uFF0C\u81EA\u52A8\u52A0\u661F\u3001\u79FB\u52A8\u548C\u521B\u5EFA\u5F85\u529E\u3002\u4E5F\u53EF\u4EE5\u8BA9 AI \u5E2E\u4F60\u51C6\u5907\u89C4\u5219\u3002"), state.rules.sort((a3, b3) => a3.priority - b3.priority).map((rule) => /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-rule-row", key: rule.id, "data-mail-entity": rule.id }, /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", role: "switch", "aria-label": `\u542F\u7528 ${rule.name}`, checked: rule.enabled, onChange: (e3) => run3(() => act({ action: "rules.enable", id: rule.id, enabled: e3.target.checked })) })), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h3", null, rule.name), /* @__PURE__ */ import_react2.default.createElement("p", null, rule.conditions.length, " \u4E2A\u6761\u4EF6 \xB7 ", rule.match === "any" ? "\u6EE1\u8DB3\u4EFB\u4E00" : "\u5168\u90E8\u6EE1\u8DB3", " \xB7 ", rule.actions.map((a3) => ({ star: "\u661F\u6807", read: "\u5DF2\u8BFB", label: "\u6807\u7B7E", move: "\u79FB\u52A8", archive: "\u5F52\u6863", task: "\u5F85\u529E" })[a3.action]).join(" \u2192 ")), /* @__PURE__ */ import_react2.default.createElement("small", null, rule.enabled ? "\u5DF2\u542F\u7528" : "\u5DF2\u505C\u7528", " \xB7 \u4F18\u5148\u7EA7 ", rule.priority)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "rule", value: rule }) }, "\u7F16\u8F91"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => setModal({ type: "preview", value: await act({ action: "rules.apply", id: rule.id }) })) }, "\u5E94\u7528\u4E8E\u5386\u53F2\u90AE\u4EF6\u2026"))));
+  return /* @__PURE__ */ import_react3.default.createElement("section", { className: "dm-page" }, /* @__PURE__ */ import_react3.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h2", null, "\u89C4\u5219\u4E0E\u8FC7\u6EE4\u5668"), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u89C4\u5219\u5728\u672C\u673A\u8FD0\u884C\uFF0C\u542F\u7528\u540E\u5E94\u7528\u4E8E\u65B0\u540C\u6B65\u7684\u90AE\u4EF6\u3002")), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "rule" }) }, "\uFF0B \u65B0\u89C4\u5219")), !state.rules.length && /* @__PURE__ */ import_react3.default.createElement(Empty, { icon: "\u2637", title: "\u628A\u91CD\u590D\u6574\u7406\u4EA4\u7ED9\u89C4\u5219" }, "\u6309\u53D1\u4EF6\u4EBA\u3001\u4E3B\u9898\u6216\u6B63\u6587\u5339\u914D\uFF0C\u81EA\u52A8\u52A0\u661F\u3001\u79FB\u52A8\u548C\u521B\u5EFA\u5F85\u529E\u3002\u4E5F\u53EF\u4EE5\u8BA9 AI \u5E2E\u4F60\u51C6\u5907\u89C4\u5219\u3002"), state.rules.toSorted((a3, b3) => a3.priority - b3.priority).map((rule) => /* @__PURE__ */ import_react3.default.createElement("article", { className: "dm-rule-row", key: rule.id, "data-mail-entity": rule.id }, /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", role: "switch", "aria-label": `\u542F\u7528 ${rule.name}`, checked: rule.enabled, onChange: (e3) => run3(() => act({ action: "rules.enable", id: rule.id, enabled: e3.target.checked })) })), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h3", null, rule.name), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-rule-flow" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "dm-status-pill" }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "filter", size: 14 }), rule.conditions.length, " \u4E2A\u6761\u4EF6"), " ", /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "next", size: 15 }), " \xB7 ", rule.match === "any" ? "\u6EE1\u8DB3\u4EFB\u4E00" : "\u5168\u90E8\u6EE1\u8DB3", " \xB7 ", rule.actions.map((a3) => ({ star: "\u661F\u6807", read: "\u5DF2\u8BFB", label: "\u6807\u7B7E", move: "\u79FB\u52A8", archive: "\u5F52\u6863", task: "\u5F85\u529E" })[a3.action]).join(" \u2192 ")), /* @__PURE__ */ import_react3.default.createElement("small", null, rule.enabled ? "\u5DF2\u542F\u7528" : "\u5DF2\u505C\u7528", " \xB7 \u4F18\u5148\u7EA7 ", rule.priority)), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setModal({ type: "rule", value: rule }) }, "\u7F16\u8F91"), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => setModal({ type: "preview", value: await act({ action: "rules.apply", id: rule.id }) })) }, "\u5E94\u7528\u4E8E\u5386\u53F2\u90AE\u4EF6\u2026"))));
 }
 function RuleForm({ value, initialPreview }) {
-  const { state, act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react2.useState)(value || { name: "", match: "all", conditions: [{ field: "from", operator: "contains", value: "" }], actions: [{ action: "star", value: true }], priority: 0 }), [preview, setPreview] = (0, import_react2.useState)(initialPreview || null);
+  const { state, act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react3.useState)(value || { name: "", match: "all", conditions: [{ field: "from", operator: "contains", value: "" }], actions: [{ action: "star", value: true }], priority: 0 }), [preview, setPreview] = (0, import_react3.useState)(initialPreview || null);
   const edit = (group, index6, patch) => setForm({ ...form, [group]: form[group].map((x4, i4) => i4 === index6 ? { ...x4, ...patch } : x4) });
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       await act({ action: "rules.save", rule: form }, "\u89C4\u5219\u5DF2\u4FDD\u5B58\u4E3A\u505C\u7528\u72B6\u6001\uFF1B\u6838\u5BF9\u540E\u518D\u542F\u7528");
       setModal(null);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u89C4\u5219\u540D\u79F0", required: true, value: form.name, onChange: (e3) => setForm({ ...form, name: e3.target.value }) }), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4F5C\u7528\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.accountId || "", onChange: (e3) => setForm({ ...form, accountId: e3.target.value }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u5168\u90E8\u8D26\u53F7"), state.accounts.map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5339\u914D\u6761\u4EF6" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.match, onChange: (e3) => setForm({ ...form, match: e3.target.value }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "all" }, "\u5168\u90E8\u6EE1\u8DB3"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "any" }, "\u6EE1\u8DB3\u4EFB\u4E00")))), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u5982\u679C\u90AE\u4EF6\u7B26\u5408"), form.conditions.map((c3, i4) => /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rule-editor-row", key: i4 }, /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u5B57\u6BB5`, value: c3.field, onChange: (e3) => edit("conditions", i4, { field: e3.target.value }) }, [["from", "\u53D1\u4EF6\u4EBA"], ["to", "\u6536\u4EF6\u4EBA"], ["subject", "\u4E3B\u9898"], ["text", "\u6B63\u6587"], ["hasAttachment", "\u6709\u9644\u4EF6"], ["seen", "\u5DF2\u8BFB"], ["starred", "\u661F\u6807"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label))), /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u6BD4\u8F83`, value: c3.operator, onChange: (e3) => edit("conditions", i4, { operator: e3.target.value }) }, [["contains", "\u5305\u542B"], ["equals", "\u7B49\u4E8E"], ["notContains", "\u4E0D\u5305\u542B"], ["endsWith", "\u7ED3\u5C3E\u4E3A"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label))), /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u5185\u5BB9`, required: true, value: c3.value, onChange: (e3) => edit("conditions", i4, { value: e3.target.value }) }), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setForm({ ...form, conditions: form.conditions.filter((_3, n3) => n3 !== i4) }) }, "\xD7"))), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setForm({ ...form, conditions: [...form.conditions, { field: "subject", operator: "contains", value: "" }] }) }, "\uFF0B \u6761\u4EF6"), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u6309\u987A\u5E8F\u6267\u884C"), form.actions.map((a3, i4) => /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rule-editor-row", key: i4 }, /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": `\u52A8\u4F5C ${i4 + 1}`, value: a3.action, onChange: (e3) => edit("actions", i4, { action: e3.target.value, value: e3.target.value === "label" ? [] : true }) }, [["star", "\u6DFB\u52A0\u661F\u6807"], ["read", "\u6807\u4E3A\u5DF2\u8BFB"], ["label", "\u672C\u5730\u6807\u7B7E"], ["move", "\u79FB\u52A8\u5230\u6587\u4EF6\u5939"], ["archive", "\u5F52\u6863"], ["task", "\u521B\u5EFA\u672C\u5730\u5F85\u529E"]].map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label))), a3.action === "move" ? /* @__PURE__ */ import_react2.default.createElement("select", { "aria-label": "\u89C4\u5219\u76EE\u6807\u6587\u4EF6\u5939", value: a3.destinationId || "", onChange: (e3) => edit("actions", i4, { destinationId: e3.target.value }) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9\u6587\u4EF6\u5939"), state.folders.map((f3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: f3.id, value: f3.id }, f3.path))) : a3.action === "label" ? /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u89C4\u5219\u6807\u7B7E", value: Array.isArray(a3.value) ? a3.value.join(",") : "", onChange: (e3) => edit("actions", i4, { value: e3.target.value.split(/[,，]/).filter(Boolean) }) }) : a3.action === "task" ? /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": "\u89C4\u5219\u5F85\u529E\u6807\u9898", placeholder: "\u7559\u7A7A\u4F7F\u7528\u90AE\u4EF6\u4E3B\u9898", value: a3.title || "", onChange: (e3) => edit("actions", i4, { title: e3.target.value }) }) : null, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setForm({ ...form, actions: form.actions.filter((_3, n3) => n3 !== i4) }) }, "\xD7"))), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setForm({ ...form, actions: [...form.actions, { action: "read", value: true }] }) }, "\uFF0B \u52A8\u4F5C"), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u4F18\u5148\u7EA7\uFF08\u8D8A\u5C0F\u8D8A\u5148\u6267\u884C\uFF09", type: "number", value: form.priority, onChange: (e3) => setForm({ ...form, priority: Number(e3.target.value) }) }), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: !!form.stop, onChange: (e3) => setForm({ ...form, stop: e3.target.checked }) }), "\u547D\u4E2D\u540E\u505C\u6B62\u5176\u4ED6\u89C4\u5219"), preview && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice" }, /* @__PURE__ */ import_react2.default.createElement("p", null, "\u5F53\u524D\u547D\u4E2D ", preview.count, " \u5C01"), preview.samples.map((m3) => /* @__PURE__ */ import_react2.default.createElement("p", { key: m3.id }, m3.subject))), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(async () => setPreview(await act({ action: "rules.preview", rule: form }))) }, "\u9884\u89C8\u547D\u4E2D"), /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u89C4\u5219")));
-}
-function PreferencesForm() {
-  const { state, act, run: run3, busy } = useMail(), saved = JSON.stringify(state.settings || {});
-  const [form, setForm] = (0, import_react2.useState)({ ...DEFAULT_SETTINGS, ...state.settings });
-  (0, import_react2.useEffect)(() => setForm({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) }), [saved]);
-  const change = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const dirty = Object.keys(DEFAULT_SETTINGS).some((key) => form[key] !== (state.settings?.[key] ?? DEFAULT_SETTINGS[key]));
-  const accounts = state.accounts.filter((a3) => a3.enabled && !a3.local);
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-settings-card dm-preferences", onSubmit: (e3) => {
-    e3.preventDefault();
-    run3(() => act({ action: "settings.save", value: form }, "\u65E5\u5386\u4E0E\u90AE\u4EF6\u504F\u597D\u5DF2\u4FDD\u5B58"));
-  } }, /* @__PURE__ */ import_react2.default.createElement("fieldset", null, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u65E5\u5386\u504F\u597D"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { label: "\u65E5\u5386\u663E\u793A\u65F6\u533A", value: form.calendarTimeZone, onChange: (value) => change("calendarTimeZone", value) }), /* @__PURE__ */ import_react2.default.createElement(TimeZoneField, { label: "\u65B0\u5EFA\u4E8B\u4EF6\u9ED8\u8BA4\u65F6\u533A", value: form.eventTimeZone, onChange: (value) => change("eventTimeZone", value) }), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u9ED8\u8BA4\u89C6\u56FE" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.calendarView, onChange: (e3) => change("calendarView", e3.target.value) }, CALENDAR_VIEWS.map(([key, label]) => /* @__PURE__ */ import_react2.default.createElement("option", { key, value: key }, label)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u6BCF\u5468\u8D77\u59CB\u65E5" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.firstDay, onChange: (e3) => change("firstDay", Number(e3.target.value)) }, ["\u661F\u671F\u65E5", "\u661F\u671F\u4E00", "\u661F\u671F\u4E8C", "\u661F\u671F\u4E09", "\u661F\u671F\u56DB", "\u661F\u671F\u4E94", "\u661F\u671F\u516D"].map((label, i4) => /* @__PURE__ */ import_react2.default.createElement("option", { key: i4, value: i4 }, label))))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u663E\u793A\u65F6\u533A\u53EA\u5F71\u54CD\u65E5\u5386\u4E2D\u7684\u65F6\u95F4\u663E\u793A\u3002\u5DF2\u6709\u4E8B\u4EF6\u4FDD\u7559\u539F\u65F6\u533A\u548C\u5B9E\u9645\u65F6\u95F4\uFF0C\u5168\u5929\u4E8B\u4EF6\u4FDD\u7559\u539F\u65E5\u671F\u3002")), /* @__PURE__ */ import_react2.default.createElement("fieldset", null, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u90AE\u4EF6\u504F\u597D"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u9ED8\u8BA4\u53D1\u4EF6\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("select", { value: form.defaultAccountId, onChange: (e3) => change("defaultAccountId", e3.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "\u81EA\u52A8\u9009\u62E9\u5DF2\u542F\u7528\u7684\u90AE\u7BB1"), form.defaultAccountId && !accounts.some((a3) => a3.id === form.defaultAccountId) && /* @__PURE__ */ import_react2.default.createElement("option", { value: form.defaultAccountId }, "\u539F\u8D26\u53F7\u4E0D\u53EF\u7528\uFF0C\u81EA\u52A8\u9009\u62E9\u5176\u4ED6\u90AE\u7BB1"), accounts.map((a3) => /* @__PURE__ */ import_react2.default.createElement("option", { key: a3.id, value: a3.id }, a3.name, " \xB7 ", a3.email)))), /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u81EA\u52A8\u540C\u6B65\u95F4\u9694\uFF08\u5206\u949F\uFF09", type: "number", min: "1", max: "60", step: "1", required: true, value: form.syncIntervalMinutes, onChange: (e3) => change("syncIntervalMinutes", Number(e3.target.value)) })), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-check" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.markReadOnOpen, onChange: (e3) => change("markReadOnOpen", e3.target.checked) }), "\u6253\u5F00\u90AE\u4EF6\u65F6\u81EA\u52A8\u6807\u4E3A\u5DF2\u8BFB"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-check" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.loadRemoteImages, onChange: (e3) => change("loadRemoteImages", e3.target.checked) }), "\u9ED8\u8BA4\u52A0\u8F7D\u5916\u90E8\u56FE\u7247\uFF08HTTPS\uFF09"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u5F00\u542F\u540E\u81EA\u52A8\u8BF7\u6C42\u90AE\u4EF6\u4E2D\u7684 HTTPS \u5916\u90E8\u56FE\u7247\uFF1B\u6BCF\u5C01\u90AE\u4EF6\u4ECD\u53EF\u5355\u72EC\u5141\u8BB8\u6216\u963B\u6B62\u3002\u5185\u5D4C\u56FE\u7247\u4E0D\u53D7\u6B64\u5F00\u5173\u5F71\u54CD\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u9ED8\u8BA4\u8D26\u53F7\u7528\u4E8E\u65B0\u5EFA\u90AE\u4EF6\uFF0C\u56DE\u590D\u6CBF\u7528\u6765\u6E90\u8D26\u53F7\u3002\u6BCF\u4E2A\u8D26\u53F7\u7684\u9ED8\u8BA4\u7B7E\u540D\u53EF\u5728\u201C\u90AE\u7BB1\u8D26\u53F7 \u2192 \u914D\u7F6E\u201D\u4E2D\u9009\u62E9\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u540C\u6B65\u95F4\u9694\u4E3A 1\u201360 \u5206\u949F\uFF1B\u670D\u52A1\u5668\u5B9E\u65F6\u65B0\u90AE\u4EF6\u901A\u77E5\u4ECD\u4F1A\u89E6\u53D1\u540C\u6B65\u3002DSH \u5B8C\u5168\u9000\u51FA\u540E\u6682\u505C\u540C\u6B65\u3002")), /* @__PURE__ */ import_react2.default.createElement("fieldset", null, /* @__PURE__ */ import_react2.default.createElement("legend", null, "Windows \u7CFB\u7EDF\u901A\u77E5"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-check" }, /* @__PURE__ */ import_react2.default.createElement("input", { type: "checkbox", checked: form.desktopNotifications, onChange: (e3) => change("desktopNotifications", e3.target.checked) }), "\u65B0\u90AE\u4EF6\u3001\u65E5\u5386\u4E0E\u5F85\u529E\u4F7F\u7528\u7CFB\u7EDF\u901A\u77E5"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u4F7F\u7528 Windows \u9ED8\u8BA4\u63D0\u793A\u97F3\uFF0C\u8DDF\u968F\u7CFB\u7EDF\u97F3\u91CF\u3001\u901A\u77E5\u548C\u514D\u6253\u6270\u8BBE\u7F6E\u3002\u5207\u6362\u9875\u9762\u6216\u6700\u5C0F\u5316\u540E\u4ECD\u53EF\u63D0\u9192\uFF1BDSH \u5B8C\u5168\u9000\u51FA\u540E\u6682\u505C\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(() => act({ action: "notifications.test" }, "\u6D4B\u8BD5\u901A\u77E5\u5DF2\u63D0\u4EA4\u7ED9 Windows\uFF1B\u8BF7\u68C0\u67E5\u7CFB\u7EDF\u5F39\u7A97\u3001\u901A\u77E5\u4E2D\u5FC3\u548C\u63D0\u793A\u97F3\u3002")) }, "\u6D4B\u8BD5\u7CFB\u7EDF\u901A\u77E5")), /* @__PURE__ */ import_react2.default.createElement("footer", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit", className: "primary", disabled: !dirty || busy > 0 }, "\u4FDD\u5B58\u504F\u597D"), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-muted" }, dirty ? "\u6709\u672A\u4FDD\u5B58\u7684\u4FEE\u6539" : "\u5DF2\u4FDD\u5B58\uFF1B\u8BBE\u7F6E\u4FDD\u5B58\u5728\u672C\u673A")));
-}
-function SettingsView() {
-  const { state, setModal, act, run: run3, download, settingsSection, setSettingsSection } = useMail();
-  const categories = [["\u90AE\u7BB1\u8D26\u53F7", "mail"], ["\u90AE\u4EF6\u4E0E\u65E5\u5386\u504F\u597D", "settings"], ["\u7B7E\u540D\u4E0E\u6A21\u677F", "draft"], ["\u6570\u636E\u7BA1\u7406", "archive"], ["\u5173\u4E8E", "sparkle"]];
-  return /* @__PURE__ */ import_react2.default.createElement("section", { className: "dm-settings-layout" }, /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-settings-nav", "aria-label": "\u8BBE\u7F6E\u5206\u7C7B" }, categories.map(([name, icon]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-current": settingsSection === name ? "page" : void 0, onClick: () => setSettingsSection(name) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 17 }), name))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-settings-main" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-page-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, settingsSection), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u672C\u673A\u90AE\u7BB1\u3001\u6570\u636E\u548C\u65E5\u5E38\u504F\u597D\u3002")), settingsSection === "\u90AE\u7BB1\u8D26\u53F7" && /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => setModal({ type: "account" }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u6DFB\u52A0\u90AE\u7BB1")), /* @__PURE__ */ import_react2.default.createElement("div", { hidden: settingsSection !== "\u90AE\u7BB1\u8D26\u53F7" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u90AE\u7BB1\u8D26\u53F7"), state.accounts.filter((a3) => !a3.local).map((a3) => /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-account-row", key: a3.id }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-avatar" }, "@"), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, a3.name), /* @__PURE__ */ import_react2.default.createElement("p", null, a3.email), /* @__PURE__ */ import_react2.default.createElement("small", null, statusText[a3.status] || "\u7B49\u5F85\u540C\u6B65", " \xB7 ", a3.lastSyncedAt ? `\u4E0A\u6B21\u540C\u6B65 ${date(a3.lastSyncedAt)}` : "\u5C1A\u672A\u5B8C\u6210\u540C\u6B65"), a3.error && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-error-text" }, a3.error.message)), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "account", value: a3 }) }, "\u914D\u7F6E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "sync", accountId: a3.id })) }, "\u91CD\u8BD5\u540C\u6B65"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "accounts.remove", id: a3.id }, "\u8D26\u53F7\u5DF2\u65AD\u5F00\uFF0C\u7F13\u5B58\u90AE\u4EF6\u4FDD\u7559")) }, "\u65AD\u5F00\u8FDE\u63A5"))), !state.accounts.length && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u8FD8\u6CA1\u6709\u8FDE\u63A5\u90AE\u7BB1\u3002163 \u8BF7\u4F7F\u7528\u5BA2\u6237\u7AEF\u6388\u6743\u7801\u3002")), /* @__PURE__ */ import_react2.default.createElement("div", { hidden: settingsSection !== "\u90AE\u4EF6\u4E0E\u65E5\u5386\u504F\u597D" }, /* @__PURE__ */ import_react2.default.createElement(PreferencesForm, null)), /* @__PURE__ */ import_react2.default.createElement("div", { hidden: settingsSection !== "\u7B7E\u540D\u4E0E\u6A21\u677F" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u7B7E\u540D\u4E0E\u6A21\u677F"), [["signatures", "\u7B7E\u540D"], ["templates", "\u6A21\u677F"]].map(([kind, label]) => /* @__PURE__ */ import_react2.default.createElement("div", { key: kind, className: "dm-settings-group" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-section-label" }, label, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind, value: { name: "", text: "", subject: "" }, title: `\u7F16\u8F91${label}` }) }, "\uFF0B \u65B0", label)), state[kind].map((v3) => /* @__PURE__ */ import_react2.default.createElement("button", { key: v3.id, "data-mail-entity": v3.id, className: "dm-settings-item", onClick: () => setModal({ type: "resource", kind, value: v3, title: `\u7F16\u8F91${label}` }) }, v3.name, " \u2192"))))), /* @__PURE__ */ import_react2.default.createElement("div", { hidden: settingsSection !== "\u6570\u636E\u7BA1\u7406" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u5BFC\u5165\u3001\u5907\u4EFD\u4E0E\u6062\u590D"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("p", null, "EML / MBOX \u5BFC\u5165\u672C\u5730\u5F52\u6863\u3002\u5907\u4EFD\u5305\u542B\u672C\u5730\u90AE\u4EF6\u3001\u89C4\u5219\u3001\u65E5\u5386\u4E0E\u5F85\u529E\uFF0C\u4E0D\u5305\u542B\u6388\u6743\u7801\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\u5BFC\u5165\u90AE\u4EF6", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".eml,.mbox", onChange: (e3) => run3(async () => {
-    const file = e3.target.files[0];
-    if (file) await act({ action: "mail.import", ...await fileData(file), format: file.name.endsWith(".mbox") ? "mbox" : "eml" }, "\u90AE\u4EF6\u5DF2\u5BFC\u5165\u672C\u5730\u5F52\u6863");
-  }) })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "backup.create" }) }, "\u5BFC\u51FA\u5B8C\u6574\u5907\u4EFD"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-file-button" }, "\u6062\u590D\u5907\u4EFD", /* @__PURE__ */ import_react2.default.createElement("input", { type: "file", accept: ".zip", onChange: (e3) => run3(async () => {
-    const file = e3.target.files[0];
-    if (file) await act({ action: "backup.restore", ...await fileData(file) }, "\u5907\u4EFD\u5DF2\u6062\u590D\uFF0C\u8BF7\u91CD\u65B0\u8FDE\u63A5\u8D26\u53F7");
-  }) }))), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u6062\u590D\u4EC5\u5141\u8BB8\u5199\u5165\u7A7A\u6570\u636E\u914D\u7F6E\uFF1B\u73B0\u6709\u90AE\u7BB1\u4E0D\u4F1A\u88AB\u8986\u76D6\u3002\u6570\u636E\u8FC1\u79FB\u540E\u89C4\u5219\u4FDD\u6301\u505C\u7528\uFF0C\u8349\u7A3F\u4E0D\u4F1A\u81EA\u52A8\u53D1\u9001\u3002"))), /* @__PURE__ */ import_react2.default.createElement("div", { hidden: settingsSection !== "\u5173\u4E8E" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u8FD0\u884C\u8FB9\u754C"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-settings-card" }, /* @__PURE__ */ import_react2.default.createElement("p", null, "DSH \u5B8C\u5168\u9000\u51FA\u540E\uFF0C\u540C\u6B65\u3001\u89C4\u5219\u3001\u63D0\u9192\u53CA\u5B9A\u65F6\u53D1\u9001\u6682\u505C\u3002\u9519\u8FC7\u65F6\u95F4\u7684\u53D1\u9001\u9700\u8981\u91CD\u65B0\u786E\u8BA4\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u90AE\u4EF6\u5185 AI \u5728\u4F1A\u8BDD\u4FA7\u680F\u4F7F\u7528\u5F53\u524D\u4F1A\u8BDD\u6A21\u578B\uFF0C\u5728\u72EC\u7ACB\u90AE\u4EF6\u754C\u9762\u4F7F\u7528 DSH \u9ED8\u8BA4\u6A21\u578B\u3002\u53EA\u6709\u4F60\u8BF7\u6C42\u5206\u6790\u7684\u76F8\u5173\u90AE\u4EF6\u5185\u5BB9\u624D\u8FDB\u5165\u6A21\u578B\u4E0A\u4E0B\u6587\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6253\u5F00\u8FFD\u8E2A\u4F7F\u7528\u6536\u4EF6\u4EBA\u5BA2\u6237\u7AEF\u63D0\u4F9B\u7684\u5DF2\u8BFB\u56DE\u6267\uFF1B\u6CA1\u6709\u56DE\u6267\u663E\u793A\u201C\u672A\u77E5\u201D\u3002"), /* @__PURE__ */ import_react2.default.createElement("p", null, "DSH Mail ", state.version, " \xB7 ", /* @__PURE__ */ import_react2.default.createElement("a", { href: "https://github.com/xiaoxinblast/dsh-mail", target: "_blank", rel: "noreferrer" }, "GitHub \u4E0E\u66F4\u65B0\u8BF4\u660E \u2197"))))));
+  } }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u89C4\u5219\u540D\u79F0", required: true, value: form.name, onChange: (e3) => setForm({ ...form, name: e3.target.value }) }), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form-grid" }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4F5C\u7528\u8D26\u53F7" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.accountId || "", onChange: (e3) => setForm({ ...form, accountId: e3.target.value }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u5168\u90E8\u8D26\u53F7"), state.accounts.map((a3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: a3.id, value: a3.id }, a3.name)))), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5339\u914D\u6761\u4EF6" }, /* @__PURE__ */ import_react3.default.createElement("select", { value: form.match, onChange: (e3) => setForm({ ...form, match: e3.target.value }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "all" }, "\u5168\u90E8\u6EE1\u8DB3"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "any" }, "\u6EE1\u8DB3\u4EFB\u4E00")))), /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u5982\u679C\u90AE\u4EF6\u7B26\u5408"), form.conditions.map((c3, i4) => /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-rule-editor-row", key: i4 }, /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u5B57\u6BB5`, value: c3.field, onChange: (e3) => edit("conditions", i4, { field: e3.target.value }) }, [["from", "\u53D1\u4EF6\u4EBA"], ["to", "\u6536\u4EF6\u4EBA"], ["subject", "\u4E3B\u9898"], ["text", "\u6B63\u6587"], ["hasAttachment", "\u6709\u9644\u4EF6"], ["seen", "\u5DF2\u8BFB"], ["starred", "\u661F\u6807"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label))), /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u6BD4\u8F83`, value: c3.operator, onChange: (e3) => edit("conditions", i4, { operator: e3.target.value }) }, [["contains", "\u5305\u542B"], ["equals", "\u7B49\u4E8E"], ["notContains", "\u4E0D\u5305\u542B"], ["endsWith", "\u7ED3\u5C3E\u4E3A"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label))), /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": `\u6761\u4EF6 ${i4 + 1} \u5185\u5BB9`, required: true, value: c3.value, onChange: (e3) => edit("conditions", i4, { value: e3.target.value }) }), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setForm({ ...form, conditions: form.conditions.filter((_3, n3) => n3 !== i4) }) }, "\xD7"))), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setForm({ ...form, conditions: [...form.conditions, { field: "subject", operator: "contains", value: "" }] }) }, "\uFF0B \u6761\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u6309\u987A\u5E8F\u6267\u884C"), form.actions.map((a3, i4) => /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-rule-editor-row", key: i4 }, /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": `\u52A8\u4F5C ${i4 + 1}`, value: a3.action, onChange: (e3) => edit("actions", i4, { action: e3.target.value, value: e3.target.value === "label" ? [] : true }) }, [["star", "\u6DFB\u52A0\u661F\u6807"], ["read", "\u6807\u4E3A\u5DF2\u8BFB"], ["label", "\u672C\u5730\u6807\u7B7E"], ["move", "\u79FB\u52A8\u5230\u6587\u4EF6\u5939"], ["archive", "\u5F52\u6863"], ["task", "\u521B\u5EFA\u672C\u5730\u5F85\u529E"]].map(([key, label]) => /* @__PURE__ */ import_react3.default.createElement("option", { key, value: key }, label))), a3.action === "move" ? /* @__PURE__ */ import_react3.default.createElement("select", { "aria-label": "\u89C4\u5219\u76EE\u6807\u6587\u4EF6\u5939", value: a3.destinationId || "", onChange: (e3) => edit("actions", i4, { destinationId: e3.target.value }) }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "" }, "\u8BF7\u9009\u62E9\u6587\u4EF6\u5939"), state.folders.map((f3) => /* @__PURE__ */ import_react3.default.createElement("option", { key: f3.id, value: f3.id }, f3.path))) : a3.action === "label" ? /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": "\u89C4\u5219\u6807\u7B7E", value: Array.isArray(a3.value) ? a3.value.join(",") : "", onChange: (e3) => edit("actions", i4, { value: e3.target.value.split(/[,，]/).filter(Boolean) }) }) : a3.action === "task" ? /* @__PURE__ */ import_react3.default.createElement("input", { "aria-label": "\u89C4\u5219\u5F85\u529E\u6807\u9898", placeholder: "\u7559\u7A7A\u4F7F\u7528\u90AE\u4EF6\u4E3B\u9898", value: a3.title || "", onChange: (e3) => edit("actions", i4, { title: e3.target.value }) }) : null, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setForm({ ...form, actions: form.actions.filter((_3, n3) => n3 !== i4) }) }, "\xD7"))), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setForm({ ...form, actions: [...form.actions, { action: "read", value: true }] }) }, "\uFF0B \u52A8\u4F5C"), /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u4F18\u5148\u7EA7\uFF08\u8D8A\u5C0F\u8D8A\u5148\u6267\u884C\uFF09", type: "number", value: form.priority, onChange: (e3) => setForm({ ...form, priority: Number(e3.target.value) }) }), /* @__PURE__ */ import_react3.default.createElement("label", null, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: !!form.stop, onChange: (e3) => setForm({ ...form, stop: e3.target.checked }) }), "\u547D\u4E2D\u540E\u505C\u6B62\u5176\u4ED6\u89C4\u5219"), preview && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notice" }, /* @__PURE__ */ import_react3.default.createElement("p", null, "\u5F53\u524D\u547D\u4E2D ", preview.count, " \u5C01"), preview.samples.map((m3) => /* @__PURE__ */ import_react3.default.createElement("p", { key: m3.id }, m3.subject))), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(async () => setPreview(await act({ action: "rules.preview", rule: form }))) }, "\u9884\u89C8\u547D\u4E2D"), /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58\u89C4\u5219")));
 }
 function ResourceForm({ kind, value }) {
-  const { act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react2.useState)(value);
-  return /* @__PURE__ */ import_react2.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
+  const { act, run: run3, setModal } = useMail(), [form, setForm] = (0, import_react3.useState)(value);
+  return /* @__PURE__ */ import_react3.default.createElement("form", { className: "dm-form", onSubmit: (e3) => {
     e3.preventDefault();
     run3(async () => {
       if (kind === "labels" && form.messageId) await act({ action: "messages.action", ids: [form.messageId], operation: "label", value: form.name.split(/[,，]/).filter(Boolean) });
@@ -48111,23 +48754,39 @@ function ResourceForm({ kind, value }) {
       if (kind === "labels" && form.messageId) for (const name of form.name.split(/[,，]/).filter(Boolean)) await act({ action: "resources.save", kind: "labels", value: { name, color: form.color || "#155e75" } });
       setModal(null);
     });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Field, { label: kind === "labels" ? "\u672C\u5730\u6807\u7B7E\uFF08\u9017\u53F7\u5206\u9694\uFF09" : "\u540D\u79F0", required: true, value: form.name || "", onChange: (e3) => setForm({ ...form, name: e3.target.value }) }), ["calendars", "labels"].includes(kind) && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u989C\u8272", type: "color", value: form.color || "#155e75", onChange: (e3) => setForm({ ...form, color: e3.target.value }) }), kind === "templates" && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u90AE\u4EF6\u4E3B\u9898", value: form.subject || "", onChange: (e3) => setForm({ ...form, subject: e3.target.value }) }), ["signatures", "templates"].includes(kind) && /* @__PURE__ */ import_react2.default.createElement(Field, { label: "\u5185\u5BB9" }, /* @__PURE__ */ import_react2.default.createElement("textarea", { value: form.text || "", onChange: (e3) => setForm({ ...form, text: e3.target.value }) })), /* @__PURE__ */ import_react2.default.createElement("footer", null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58"), form.id && /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
+  } }, /* @__PURE__ */ import_react3.default.createElement(Field, { label: kind === "labels" ? "\u672C\u5730\u6807\u7B7E\uFF08\u9017\u53F7\u5206\u9694\uFF09" : "\u540D\u79F0", required: true, value: form.name || "", onChange: (e3) => setForm({ ...form, name: e3.target.value }) }), ["calendars", "labels"].includes(kind) && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u989C\u8272", type: "color", value: form.color || "#155e75", onChange: (e3) => setForm({ ...form, color: e3.target.value }) }), kind === "templates" && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u90AE\u4EF6\u4E3B\u9898", value: form.subject || "", onChange: (e3) => setForm({ ...form, subject: e3.target.value }) }), ["signatures", "templates"].includes(kind) && /* @__PURE__ */ import_react3.default.createElement(Field, { label: "\u5185\u5BB9" }, /* @__PURE__ */ import_react3.default.createElement("textarea", { value: form.text || "", onChange: (e3) => setForm({ ...form, text: e3.target.value }) })), /* @__PURE__ */ import_react3.default.createElement("footer", null, /* @__PURE__ */ import_react3.default.createElement("button", { className: "primary", type: "submit" }, "\u4FDD\u5B58"), form.id && /* @__PURE__ */ import_react3.default.createElement(Button, { danger: true, onClick: () => run3(async () => {
     await act({ action: "resources.delete", kind, id: form.id });
     setModal(null);
   }) }, "\u5220\u9664")));
 }
 function Activity() {
-  const { state, act, run: run3, setModal, openMessage } = useMail();
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u5F85\u786E\u8BA4"), state.previews.map((p3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: p3.id, onClick: () => setModal({ type: "preview", value: p3 }) }, p3.kind === "send" ? p3.details.subject || "\u53D1\u9001\u90AE\u4EF6" : `${p3.kind} \xB7 ${p3.details.count} \u9879`, " \u2192")), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u63D0\u9192"), state.notifications.map((n3) => /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-activity-row", key: n3.id }, /* @__PURE__ */ import_react2.default.createElement("span", null, n3.title, /* @__PURE__ */ import_react2.default.createElement("small", null, date(n3.createdAt))), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "notifications.dismiss", id: n3.id })) }, "\u5DF2\u77E5\u6653"))), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u64CD\u4F5C\u4EFB\u52A1"), state.jobs.map((j4) => /* @__PURE__ */ import_react2.default.createElement("details", { key: j4.id }, /* @__PURE__ */ import_react2.default.createElement("summary", null, j4.kind, " \xB7 ", j4.status, " \xB7 ", j4.completed, "/", j4.items.length), j4.items.filter((x4) => x4.error || x4.result?.unknown || x4.copies?.some((c3) => c3.status === "unknown")).map((x4) => /* @__PURE__ */ import_react2.default.createElement("div", { key: x4.id }, /* @__PURE__ */ import_react2.default.createElement("p", null, x4.error?.message || x4.result?.message || "\u5B58\u5728\u7ED3\u679C\u5F85\u6838\u67E5\u7684\u590D\u5236"), x4.copies?.filter((c3) => c3.status === "unknown").map((c3) => /* @__PURE__ */ import_react2.default.createElement("p", { key: c3.id }, c3.id, "\uFF1A", c3.error?.message || c3.result?.message || "\u72B6\u6001\u672A\u77E5\uFF0C\u8BF7\u6838\u67E5\u76EE\u6807")))), ["running", "queued"].includes(j4.status) && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "jobs.cancel", id: j4.id })) }, "\u53D6\u6D88"), ["partial", "interrupted"].includes(j4.status) && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => run3(() => act({ action: "jobs.retry", id: j4.id })) }, "\u91CD\u8BD5\u5B89\u5168\u7684\u672A\u5B8C\u6210\u9879"))), /* @__PURE__ */ import_react2.default.createElement(CompletedSends, null), /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u64CD\u4F5C\u8BB0\u5F55"), state.logs.slice(0, 30).map((l4) => /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-activity-row", key: l4.id }, /* @__PURE__ */ import_react2.default.createElement("span", null, l4.kind), /* @__PURE__ */ import_react2.default.createElement("small", null, date(l4.time)), l4.data.message && /* @__PURE__ */ import_react2.default.createElement("p", null, l4.data.message))));
+  const { state, act, run: run3, setModal, openMessage, setQuery, setTab, setSelected, setCompose, request } = useMail();
+  const sending = state.drafts.filter((d2) => ["queued", "sending", "failed", "uncertain", "needs-confirmation"].includes(d2.status)), sent = state.drafts.filter((d2) => d2.status === "sent");
+  const openReminder = (n3) => run3(async () => {
+    setModal(null);
+    if (n3.data?.messageId) await openMessage(n3.data.messageId);
+    else {
+      setTab("\u90AE\u4EF6");
+      setCompose(null);
+      setSelected(null);
+      setQuery({ inbox: true, accountId: n3.data?.accountId, seen: false });
+    }
+  });
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form dm-notifications" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notification-counts" }, [["mail", "\u672A\u8BFB\u90AE\u4EF6", state.summary?.unread || 0], ["read", "\u5DF2\u8BFB\u90AE\u4EF6", (state.summary?.total || 0) - (state.summary?.unread || 0)], ["sent", "\u6B63\u5728\u53D1\u9001", sending.filter((d2) => d2.status === "sending").length], ["check", "\u5DF2\u53D1\u9001\u90AE\u4EF6", sent.length]].map(([icon, label, count]) => /* @__PURE__ */ import_react3.default.createElement("div", { key: label }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: icon, size: 18 }), /* @__PURE__ */ import_react3.default.createElement("strong", null, count), /* @__PURE__ */ import_react3.default.createElement("small", null, label)))), state.previews.length > 0 && /* @__PURE__ */ import_react3.default.createElement("section", null, /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u5F85\u786E\u8BA4"), state.previews.map((p3) => /* @__PURE__ */ import_react3.default.createElement(Button, { key: p3.id, onClick: () => setModal({ type: "preview", value: p3 }) }, p3.kind === "send" ? "\u786E\u8BA4\u53D1\u9001" : "\u6838\u5BF9\u64CD\u4F5C", " \xB7 ", p3.details.subject || `${p3.details.count || 1} \u9879`))), !!state.notifications.length && /* @__PURE__ */ import_react3.default.createElement("section", null, /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u63D0\u9192"), state.notifications.map((n3) => n3.kind === "new-mail" ? /* @__PURE__ */ import_react3.default.createElement("button", { className: "dm-notification-row", key: n3.id, onClick: () => openReminder(n3) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "mail", size: 18 }), /* @__PURE__ */ import_react3.default.createElement("span", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, n3.data?.count ? `\u672A\u8BFB\u90AE\u4EF6 \xB7 ${n3.data.count} \u5C01` : "\u672A\u8BFB\u90AE\u4EF6"), /* @__PURE__ */ import_react3.default.createElement("small", null, date(n3.createdAt))), /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "next", size: 15 })) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-notification-row", key: n3.id }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: n3.kind === "event" ? "calendar" : "task", size: 18 }), /* @__PURE__ */ import_react3.default.createElement("span", null, /* @__PURE__ */ import_react3.default.createElement("strong", { title: n3.title }, n3.title), /* @__PURE__ */ import_react3.default.createElement("small", null, date(n3.createdAt))), /* @__PURE__ */ import_react3.default.createElement(Button, { "aria-label": `\u5173\u95ED\u63D0\u9192 ${n3.title}`, onClick: () => run3(() => act({ action: "notifications.dismiss", id: n3.id })) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "close", size: 14 }))))), (sending.length > 0 || sent.length > 0) && /* @__PURE__ */ import_react3.default.createElement("section", null, /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u53D1\u9001\u72B6\u6001"), [...sending, ...sent.slice(0, 5)].map((d2) => /* @__PURE__ */ import_react3.default.createElement("button", { className: "dm-notification-row", key: d2.id, onClick: () => run3(async () => {
+    const draft = await request({ action: "drafts.read", id: d2.id });
+    setModal(null);
+    setTab("\u90AE\u4EF6");
+    setCompose(draft);
+  }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: d2.status === "sent" ? "check" : d2.status === "failed" || d2.status === "uncertain" ? "activity" : "sent", size: 18 }), /* @__PURE__ */ import_react3.default.createElement("span", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, statusText[d2.status]), /* @__PURE__ */ import_react3.default.createElement("small", { title: d2.subject }, d2.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"))))), !state.notifications.length && !state.previews.length && !sending.length && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "\u6CA1\u6709\u9700\u8981\u5904\u7406\u7684\u63D0\u9192"), /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-notification-history" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u540E\u53F0\u4EFB\u52A1\u4E0E\u64CD\u4F5C\u8BB0\u5F55"), state.jobs.map((j4) => /* @__PURE__ */ import_react3.default.createElement("details", { key: j4.id }, /* @__PURE__ */ import_react3.default.createElement("summary", null, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "activity", size: 16 }), j4.kind, " \xB7 ", j4.status, " \xB7 ", j4.completed, "/", j4.items.length), /* @__PURE__ */ import_react3.default.createElement("progress", { max: j4.items.length || 1, value: j4.completed || 0, "aria-label": "\u4EFB\u52A1\u5B8C\u6210\u8FDB\u5EA6" }), j4.items.filter((x4) => x4.error || x4.result?.unknown || x4.copies?.some((c3) => c3.status === "unknown")).map((x4) => /* @__PURE__ */ import_react3.default.createElement("div", { key: x4.id }, /* @__PURE__ */ import_react3.default.createElement("p", null, x4.error?.message || x4.result?.message || "\u5B58\u5728\u7ED3\u679C\u5F85\u6838\u67E5\u7684\u590D\u5236"), x4.copies?.filter((c3) => c3.status === "unknown").map((c3) => /* @__PURE__ */ import_react3.default.createElement("p", { key: c3.id }, c3.id, "\uFF1A", c3.error?.message || c3.result?.message || "\u72B6\u6001\u672A\u77E5\uFF0C\u8BF7\u6838\u67E5\u76EE\u6807")))), ["running", "queued"].includes(j4.status) && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(() => act({ action: "jobs.cancel", id: j4.id })) }, "\u53D6\u6D88"), ["partial", "interrupted"].includes(j4.status) && /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => run3(() => act({ action: "jobs.retry", id: j4.id })) }, "\u91CD\u8BD5\u5B89\u5168\u7684\u672A\u5B8C\u6210\u9879"))), state.logs.slice(0, 30).map((l4) => /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-activity-row", key: l4.id }, /* @__PURE__ */ import_react3.default.createElement("span", null, l4.kind), /* @__PURE__ */ import_react3.default.createElement("small", null, date(l4.time)), l4.data.message && /* @__PURE__ */ import_react3.default.createElement("p", null, l4.data.message)))), sent.length > 0 && /* @__PURE__ */ import_react3.default.createElement("details", { className: "dm-notification-history" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, "\u53D1\u9001\u8BB0\u5F55\u4E0E\u56DE\u6267"), /* @__PURE__ */ import_react3.default.createElement(CompletedSends, null)));
 }
 function CompletedSends() {
   const { state } = useMail();
   const sent = state.drafts.filter((d2) => d2.status === "sent");
-  return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("h3", null, "\u5DF2\u5B8C\u6210\u53D1\u9001"), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "SMTP \u5DF2\u63A5\u53D7\u7684\u90AE\u4EF6\u79FB\u51FA\u8349\u7A3F\u7BB1\u3002\u4EE5\u4E0B\u8BB0\u5F55\u4FDD\u7559\u53D1\u9001\u51ED\u636E\uFF0C\u4E0D\u63D0\u4F9B\u518D\u6B21\u53D1\u9001\u5165\u53E3\u3002"), sent.map((d2) => /* @__PURE__ */ import_react2.default.createElement("details", { key: d2.id }, /* @__PURE__ */ import_react2.default.createElement("summary", null, d2.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09", " \xB7 ", date(d2.sentAt)), /* @__PURE__ */ import_react2.default.createElement("p", null, "SMTP \u5DF2\u63A5\u53D7\uFF1A", addr(d2.accepted)), d2.rejected?.length > 0 && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning" }, "\u672A\u63A5\u53D7\u7684\u6536\u4EF6\u4EBA\uFF1A", addr(d2.rejected.map((a3) => typeof a3 === "string" ? a3 : a3.address)), "\u3002\u8BF7\u6838\u67E5\u540E\u53E6\u5EFA\u8349\u7A3F\uFF0C\u907F\u514D\u5411\u5DF2\u63A5\u53D7\u7684\u6536\u4EF6\u4EBA\u91CD\u590D\u53D1\u9001\u3002"), d2.sentCopyError && /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-warning" }, "\u5DF2\u53D1\u9001\u526F\u672C\u672A\u4FDD\u5B58\uFF1A", d2.sentCopyError.message, "\u3002\u672C\u5730\u53D1\u9001\u51ED\u636E\u5DF2\u4FDD\u7559\uFF0C\u8BF7\u52FF\u91CD\u65B0\u53D1\u9001\u3002"), d2.receipt && /* @__PURE__ */ import_react2.default.createElement("p", null, "\u56DE\u6267\uFF1A", d2.receipt.disposition))));
+  return /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("h3", null, "\u5DF2\u5B8C\u6210\u53D1\u9001"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-muted" }, "SMTP \u5DF2\u63A5\u53D7\u7684\u90AE\u4EF6\u79FB\u51FA\u8349\u7A3F\u7BB1\u3002\u4EE5\u4E0B\u8BB0\u5F55\u4FDD\u7559\u53D1\u9001\u51ED\u636E\uFF0C\u4E0D\u63D0\u4F9B\u518D\u6B21\u53D1\u9001\u5165\u53E3\u3002"), sent.map((d2) => /* @__PURE__ */ import_react3.default.createElement("details", { key: d2.id }, /* @__PURE__ */ import_react3.default.createElement("summary", null, d2.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09", " \xB7 ", date(d2.sentAt)), /* @__PURE__ */ import_react3.default.createElement("p", null, "SMTP \u5DF2\u63A5\u53D7\uFF1A", addr(d2.accepted)), d2.rejected?.length > 0 && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-warning" }, "\u672A\u63A5\u53D7\u7684\u6536\u4EF6\u4EBA\uFF1A", addr(d2.rejected.map((a3) => typeof a3 === "string" ? a3 : a3.address)), "\u3002\u8BF7\u6838\u67E5\u540E\u53E6\u5EFA\u8349\u7A3F\uFF0C\u907F\u514D\u5411\u5DF2\u63A5\u53D7\u7684\u6536\u4EF6\u4EBA\u91CD\u590D\u53D1\u9001\u3002"), d2.sentCopyError && /* @__PURE__ */ import_react3.default.createElement("p", { className: "dm-warning" }, "\u5DF2\u53D1\u9001\u526F\u672C\u672A\u4FDD\u5B58\uFF1A", d2.sentCopyError.message, "\u3002\u672C\u5730\u53D1\u9001\u51ED\u636E\u5DF2\u4FDD\u7559\uFF0C\u8BF7\u52FF\u91CD\u65B0\u53D1\u9001\u3002"), d2.receipt && /* @__PURE__ */ import_react3.default.createElement("p", null, "\u56DE\u6267\uFF1A", d2.receipt.disposition))));
 }
 function AttachmentPreview({ value }) {
   const supportedImage = /^image\/(png|jpeg|gif|webp|avif|bmp)$/i.test(value.contentType), isPdf = value.contentType === "application/pdf";
-  return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react2.default.createElement("p", null, value.filename), supportedImage ? /* @__PURE__ */ import_react2.default.createElement("img", { className: "dm-image-preview", src: `data:${value.contentType};base64,${value.base64}`, alt: value.filename }) : isPdf ? /* @__PURE__ */ import_react2.default.createElement("iframe", { className: "dm-pdf-preview", title: value.filename, sandbox: "", src: `data:application/pdf;base64,${value.base64}` }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B64\u7C7B\u578B\u4E0D\u5728\u5E94\u7528\u5185\u9884\u89C8\uFF0C\u8BF7\u4FDD\u5B58\u540E\u7528\u5BF9\u5E94\u5E94\u7528\u6253\u5F00\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => deliverFile(value) }, "\u4E0B\u8F7D\u6587\u4EF6"));
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react3.default.createElement("p", null, value.filename), supportedImage ? /* @__PURE__ */ import_react3.default.createElement("img", { className: "dm-image-preview", src: `data:${value.contentType};base64,${value.base64}`, alt: value.filename }) : isPdf ? /* @__PURE__ */ import_react3.default.createElement("iframe", { className: "dm-pdf-preview", title: value.filename, sandbox: "", src: `data:application/pdf;base64,${value.base64}` }) : /* @__PURE__ */ import_react3.default.createElement("p", null, "\u6B64\u7C7B\u578B\u4E0D\u5728\u5E94\u7528\u5185\u9884\u89C8\uFF0C\u8BF7\u4FDD\u5B58\u540E\u7528\u5BF9\u5E94\u5E94\u7528\u6253\u5F00\u3002"), /* @__PURE__ */ import_react3.default.createElement(Button, { primary: true, onClick: () => deliverFile(value) }, "\u4E0B\u8F7D\u6587\u4EF6"));
 }
 
 // ui/presentation.css
@@ -48184,6 +48843,7 @@ function createMailPresentationHost() {
   };
   const change = (record, update) => {
     busy = true;
+    const noMotion = reducedMotion() || record.surface.querySelector(".dm-app")?.dataset.motion === "off";
     let interaction;
     const perform = () => {
       interaction = update();
@@ -48200,7 +48860,7 @@ function createMailPresentationHost() {
       busy = false;
       notify(surfaces.get(record.id), active === record.id);
     };
-    if (!reducedMotion() && typeof document.startViewTransition === "function") {
+    if (!noMotion && typeof document.startViewTransition === "function") {
       document.documentElement.dataset.dmMailTransition = name;
       document.head.appendChild(rules);
       try {
@@ -48214,7 +48874,7 @@ function createMailPresentationHost() {
       }
     }
     perform();
-    if (!reducedMotion() && typeof record.surface.animate === "function") {
+    if (!noMotion && typeof record.surface.animate === "function") {
       const animation = record.surface.animate([{ opacity: 0.85 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
       animation.finished.catch(() => {
       }).finally(finish);
@@ -48269,23 +48929,23 @@ function createMailPresentationHost() {
   };
 }
 function MailFullscreenLayer() {
-  return /* @__PURE__ */ import_react3.default.createElement("style", null, presentation_default);
+  return /* @__PURE__ */ import_react4.default.createElement("style", null, presentation_default);
 }
 function MailSurface({ presentationHost, origin = "main", ...props }) {
-  const root = (0, import_react3.useRef)(null), [id] = (0, import_react3.useState)(() => `dm-mail-surface-${++surfaceSequence}`);
-  const [presentation, setPresentation] = (0, import_react3.useState)({ fullscreen: false, transitioning: false });
-  (0, import_react3.useLayoutEffect)(() => presentationHost.register({ id, surface: root.current, onChange: setPresentation }), [presentationHost, id]);
-  (0, import_react3.useEffect)(() => {
+  const root = (0, import_react4.useRef)(null), [id] = (0, import_react4.useState)(() => `dm-mail-surface-${++surfaceSequence}`);
+  const [presentation, setPresentation] = (0, import_react4.useState)({ fullscreen: false, transitioning: false });
+  (0, import_react4.useLayoutEffect)(() => presentationHost.register({ id, surface: root.current, onChange: setPresentation }), [presentationHost, id]);
+  (0, import_react4.useEffect)(() => {
     if (props.visible === false) presentationHost.exit(id);
   }, [props.visible, presentationHost, id]);
-  return /* @__PURE__ */ import_react3.default.createElement("dialog", { ref: root, open: true, className: "dm-live-surface dm-workspace-fullscreen", role: presentation.fullscreen ? "dialog" : "group", "aria-modal": presentation.fullscreen || void 0, "aria-label": presentation.fullscreen ? "DSH Mail \u5168\u5C4F\u5DE5\u4F5C\u533A" : "DSH Mail \u5DE5\u4F5C\u533A", "data-mail-origin": origin, "data-mail-visible": props.visible === false ? void 0 : "true", style: { viewTransitionName: id }, onCancel: (event) => {
+  return /* @__PURE__ */ import_react4.default.createElement("dialog", { ref: root, open: true, className: "dm-live-surface dm-workspace-fullscreen", role: presentation.fullscreen ? "dialog" : "group", "aria-modal": presentation.fullscreen || void 0, "aria-label": presentation.fullscreen ? "DSH Mail \u5168\u5C4F\u5DE5\u4F5C\u533A" : "DSH Mail \u5DE5\u4F5C\u533A", "data-mail-origin": origin, "data-mail-visible": props.visible === false ? void 0 : "true", style: { viewTransitionName: id }, onCancel: (event) => {
     event.preventDefault();
     presentationHost.dismiss();
-  } }, /* @__PURE__ */ import_react3.default.createElement(App, { ...props, presentation: { ...presentation, origin, toggle: () => presentationHost.toggle(id) } }));
+  } }, /* @__PURE__ */ import_react4.default.createElement(App, { ...props, presentation: { ...presentation, origin, toggle: () => presentationHost.toggle(id) } }));
 }
 
 // ui/assistant.jsx
-var import_react4 = __toESM(require("react"), 1);
+var import_react5 = __toESM(require("react"), 1);
 function ChatView({ renderSlot }) {
   return renderSlot("conversation.session", { view: "chat" });
 }
@@ -48330,16 +48990,16 @@ function createMailAssistant(ctx, globalCall) {
 
 // ui/plugin.jsx
 function Opener({ sessionId, open }) {
-  return /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail" }));
+  return /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react6.default.createElement(Icon, { name: "mail" }));
 }
 function Presence({ useMailMounted, useSessions, open, call }) {
   const sessionId = useMailMounted((x4) => x4), preset = useSessions((s4) => s4.byId[sessionId]?.projectionValues?.agentPreset);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react6.useEffect)(() => {
     if (preset !== "dsh-mail" || !sessionId) return;
     open(sessionId);
     let cancelled = false, running = false, lastId;
     const poll = async () => {
-      if (running) return;
+      if (running || document.visibilityState === "hidden") return;
       running = true;
       try {
         const view = await call(sessionId, { action: "workbench.state" });
@@ -48354,24 +49014,28 @@ function Presence({ useMailMounted, useSessions, open, call }) {
       }
     };
     poll();
-    const timer = setInterval(poll, 1e3);
+    const timer = setInterval(poll, 1e3), visible = () => {
+      if (document.visibilityState !== "hidden") poll();
+    };
+    document.addEventListener("visibilitychange", visible);
     return () => {
       cancelled = true;
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", visible);
     };
   }, [sessionId, preset, open, call]);
   return null;
 }
 function Tab(props) {
   const { tab } = props.useTabInfo();
-  return /* @__PURE__ */ import_react5.default.createElement(MailSurface, { ...props, origin: "sidebar", visible: tab.visible });
+  return /* @__PURE__ */ import_react6.default.createElement(MailSurface, { ...props, origin: "sidebar", visible: tab.visible });
 }
 function Title({ useTabInfo }) {
   const { tab } = useTabInfo();
-  return /* @__PURE__ */ import_react5.default.createElement("span", null, /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
+  return /* @__PURE__ */ import_react6.default.createElement("span", null, /* @__PURE__ */ import_react6.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
 }
 function MailIcon({ size = 18 }) {
-  return /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail", size });
+  return /* @__PURE__ */ import_react6.default.createElement(Icon, { name: "mail", size });
 }
 var plugin_default = {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],

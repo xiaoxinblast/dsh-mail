@@ -1,6 +1,11 @@
 import React from "react";
 
 const paths = {
+  palette: <><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-4c-1-1 0-3 2-3h2a3 3 0 0 0 3-3 9 9 0 0 0-9-8Z" /><circle cx="7" cy="10" r=".7" /><circle cx="11" cy="7" r=".7" /><circle cx="16" cy="8" r=".7" /></>,
+  activity: <><path d="M3 12h4l3-8 4 16 3-8h4" /></>,
+  check: <path d="m5 12 4 4L19 6" />,
+  filter: <path d="M3 5h18l-7 8v6l-4 2v-8Z" />,
+
   mail: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3 7 9 6 9-6" /></>,
   inbox: <><path d="m5 4-3 9v7h20v-7l-3-9Z" /><path d="M2 13h6l2 3h4l2-3h6" /></>,
   sent: <><path d="m22 2-7 20-4-9-9-4Z" /><path d="m11 13 5-5" /></>,

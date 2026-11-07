@@ -14,8 +14,7 @@ try {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(url);
   await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).waitFor();
-  await page.getByText("开始使用", { exact: true }).waitFor();
-  await page.keyboard.press("Escape");
+  if (await page.getByText("开始使用", { exact: true }).isVisible()) await page.keyboard.press("Escape");
   await expect(page.getByText("开始使用", { exact: true })).toBeHidden();
   await expect(page.locator("[class*=heroOptions]").getByRole("button", { name: "打开 DSH Mail", exact: true })).toHaveCount(0);
   await page.screenshot({ path: ".cache/screenshots/navigation-conversation-no-entry.png" });
@@ -120,7 +119,8 @@ try {
   const composeToolbar = root.locator(".dm-compose-toolbar");
   for (const width of [1440, 1024, 768, 390]) {
     await resize(width); await noOverflow();
-    for (const name of ["预览并发送 →", "保存草稿", "丢弃草稿"]) await expect(composeToolbar.getByRole("button", { name, exact: true })).toBeVisible();
+    for (const name of ["保存草稿", "丢弃草稿"]) await expect(composeToolbar.getByRole("button", { name, exact: true })).toBeVisible();
+    await expect(root.getByRole("button", { name: "预览并发送 →", exact: true })).toBeVisible();
     assert.ok(await composeToolbar.evaluate((el) => { const box = el.getBoundingClientRect(); return [...el.querySelectorAll("button")].every((button) => { const b = button.getBoundingClientRect(); return b.left >= box.left && b.right <= box.right && b.top >= box.top && b.bottom <= box.bottom; }); }), "Draft actions fit inside the top toolbar");
     await root.locator(".dm-detail-pane").evaluate((el) => { el.scrollTop = el.scrollHeight; });
     assert.ok(Math.abs(await composeToolbar.evaluate((el) => el.getBoundingClientRect().top - el.closest(".dm-detail-pane").getBoundingClientRect().top)) < 2, "Draft toolbar stays at the top while scrolling");
@@ -145,15 +145,15 @@ try {
     await shot(`page-${name}-light`);
     await noOverflow();
   }
-  for (const name of ["邮箱账号", "邮件与日历偏好", "签名与模板", "数据管理", "关于"]) {
+  for (const name of ["邮箱账号", "外观与动效", "邮件与阅读", "写信、签名与模板", "通知", "日历与待办", "AI 助手", "存储与备份", "诊断与关于"]) {
     await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name, exact: true }).click();
     await expect(root.locator(".dm-settings-main>.dm-page-heading h2")).toHaveText(name);
-    if (name === "关于") { await expect(root.locator(".dm-settings-card p").filter({ hasText: `DSH Mail ${packageInfo.version} ·` })).toBeVisible(); await shot(`about-version-${packageInfo.version}`); }
+    if (name === "诊断与关于") { await expect(root.locator(".dm-about-brand").filter({ hasText: `DSH Mail ${packageInfo.version}` })).toBeVisible(); await shot(`about-version-${packageInfo.version}`); }
   }
-  await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与日历偏好", exact: true }).click();
+  await root.getByRole("navigation", { name: "设置分类" }).getByRole("button", { name: "邮件与阅读", exact: true }).click();
   await resize(390); await noOverflow(); await shot("settings-light-390");
   await resize(1440);
-  checks.push("reply composer, bulk controls, all functional pages, five settings categories, narrow settings");
+  checks.push("reply composer, bulk controls, all functional pages, nine settings categories, narrow settings");
 
   // Switch the actual isolated Host's appearance through its settings UI.
   await page.getByText("更多", { exact: true }).last().click();
@@ -164,7 +164,7 @@ try {
   await rail.getByRole("button", { name: "邮件", exact: true }).click();
   await row.locator("button.dm-message").click();
   await root.getByRole("button", { name: "回复", exact: true }).click();
-  for (const width of [1440, 390]) { await resize(width); await noOverflow(); await expect(composeToolbar.getByRole("button", { name: "预览并发送 →", exact: true })).toBeVisible(); await shot(`compose-toolbar-dark-${width}`); }
+  for (const width of [1440, 390]) { await resize(width); await noOverflow(); await expect(root.getByRole("button", { name: "预览并发送 →", exact: true })).toBeVisible(); await shot(`compose-toolbar-dark-${width}`); }
   await composeToolbar.getByRole("button", { name: "← 关闭", exact: true }).click();
   for (const width of [1440, 1024, 768, 390]) {
     await resize(width); await noOverflow(); await shot(`reader-dark-${width}`);

@@ -17,6 +17,8 @@ const paths = {
   sync: <><path d="M20 8a8 8 0 0 0-14-3L3 8M3 3v5h5M4 16a8 8 0 0 0 14 3l3-3M21 21v-5h-5" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
   close: <path d="m6 6 12 12M6 18 18 6" />,
+  expand: <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5" />,
+  collapse: <path d="M3 8h5V3M16 3v5h5M21 16h-5v5M8 21v-5H3" />,
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
   archive: <><path d="M4 8h16v13H4ZM2 3h20v5H2M9 12h6" /></>,

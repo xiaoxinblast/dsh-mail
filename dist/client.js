@@ -34,7 +34,10 @@ __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
-var import_react4 = __toESM(require("react"), 1);
+var import_react5 = __toESM(require("react"), 1);
+
+// ui/presentation.jsx
+var import_react3 = __toESM(require("react"), 1);
 
 // ui/workbench.jsx
 var import_react2 = __toESM(require("react"), 1);
@@ -45940,475 +45943,531 @@ var l77 = {
 };
 
 // ui/styles.css
-var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:var(--dsw-alias-bg-layer-2);--dm-border:var(--dsw-alias-border-l2);--dm-muted:var(--dsw-alias-label-secondary);--dm-accent:var(--dsw-alias-brand-primary);display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;container-type:inline-size;background:var(--dm-bg);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:1.5;overflow:hidden}\r
-.dsh-mail *{box-sizing:border-box}.dsh-mail button,.dsh-mail input,.dsh-mail select,.dsh-mail textarea{font:inherit;color:inherit;font-size:13px;min-width:0;max-width:100%}.dsh-mail button,.dsh-mail select,.dsh-mail input,.dsh-mail textarea{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-card);padding:7px 10px}.dsh-mail button{cursor:pointer;line-height:1.4;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}.dsh-mail button:hover{background:var(--dsw-alias-interactive-bg-hover)}.dsh-mail button:disabled{opacity:.45;cursor:default}.dsh-mail :is(button,input,select,textarea,summary,a):focus-visible{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail input[type=checkbox]{width:15px;height:15px;padding:0;accent-color:var(--dm-accent);flex:none}.dsh-mail .primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);border-color:transparent}.dsh-mail .danger,.dsh-mail .dm-error-text{color:var(--dsw-alias-state-error-primary)}.dsh-mail h1,.dsh-mail h2,.dsh-mail h3,.dsh-mail p{margin:0;overflow-wrap:anywhere}.dsh-mail h1{font-size:17px;font-weight:650;letter-spacing:-.4px}.dsh-mail h2{font-size:20px;line-height:1.45;letter-spacing:-.4px}.dsh-mail h3{font-size:14px}.dsh-mail p{line-height:1.7}.dsh-mail small,.dsh-mail .dm-muted{font-size:11px;color:var(--dm-muted)}.dsh-mail a{color:var(--dm-accent);overflow-wrap:anywhere}.dsh-mail pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-family:inherit}.dsh-mail textarea{width:100%;min-height:100px;resize:vertical;line-height:1.7}.dsh-mail summary{cursor:pointer}.dsh-mail [hidden]{display:none!important}\r
-.dsh-mail .dm-masthead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px 13px;flex:none}.dsh-mail .dm-brand{display:flex;align-items:center;gap:10px}.dsh-mail .dm-brand>div>span{font-size:10px;color:var(--dm-muted);letter-spacing:1px}.dsh-mail .dm-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--dm-card);border:1px solid var(--dm-border);color:var(--dm-accent);font-size:23px}.dsh-mail .dm-top-actions{display:flex;gap:7px;align-items:center}.dsh-mail .dm-connection{font-size:11px;color:var(--dm-muted);margin-right:7px}.dsh-mail .dm-nav{display:flex;gap:4px;border-bottom:1px solid var(--dm-border);padding:0 20px 9px;flex:none;overflow-x:auto}.dsh-mail .dm-nav>button{border:0;background:transparent;color:var(--dm-muted);gap:7px;padding:7px 12px}.dsh-mail .dm-nav>button[aria-current]{background:var(--dm-card);color:var(--dsw-alias-label-primary);font-weight:600}.dsh-mail .dm-nav small{padding:0 4px}.dsh-mail .dm-content{flex:1;min-height:0;min-width:0;overflow:auto}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar,.dsh-mail .dm-warning{padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--dm-card);font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-alert{color:var(--dsw-alias-state-error-primary);border-left:3px solid currentColor}.dsh-mail .dm-approval-bar{border-left:3px solid var(--dm-accent)}.dsh-mail .dm-assistant{flex:none;display:flex;align-items:center;gap:10px;margin:10px 16px 13px;padding:7px 9px;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card)}.dsh-mail .dm-assistant>span{font-size:23px;color:var(--dm-accent)}.dsh-mail .dm-assistant input{flex:1;border:0;background:transparent;padding:4px}.dsh-mail .dm-assistant button{border:0;background:transparent;font-size:12px}\r
-.dsh-mail .dm-mail-layout{display:grid;grid-template-columns:184px minmax(265px,340px) minmax(310px,1fr);height:100%;min-height:360px}.dsh-mail .dm-folders{padding:15px 10px;overflow:auto;background:var(--dm-card);border-right:1px solid var(--dm-border)}.dsh-mail .dm-folders>button{justify-content:flex-start;width:100%;border:0;background:transparent;text-align:left;margin-bottom:3px;padding:8px}.dsh-mail .dm-folders .selected{background:var(--dsw-alias-interactive-bg-hover);font-weight:600}.dsh-mail .dm-section-label{font-size:10px;color:var(--dm-muted);display:flex;align-items:center;justify-content:space-between;letter-spacing:.5px;margin:12px 0 8px}.dsh-mail .dm-section-label>button{padding:0 5px;border:0;background:transparent}.dsh-mail .dm-folders summary{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 4px;overflow:hidden}.dsh-mail .dm-dot{width:5px;height:5px;border-radius:50%;background:var(--dm-accent);flex:none}.dsh-mail .dm-dot.bad{background:var(--dsw-alias-state-error-primary)}.dsh-mail .dm-folder-row{display:flex;align-items:center}.dsh-mail .dm-folder-row>button{border:0;background:transparent;padding:7px 5px}.dsh-mail .dm-folder-row>button:first-child{flex:1;justify-content:flex-start;min-width:0}.dsh-mail .dm-folder-row>button:first-child>span:nth-child(2){text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.dsh-mail .dm-folder-row small{margin-left:auto}.dsh-mail .dm-list-pane{display:flex;flex-direction:column;border-right:1px solid var(--dm-border);min-height:0;min-width:0}.dsh-mail .dm-list-heading{display:flex;align-items:center;gap:9px;padding:17px 14px 10px}.dsh-mail .dm-list-heading h2{font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-mobile-folder{display:none}.dsh-mail .dm-search{display:flex;align-items:center;margin:0 12px 10px;padding:2px 4px 2px 10px;border:1px solid var(--dm-border);border-radius:8px;gap:3px;background:var(--dm-card)}.dsh-mail .dm-search input{flex:1;padding:6px 4px;background:transparent;border:0;width:0}.dsh-mail .dm-search button{background:transparent;border:0;font-size:11px;padding:5px}.dsh-mail .dm-bulk{display:flex;align-items:center;gap:5px;padding:6px 12px;flex-wrap:wrap;border-top:1px solid var(--dm-border);font-size:11px;color:var(--dm-muted)}.dsh-mail .dm-bulk button{font-size:11px;padding:3px 5px}.dsh-mail .dm-bulk select{flex:1;min-width:100px;font-size:11px}.dsh-mail .dm-message-list{overflow:auto;flex:1;min-height:0}.dsh-mail .dm-message-row{display:flex;align-items:flex-start;gap:6px;padding:13px 10px;border-top:1px solid var(--dm-border);min-width:0}.dsh-mail .dm-message-row>input{margin:4px 0}.dsh-mail .dm-message-row.selected{background:var(--dm-card);box-shadow:inset 3px 0 var(--dm-accent)}.dsh-mail .dm-message{display:block;flex:1;border:0;border-radius:0;background:transparent;text-align:left;min-width:0;padding:0;white-space:normal}.dsh-mail .dm-message-list>button.dm-message{padding:16px;width:100%;border-top:1px solid var(--dm-border)}.dsh-mail .dm-message:hover{background:transparent}.dsh-mail .dm-message-top{display:flex;justify-content:space-between;gap:6px;margin-bottom:6px;align-items:baseline}.dsh-mail .dm-message-top strong{font-weight:500;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-message-top small{flex:none;font-size:10px}.dsh-mail .unread .dm-message-top strong,.dsh-mail .unread h3{font-weight:650}.dsh-mail .dm-message h3{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;margin-bottom:5px}.dsh-mail .dm-message p{color:var(--dm-muted);font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.dsh-mail .dm-message-bottom{display:flex;gap:7px;font-size:10px;color:var(--dm-muted);margin-top:8px;flex-wrap:wrap}.dsh-mail .dm-star{border:0;background:transparent;padding:0 1px;color:var(--dm-accent);font-size:17px}.dsh-mail .dm-pagination{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--dm-border);font-size:10px;gap:5px}.dsh-mail .dm-pagination button{font-size:11px;padding:4px 6px}.dsh-mail .dm-index-status{font-size:10px;padding:6px 12px;background:var(--dm-card)}.dsh-mail .dm-advanced{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px}.dsh-mail .dm-advanced>label:not(.dm-field){display:flex;align-items:center;gap:5px;font-size:11px}.dsh-mail .dm-detail-pane{min-width:0;overflow:auto}.dsh-mail .dm-empty{display:grid;justify-items:center;align-content:center;gap:10px;padding:55px 24px;text-align:center;min-height:260px;height:100%}.dsh-mail .dm-empty-icon{font-size:36px;color:var(--dm-accent);margin-bottom:6px}.dsh-mail .dm-empty h2{font-size:17px}.dsh-mail .dm-empty p{font-size:12px;max-width:340px;color:var(--dm-muted)}.dsh-mail .dm-empty button{margin-top:18px}\r
-.dsh-mail .dm-reader-toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-reader-toolbar button{font-size:11px;padding:5px 7px}.dsh-mail .dm-reader-heading{padding:10px 22px 16px}.dsh-mail .dm-reader-heading h2{margin-bottom:14px}.dsh-mail .dm-reader-heading p{font-size:12px;margin:3px 0}.dsh-mail .dm-reader-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:13px}.dsh-mail .dm-reader-tags button,.dsh-mail .dm-reader-tags input{font-size:10px;padding:4px 6px}.dsh-mail .dm-mail-body{padding:10px 22px}.dsh-mail .dm-mail-body iframe{width:100%;min-height:420px;border:0;background:white;border-radius:4px}.dsh-mail .dm-mail-body pre{margin:0;font-size:14px}.dsh-mail .dm-raw-headers{font:11px/1.6 Consolas,monospace;padding:15px;max-height:250px;overflow:auto;background:var(--dm-card)}.dsh-mail .dm-image-notice{display:flex;justify-content:space-between;gap:8px;padding:8px 22px;font-size:11px;color:var(--dm-muted);align-items:center;background:var(--dm-card)}.dsh-mail .dm-image-notice button{font-size:10px;padding:3px 6px}.dsh-mail .dm-attachments{padding:16px 22px}.dsh-mail .dm-attachments h3{margin-bottom:10px}.dsh-mail .dm-attachment{display:flex;align-items:center;gap:6px;padding:9px 0;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-attachment>div{flex:1;min-width:0}.dsh-mail .dm-attachment strong{display:block;font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-attachment small{display:block}.dsh-mail .dm-attachment button{font-size:11px;padding:4px 6px}\r
-.dsh-mail .dm-compose-fields{display:grid;gap:8px;padding:15px}.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:55px 1fr;align-items:center;gap:10px}.dsh-mail .dm-field{display:grid;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-field>input,.dsh-mail .dm-field>select{width:100%}.dsh-mail .dm-field input,.dsh-mail .dm-field textarea{color:var(--dsw-alias-label-primary)}.dsh-mail .dm-editor-toolbar{display:flex;flex-wrap:wrap;gap:5px;padding:8px 15px;background:var(--dm-card);border-block:1px solid var(--dm-border)}.dsh-mail .dm-editor-toolbar button,.dsh-mail .dm-editor-toolbar select{font-size:11px;padding:4px 7px}.dsh-mail .dm-editor{min-height:230px;padding:16px 22px;font-size:14px;line-height:1.8}.dsh-mail .dm-editor .tiptap{min-height:220px;outline:0}.dsh-mail .dm-editor img{max-width:100%;height:auto}.dsh-mail .dm-plain-editor{min-height:260px;border:0;border-radius:0;padding:18px 22px}.dsh-mail .dm-compose-attachments{display:flex;flex-wrap:wrap;gap:8px;padding:12px 15px}.dsh-mail .dm-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:var(--dm-card);border-radius:5px;font-size:11px;max-width:100%;overflow-wrap:anywhere}.dsh-mail .dm-chip button{border:0;padding:0 4px;background:transparent}.dsh-mail .dm-file-button{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;border:1px solid var(--dm-border);border-radius:6px;padding:6px 9px}.dsh-mail .dm-file-button input[type=file]{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}.dsh-mail .dm-file-button:focus-within{outline:2px solid var(--dm-accent)}.dsh-mail .dm-send-options{display:flex;gap:12px;padding:12px 15px;border-top:1px solid var(--dm-border);flex-wrap:wrap;align-items:end}.dsh-mail .dm-send-options>label{font-size:11px}.dsh-mail .dm-send-options .dm-field{max-width:190px}.dsh-mail .dm-sent-body{padding:18px 22px}\r
-.dsh-mail .dm-page{padding:24px;min-width:0;max-width:1400px;margin:auto}.dsh-mail .dm-page-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}.dsh-mail .dm-page-heading p{font-size:12px;color:var(--dm-muted);margin-top:5px}.dsh-mail .dm-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-mail .dm-tabs{display:flex;gap:6px;margin-bottom:16px}.dsh-mail .dm-tabs button[aria-pressed=true]{background:var(--dm-card);font-weight:650;border-color:var(--dm-accent)}.dsh-mail .dm-task-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail .dm-task-title{border:0;background:transparent;display:grid;text-align:left;justify-content:start;flex:1;min-width:130px;white-space:normal}.dsh-mail .dm-task-title strong{font-weight:500;overflow-wrap:anywhere}.dsh-mail .dm-wide-search{width:100%;margin-bottom:20px}.dsh-mail .dm-contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.dsh-mail .dm-contact{border:1px solid var(--dm-border);border-radius:10px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dsh-mail .dm-contact>div:not(.dm-avatar){flex:1;min-width:0}.dsh-mail .dm-contact h3,.dsh-mail .dm-contact p{overflow-wrap:anywhere}.dsh-mail .dm-contact p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-avatar{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:50%;background:var(--dm-card);color:var(--dm-accent)}.dsh-mail .dm-rule-row,.dsh-mail .dm-account-row,.dsh-mail .dm-activity-row,.dsh-mail .dm-settings-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item)>div:first-of-type{flex:1;min-width:150px;overflow-wrap:anywhere}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item) p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-settings-card{padding:18px;border:1px solid var(--dm-border);border-radius:11px;margin-bottom:16px;background:var(--dm-card)}.dsh-mail .dm-settings-card>h3{margin-bottom:10px}.dsh-mail .dm-settings-card>p{font-size:12px;color:var(--dm-muted);margin:8px 0}.dsh-mail .dm-settings-group{margin:16px 0}.dsh-mail .dm-calendar{margin-bottom:20px;--fc-border-color:var(--dm-border);--fc-page-bg-color:var(--dm-bg);--fc-neutral-bg-color:var(--dm-card);--fc-list-event-hover-bg-color:var(--dm-card);--fc-today-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-bg-color:var(--dm-card);--fc-button-border-color:var(--dm-border);--fc-button-text-color:var(--dsw-alias-label-primary);--fc-button-hover-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-hover-border-color:var(--dm-border);--fc-button-active-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-active-border-color:var(--dm-accent);font-size:12px}.dsh-mail .fc .fc-toolbar-title{font-size:17px}.dsh-mail .fc .fc-button{font-size:11px}.dsh-mail .fc a{color:inherit;text-decoration:none}.dsh-mail .fc .fc-daygrid-event{white-space:normal}.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:8px}\r
-.dsh-mail .dm-dialog{color:inherit;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:14px;width:min(700px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:85vh;margin:auto;padding:0;box-shadow:0 20px 80px #0004}.dsh-mail .dm-dialog::backdrop{background:#0005}.dsh-mail .dm-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:17px 22px;border-bottom:1px solid var(--dm-border);position:sticky;top:0;background:var(--dm-bg);z-index:1}.dsh-mail .dm-dialog>header h2{font-size:17px}.dsh-mail .dm-dialog>header button{border:0;background:transparent;font-size:19px}.dsh-mail .dm-form{display:grid;gap:16px;padding:22px}.dsh-mail .dm-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-mail .dm-form>footer{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}.dsh-mail .dm-form details{padding:12px 0;border-block:1px solid var(--dm-border)}.dsh-mail .dm-form details[open]>summary{margin-bottom:12px}.dsh-mail .dm-form details>.dm-field{margin:10px 0}.dsh-mail .dm-form>label:not(.dm-field){font-size:12px}.dsh-mail .dm-preview-body{white-space:pre-wrap;max-height:240px;overflow:auto;padding:15px;background:var(--dm-card);border-radius:7px;font-size:13px;overflow-wrap:anywhere}.dsh-mail .dm-rule-editor-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px;background:var(--dm-card);border-radius:6px}.dsh-mail .dm-rule-editor-row input{flex:1;min-width:100px}.dsh-mail .dm-image-preview{display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:auto}.dsh-mail .dm-pdf-preview{width:100%;height:65vh;border:0}\r
-@container (max-width:1000px){.dsh-mail .dm-mail-layout{grid-template-columns:150px minmax(230px,300px) minmax(240px,1fr)}.dsh-mail .dm-connection{display:none}.dsh-mail .dm-reader-heading,.dsh-mail .dm-mail-body{padding-inline:16px}.dsh-mail .dm-masthead{padding:13px 16px}.dsh-mail .dm-nav{padding-inline:16px}.dsh-mail .dm-page{padding:18px}}\r
-@container (max-width:800px){.dsh-mail .dm-mail-layout{grid-template-columns: minmax(220px,43%) minmax(240px,57%);position:relative}.dsh-mail .dm-folders{display:none}.dsh-mail .dm-mobile-folder{display:inline-flex;padding:2px 6px;border:0;background:transparent}.dsh-mail .show-folders .dm-folders{display:block;position:absolute;left:0;top:0;bottom:0;width:210px;z-index:2;box-shadow:12px 0 28px #0002}.dsh-mail .dm-top-actions{gap:4px}.dsh-mail .dm-brand>div>span{display:none}.dsh-mail .dm-nav>button{padding:7px 9px}.dsh-mail .dm-calendar .fc-toolbar{flex-wrap:wrap;gap:9px}.dsh-mail .dm-calendar .fc-toolbar-chunk:last-child{width:100%}}\r
-@container (max-width:680px){.dsh-mail .dm-mail-layout{display:block;min-height:0}.dsh-mail .dm-list-pane{height:100%;border:0}.dsh-mail .dm-detail-pane{display:none;height:100%}.dsh-mail .has-detail .dm-list-pane{display:none}.dsh-mail .has-detail .dm-detail-pane{display:block}.dsh-mail .dm-masthead{padding:11px 12px;gap:8px}.dsh-mail .dm-mark{width:29px;height:29px;font-size:19px;border-radius:8px}.dsh-mail .dm-brand{gap:7px}.dsh-mail h1{font-size:15px}.dsh-mail .dm-top-actions button{font-size:11px;padding:5px 7px}.dsh-mail .dm-nav{padding:0 8px 7px;gap:0;justify-content:space-between}.dsh-mail .dm-nav>button{font-size:11px;padding:6px 7px;gap:3px}.dsh-mail .dm-nav>button>span{display:none}.dsh-mail .dm-assistant{margin:8px 10px;padding:6px;gap:5px}.dsh-mail .dm-assistant input{font-size:11px}.dsh-mail .dm-assistant button{font-size:10px;padding:4px}.dsh-mail .dm-page{padding:16px 12px}.dsh-mail .dm-page-heading{gap:10px;margin-bottom:16px}.dsh-mail .dm-page-heading h2{font-size:19px}.dsh-mail .dm-page-heading .dm-inline{gap:5px}.dsh-mail .dm-calendar .fc-toolbar-title{font-size:15px}.dsh-mail .dm-form-grid{grid-template-columns:1fr}.dsh-mail .dm-form{padding:17px;gap:13px}.dsh-mail .dm-task-row{gap:7px}.dsh-mail .dm-task-row>button:not(.dm-task-title){font-size:10px;padding:4px}.dsh-mail .dm-attachment{flex-wrap:wrap}.dsh-mail .dm-attachment>div{min-width:130px}.dsh-mail .dm-reader-toolbar{padding:8px;gap:4px}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar{font-size:11px;padding:8px 10px}.dsh-mail .dm-empty{padding:35px 18px}}\r
+var styles_default = `.dsh-mail{--dm-bg:var(--dsw-alias-bg-layer-1);--dm-card:var(--dsw-alias-bg-layer-2);--dm-border:var(--dsw-alias-border-l2);--dm-muted:var(--dsw-alias-label-secondary);--dm-accent:var(--dsw-alias-brand-primary);display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;container-type:inline-size;background:var(--dm-bg);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:1.5;overflow:hidden}
+.dsh-mail *{box-sizing:border-box}.dsh-mail button,.dsh-mail input,.dsh-mail select,.dsh-mail textarea{font:inherit;color:inherit;font-size:13px;min-width:0;max-width:100%}.dsh-mail button,.dsh-mail select,.dsh-mail input,.dsh-mail textarea{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-card);padding:7px 10px}.dsh-mail button{cursor:pointer;line-height:1.4;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}.dsh-mail button:hover{background:var(--dsw-alias-interactive-bg-hover)}.dsh-mail button:disabled{opacity:.45;cursor:default}.dsh-mail :is(button,input,select,textarea,summary,a):focus-visible{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail input[type=checkbox]{width:15px;height:15px;padding:0;accent-color:var(--dm-accent);flex:none}.dsh-mail .primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);border-color:transparent}.dsh-mail .danger,.dsh-mail .dm-error-text{color:var(--dsw-alias-state-error-primary)}.dsh-mail h1,.dsh-mail h2,.dsh-mail h3,.dsh-mail p{margin:0;overflow-wrap:anywhere}.dsh-mail h1{font-size:17px;font-weight:650;letter-spacing:-.4px}.dsh-mail h2{font-size:20px;line-height:1.45;letter-spacing:-.4px}.dsh-mail h3{font-size:14px}.dsh-mail p{line-height:1.7}.dsh-mail small,.dsh-mail .dm-muted{font-size:11px;color:var(--dm-muted)}.dsh-mail a{color:var(--dm-accent);overflow-wrap:anywhere}.dsh-mail pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;font-family:inherit}.dsh-mail textarea{width:100%;min-height:100px;resize:vertical;line-height:1.7}.dsh-mail summary{cursor:pointer}.dsh-mail [hidden]{display:none!important}
+.dsh-mail .dm-masthead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px 13px;flex:none}.dsh-mail .dm-brand{display:flex;align-items:center;gap:10px}.dsh-mail .dm-brand>div>span{font-size:10px;color:var(--dm-muted);letter-spacing:1px}.dsh-mail .dm-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--dm-card);border:1px solid var(--dm-border);color:var(--dm-accent);font-size:23px}.dsh-mail .dm-top-actions{display:flex;gap:7px;align-items:center}.dsh-mail .dm-connection{font-size:11px;color:var(--dm-muted);margin-right:7px}.dsh-mail .dm-nav{display:flex;gap:4px;border-bottom:1px solid var(--dm-border);padding:0 20px 9px;flex:none;overflow-x:auto}.dsh-mail .dm-nav>button{border:0;background:transparent;color:var(--dm-muted);gap:7px;padding:7px 12px}.dsh-mail .dm-nav>button[aria-current]{background:var(--dm-card);color:var(--dsw-alias-label-primary);font-weight:600}.dsh-mail .dm-nav small{padding:0 4px}.dsh-mail .dm-content{flex:1;min-height:0;min-width:0;overflow:auto}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar,.dsh-mail .dm-warning{padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--dm-card);font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-alert{color:var(--dsw-alias-state-error-primary);border-left:3px solid currentColor}.dsh-mail .dm-approval-bar{border-left:3px solid var(--dm-accent)}.dsh-mail .dm-assistant{flex:none;display:flex;align-items:center;gap:10px;margin:10px 16px 13px;padding:7px 9px;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card)}.dsh-mail .dm-assistant>span{font-size:23px;color:var(--dm-accent)}.dsh-mail .dm-assistant input{flex:1;border:0;background:transparent;padding:4px}.dsh-mail .dm-assistant button{border:0;background:transparent;font-size:12px}
+.dsh-mail .dm-mail-layout{display:grid;grid-template-columns:184px minmax(265px,340px) minmax(310px,1fr);height:100%;min-height:360px}.dsh-mail .dm-folders{padding:15px 10px;overflow:auto;background:var(--dm-card);border-right:1px solid var(--dm-border)}.dsh-mail .dm-folders>button{justify-content:flex-start;width:100%;border:0;background:transparent;text-align:left;margin-bottom:3px;padding:8px}.dsh-mail .dm-folders .selected{background:var(--dsw-alias-interactive-bg-hover);font-weight:600}.dsh-mail .dm-section-label{font-size:10px;color:var(--dm-muted);display:flex;align-items:center;justify-content:space-between;letter-spacing:.5px;margin:12px 0 8px}.dsh-mail .dm-section-label>button{padding:0 5px;border:0;background:transparent}.dsh-mail .dm-folders summary{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:8px 4px;overflow:hidden}.dsh-mail .dm-dot{width:5px;height:5px;border-radius:50%;background:var(--dm-accent);flex:none}.dsh-mail .dm-dot.bad{background:var(--dsw-alias-state-error-primary)}.dsh-mail .dm-folder-row{display:flex;align-items:center}.dsh-mail .dm-folder-row>button{border:0;background:transparent;padding:7px 5px}.dsh-mail .dm-folder-row>button:first-child{flex:1;justify-content:flex-start;min-width:0}.dsh-mail .dm-folder-row>button:first-child>span:nth-child(2){text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.dsh-mail .dm-folder-row small{margin-left:auto}.dsh-mail .dm-list-pane{display:flex;flex-direction:column;border-right:1px solid var(--dm-border);min-height:0;min-width:0}.dsh-mail .dm-list-heading{display:flex;align-items:center;gap:9px;padding:17px 14px 10px}.dsh-mail .dm-list-heading h2{font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-mobile-folder{display:none}.dsh-mail .dm-search{display:flex;align-items:center;margin:0 12px 10px;padding:2px 4px 2px 10px;border:1px solid var(--dm-border);border-radius:8px;gap:3px;background:var(--dm-card)}.dsh-mail .dm-search input{flex:1;padding:6px 4px;background:transparent;border:0;width:0}.dsh-mail .dm-search button{background:transparent;border:0;font-size:11px;padding:5px}.dsh-mail .dm-bulk{display:flex;align-items:center;gap:5px;padding:6px 12px;flex-wrap:wrap;border-top:1px solid var(--dm-border);font-size:11px;color:var(--dm-muted)}.dsh-mail .dm-bulk button{font-size:11px;padding:3px 5px}.dsh-mail .dm-bulk select{flex:1;min-width:100px;font-size:11px}.dsh-mail .dm-message-list{overflow:auto;flex:1;min-height:0}.dsh-mail .dm-message-row{display:flex;align-items:flex-start;gap:6px;padding:13px 10px;border-top:1px solid var(--dm-border);min-width:0}.dsh-mail .dm-message-row>input{margin:4px 0}.dsh-mail .dm-message-row.selected{background:var(--dm-card);box-shadow:inset 3px 0 var(--dm-accent)}.dsh-mail .dm-message{display:block;flex:1;border:0;border-radius:0;background:transparent;text-align:left;min-width:0;padding:0;white-space:normal}.dsh-mail .dm-message-list>button.dm-message{padding:16px;width:100%;border-top:1px solid var(--dm-border)}.dsh-mail .dm-message:hover{background:transparent}.dsh-mail .dm-message-top{display:flex;justify-content:space-between;gap:6px;margin-bottom:6px;align-items:baseline}.dsh-mail .dm-message-top strong{font-weight:500;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .dm-message-top small{flex:none;font-size:10px}.dsh-mail .unread .dm-message-top strong,.dsh-mail .unread h3{font-weight:650}.dsh-mail .dm-message h3{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;margin-bottom:5px}.dsh-mail .dm-message p{color:var(--dm-muted);font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.dsh-mail .dm-message-bottom{display:flex;gap:7px;font-size:10px;color:var(--dm-muted);margin-top:8px;flex-wrap:wrap}.dsh-mail .dm-star{border:0;background:transparent;padding:0 1px;color:var(--dm-accent);font-size:17px}.dsh-mail .dm-pagination{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--dm-border);font-size:10px;gap:5px}.dsh-mail .dm-pagination button{font-size:11px;padding:4px 6px}.dsh-mail .dm-index-status{font-size:10px;padding:6px 12px;background:var(--dm-card)}.dsh-mail .dm-advanced{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px}.dsh-mail .dm-advanced>label:not(.dm-field){display:flex;align-items:center;gap:5px;font-size:11px}.dsh-mail .dm-detail-pane{min-width:0;overflow:auto}.dsh-mail .dm-empty{display:grid;justify-items:center;align-content:center;gap:10px;padding:55px 24px;text-align:center;min-height:260px;height:100%}.dsh-mail .dm-empty-icon{font-size:36px;color:var(--dm-accent);margin-bottom:6px}.dsh-mail .dm-empty h2{font-size:17px}.dsh-mail .dm-empty p{font-size:12px;max-width:340px;color:var(--dm-muted)}.dsh-mail .dm-empty button{margin-top:18px}
+.dsh-mail .dm-reader-toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-reader-toolbar button{font-size:11px;padding:5px 7px}.dsh-mail .dm-reader-heading{padding:10px 22px 16px}.dsh-mail .dm-reader-heading h2{margin-bottom:14px}.dsh-mail .dm-reader-heading p{font-size:12px;margin:3px 0}.dsh-mail .dm-reader-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:13px}.dsh-mail .dm-reader-tags button,.dsh-mail .dm-reader-tags input{font-size:10px;padding:4px 6px}.dsh-mail .dm-mail-body{padding:10px 22px}.dsh-mail .dm-mail-body iframe{width:100%;min-height:420px;border:0;background:white;border-radius:4px}.dsh-mail .dm-mail-body pre{margin:0;font-size:14px}.dsh-mail .dm-raw-headers{font:11px/1.6 Consolas,monospace;padding:15px;max-height:250px;overflow:auto;background:var(--dm-card)}.dsh-mail .dm-image-notice{display:flex;justify-content:space-between;gap:8px;padding:8px 22px;font-size:11px;color:var(--dm-muted);align-items:center;background:var(--dm-card)}.dsh-mail .dm-image-notice button{font-size:10px;padding:3px 6px}.dsh-mail .dm-attachments{padding:16px 22px}.dsh-mail .dm-attachments h3{margin-bottom:10px}.dsh-mail .dm-attachment{display:flex;align-items:center;gap:6px;padding:9px 0;border-bottom:1px solid var(--dm-border)}.dsh-mail .dm-attachment>div{flex:1;min-width:0}.dsh-mail .dm-attachment strong{display:block;font-size:12px;overflow-wrap:anywhere}.dsh-mail .dm-attachment small{display:block}.dsh-mail .dm-attachment button{font-size:11px;padding:4px 6px}
+.dsh-mail .dm-compose-fields{display:grid;gap:8px;padding:15px}.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:55px 1fr;align-items:center;gap:10px}.dsh-mail .dm-field{display:grid;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-field>input,.dsh-mail .dm-field>select{width:100%}.dsh-mail .dm-field input,.dsh-mail .dm-field textarea{color:var(--dsw-alias-label-primary)}.dsh-mail .dm-editor-toolbar{display:flex;flex-wrap:wrap;gap:5px;padding:8px 15px;background:var(--dm-card);border-block:1px solid var(--dm-border)}.dsh-mail .dm-editor-toolbar button,.dsh-mail .dm-editor-toolbar select{font-size:11px;padding:4px 7px}.dsh-mail .dm-editor{min-height:230px;padding:16px 22px;font-size:14px;line-height:1.8}.dsh-mail .dm-editor .tiptap{min-height:220px;outline:0}.dsh-mail .dm-editor img{max-width:100%;height:auto}.dsh-mail .dm-plain-editor{min-height:260px;border:0;border-radius:0;padding:18px 22px}.dsh-mail .dm-compose-attachments{display:flex;flex-wrap:wrap;gap:8px;padding:12px 15px}.dsh-mail .dm-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:var(--dm-card);border-radius:5px;font-size:11px;max-width:100%;overflow-wrap:anywhere}.dsh-mail .dm-chip button{border:0;padding:0 4px;background:transparent}.dsh-mail .dm-file-button{position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;border:1px solid var(--dm-border);border-radius:6px;padding:6px 9px}.dsh-mail .dm-file-button input[type=file]{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}.dsh-mail .dm-file-button:focus-within{outline:2px solid var(--dm-accent)}.dsh-mail .dm-send-options{display:flex;gap:12px;padding:12px 15px;border-top:1px solid var(--dm-border);flex-wrap:wrap;align-items:end}.dsh-mail .dm-send-options>label{font-size:11px}.dsh-mail .dm-send-options .dm-field{max-width:190px}.dsh-mail .dm-sent-body{padding:18px 22px}
+.dsh-mail .dm-page{padding:24px;min-width:0;max-width:1400px;margin:auto}.dsh-mail .dm-page-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}.dsh-mail .dm-page-heading p{font-size:12px;color:var(--dm-muted);margin-top:5px}.dsh-mail .dm-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-mail .dm-tabs{display:flex;gap:6px;margin-bottom:16px}.dsh-mail .dm-tabs button[aria-pressed=true]{background:var(--dm-card);font-weight:650;border-color:var(--dm-accent)}.dsh-mail .dm-task-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail .dm-task-title{border:0;background:transparent;display:grid;text-align:left;justify-content:start;flex:1;min-width:130px;white-space:normal}.dsh-mail .dm-task-title strong{font-weight:500;overflow-wrap:anywhere}.dsh-mail .dm-wide-search{width:100%;margin-bottom:20px}.dsh-mail .dm-contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.dsh-mail .dm-contact{border:1px solid var(--dm-border);border-radius:10px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dsh-mail .dm-contact>div:not(.dm-avatar){flex:1;min-width:0}.dsh-mail .dm-contact h3,.dsh-mail .dm-contact p{overflow-wrap:anywhere}.dsh-mail .dm-contact p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-avatar{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:50%;background:var(--dm-card);color:var(--dm-accent)}.dsh-mail .dm-rule-row,.dsh-mail .dm-account-row,.dsh-mail .dm-activity-row,.dsh-mail .dm-settings-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--dm-border);flex-wrap:wrap}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item)>div:first-of-type{flex:1;min-width:150px;overflow-wrap:anywhere}.dsh-mail :is(.dm-rule-row,.dm-account-row,.dm-activity-row,.dm-settings-item) p{font-size:12px;color:var(--dm-muted)}.dsh-mail .dm-settings-card{padding:18px;border:1px solid var(--dm-border);border-radius:11px;margin-bottom:16px;background:var(--dm-card)}.dsh-mail .dm-settings-card>h3{margin-bottom:10px}.dsh-mail .dm-settings-card>p{font-size:12px;color:var(--dm-muted);margin:8px 0}.dsh-mail .dm-settings-group{margin:16px 0}.dsh-mail .dm-calendar{margin-bottom:20px;--fc-border-color:var(--dm-border);--fc-page-bg-color:var(--dm-bg);--fc-neutral-bg-color:var(--dm-card);--fc-list-event-hover-bg-color:var(--dm-card);--fc-today-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-bg-color:var(--dm-card);--fc-button-border-color:var(--dm-border);--fc-button-text-color:var(--dsw-alias-label-primary);--fc-button-hover-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-hover-border-color:var(--dm-border);--fc-button-active-bg-color:var(--dsw-alias-interactive-bg-hover);--fc-button-active-border-color:var(--dm-accent);font-size:12px}.dsh-mail .fc .fc-toolbar-title{font-size:17px}.dsh-mail .fc .fc-button{font-size:11px}.dsh-mail .fc a{color:inherit;text-decoration:none}.dsh-mail .fc .fc-daygrid-event{white-space:normal}.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:8px}
+.dsh-mail .dm-dialog{color:inherit;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:14px;width:min(700px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:85vh;margin:auto;padding:0;box-shadow:0 20px 80px #0004}.dsh-mail .dm-dialog::backdrop{background:#0005}.dsh-mail .dm-dialog>header{display:flex;align-items:center;justify-content:space-between;padding:17px 22px;border-bottom:1px solid var(--dm-border);position:sticky;top:0;background:var(--dm-bg);z-index:1}.dsh-mail .dm-dialog>header h2{font-size:17px}.dsh-mail .dm-dialog>header button{border:0;background:transparent;font-size:19px}.dsh-mail .dm-form{display:grid;gap:16px;padding:22px}.dsh-mail .dm-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsh-mail .dm-form>footer{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}.dsh-mail .dm-form details{padding:12px 0;border-block:1px solid var(--dm-border)}.dsh-mail .dm-form details[open]>summary{margin-bottom:12px}.dsh-mail .dm-form details>.dm-field{margin:10px 0}.dsh-mail .dm-form>label:not(.dm-field){font-size:12px}.dsh-mail .dm-preview-body{white-space:pre-wrap;max-height:240px;overflow:auto;padding:15px;background:var(--dm-card);border-radius:7px;font-size:13px;overflow-wrap:anywhere}.dsh-mail .dm-rule-editor-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px;background:var(--dm-card);border-radius:6px}.dsh-mail .dm-rule-editor-row input{flex:1;min-width:100px}.dsh-mail .dm-image-preview{display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:auto}.dsh-mail .dm-pdf-preview{width:100%;height:65vh;border:0}
+@container (max-width:1000px){.dsh-mail .dm-mail-layout{grid-template-columns:150px minmax(230px,300px) minmax(240px,1fr)}.dsh-mail .dm-connection{display:none}.dsh-mail .dm-reader-heading,.dsh-mail .dm-mail-body{padding-inline:16px}.dsh-mail .dm-masthead{padding:13px 16px}.dsh-mail .dm-nav{padding-inline:16px}.dsh-mail .dm-page{padding:18px}}
+@container (max-width:800px){.dsh-mail .dm-mail-layout{grid-template-columns: minmax(220px,43%) minmax(240px,57%);position:relative}.dsh-mail .dm-folders{display:none}.dsh-mail .dm-mobile-folder{display:inline-flex;padding:2px 6px;border:0;background:transparent}.dsh-mail .show-folders .dm-folders{display:block;position:absolute;left:0;top:0;bottom:0;width:210px;z-index:2;box-shadow:12px 0 28px #0002}.dsh-mail .dm-top-actions{gap:4px}.dsh-mail .dm-brand>div>span{display:none}.dsh-mail .dm-nav>button{padding:7px 9px}.dsh-mail .dm-calendar .fc-toolbar{flex-wrap:wrap;gap:9px}.dsh-mail .dm-calendar .fc-toolbar-chunk:last-child{width:100%}}
+@container (max-width:680px){.dsh-mail .dm-mail-layout{display:block;min-height:0}.dsh-mail .dm-list-pane{height:100%;border:0}.dsh-mail .dm-detail-pane{display:none;height:100%}.dsh-mail .has-detail .dm-list-pane{display:none}.dsh-mail .has-detail .dm-detail-pane{display:block}.dsh-mail .dm-masthead{padding:11px 12px;gap:8px}.dsh-mail .dm-mark{width:29px;height:29px;font-size:19px;border-radius:8px}.dsh-mail .dm-brand{gap:7px}.dsh-mail h1{font-size:15px}.dsh-mail .dm-top-actions button{font-size:11px;padding:5px 7px}.dsh-mail .dm-nav{padding:0 8px 7px;gap:0;justify-content:space-between}.dsh-mail .dm-nav>button{font-size:11px;padding:6px 7px;gap:3px}.dsh-mail .dm-nav>button>span{display:none}.dsh-mail .dm-assistant{margin:8px 10px;padding:6px;gap:5px}.dsh-mail .dm-assistant input{font-size:11px}.dsh-mail .dm-assistant button{font-size:10px;padding:4px}.dsh-mail .dm-page{padding:16px 12px}.dsh-mail .dm-page-heading{gap:10px;margin-bottom:16px}.dsh-mail .dm-page-heading h2{font-size:19px}.dsh-mail .dm-page-heading .dm-inline{gap:5px}.dsh-mail .dm-calendar .fc-toolbar-title{font-size:15px}.dsh-mail .dm-form-grid{grid-template-columns:1fr}.dsh-mail .dm-form{padding:17px;gap:13px}.dsh-mail .dm-task-row{gap:7px}.dsh-mail .dm-task-row>button:not(.dm-task-title){font-size:10px;padding:4px}.dsh-mail .dm-attachment{flex-wrap:wrap}.dsh-mail .dm-attachment>div{min-width:130px}.dsh-mail .dm-reader-toolbar{padding:8px;gap:4px}.dsh-mail .dm-alert,.dsh-mail .dm-notice,.dsh-mail .dm-approval-bar{font-size:11px;padding:8px 10px}.dsh-mail .dm-empty{padding:35px 18px}}
+
+.dsh-mail .fc .fc-daygrid-event .fc-event-time{white-space:nowrap;flex-shrink:0}.dsh-mail .fc .fc-daygrid-event-dot{flex-shrink:0}.dsh-mail .fc .fc-event-title{min-width:0}
+.dsh-mail .fc .fc-h-event,.dsh-mail .fc .fc-v-event{border-width:0 0 0 4px;border-radius:0}.dsh-mail .fc .fc-h-event .fc-event-main{padding:2px 6px;min-height:22px}.dsh-mail .fc .fc-v-event .fc-event-main{padding:2px 4px}.dsh-mail .fc .fc-daygrid-block-event .fc-event-time,.dsh-mail .fc .fc-daygrid-block-event .fc-event-title{font-weight:500}
+.dsh-mail .dm-event-colors{margin:0;padding:12px;border:1px solid var(--dm-border);border-radius:8px;min-width:0}.dsh-mail .dm-event-colors legend{padding:0 5px}.dsh-mail .dm-color-options{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}.dsh-mail .dm-color-options .dm-color-swatch{width:29px;height:29px;min-width:29px;padding:0;border-radius:50%;border:2px solid transparent;font-size:16px}.dsh-mail .dm-color-options [aria-pressed=true]{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail .dm-color-options .dm-field{display:flex;align-items:center;gap:8px}.dsh-mail .dm-color-options input[type=color]{width:38px;height:30px;padding:2px;cursor:pointer}
+@container (max-width:680px){.dsh-mail .fc .fc-daygrid-event .fc-event-time{display:none}.dsh-mail .fc .fc-daygrid-event .fc-event-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .fc .fc-daygrid-dot-event{padding:3px 0;min-width:0}}
+.dsh-mail .dm-preferences{display:grid;gap:20px}.dsh-mail .dm-preferences fieldset{border:0;padding:0;margin:0;min-width:0}.dsh-mail .dm-preferences legend{font-size:14px;font-weight:600;margin-bottom:12px;padding:0}.dsh-mail .dm-preferences fieldset>p{margin:10px 0 0}.dsh-mail .dm-preferences .dm-check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px}
+
+/* Mailbird-style workspace. Surfaces and text follow the host theme. */
+.dsh-mail{--dm-accent:#2563eb;--dm-blue:color-mix(in srgb,#3b82f6 78%,var(--dsw-alias-label-primary));--dm-hover:color-mix(in srgb,var(--dsw-alias-label-primary) 6%,var(--dm-bg));--dm-selected:color-mix(in srgb,#3b82f6 13%,var(--dm-bg));--dm-soft:color-mix(in srgb,#64748b 5%,var(--dm-bg));flex-direction:row;isolation:isolate}
+.dsh-mail svg{flex-shrink:0;vertical-align:middle}
+.dsh-mail button,.dsh-mail summary,.dsh-mail input,.dsh-mail select,.dsh-mail textarea,.dsh-mail .dm-message-row{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease}
+.dsh-mail button:not(:disabled):hover,.dsh-mail summary:hover{background:var(--dm-hover);border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
+.dsh-mail button:not(:disabled):active{background:var(--dm-selected);box-shadow:inset 0 1px 3px #0002}
+.dsh-mail button:disabled{cursor:not-allowed;box-shadow:none}
+.dsh-mail .primary{background:#2563eb;color:#fff;border-color:transparent;box-shadow:0 2px 5px #2563eb24}
+.dsh-mail .primary:not(:disabled):hover{background:#1d4ed8;color:#fff;border-color:transparent;box-shadow:0 3px 9px #2563eb36}
+.dsh-mail .danger{color:color-mix(in srgb,#ef4444 80%,var(--dsw-alias-label-primary))}
+.dsh-mail .danger:not(:disabled):hover{background:color-mix(in srgb,#ef4444 12%,var(--dm-bg));border-color:#ef444470}
+.dsh-mail input:hover,.dsh-mail select:hover,.dsh-mail textarea:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
+.dsh-mail input:focus,.dsh-mail select:focus,.dsh-mail textarea:focus{border-color:var(--dm-blue)}
+.dsh-mail .dm-rail{width:60px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 5px 12px;background:color-mix(in srgb,#64748b 10%,var(--dm-bg));border-right:1px solid var(--dm-border);overflow-y:auto;scrollbar-width:thin}
+.dsh-mail .dm-rail-brand{display:grid;place-items:center;color:#fff;background:#2563eb;border-radius:12px;width:38px;min-height:38px;box-shadow:0 3px 10px #2563eb30}
+.dsh-mail .dm-rail-pages,.dsh-mail .dm-rail-bottom{display:grid;gap:5px;width:100%}
+.dsh-mail .dm-rail-mail{padding-bottom:12px;border-bottom:1px solid var(--dm-border)}
+.dsh-mail .dm-rail-bottom{margin-top:auto;padding-top:16px}
+.dsh-mail .dm-rail button{position:relative;border:0;background:transparent;color:var(--dm-muted);border-radius:10px;padding:7px 2px;min-height:43px;width:100%;display:flex;flex-direction:column;gap:4px}
+.dsh-mail .dm-rail-caption{font-size:9px;line-height:1.2}
+.dsh-mail .dm-rail button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-accent)}
+.dsh-mail .dm-rail-badge{position:absolute;right:0;top:0;border:2px solid var(--dm-bg);border-radius:10px;background:#2563eb;color:#fff;font-size:9px;font-style:normal;padding:0 4px;min-width:17px;line-height:15px}
+.dsh-mail .dm-workspace{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.dsh-mail .dm-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;border-bottom:1px solid var(--dm-border);flex:none;background:var(--dm-bg)}
+.dsh-mail .dm-workspace-header>div:first-child{min-width:0}
+.dsh-mail .dm-workspace-header h1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsh-mail .dm-eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--dm-muted);display:block;margin-bottom:3px}
+.dsh-mail .dm-connection{display:flex;align-items:center;gap:7px}
+.dsh-mail .dm-dot{background:#16a34a;width:6px;height:6px}
+.dsh-mail .dm-sync.is-busy svg{animation:dm-spin 1.2s linear infinite}
+@keyframes dm-spin{to{transform:rotate(360deg)}}
+.dsh-mail .dm-content{overflow:hidden}
+.dsh-mail .dm-content>.dm-page{height:100%;overflow:auto}
+.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr);height:100%;min-height:0}
+.dsh-mail .dm-pane-divider{position:relative;cursor:col-resize;touch-action:none;background:var(--dm-bg);outline-offset:-1px}
+.dsh-mail .dm-pane-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dm-border);transition:background .15s}
+.dsh-mail .dm-pane-divider:hover::after,.dsh-mail .dm-pane-divider:focus-visible::after,.dsh-mail .dm-resizing .dm-pane-divider::after{background:var(--dm-blue)}
+.dsh-mail .dm-resizing,.dsh-mail .dm-resizing *{cursor:col-resize!important;user-select:none!important}
+.dsh-mail .dm-resizing iframe{pointer-events:none}
+.dsh-mail .dm-folders{display:none;padding:16px 12px;background:var(--dm-soft);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.dsh-mail .dm-folders>button{gap:10px;padding:10px;border-radius:8px;margin-bottom:3px;font-size:12px}
+.dsh-mail .dm-folders>button>svg,.dsh-mail .dm-folder-row>button>svg{color:var(--folder-color,var(--dm-blue));fill:color-mix(in srgb,var(--folder-color,var(--dm-blue)) 12%,transparent)}
+.dsh-mail .dm-folders>button small{margin-left:auto;border-radius:5px;padding:0 5px;background:var(--dm-hover)}
+.dsh-mail .dm-folders .selected{background:var(--dm-selected);color:var(--dsw-alias-label-primary);box-shadow:inset 3px 0 var(--dm-accent);font-weight:600}
+.dsh-mail .dm-folders .dm-section-label{font-size:10px;letter-spacing:.4px;margin:16px 4px 8px;min-height:20px}
+.dsh-mail .dm-folders>.dm-section-label:first-child{margin-top:0}
+.dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}
+.dsh-mail .show-folders .dm-folders{display:block;position:absolute;inset:0 auto 0 0;width:min(300px,calc(100% - 20px));z-index:6;box-shadow:12px 0 30px #0003;background:var(--dm-bg)}
+.dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0003}
+.dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0003}
+.dsh-mail .dm-folder-search{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-bg);color:var(--dm-muted);margin-top:7px}
+.dsh-mail .dm-folder-search:focus-within{border-color:var(--dm-blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--dm-blue) 12%,transparent)}
+.dsh-mail .dm-folder-search input{width:100%;padding:5px 0;border:0;background:transparent;font-size:11px;outline:none}
+.dsh-mail .dm-folder-search button{border:0;padding:3px;background:transparent}
+.dsh-mail .dm-folder-sort{width:100%;margin:7px 0 8px;font-size:11px;padding:6px 8px;background:var(--dm-bg)}
+.dsh-mail .dm-folder-matches{font-size:11px;color:var(--dm-muted);padding:4px 6px 10px}
+.dsh-mail .dm-folders .dm-account-folders>summary{font-size:11px;font-weight:600;gap:8px;padding:12px 6px 6px;min-height:35px;border-radius:6px}
+.dsh-mail .dm-account-folders>summary>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.dsh-mail .dm-account-folders>summary::before{content:'\u203A';font-size:14px;line-height:1;color:var(--dm-muted);transition:transform .15s}
+.dsh-mail .dm-account-folders[open]>summary::before{transform:rotate(90deg)}
+.dsh-mail .dm-account-folders>summary>.dm-dot{margin-left:auto}
+.dsh-mail .dm-folder-row{position:relative;gap:2px;border-radius:7px;flex-wrap:wrap;margin:2px 0}
+.dsh-mail .dm-folder-row:hover,.dsh-mail .dm-folder-row:focus-within{background:var(--dm-hover)}
+.dsh-mail .dm-folder-row>button:first-child{gap:9px;border-radius:7px;padding:9px 7px;font-size:12px}
+.dsh-mail .dm-folder-row small{font-size:10px;font-variant-numeric:tabular-nums;min-width:16px;text-align:right}
+.dsh-mail .dm-menu{position:relative;flex:none;border:0;padding:0}
+.dsh-mail .dm-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;border:1px solid transparent;border-radius:6px;padding:6px;color:var(--dm-muted)}
+.dsh-mail .dm-menu>summary::-webkit-details-marker{display:none}
+.dsh-mail .dm-menu[open]>summary{background:var(--dm-selected);color:var(--dm-blue)}
+.dsh-mail .dm-menu-panel{position:absolute;right:0;top:calc(100% + 5px);z-index:4;width:200px;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:10px;box-shadow:0 10px 30px #0002;padding:7px}
+.dsh-mail .dm-menu-panel>button{justify-content:flex-start;width:100%;border:0;background:transparent;padding:9px 10px;font-size:12px}
+.dsh-mail .dm-folder-actions>summary{padding:7px 4px}
+.dsh-mail .dm-folder-actions[open]{flex-basis:100%;order:2}
+.dsh-mail .dm-folder-actions[open]>summary{position:absolute;right:0;top:-33px}
+.dsh-mail .dm-folder-actions .dm-menu-panel{position:static;width:100%;box-shadow:0 3px 10px #0001;margin:3px 0 6px;padding:8px}
+.dsh-mail .dm-folder-colors{margin:8px 0 0;padding:9px 2px 2px;min-width:0;border:0;border-top:1px solid var(--dm-border)}
+.dsh-mail .dm-folder-colors legend{font-size:11px;padding:0 5px}
+.dsh-mail .dm-folder-colors .dm-color-options{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:5px 0 12px;justify-items:center}
+.dsh-mail .dm-folder-colors .dm-color-swatch{width:25px;height:25px;min-width:25px;color:#fff;border:1px solid #0001;font-size:13px;padding:0;box-shadow:0 0 0 2px var(--dm-bg)}
+.dsh-mail .dm-folder-colors .dm-color-swatch:hover{outline:2px solid var(--dm-blue);outline-offset:2px}
+.dsh-mail .dm-custom-color{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-bottom:9px}
+.dsh-mail .dm-custom-color input{width:42px;height:29px;padding:2px}
+.dsh-mail .dm-folder-colors .dm-inline{gap:4px}
+.dsh-mail .dm-folder-colors .dm-inline button{font-size:10px;padding:5px 7px}
+.dsh-mail .dm-folder-colors p{font-size:10px;margin-top:9px}
+.dsh-mail .dm-list-pane{background:var(--dm-bg);overflow:hidden}
+.dsh-mail .dm-list-heading{padding:19px 17px 13px;min-height:57px}
+.dsh-mail .dm-list-heading h2{font-size:16px;font-weight:650}
+.dsh-mail .dm-count{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--dm-selected);color:var(--dm-blue);font-variant-numeric:tabular-nums}
+.dsh-mail .dm-search{margin:0 14px 12px;background:var(--dm-soft);border-color:transparent;border-radius:9px;padding:5px 8px;color:var(--dm-muted)}
+.dsh-mail .dm-search:focus-within{border-color:var(--dm-blue);background:var(--dm-bg)}
+.dsh-mail .dm-bulk{border-top:0;border-bottom:1px solid var(--dm-border);padding:8px 15px;font-size:10px}
+.dsh-mail .dm-bulk>label{display:flex}
+.dsh-mail .dm-message-row{position:relative;gap:8px;padding:15px 12px;border-top:0;border-bottom:1px solid var(--dm-border);background:transparent}
+.dsh-mail .dm-message-row>input{width:13px;height:13px;margin:9px 0}
+.dsh-mail .dm-message-row:hover{background:var(--dm-hover)}
+.dsh-mail .dm-message-row.selected{background:var(--dm-selected);box-shadow:inset 3px 0 var(--dm-accent)}
+.dsh-mail .dm-message-row .dm-message{align-self:stretch;padding:0}
+.dsh-mail .dm-message-row .dm-message:hover{background:transparent;border-color:transparent}
+.dsh-mail .dm-sender-avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;flex:none;font-size:10px;font-weight:600;background:color-mix(in srgb,var(--avatar-color) 14%,var(--dm-bg));color:color-mix(in srgb,var(--avatar-color) 60%,var(--dsw-alias-label-primary));margin-top:1px}
+.dsh-mail .dm-message-top{gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.dsh-mail .dm-message-top strong{max-width:100%;font-size:12px}
+.dsh-mail .dm-message-top small{font-size:9px;color:var(--dm-muted)}
+.dsh-mail .dm-message h3{font-size:12px;line-height:1.6;margin-bottom:4px}
+.dsh-mail .dm-message p{font-size:11px;-webkit-line-clamp:1}
+.dsh-mail .unread h3::before{content:'';display:inline-block;width:5px;height:5px;background:var(--dm-blue);border-radius:50%;margin:0 5px 2px 0}
+.dsh-mail .dm-message-bottom{gap:5px;font-size:9px;margin-top:8px;align-items:center}
+.dsh-mail .dm-row-actions{display:flex;flex-direction:column;gap:3px;flex:none}
+.dsh-mail .dm-row-actions button{padding:3px;border:0;background:transparent;min-height:23px;color:var(--dm-muted)}
+.dsh-mail .dm-row-actions .is-starred{color:#d97706}
+.dsh-mail .is-starred svg{fill:#fbbf24;stroke:#d97706}
+.dsh-mail .dm-row-quick{display:grid;gap:3px;opacity:0;pointer-events:none;transition:opacity .15s}
+.dsh-mail .dm-message-row:hover .dm-row-quick,.dsh-mail .dm-message-row:focus-within .dm-row-quick{opacity:1;pointer-events:auto}
+.dsh-mail .dm-sent-warning{padding:10px 14px;font-size:11px;display:flex;gap:7px;align-items:center;background:color-mix(in srgb,#f59e0b 12%,var(--dm-bg));border-bottom:1px solid var(--dm-border)}
+.dsh-mail .dm-sent-warning span{flex:1;min-width:0;overflow-wrap:anywhere}
+.dsh-mail .dm-sent-warning button{font-size:10px;padding:4px 7px;flex:none}
+.dsh-mail .dm-detail-pane{background:var(--dm-bg)}
+.dsh-mail .dm-reader{min-height:100%;display:flex;flex-direction:column}
+.dsh-mail .dm-reader>*{flex-shrink:0}
+.dsh-mail .dm-reader-toolbar{position:sticky;top:0;z-index:2;padding:10px 17px;gap:5px;min-height:49px;background:var(--dm-soft)}
+.dsh-mail .dm-reader-toolbar button{background:transparent;border-color:transparent;padding:6px 8px}
+/* Keep draft actions available while scrolling the message editor. */
+.dsh-mail .dm-compose-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;min-height:57px;border-bottom:1px solid var(--dm-border);background:var(--dm-card)}
+.dsh-mail .dm-compose-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;overflow-wrap:anywhere}
+.dsh-mail .dm-compose-toolbar button{font-size:11px;padding:6px 8px}
+.dsh-mail .dm-compose-status>button{background:transparent;border-color:transparent}
+.dsh-mail .dm-compose-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-left:auto}
+.dsh-mail .dm-reader-more{margin-left:auto}
+.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100vw - 110px)}
+.dsh-mail .dm-reader-heading{padding:10px 20px 12px}
+.dsh-mail .dm-reader-heading h2{font-size:20px;line-height:1.4;margin:4px 0 10px;font-weight:650}
+.dsh-mail .dm-reader-tags{margin-top:10px;gap:6px;align-items:center}
+.dsh-mail .dm-reader-tags button{padding:6px 9px;font-size:11px}
+.dsh-mail .dm-snooze-label{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dm-muted);flex-wrap:wrap}
+.dsh-mail .dm-reader-tags input{font-size:10px;max-width:180px}
+.dsh-mail .dm-mail-body{padding:8px 16px 16px;flex:1}
+.dsh-mail .dm-mail-body iframe{display:block;height:180px;min-height:180px}
+.dsh-mail .dm-image-notice{padding:5px 20px}
+.dsh-mail .dm-attachments{padding:12px 20px 20px}
+.dsh-mail .dm-attachment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dsh-mail .dm-attachment-heading h3{margin:0}
+.dsh-mail .dm-attachment-heading h3 .dm-attachment-toggle{padding:3px 0;border:0;background:transparent;font-size:13px;font-weight:650}
+.dsh-mail .dm-attachment-toggle[aria-expanded=true] svg{transform:rotate(90deg)}
+.dsh-mail .dm-attachments.is-collapsed .dm-attachment-heading{margin-bottom:0}
+.dsh-mail .dm-attachment-heading button{font-size:11px;padding:5px 8px}
+.dsh-mail .dm-attachment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}
+.dsh-mail .dm-attachment{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;column-gap:10px;row-gap:4px;min-width:0;border:1px solid var(--dm-border);border-radius:8px;overflow:hidden;padding:8px;background:var(--dm-soft)}
+.dsh-mail .dm-attachment>.dm-attachment-art{grid-row:1 / span 2;min-width:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--file-color) 7%,var(--dm-bg));color:color-mix(in srgb,var(--file-color) 70%,var(--dsw-alias-label-primary));border:1px solid var(--dm-border)}
+.dsh-mail .dm-file-mark{position:relative;display:flex}
+.dsh-mail .dm-file-mark b{position:absolute;left:-3px;bottom:3px;padding:2px 3px;border-radius:3px;background:var(--file-color);color:#fff;font-size:8px;line-height:1.2}
+.dsh-mail .dm-file-type{min-width:0;overflow-wrap:anywhere}
+.dsh-mail .dm-attachment-art img{display:block;width:100%;height:100%;object-fit:contain}
+.dsh-mail .dm-attachment>.dm-attachment-info{padding:0;min-width:0}
+.dsh-mail .dm-attachment-info strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.dsh-mail .dm-attachment-info small{margin-top:2px}
+.dsh-mail .dm-attachment>.dm-attachment-actions{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;padding:0;min-width:0}
+.dsh-mail .dm-empty-icon{display:grid;place-items:center;width:68px;height:68px;border-radius:22px;background:var(--dm-selected);color:var(--dm-blue);font-size:32px}
+.dsh-mail .dm-assistant{margin:12px 18px;padding:8px 11px;border-color:color-mix(in srgb,var(--dm-blue) 23%,var(--dm-border));background:color-mix(in srgb,var(--dm-blue) 3%,var(--dm-bg));border-radius:12px;min-width:0}
+.dsh-mail .dm-assistant>span{color:var(--dm-blue);display:flex}
+.dsh-mail .dm-assistant button{color:var(--dm-blue);border-radius:7px;padding:6px 9px}
+.dsh-mail .dm-page{padding:28px;max-width:1500px}
+.dsh-mail .dm-page-heading{margin-bottom:24px}
+.dsh-mail .dm-contact,.dsh-mail .dm-settings-card{background:var(--dm-soft);border-radius:12px}
+.dsh-mail .dm-contact:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}
+.dsh-mail .dm-avatar{color:var(--dm-blue);background:var(--dm-selected)}
+.dsh-mail .dm-settings-layout{display:grid;grid-template-columns:190px minmax(0,1fr);height:100%;overflow:hidden}
+.dsh-mail .dm-settings-nav{display:flex;flex-direction:column;gap:6px;padding:22px 12px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto}
+.dsh-mail .dm-settings-nav button{justify-content:flex-start;text-align:left;gap:9px;padding:12px 10px;border:0;background:transparent;font-size:12px}
+.dsh-mail .dm-settings-nav button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);font-weight:600}
+.dsh-mail .dm-settings-main{padding:28px;overflow:auto;min-width:0}
+.dsh-mail .dm-settings-main h3{margin:16px 0 10px}
+.dsh-mail .dm-settings-main .dm-preferences h3{margin:0}
+.dsh-mail .dm-settings-item{width:100%;justify-content:flex-start;text-align:left}
+.dsh-mail .dm-notice{background:color-mix(in srgb,#22c55e 9%,var(--dm-bg));border-left:3px solid #16a34a}
+.dsh-mail .dm-dialog{box-shadow:0 24px 80px #0005}
+@container (max-width:1099px){
+  .dsh-mail .dm-mail-layout{grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr)}
+  .dsh-mail .dm-folders{display:none}
+  .dsh-mail .dm-mobile-folder{display:inline-flex;border:0;background:transparent;padding:5px}
+  .dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}
+  .dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0005}
+  .dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0005}
+  .dsh-mail .dm-connection{display:none}
+  .dsh-mail .dm-reader-heading{padding:14px 20px}
+  .dsh-mail .dm-settings-layout{grid-template-columns:160px minmax(0,1fr)}
+  .dsh-mail .dm-settings-main{padding:22px}
+}
+@container (min-width:760px) and (max-width:800px){.dsh-mail .dm-mail-layout{display:grid}.dsh-mail .dm-list-pane,.dsh-mail .dm-detail-pane,.dsh-mail .has-detail .dm-list-pane{display:flex}.dsh-mail .dm-detail-pane{display:block}}
+@container (max-width:759px){
+  .dsh-mail .dm-rail{width:52px;padding:13px 4px 8px;gap:14px}
+  .dsh-mail .dm-rail-brand{width:34px;min-height:34px;border-radius:10px}
+  .dsh-mail .dm-rail button{min-height:44px}
+  .dsh-mail .dm-workspace-header{padding:12px 14px;gap:8px}
+  .dsh-mail .dm-workspace-header h1{font-size:14px}
+  .dsh-mail .dm-top-actions{gap:5px}
+  .dsh-mail .dm-top-actions button{font-size:11px;padding:6px 8px}
+  .dsh-mail .dm-mail-layout{display:block;min-height:0}
+  .dsh-mail .dm-list-pane{height:100%;border-right:0}
+  .dsh-mail .dm-detail-pane{display:none;height:100%}
+  .dsh-mail .has-detail .dm-list-pane{display:none}
+  .dsh-mail .has-detail .dm-detail-pane{display:block}
+  .dsh-mail .dm-list-heading{padding:14px 13px 12px;min-height:52px}
+  .dsh-mail .dm-assistant{margin:9px 11px;padding:7px;gap:7px}
+  .dsh-mail .dm-assistant input{font-size:11px}
+  .dsh-mail .dm-assistant button{font-size:10px;padding:5px}
+  .dsh-mail .dm-settings-layout{display:flex;flex-direction:column}
+  .dsh-mail .dm-settings-nav{flex-direction:row;padding:9px;border-right:0;border-bottom:1px solid var(--dm-border);flex:none}
+  .dsh-mail .dm-settings-nav button{font-size:11px;padding:8px;gap:5px;flex:none}
+  .dsh-mail .dm-settings-main{padding:18px 14px}
+  .dsh-mail .dm-page{padding:18px 14px}
+  .dsh-mail .dm-reader-toolbar{padding:10px 8px;gap:3px}
+  .dsh-mail .dm-reader-toolbar button{font-size:10px;padding:5px 6px}
+  .dsh-mail .dm-reader-heading{padding:12px 18px}
+  .dsh-mail .dm-reader-heading h2{font-size:20px}
+  .dsh-mail .dm-mail-body{padding:12px 18px}
+}
+@media (hover:none){.dsh-mail .dm-row-quick{opacity:1;pointer-events:auto}}
+@media (prefers-reduced-motion:reduce){.dsh-mail *,.dsh-mail *::before{transition:none!important;animation:none!important}}
+
+.dsh-mail .dm-rail button:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 16%,var(--dm-bg));color:var(--dm-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
+.dsh-mail .dm-rail button[aria-current]:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 25%,var(--dm-bg));box-shadow:inset 3px 0 var(--dm-accent),inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}
+.dsh-mail .dm-rail button svg{transition:transform .15s ease}
+.dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}
+.dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}
+.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:18px;height:18px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}
+.dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}
+.dsh-mail .dm-reader-title h2{margin:0;min-width:0}
+.dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
+.dsh-mail .dm-location-chip{padding:3px 7px;border:0;border-radius:12px;background:color-mix(in srgb,var(--folder-color) 16%,var(--dm-bg));color:color-mix(in srgb,var(--folder-color) 60%,var(--dsw-alias-label-primary));font-size:11px;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.dsh-mail .dm-location-chip:not(:disabled):hover{background:color-mix(in srgb,var(--folder-color) 27%,var(--dm-bg))}
+.dsh-mail .dm-add-location{padding:4px 6px;border:0;background:transparent;color:var(--dm-muted);gap:1px}
+.dsh-mail .dm-transfer-mode{display:flex;flex-wrap:wrap;gap:14px;border:1px solid var(--dm-border);border-radius:8px;padding:12px;min-width:0}
+.dsh-mail .dm-transfer-mode legend{padding:0 5px;font-size:12px}
+.dsh-mail .dm-transfer-mode label{display:flex;align-items:center;gap:6px;font-size:12px}
+
+.dsh-mail .dm-calendar-page{position:relative;display:grid;grid-template-columns:220px minmax(0,1fr);height:100%;min-height:0;min-width:0;overflow:hidden}
+.dsh-mail .dm-calendar-sidebar{display:flex;flex-direction:column;min-width:0;gap:14px;padding:18px 14px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto;scrollbar-width:thin}
+.dsh-mail .dm-calendar-sidebar-actions{display:flex;gap:6px;align-items:center}
+.dsh-mail .dm-calendar-sidebar-actions>.primary{flex:1;min-height:36px}
+.dsh-mail .dm-calendar-panel-close,.dsh-mail .dm-calendar-backdrop,.dsh-mail .dm-calendar-mobile-actions{display:none}
+.dsh-mail .dm-mini-calendar header{display:flex;align-items:center;gap:4px;margin:6px 0 12px}
+.dsh-mail .dm-mini-calendar header strong{flex:1;font-size:12px;font-weight:600}
+.dsh-mail .dm-mini-calendar header button{border:0;background:transparent;padding:4px}
+.dsh-mail .dm-mini-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px 0;align-items:center;text-align:center}
+.dsh-mail .dm-mini-grid .dm-mini-weekday{font-size:10px;color:var(--dm-muted);padding:4px 0 8px}
+.dsh-mail .dm-mini-grid button{border:0;background:transparent;padding:0;font-size:11px;width:26px;height:26px;justify-self:center;border-radius:50%}
+.dsh-mail .dm-mini-grid button.outside{color:var(--dm-muted);opacity:.5}
+.dsh-mail .dm-mini-grid button.chosen{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 0 0 0 1px var(--dm-blue)}
+.dsh-mail .dm-mini-grid button[aria-current=date]{background:#2563eb;color:#fff;opacity:1}
+.dsh-mail .dm-calendar-sidebar .dm-section-label{margin:4px 0 0;border-top:1px solid var(--dm-border);padding-top:14px}
+.dsh-mail .dm-calendar-list{display:grid;gap:10px}
+.dsh-mail .dm-calendar-list label{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0}
+.dsh-mail .dm-calendar-list label>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsh-mail .dm-calendar-color{width:9px;height:9px;border-radius:3px;flex:none}
+.dsh-mail .dm-calendar-legend{font-size:10px;color:var(--dm-muted)}
+.dsh-mail .dm-calendar-tools{display:grid;gap:7px;margin-top:auto;padding-top:16px}
+.dsh-mail .dm-calendar-tools :is(button,label){font-size:11px;justify-content:flex-start;border-color:transparent;background:transparent;padding:6px 8px}
+.dsh-mail .dm-calendar-tools>span{font-size:9px;overflow-wrap:anywhere;padding:4px 8px}
+.dsh-mail .dm-calendar-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:16px 18px 12px}
+.dsh-mail .dm-calendar-main>.dm-calendar{flex:1;min-height:0;margin:0;width:100%}
+.dsh-mail .dm-calendar .fc-header-toolbar{margin-bottom:14px;gap:10px}
+.dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{display:flex;align-items:center;gap:10px;min-width:0}
+.dsh-mail .dm-calendar .fc-toolbar-title{font-size:20px;font-weight:600;white-space:nowrap;margin:0}
+.dsh-mail .dm-calendar .fc-button{padding:6px 9px;border-radius:6px}
+.dsh-mail .dm-calendar .fc-col-header-cell-cushion{padding:9px 6px;font-size:12px;font-weight:500}
+.dsh-mail .dm-calendar .fc-col-header-cell{text-align:left}
+.dsh-mail .dm-calendar .fc-daygrid-day-top{flex-direction:row}
+.dsh-mail .dm-calendar .fc-daygrid-day-number{padding:5px 8px;font-size:12px}
+.dsh-mail .dm-calendar .fc-day-today{background:color-mix(in srgb,#3b82f6 4%,var(--dm-bg))}
+.dsh-mail .dm-calendar .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number{border-radius:50%;background:#2563eb;color:#fff;min-width:24px;height:24px;padding:2px 5px;margin:4px;text-align:center}
+.dsh-mail .dm-calendar .fc-h-event .fc-event-main{padding:2px 7px;min-height:24px;font-size:12px}
+.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:0}
+@container (max-width:999px){
+  .dsh-mail .dm-calendar-page{grid-template-columns:minmax(0,1fr)}
+  .dsh-mail .dm-calendar-sidebar{display:none}
+  .dsh-mail .dm-calendar-mobile-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  .dsh-mail .calendar-panel-open .dm-calendar-sidebar{display:flex;position:absolute;inset:0 auto 0 0;width:240px;z-index:6;background:var(--dm-bg);box-shadow:12px 0 30px #0003}
+  .dsh-mail .dm-calendar-panel-close{display:inline-flex;border:0;background:transparent;padding:5px}
+  .dsh-mail .dm-calendar-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;background:#0005;z-index:5}
+  .dsh-mail .dm-calendar-backdrop:not(:disabled):hover{background:#0005}
+}
+@container (max-width:759px){
+  .dsh-mail .dm-calendar-main{padding:12px 8px 8px}
+  .dsh-mail .dm-calendar .fc-header-toolbar{flex-wrap:wrap;gap:10px}
+  .dsh-mail .dm-calendar .fc-toolbar-title{font-size:17px}
+  .dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{gap:7px}
+  .dsh-mail .dm-calendar .fc-button{font-size:10px;padding:5px 7px}
+  .dsh-mail .dm-calendar .fc-col-header-cell-cushion{font-size:10px;padding:7px 2px}
+  .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}
+}
+@media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}
+
+.dsh-mail [data-agent-selected="true"] { outline: 2px solid var(--dm-primary, #2563eb); outline-offset: -2px; }
+
+.dsh-mail .dm-conversation{margin:0 22px 12px;padding:10px 12px;border:1px solid var(--dm-border);border-radius:8px;background:var(--dm-soft);font-size:12px}
+.dsh-mail .dm-conversation summary>span{margin-left:10px;color:var(--dm-muted);font-size:10px}
+.dsh-mail .dm-conversation-items{display:grid;gap:4px;max-height:180px;overflow:auto;margin-top:9px}
+.dsh-mail .dm-conversation-items>button{display:flex;justify-content:flex-start;gap:8px;text-align:left;padding:8px;font-size:11px;background:var(--dm-bg)}
+.dsh-mail .dm-conversation-items>button[aria-current]{background:var(--dm-selected);border-color:var(--dm-blue)}
+.dsh-mail .dm-conversation-sender{flex:0 1 110px;overflow:hidden;text-overflow:ellipsis}
+.dsh-mail .dm-conversation-subject{flex:1;overflow:hidden;text-overflow:ellipsis}
+.dsh-mail .dm-conversation time,.dsh-mail .dm-conversation small{flex:none;font-size:10px;color:var(--dm-muted)}
+@container (max-width:759px){
+  .dsh-mail .dm-conversation{margin-inline:14px}
+  .dsh-mail .dm-conversation summary>span{display:block;margin:4px 0 0}
+  .dsh-mail .dm-conversation-items>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}
+  .dsh-mail .dm-conversation-subject{grid-row:2;grid-column:1 / -1}
+  .dsh-mail .dm-conversation time{grid-row:1;grid-column:2}
+  .dsh-mail .dm-conversation small{grid-row:3;grid-column:1 / -1}
+}
+
+.dsh-mail .dm-addresses{display:inline;overflow-wrap:anywhere}
+.dsh-mail button.dm-person{display:inline;border:0;background:transparent;color:var(--dm-blue);padding:1px 3px;font:inherit;text-align:left;overflow-wrap:anywhere;white-space:normal}
+.dsh-mail button.dm-person:hover{text-decoration:underline;background:var(--dm-soft)}
+.dsh-mail .dm-address-line{line-height:1.6}
+.dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}
+.dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}
+.dsh-mail .dm-person-card .dm-form{padding:16px 0 0}
+.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}
+.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}
+.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}
+.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}
+.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}
+.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}
+.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}
+.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}
+.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}
+.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}
+.dsh-mail .dm-ai-actions small{font-size:11px}
+@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}
+.dsh-mail .dm-reader-sticky{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;background:var(--dm-bg);border-bottom:1px solid var(--dm-border);max-height:42vh;overflow:visible;box-shadow:0 3px 8px #00000008;scrollbar-width:thin}
+.dsh-mail .dm-reader-sticky .dm-reader-toolbar{position:static;min-height:40px;padding-block:6px}
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:8px 20px 10px;overflow:auto;min-height:0;flex:1 1 auto}
+.dsh-mail .dm-reader-sticky .dm-reader-title{margin:4px 0 8px}
+.dsh-mail .dm-reader-sticky h2{font-size:19px;overflow-wrap:anywhere}
+.dsh-mail .dm-reader-sticky .dm-section-label{margin:0;font-size:10px}
+.dsh-mail .dm-reader-sticky .dm-address-line{max-height:4.5em;overflow:auto;overflow-wrap:anywhere}
+.dsh-mail .dm-reader>.dm-reader-tags{padding:10px 20px;margin:0;border-bottom:1px solid var(--dm-border)}
+.dsh-mail .dm-ai-button{color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary));background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));border-color:color-mix(in srgb,#8b5cf6 48%,var(--dm-border));font-weight:600}
+.dsh-mail .dm-ai-button:hover{background:color-mix(in srgb,#8b5cf6 22%,var(--dm-bg))}
+.dsh-mail .dm-ai-button:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}
+.dsh-mail .dm-ai-panel{border-color:color-mix(in srgb,#8b5cf6 35%,var(--dm-border));background:color-mix(in srgb,#8b5cf6 4%,var(--dm-bg))}
+.dsh-mail .dm-ai-panel .dm-ai-edit{min-height:180px;max-height:none;font:inherit;line-height:1.8;padding:14px;background:var(--dm-bg)}
+.dsh-mail .dm-body-label{color:var(--dm-muted);font-size:11px;letter-spacing:.05em;margin:4px 0 12px}
+.dsh-mail .dm-quoted{margin:18px 0;border:1px solid var(--dm-border);border-left:3px solid #8e95a6;border-radius:5px;background:var(--dm-soft);min-width:0}
+.dsh-mail .dm-composer>.dm-quoted{margin:8px 18px 18px}
+.dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}
+.dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}
+.dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}
+.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}
+.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}
+.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}
+.dsh-mail .dm-quoted-message>summary::before{content:"\u25B8"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"\u25BE"}
+.dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}
+.dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}
+.dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}
+@container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}
+
+/* Compact composer keeps the action dock outside the scrolling content. */
+.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}
+.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}
+.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}
+.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}
+.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}
+.dsh-mail .dm-compose-scroll>*{flex-shrink:0}
+.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}
+.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}
+.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}
+.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}
+.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}
+.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}
+.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}
+.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}
+.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}
+.dsh-mail .dm-compose-people summary{cursor:pointer}
+.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}
+.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}
+.dsh-mail .dm-editor-toolbar{align-items:center}
+.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}
+.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}
+.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}
+.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}
+.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}
+.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}
+.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}
+.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}
+.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}
+.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}
+.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}
+.dsh-mail .dm-format-insert select{width:100%}
+.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}
+.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}
+.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}
+.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}
+.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}
+.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}
+.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}
+.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}
+.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}
+.dsh-mail .dm-compose-options{position:static}
+.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}
+.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}
+.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}
+.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}
+.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}
+.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}
+.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}
+.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}
+@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}
+
+.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}
+.dm-app>.dsh-mail{flex:1;min-width:0}
+.dm-agent-panel{box-sizing:border-box;position:relative;flex:0 0 var(--dm-assistant-width,390px);min-width:0;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}
+.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}
+.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}
+.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}
+.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}
+.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}
+.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}
+@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:var(--dm-assistant-width,390px);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}
+/* Mailbird-inspired quiet chrome and a readable message surface. */
+.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}
+.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}
+.dsh-mail .dm-reader-person>div{flex:1;min-width:0}
+.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}
+.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}
+.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}
+.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}
+.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}
+.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}
+.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}
+.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}
+.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}
+.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}
+.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}
+.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}
+.dsh-mail .dm-mail-body{padding:18px 24px}
+.dsh-mail .dm-reader .dm-body-label{display:none}
+.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}
+@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}
+
+/* Reading actions share the subject row; wrap according to the reading pane. */
+.dsh-mail .dm-detail-pane{container:dm-reader / inline-size}
+.dsh-mail .dm-reader-sticky{max-height:none}
+.dsh-mail .dm-reader-sticky .dm-reader-heading{overflow:visible;flex:none}
+.dsh-mail .dm-reader-topline{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start}
+.dsh-mail .dm-reader-topline>button{padding:6px 4px;border-color:transparent;background:transparent}
+.dsh-mail .dm-reader-sticky .dm-reader-title{min-width:0;margin:0;gap:7px}
+.dsh-mail .dm-reader-title h2{max-height:4.35em;overflow:auto;scrollbar-width:thin}
+.dsh-mail .dm-reader-actions{display:flex;align-items:center;justify-content:flex-end;gap:3px;flex-wrap:wrap;min-width:0}
+.dsh-mail .dm-reader-actions>button{font-size:11px;padding:5px 7px;border-color:transparent;background:transparent}
+.dsh-mail .dm-reader-actions .dm-reader-more{margin-left:0}
+.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100cqw - 28px);max-height:min(60vh,440px);overflow:auto}
+@container dm-reader (max-width:700px){.dsh-mail .dm-reader-topline{grid-template-columns:auto minmax(0,1fr);gap:7px}.dsh-mail .dm-reader-actions{grid-column:1/-1}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-reader-actions>button{padding:5px 6px}}
+/* The right pane uses the same captured-pointer divider as the mail list. */
+.dm-agent-panel>.dm-agent-divider{position:absolute;inset:0 auto 0 -3px;width:6px;z-index:2;cursor:col-resize;touch-action:none;outline-offset:-2px}
+.dm-agent-panel>.dm-agent-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dsw-alias-border-l2)}
+.dm-agent-panel>.dm-agent-divider:hover::after,.dm-agent-panel>.dm-agent-divider:focus-visible::after,.dm-app.dm-resizing .dm-agent-divider::after{background:var(--dsw-alias-brand-primary,#2563eb)}
+.dm-agent-panel>.dm-agent-divider:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563eb)}
+.dm-app.dm-resizing,.dm-app.dm-resizing *{cursor:col-resize!important;user-select:none!important}
+.dm-app.dm-resizing iframe{pointer-events:none}
 \r
-.dsh-mail .fc .fc-daygrid-event .fc-event-time{white-space:nowrap;flex-shrink:0}.dsh-mail .fc .fc-daygrid-event-dot{flex-shrink:0}.dsh-mail .fc .fc-event-title{min-width:0}\r
-.dsh-mail .fc .fc-h-event,.dsh-mail .fc .fc-v-event{border-width:0 0 0 4px;border-radius:0}.dsh-mail .fc .fc-h-event .fc-event-main{padding:2px 6px;min-height:22px}.dsh-mail .fc .fc-v-event .fc-event-main{padding:2px 4px}.dsh-mail .fc .fc-daygrid-block-event .fc-event-time,.dsh-mail .fc .fc-daygrid-block-event .fc-event-title{font-weight:500}\r
-.dsh-mail .dm-event-colors{margin:0;padding:12px;border:1px solid var(--dm-border);border-radius:8px;min-width:0}.dsh-mail .dm-event-colors legend{padding:0 5px}.dsh-mail .dm-color-options{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}.dsh-mail .dm-color-options .dm-color-swatch{width:29px;height:29px;min-width:29px;padding:0;border-radius:50%;border:2px solid transparent;font-size:16px}.dsh-mail .dm-color-options [aria-pressed=true]{outline:2px solid var(--dm-accent);outline-offset:2px}.dsh-mail .dm-color-options .dm-field{display:flex;align-items:center;gap:8px}.dsh-mail .dm-color-options input[type=color]{width:38px;height:30px;padding:2px;cursor:pointer}\r
-@container (max-width:680px){.dsh-mail .fc .fc-daygrid-event .fc-event-time{display:none}.dsh-mail .fc .fc-daygrid-event .fc-event-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dsh-mail .fc .fc-daygrid-dot-event{padding:3px 0;min-width:0}}\r
-.dsh-mail .dm-preferences{display:grid;gap:20px}.dsh-mail .dm-preferences fieldset{border:0;padding:0;margin:0;min-width:0}.dsh-mail .dm-preferences legend{font-size:14px;font-weight:600;margin-bottom:12px;padding:0}.dsh-mail .dm-preferences fieldset>p{margin:10px 0 0}.dsh-mail .dm-preferences .dm-check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px}\r
+/* Quiet workspace chrome, with one explicit presentation control. */\r
+.dsh-mail .dm-workspace-header{min-height:64px;padding:12px 20px;gap:12px;border-bottom-color:color-mix(in srgb,var(--dm-border) 80%,transparent)}\r
+.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:650;letter-spacing:-.2px}\r
+.dsh-mail .dm-top-actions{gap:7px}\r
+.dsh-mail .dm-top-actions>button{min-height:34px;border-radius:9px}\r
+.dsh-mail .dm-top-actions .dm-presentation-toggle{padding:7px 8px;border-color:transparent;background:var(--dm-soft);color:var(--dm-muted)}\r
+.dsh-mail .dm-top-actions .dm-presentation-toggle[aria-pressed=true]{background:var(--dm-selected);color:var(--dm-blue)}\r
+.dsh-mail .dm-presentation-toggle[aria-disabled=true]{cursor:progress}\r
+.dsh-mail .dm-presentation-label{font-size:11px}\r
+.dsh-mail .dm-rail{background:color-mix(in srgb,var(--dm-bg) 94%,#7f91b2);border-right-color:color-mix(in srgb,var(--dm-border) 75%,transparent)}\r
+.dsh-mail .dm-list-heading{padding:18px 16px 14px}\r
+.dsh-mail .dm-list-search{border-radius:10px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-border) 55%,transparent)}\r
+.dsh-mail .dm-message-row{border-bottom-color:color-mix(in srgb,var(--dm-border) 65%,transparent)}\r
+.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:16px 24px}\r
+.dsh-mail .dm-reader-sticky h2{font-size:21px;font-weight:650;letter-spacing:-.35px}\r
+.dsh-mail .dm-reader-person{margin-top:15px;gap:11px}\r
+.dsh-mail .dm-reader-person>.dm-sender-avatar{width:36px;height:36px;border-radius:12px}\r
+.dsh-mail .dm-reader-from time{font-size:11px}\r
+.dsh-mail .dm-reader-actions{gap:4px}\r
+.dsh-mail .dm-reader-actions>button{border-radius:7px}\r
+.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 20px;border-bottom:1px solid color-mix(in srgb,var(--dm-border) 70%,transparent)}\r
+.dsh-mail .dm-mail-body{padding:20px 26px}\r
+.dsh-mail .dm-mail-body iframe{border-radius:7px;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-border) 50%,transparent)}\r
+.dm-agent-panel>header{min-height:64px;padding:12px 16px;box-sizing:border-box}\r
+.dm-agent-context{margin:10px 12px 0;border:1px solid var(--dsw-alias-border-l2);border-radius:10px;padding:11px 12px}\r
+.dm-agent-context>small{line-height:1.6}\r
+@container (max-width:759px){.dsh-mail .dm-workspace-header{min-height:58px;padding:10px 12px}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:13px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:14px}}\r
+@container (max-width:420px){.dsh-mail .dm-top-actions{gap:4px}.dsh-mail .dm-top-actions>.dm-ai-button span,.dsh-mail .dm-top-actions>.primary span,.dsh-mail .dm-presentation-label{display:none}.dsh-mail .dm-top-actions>button{padding:6px 8px}}\r
+@media(prefers-reduced-motion:reduce){.dm-app *{transition-duration:0s!important;animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}\r
 \r
-/* Mailbird-style workspace. Surfaces and text follow the host theme. */\r
-.dsh-mail{--dm-accent:#2563eb;--dm-blue:color-mix(in srgb,#3b82f6 78%,var(--dsw-alias-label-primary));--dm-hover:color-mix(in srgb,var(--dsw-alias-label-primary) 6%,var(--dm-bg));--dm-selected:color-mix(in srgb,#3b82f6 13%,var(--dm-bg));--dm-soft:color-mix(in srgb,#64748b 5%,var(--dm-bg));flex-direction:row;isolation:isolate}\r
-.dsh-mail svg{flex-shrink:0;vertical-align:middle}\r
-.dsh-mail button,.dsh-mail summary,.dsh-mail input,.dsh-mail select,.dsh-mail textarea,.dsh-mail .dm-message-row{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease}\r
-.dsh-mail button:not(:disabled):hover,.dsh-mail summary:hover{background:var(--dm-hover);border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
-.dsh-mail button:not(:disabled):active{background:var(--dm-selected);box-shadow:inset 0 1px 3px #0002}\r
-.dsh-mail button:disabled{cursor:not-allowed;box-shadow:none}\r
-.dsh-mail .primary{background:#2563eb;color:#fff;border-color:transparent;box-shadow:0 2px 5px #2563eb24}\r
-.dsh-mail .primary:not(:disabled):hover{background:#1d4ed8;color:#fff;border-color:transparent;box-shadow:0 3px 9px #2563eb36}\r
-.dsh-mail .danger{color:color-mix(in srgb,#ef4444 80%,var(--dsw-alias-label-primary))}\r
-.dsh-mail .danger:not(:disabled):hover{background:color-mix(in srgb,#ef4444 12%,var(--dm-bg));border-color:#ef444470}\r
-.dsh-mail input:hover,.dsh-mail select:hover,.dsh-mail textarea:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
-.dsh-mail input:focus,.dsh-mail select:focus,.dsh-mail textarea:focus{border-color:var(--dm-blue)}\r
-.dsh-mail .dm-rail{width:60px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 5px 12px;background:color-mix(in srgb,#64748b 10%,var(--dm-bg));border-right:1px solid var(--dm-border);overflow-y:auto;scrollbar-width:thin}\r
-.dsh-mail .dm-rail-brand{display:grid;place-items:center;color:#fff;background:#2563eb;border-radius:12px;width:38px;min-height:38px;box-shadow:0 3px 10px #2563eb30}\r
-.dsh-mail .dm-rail-pages,.dsh-mail .dm-rail-bottom{display:grid;gap:5px;width:100%}\r
-.dsh-mail .dm-rail-mail{padding-bottom:12px;border-bottom:1px solid var(--dm-border)}\r
-.dsh-mail .dm-rail-bottom{margin-top:auto;padding-top:16px}\r
-.dsh-mail .dm-rail button{position:relative;border:0;background:transparent;color:var(--dm-muted);border-radius:10px;padding:7px 2px;min-height:43px;width:100%;display:flex;flex-direction:column;gap:4px}\r
-.dsh-mail .dm-rail-caption{font-size:9px;line-height:1.2}\r
-.dsh-mail .dm-rail button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-accent)}\r
-.dsh-mail .dm-rail-badge{position:absolute;right:0;top:0;border:2px solid var(--dm-bg);border-radius:10px;background:#2563eb;color:#fff;font-size:9px;font-style:normal;padding:0 4px;min-width:17px;line-height:15px}\r
-.dsh-mail .dm-workspace{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}\r
-.dsh-mail .dm-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;border-bottom:1px solid var(--dm-border);flex:none;background:var(--dm-bg)}\r
-.dsh-mail .dm-workspace-header>div:first-child{min-width:0}\r
-.dsh-mail .dm-workspace-header h1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\r
-.dsh-mail .dm-eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--dm-muted);display:block;margin-bottom:3px}\r
-.dsh-mail .dm-connection{display:flex;align-items:center;gap:7px}\r
-.dsh-mail .dm-dot{background:#16a34a;width:6px;height:6px}\r
-.dsh-mail .dm-sync.is-busy svg{animation:dm-spin 1.2s linear infinite}\r
-@keyframes dm-spin{to{transform:rotate(360deg)}}\r
-.dsh-mail .dm-content{overflow:hidden}\r
-.dsh-mail .dm-content>.dm-page{height:100%;overflow:auto}\r
-.dsh-mail .dm-mail-layout{position:relative;grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr);height:100%;min-height:0}\r
-.dsh-mail .dm-pane-divider{position:relative;cursor:col-resize;touch-action:none;background:var(--dm-bg);outline-offset:-1px}\r
-.dsh-mail .dm-pane-divider::after{content:'';position:absolute;inset:0 2px;background:var(--dm-border);transition:background .15s}\r
-.dsh-mail .dm-pane-divider:hover::after,.dsh-mail .dm-pane-divider:focus-visible::after,.dsh-mail .dm-resizing .dm-pane-divider::after{background:var(--dm-blue)}\r
-.dsh-mail .dm-resizing,.dsh-mail .dm-resizing *{cursor:col-resize!important;user-select:none!important}\r
-.dsh-mail .dm-resizing iframe{pointer-events:none}\r
-.dsh-mail .dm-folders{display:none;padding:16px 12px;background:var(--dm-soft);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}\r
-.dsh-mail .dm-folders>button{gap:10px;padding:10px;border-radius:8px;margin-bottom:3px;font-size:12px}\r
-.dsh-mail .dm-folders>button>svg,.dsh-mail .dm-folder-row>button>svg{color:var(--folder-color,var(--dm-blue));fill:color-mix(in srgb,var(--folder-color,var(--dm-blue)) 12%,transparent)}\r
-.dsh-mail .dm-folders>button small{margin-left:auto;border-radius:5px;padding:0 5px;background:var(--dm-hover)}\r
-.dsh-mail .dm-folders .selected{background:var(--dm-selected);color:var(--dsw-alias-label-primary);box-shadow:inset 3px 0 var(--dm-accent);font-weight:600}\r
-.dsh-mail .dm-folders .dm-section-label{font-size:10px;letter-spacing:.4px;margin:16px 4px 8px;min-height:20px}\r
-.dsh-mail .dm-folders>.dm-section-label:first-child{margin-top:0}\r
-.dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}\r
-.dsh-mail .show-folders .dm-folders{display:block;position:absolute;inset:0 auto 0 0;width:min(300px,calc(100% - 20px));z-index:6;box-shadow:12px 0 30px #0003;background:var(--dm-bg)}\r
-.dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0003}\r
-.dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0003}\r
-.dsh-mail .dm-folder-search{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-bg);color:var(--dm-muted);margin-top:7px}\r
-.dsh-mail .dm-folder-search:focus-within{border-color:var(--dm-blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--dm-blue) 12%,transparent)}\r
-.dsh-mail .dm-folder-search input{width:100%;padding:5px 0;border:0;background:transparent;font-size:11px;outline:none}\r
-.dsh-mail .dm-folder-search button{border:0;padding:3px;background:transparent}\r
-.dsh-mail .dm-folder-sort{width:100%;margin:7px 0 8px;font-size:11px;padding:6px 8px;background:var(--dm-bg)}\r
-.dsh-mail .dm-folder-matches{font-size:11px;color:var(--dm-muted);padding:4px 6px 10px}\r
-.dsh-mail .dm-folders .dm-account-folders>summary{font-size:11px;font-weight:600;gap:8px;padding:12px 6px 6px;min-height:35px;border-radius:6px}\r
-.dsh-mail .dm-account-folders>summary>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}\r
-.dsh-mail .dm-account-folders>summary::before{content:'\u203A';font-size:14px;line-height:1;color:var(--dm-muted);transition:transform .15s}\r
-.dsh-mail .dm-account-folders[open]>summary::before{transform:rotate(90deg)}\r
-.dsh-mail .dm-account-folders>summary>.dm-dot{margin-left:auto}\r
-.dsh-mail .dm-folder-row{position:relative;gap:2px;border-radius:7px;flex-wrap:wrap;margin:2px 0}\r
-.dsh-mail .dm-folder-row:hover,.dsh-mail .dm-folder-row:focus-within{background:var(--dm-hover)}\r
-.dsh-mail .dm-folder-row>button:first-child{gap:9px;border-radius:7px;padding:9px 7px;font-size:12px}\r
-.dsh-mail .dm-folder-row small{font-size:10px;font-variant-numeric:tabular-nums;min-width:16px;text-align:right}\r
-.dsh-mail .dm-menu{position:relative;flex:none;border:0;padding:0}\r
-.dsh-mail .dm-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;border:1px solid transparent;border-radius:6px;padding:6px;color:var(--dm-muted)}\r
-.dsh-mail .dm-menu>summary::-webkit-details-marker{display:none}\r
-.dsh-mail .dm-menu[open]>summary{background:var(--dm-selected);color:var(--dm-blue)}\r
-.dsh-mail .dm-menu-panel{position:absolute;right:0;top:calc(100% + 5px);z-index:4;width:200px;background:var(--dm-bg);border:1px solid var(--dm-border);border-radius:10px;box-shadow:0 10px 30px #0002;padding:7px}\r
-.dsh-mail .dm-menu-panel>button{justify-content:flex-start;width:100%;border:0;background:transparent;padding:9px 10px;font-size:12px}\r
-.dsh-mail .dm-folder-actions>summary{padding:7px 4px}\r
-.dsh-mail .dm-folder-actions[open]{flex-basis:100%;order:2}\r
-.dsh-mail .dm-folder-actions[open]>summary{position:absolute;right:0;top:-33px}\r
-.dsh-mail .dm-folder-actions .dm-menu-panel{position:static;width:100%;box-shadow:0 3px 10px #0001;margin:3px 0 6px;padding:8px}\r
-.dsh-mail .dm-folder-colors{margin:8px 0 0;padding:9px 2px 2px;min-width:0;border:0;border-top:1px solid var(--dm-border)}\r
-.dsh-mail .dm-folder-colors legend{font-size:11px;padding:0 5px}\r
-.dsh-mail .dm-folder-colors .dm-color-options{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:5px 0 12px;justify-items:center}\r
-.dsh-mail .dm-folder-colors .dm-color-swatch{width:25px;height:25px;min-width:25px;color:#fff;border:1px solid #0001;font-size:13px;padding:0;box-shadow:0 0 0 2px var(--dm-bg)}\r
-.dsh-mail .dm-folder-colors .dm-color-swatch:hover{outline:2px solid var(--dm-blue);outline-offset:2px}\r
-.dsh-mail .dm-custom-color{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-bottom:9px}\r
-.dsh-mail .dm-custom-color input{width:42px;height:29px;padding:2px}\r
-.dsh-mail .dm-folder-colors .dm-inline{gap:4px}\r
-.dsh-mail .dm-folder-colors .dm-inline button{font-size:10px;padding:5px 7px}\r
-.dsh-mail .dm-folder-colors p{font-size:10px;margin-top:9px}\r
-.dsh-mail .dm-list-pane{background:var(--dm-bg);overflow:hidden}\r
-.dsh-mail .dm-list-heading{padding:19px 17px 13px;min-height:57px}\r
-.dsh-mail .dm-list-heading h2{font-size:16px;font-weight:650}\r
-.dsh-mail .dm-count{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--dm-selected);color:var(--dm-blue);font-variant-numeric:tabular-nums}\r
-.dsh-mail .dm-search{margin:0 14px 12px;background:var(--dm-soft);border-color:transparent;border-radius:9px;padding:5px 8px;color:var(--dm-muted)}\r
-.dsh-mail .dm-search:focus-within{border-color:var(--dm-blue);background:var(--dm-bg)}\r
-.dsh-mail .dm-bulk{border-top:0;border-bottom:1px solid var(--dm-border);padding:8px 15px;font-size:10px}\r
-.dsh-mail .dm-bulk>label{display:flex}\r
-.dsh-mail .dm-message-row{position:relative;gap:8px;padding:15px 12px;border-top:0;border-bottom:1px solid var(--dm-border);background:transparent}\r
-.dsh-mail .dm-message-row>input{width:13px;height:13px;margin:9px 0}\r
-.dsh-mail .dm-message-row:hover{background:var(--dm-hover)}\r
-.dsh-mail .dm-message-row.selected{background:var(--dm-selected);box-shadow:inset 3px 0 var(--dm-accent)}\r
-.dsh-mail .dm-message-row .dm-message{align-self:stretch;padding:0}\r
-.dsh-mail .dm-message-row .dm-message:hover{background:transparent;border-color:transparent}\r
-.dsh-mail .dm-sender-avatar{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;flex:none;font-size:10px;font-weight:600;background:color-mix(in srgb,var(--avatar-color) 14%,var(--dm-bg));color:color-mix(in srgb,var(--avatar-color) 60%,var(--dsw-alias-label-primary));margin-top:1px}\r
-.dsh-mail .dm-message-top{gap:5px;margin-bottom:5px;flex-wrap:wrap}\r
-.dsh-mail .dm-message-top strong{max-width:100%;font-size:12px}\r
-.dsh-mail .dm-message-top small{font-size:9px;color:var(--dm-muted)}\r
-.dsh-mail .dm-message h3{font-size:12px;line-height:1.6;margin-bottom:4px}\r
-.dsh-mail .dm-message p{font-size:11px;-webkit-line-clamp:1}\r
-.dsh-mail .unread h3::before{content:'';display:inline-block;width:5px;height:5px;background:var(--dm-blue);border-radius:50%;margin:0 5px 2px 0}\r
-.dsh-mail .dm-message-bottom{gap:5px;font-size:9px;margin-top:8px;align-items:center}\r
-.dsh-mail .dm-row-actions{display:flex;flex-direction:column;gap:3px;flex:none}\r
-.dsh-mail .dm-row-actions button{padding:3px;border:0;background:transparent;min-height:23px;color:var(--dm-muted)}\r
-.dsh-mail .dm-row-actions .is-starred{color:#d97706}\r
-.dsh-mail .is-starred svg{fill:#fbbf24;stroke:#d97706}\r
-.dsh-mail .dm-row-quick{display:grid;gap:3px;opacity:0;pointer-events:none;transition:opacity .15s}\r
-.dsh-mail .dm-message-row:hover .dm-row-quick,.dsh-mail .dm-message-row:focus-within .dm-row-quick{opacity:1;pointer-events:auto}\r
-.dsh-mail .dm-sent-warning{padding:10px 14px;font-size:11px;display:flex;gap:7px;align-items:center;background:color-mix(in srgb,#f59e0b 12%,var(--dm-bg));border-bottom:1px solid var(--dm-border)}\r
-.dsh-mail .dm-sent-warning span{flex:1;min-width:0;overflow-wrap:anywhere}\r
-.dsh-mail .dm-sent-warning button{font-size:10px;padding:4px 7px;flex:none}\r
-.dsh-mail .dm-detail-pane{background:var(--dm-bg)}\r
-.dsh-mail .dm-reader{min-height:100%;display:flex;flex-direction:column}\r
-.dsh-mail .dm-reader>*{flex-shrink:0}\r
-.dsh-mail .dm-reader-toolbar{position:sticky;top:0;z-index:2;padding:10px 17px;gap:5px;min-height:49px;background:var(--dm-soft)}\r
-.dsh-mail .dm-reader-toolbar button{background:transparent;border-color:transparent;padding:6px 8px}\r
-/* Keep draft actions available while scrolling the message editor. */\r
-.dsh-mail .dm-compose-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;min-height:57px;border-bottom:1px solid var(--dm-border);background:var(--dm-card)}\r
-.dsh-mail .dm-compose-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;overflow-wrap:anywhere}\r
-.dsh-mail .dm-compose-toolbar button{font-size:11px;padding:6px 8px}\r
-.dsh-mail .dm-compose-status>button{background:transparent;border-color:transparent}\r
-.dsh-mail .dm-compose-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-left:auto}\r
-.dsh-mail .dm-reader-more{margin-left:auto}\r
-.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100vw - 110px)}\r
-.dsh-mail .dm-reader-heading{padding:10px 20px 12px}\r
-.dsh-mail .dm-reader-heading h2{font-size:20px;line-height:1.4;margin:4px 0 10px;font-weight:650}\r
-.dsh-mail .dm-reader-tags{margin-top:10px;gap:6px;align-items:center}\r
-.dsh-mail .dm-reader-tags button{padding:6px 9px;font-size:11px}\r
-.dsh-mail .dm-snooze-label{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dm-muted);flex-wrap:wrap}\r
-.dsh-mail .dm-reader-tags input{font-size:10px;max-width:180px}\r
-.dsh-mail .dm-mail-body{padding:8px 16px 16px;flex:1}\r
-.dsh-mail .dm-mail-body iframe{display:block;height:180px;min-height:180px}\r
-.dsh-mail .dm-image-notice{padding:5px 20px}\r
-.dsh-mail .dm-attachments{padding:12px 20px 20px}\r
-.dsh-mail .dm-attachment-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}\r
-.dsh-mail .dm-attachment-heading h3{margin:0}\r
-.dsh-mail .dm-attachment-heading h3 .dm-attachment-toggle{padding:3px 0;border:0;background:transparent;font-size:13px;font-weight:650}\r
-.dsh-mail .dm-attachment-toggle[aria-expanded=true] svg{transform:rotate(90deg)}\r
-.dsh-mail .dm-attachments.is-collapsed .dm-attachment-heading{margin-bottom:0}\r
-.dsh-mail .dm-attachment-heading button{font-size:11px;padding:5px 8px}\r
-.dsh-mail .dm-attachment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:8px}\r
-.dsh-mail .dm-attachment{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:start;column-gap:10px;row-gap:4px;min-width:0;border:1px solid var(--dm-border);border-radius:8px;overflow:hidden;padding:8px;background:var(--dm-soft)}\r
-.dsh-mail .dm-attachment>.dm-attachment-art{grid-row:1 / span 2;min-width:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--file-color) 7%,var(--dm-bg));color:color-mix(in srgb,var(--file-color) 70%,var(--dsw-alias-label-primary));border:1px solid var(--dm-border)}\r
-.dsh-mail .dm-file-mark{position:relative;display:flex}\r
-.dsh-mail .dm-file-mark b{position:absolute;left:-3px;bottom:3px;padding:2px 3px;border-radius:3px;background:var(--file-color);color:#fff;font-size:8px;line-height:1.2}\r
-.dsh-mail .dm-file-type{min-width:0;overflow-wrap:anywhere}\r
-.dsh-mail .dm-attachment-art img{display:block;width:100%;height:100%;object-fit:contain}\r
-.dsh-mail .dm-attachment>.dm-attachment-info{padding:0;min-width:0}\r
-.dsh-mail .dm-attachment-info strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}\r
-.dsh-mail .dm-attachment-info small{margin-top:2px}\r
-.dsh-mail .dm-attachment>.dm-attachment-actions{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;padding:0;min-width:0}\r
-.dsh-mail .dm-empty-icon{display:grid;place-items:center;width:68px;height:68px;border-radius:22px;background:var(--dm-selected);color:var(--dm-blue);font-size:32px}\r
-.dsh-mail .dm-assistant{margin:12px 18px;padding:8px 11px;border-color:color-mix(in srgb,var(--dm-blue) 23%,var(--dm-border));background:color-mix(in srgb,var(--dm-blue) 3%,var(--dm-bg));border-radius:12px;min-width:0}\r
-.dsh-mail .dm-assistant>span{color:var(--dm-blue);display:flex}\r
-.dsh-mail .dm-assistant button{color:var(--dm-blue);border-radius:7px;padding:6px 9px}\r
-.dsh-mail .dm-page{padding:28px;max-width:1500px}\r
-.dsh-mail .dm-page-heading{margin-bottom:24px}\r
-.dsh-mail .dm-contact,.dsh-mail .dm-settings-card{background:var(--dm-soft);border-radius:12px}\r
-.dsh-mail .dm-contact:hover{border-color:color-mix(in srgb,var(--dm-blue) 35%,var(--dm-border))}\r
-.dsh-mail .dm-avatar{color:var(--dm-blue);background:var(--dm-selected)}\r
-.dsh-mail .dm-settings-layout{display:grid;grid-template-columns:190px minmax(0,1fr);height:100%;overflow:hidden}\r
-.dsh-mail .dm-settings-nav{display:flex;flex-direction:column;gap:6px;padding:22px 12px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto}\r
-.dsh-mail .dm-settings-nav button{justify-content:flex-start;text-align:left;gap:9px;padding:12px 10px;border:0;background:transparent;font-size:12px}\r
-.dsh-mail .dm-settings-nav button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);font-weight:600}\r
-.dsh-mail .dm-settings-main{padding:28px;overflow:auto;min-width:0}\r
-.dsh-mail .dm-settings-main h3{margin:16px 0 10px}\r
-.dsh-mail .dm-settings-main .dm-preferences h3{margin:0}\r
-.dsh-mail .dm-settings-item{width:100%;justify-content:flex-start;text-align:left}\r
-.dsh-mail .dm-notice{background:color-mix(in srgb,#22c55e 9%,var(--dm-bg));border-left:3px solid #16a34a}\r
-.dsh-mail .dm-dialog{box-shadow:0 24px 80px #0005}\r
-@container (max-width:1099px){\r
-  .dsh-mail .dm-mail-layout{grid-template-columns:var(--dm-list-width,340px) 6px minmax(300px,1fr)}\r
-  .dsh-mail .dm-folders{display:none}\r
-  .dsh-mail .dm-mobile-folder{display:inline-flex;border:0;background:transparent;padding:5px}\r
-  .dsh-mail .dm-folder-close{display:inline-flex;border:0;background:transparent;padding:3px}\r
-  .dsh-mail .dm-folder-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;z-index:5;background:#0005}\r
-  .dsh-mail .dm-folder-backdrop:not(:disabled):hover{background:#0005}\r
-  .dsh-mail .dm-connection{display:none}\r
-  .dsh-mail .dm-reader-heading{padding:14px 20px}\r
-  .dsh-mail .dm-settings-layout{grid-template-columns:160px minmax(0,1fr)}\r
-  .dsh-mail .dm-settings-main{padding:22px}\r
-}\r
-@container (min-width:760px) and (max-width:800px){.dsh-mail .dm-mail-layout{display:grid}.dsh-mail .dm-list-pane,.dsh-mail .dm-detail-pane,.dsh-mail .has-detail .dm-list-pane{display:flex}.dsh-mail .dm-detail-pane{display:block}}\r
-@container (max-width:759px){\r
-  .dsh-mail .dm-rail{width:52px;padding:13px 4px 8px;gap:14px}\r
-  .dsh-mail .dm-rail-brand{width:34px;min-height:34px;border-radius:10px}\r
-  .dsh-mail .dm-rail button{min-height:44px}\r
-  .dsh-mail .dm-workspace-header{padding:12px 14px;gap:8px}\r
-  .dsh-mail .dm-workspace-header h1{font-size:14px}\r
-  .dsh-mail .dm-top-actions{gap:5px}\r
-  .dsh-mail .dm-top-actions button{font-size:11px;padding:6px 8px}\r
-  .dsh-mail .dm-mail-layout{display:block;min-height:0}\r
-  .dsh-mail .dm-list-pane{height:100%;border-right:0}\r
-  .dsh-mail .dm-detail-pane{display:none;height:100%}\r
-  .dsh-mail .has-detail .dm-list-pane{display:none}\r
-  .dsh-mail .has-detail .dm-detail-pane{display:block}\r
-  .dsh-mail .dm-list-heading{padding:14px 13px 12px;min-height:52px}\r
-  .dsh-mail .dm-assistant{margin:9px 11px;padding:7px;gap:7px}\r
-  .dsh-mail .dm-assistant input{font-size:11px}\r
-  .dsh-mail .dm-assistant button{font-size:10px;padding:5px}\r
-  .dsh-mail .dm-settings-layout{display:flex;flex-direction:column}\r
-  .dsh-mail .dm-settings-nav{flex-direction:row;padding:9px;border-right:0;border-bottom:1px solid var(--dm-border);flex:none}\r
-  .dsh-mail .dm-settings-nav button{font-size:11px;padding:8px;gap:5px;flex:none}\r
-  .dsh-mail .dm-settings-main{padding:18px 14px}\r
-  .dsh-mail .dm-page{padding:18px 14px}\r
-  .dsh-mail .dm-reader-toolbar{padding:10px 8px;gap:3px}\r
-  .dsh-mail .dm-reader-toolbar button{font-size:10px;padding:5px 6px}\r
-  .dsh-mail .dm-reader-heading{padding:12px 18px}\r
-  .dsh-mail .dm-reader-heading h2{font-size:20px}\r
-  .dsh-mail .dm-mail-body{padding:12px 18px}\r
-}\r
-@media (hover:none){.dsh-mail .dm-row-quick{opacity:1;pointer-events:auto}}\r
-@media (prefers-reduced-motion:reduce){.dsh-mail *,.dsh-mail *::before{transition:none!important;animation:none!important}}\r
-\r
-.dsh-mail .dm-rail button:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 16%,var(--dm-bg));color:var(--dm-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}\r
-.dsh-mail .dm-rail button[aria-current]:not(:disabled):hover{background:color-mix(in srgb,#3b82f6 25%,var(--dm-bg));box-shadow:inset 3px 0 var(--dm-accent),inset 0 0 0 1px color-mix(in srgb,var(--dm-blue) 25%,transparent)}\r
-.dsh-mail .dm-rail button svg{transition:transform .15s ease}\r
-.dsh-mail .dm-rail button:not(:disabled):hover svg{transform:translateY(-1px) scale(1.08)}\r
-.dsh-mail .dm-rail button:not(:disabled):active svg{transform:scale(.96)}\r
-.dsh-mail .dm-folder-corner{position:absolute;top:0;right:0;width:18px;height:18px;background:var(--folder-color);clip-path:polygon(0 0,100% 0,100% 100%);z-index:1}\r
-.dsh-mail .dm-reader-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 16px}\r
-.dsh-mail .dm-reader-title h2{margin:0;min-width:0}\r
-.dsh-mail .dm-location-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}\r
-.dsh-mail .dm-location-chip{padding:3px 7px;border:0;border-radius:12px;background:color-mix(in srgb,var(--folder-color) 16%,var(--dm-bg));color:color-mix(in srgb,var(--folder-color) 60%,var(--dsw-alias-label-primary));font-size:11px;max-width:230px;overflow:hidden;text-overflow:ellipsis}\r
-.dsh-mail .dm-location-chip:not(:disabled):hover{background:color-mix(in srgb,var(--folder-color) 27%,var(--dm-bg))}\r
-.dsh-mail .dm-add-location{padding:4px 6px;border:0;background:transparent;color:var(--dm-muted);gap:1px}\r
-.dsh-mail .dm-transfer-mode{display:flex;flex-wrap:wrap;gap:14px;border:1px solid var(--dm-border);border-radius:8px;padding:12px;min-width:0}\r
-.dsh-mail .dm-transfer-mode legend{padding:0 5px;font-size:12px}\r
-.dsh-mail .dm-transfer-mode label{display:flex;align-items:center;gap:6px;font-size:12px}\r
-\r
-.dsh-mail .dm-calendar-page{position:relative;display:grid;grid-template-columns:220px minmax(0,1fr);height:100%;min-height:0;min-width:0;overflow:hidden}\r
-.dsh-mail .dm-calendar-sidebar{display:flex;flex-direction:column;min-width:0;gap:14px;padding:18px 14px;background:var(--dm-soft);border-right:1px solid var(--dm-border);overflow:auto;scrollbar-width:thin}\r
-.dsh-mail .dm-calendar-sidebar-actions{display:flex;gap:6px;align-items:center}\r
-.dsh-mail .dm-calendar-sidebar-actions>.primary{flex:1;min-height:36px}\r
-.dsh-mail .dm-calendar-panel-close,.dsh-mail .dm-calendar-backdrop,.dsh-mail .dm-calendar-mobile-actions{display:none}\r
-.dsh-mail .dm-mini-calendar header{display:flex;align-items:center;gap:4px;margin:6px 0 12px}\r
-.dsh-mail .dm-mini-calendar header strong{flex:1;font-size:12px;font-weight:600}\r
-.dsh-mail .dm-mini-calendar header button{border:0;background:transparent;padding:4px}\r
-.dsh-mail .dm-mini-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px 0;align-items:center;text-align:center}\r
-.dsh-mail .dm-mini-grid .dm-mini-weekday{font-size:10px;color:var(--dm-muted);padding:4px 0 8px}\r
-.dsh-mail .dm-mini-grid button{border:0;background:transparent;padding:0;font-size:11px;width:26px;height:26px;justify-self:center;border-radius:50%}\r
-.dsh-mail .dm-mini-grid button.outside{color:var(--dm-muted);opacity:.5}\r
-.dsh-mail .dm-mini-grid button.chosen{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 0 0 0 1px var(--dm-blue)}\r
-.dsh-mail .dm-mini-grid button[aria-current=date]{background:#2563eb;color:#fff;opacity:1}\r
-.dsh-mail .dm-calendar-sidebar .dm-section-label{margin:4px 0 0;border-top:1px solid var(--dm-border);padding-top:14px}\r
-.dsh-mail .dm-calendar-list{display:grid;gap:10px}\r
-.dsh-mail .dm-calendar-list label{display:flex;align-items:center;gap:7px;font-size:12px;min-width:0}\r
-.dsh-mail .dm-calendar-list label>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
-.dsh-mail .dm-calendar-color{width:9px;height:9px;border-radius:3px;flex:none}\r
-.dsh-mail .dm-calendar-legend{font-size:10px;color:var(--dm-muted)}\r
-.dsh-mail .dm-calendar-tools{display:grid;gap:7px;margin-top:auto;padding-top:16px}\r
-.dsh-mail .dm-calendar-tools :is(button,label){font-size:11px;justify-content:flex-start;border-color:transparent;background:transparent;padding:6px 8px}\r
-.dsh-mail .dm-calendar-tools>span{font-size:9px;overflow-wrap:anywhere;padding:4px 8px}\r
-.dsh-mail .dm-calendar-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;padding:16px 18px 12px}\r
-.dsh-mail .dm-calendar-main>.dm-calendar{flex:1;min-height:0;margin:0;width:100%}\r
-.dsh-mail .dm-calendar .fc-header-toolbar{margin-bottom:14px;gap:10px}\r
-.dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{display:flex;align-items:center;gap:10px;min-width:0}\r
-.dsh-mail .dm-calendar .fc-toolbar-title{font-size:20px;font-weight:600;white-space:nowrap;margin:0}\r
-.dsh-mail .dm-calendar .fc-button{padding:6px 9px;border-radius:6px}\r
-.dsh-mail .dm-calendar .fc-col-header-cell-cushion{padding:9px 6px;font-size:12px;font-weight:500}\r
-.dsh-mail .dm-calendar .fc-col-header-cell{text-align:left}\r
-.dsh-mail .dm-calendar .fc-daygrid-day-top{flex-direction:row}\r
-.dsh-mail .dm-calendar .fc-daygrid-day-number{padding:5px 8px;font-size:12px}\r
-.dsh-mail .dm-calendar .fc-day-today{background:color-mix(in srgb,#3b82f6 4%,var(--dm-bg))}\r
-.dsh-mail .dm-calendar .fc-dayGridMonth-view .fc-day-today .fc-daygrid-day-number{border-radius:50%;background:#2563eb;color:#fff;min-width:24px;height:24px;padding:2px 5px;margin:4px;text-align:center}\r
-.dsh-mail .dm-calendar .fc-h-event .fc-event-main{padding:2px 7px;min-height:24px;font-size:12px}\r
-.dsh-mail .dm-calendar .fc-scrollgrid{border-radius:0}\r
-@container (max-width:999px){\r
-  .dsh-mail .dm-calendar-page{grid-template-columns:minmax(0,1fr)}\r
-  .dsh-mail .dm-calendar-sidebar{display:none}\r
-  .dsh-mail .dm-calendar-mobile-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}\r
-  .dsh-mail .calendar-panel-open .dm-calendar-sidebar{display:flex;position:absolute;inset:0 auto 0 0;width:240px;z-index:6;background:var(--dm-bg);box-shadow:12px 0 30px #0003}\r
-  .dsh-mail .dm-calendar-panel-close{display:inline-flex;border:0;background:transparent;padding:5px}\r
-  .dsh-mail .dm-calendar-backdrop{display:block;position:absolute;inset:0;border:0;border-radius:0;background:#0005;z-index:5}\r
-  .dsh-mail .dm-calendar-backdrop:not(:disabled):hover{background:#0005}\r
-}\r
-@container (max-width:759px){\r
-  .dsh-mail .dm-calendar-main{padding:12px 8px 8px}\r
-  .dsh-mail .dm-calendar .fc-header-toolbar{flex-wrap:wrap;gap:10px}\r
-  .dsh-mail .dm-calendar .fc-toolbar-title{font-size:17px}\r
-  .dsh-mail .dm-calendar .fc-toolbar-chunk:first-child{gap:7px}\r
-  .dsh-mail .dm-calendar .fc-button{font-size:10px;padding:5px 7px}\r
-  .dsh-mail .dm-calendar .fc-col-header-cell-cushion{font-size:10px;padding:7px 2px}\r
-  .dsh-mail .dm-calendar .fc-h-event .fc-event-main{font-size:10px;padding:2px 3px;min-height:20px}\r
-}\r
-@media (prefers-reduced-motion:reduce){.dsh-mail .dm-rail button:not(:disabled):hover svg,.dsh-mail .dm-rail button:not(:disabled):active svg{transform:none}}\r
-\r
-.dsh-mail [data-agent-selected="true"] { outline: 2px solid var(--dm-primary, #2563eb); outline-offset: -2px; }\r
-\r
-.dsh-mail .dm-conversation{margin:0 22px 12px;padding:10px 12px;border:1px solid var(--dm-border);border-radius:8px;background:var(--dm-soft);font-size:12px}\r
-.dsh-mail .dm-conversation summary>span{margin-left:10px;color:var(--dm-muted);font-size:10px}\r
-.dsh-mail .dm-conversation-items{display:grid;gap:4px;max-height:180px;overflow:auto;margin-top:9px}\r
-.dsh-mail .dm-conversation-items>button{display:flex;justify-content:flex-start;gap:8px;text-align:left;padding:8px;font-size:11px;background:var(--dm-bg)}\r
-.dsh-mail .dm-conversation-items>button[aria-current]{background:var(--dm-selected);border-color:var(--dm-blue)}\r
-.dsh-mail .dm-conversation-sender{flex:0 1 110px;overflow:hidden;text-overflow:ellipsis}\r
-.dsh-mail .dm-conversation-subject{flex:1;overflow:hidden;text-overflow:ellipsis}\r
-.dsh-mail .dm-conversation time,.dsh-mail .dm-conversation small{flex:none;font-size:10px;color:var(--dm-muted)}\r
-@container (max-width:759px){\r
-  .dsh-mail .dm-conversation{margin-inline:14px}\r
-  .dsh-mail .dm-conversation summary>span{display:block;margin:4px 0 0}\r
-  .dsh-mail .dm-conversation-items>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}\r
-  .dsh-mail .dm-conversation-subject{grid-row:2;grid-column:1 / -1}\r
-  .dsh-mail .dm-conversation time{grid-row:1;grid-column:2}\r
-  .dsh-mail .dm-conversation small{grid-row:3;grid-column:1 / -1}\r
-}\r
-\r
-.dsh-mail .dm-addresses{display:inline;overflow-wrap:anywhere}\r
-.dsh-mail button.dm-person{display:inline;border:0;background:transparent;color:var(--dm-blue);padding:1px 3px;font:inherit;text-align:left;overflow-wrap:anywhere;white-space:normal}\r
-.dsh-mail button.dm-person:hover{text-decoration:underline;background:var(--dm-soft)}\r
-.dsh-mail .dm-address-line{line-height:1.6}\r
-.dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}\r
-.dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}\r
-.dsh-mail .dm-person-card .dm-form{padding:16px 0 0}\r
-.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}\r
-.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}\r
-.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}\r
-.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}\r
-.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}\r
-.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}\r
-.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}\r
-.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}\r
-.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}\r
-.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}\r
-.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}\r
-.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}\r
-.dsh-mail .dm-ai-actions small{font-size:11px}\r
-@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}\r
-.dsh-mail .dm-reader-sticky{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;background:var(--dm-bg);border-bottom:1px solid var(--dm-border);max-height:42vh;overflow:visible;box-shadow:0 3px 8px #00000008;scrollbar-width:thin}\r
-.dsh-mail .dm-reader-sticky .dm-reader-toolbar{position:static;min-height:40px;padding-block:6px}\r
-.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:8px 20px 10px;overflow:auto;min-height:0;flex:1 1 auto}\r
-.dsh-mail .dm-reader-sticky .dm-reader-title{margin:4px 0 8px}\r
-.dsh-mail .dm-reader-sticky h2{font-size:19px;overflow-wrap:anywhere}\r
-.dsh-mail .dm-reader-sticky .dm-section-label{margin:0;font-size:10px}\r
-.dsh-mail .dm-reader-sticky .dm-address-line{max-height:4.5em;overflow:auto;overflow-wrap:anywhere}\r
-.dsh-mail .dm-reader>.dm-reader-tags{padding:10px 20px;margin:0;border-bottom:1px solid var(--dm-border)}\r
-.dsh-mail .dm-ai-button{color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary));background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));border-color:color-mix(in srgb,#8b5cf6 48%,var(--dm-border));font-weight:600}\r
-.dsh-mail .dm-ai-button:hover{background:color-mix(in srgb,#8b5cf6 22%,var(--dm-bg))}\r
-.dsh-mail .dm-ai-button:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}\r
-.dsh-mail .dm-ai-panel{border-color:color-mix(in srgb,#8b5cf6 35%,var(--dm-border));background:color-mix(in srgb,#8b5cf6 4%,var(--dm-bg))}\r
-.dsh-mail .dm-ai-panel .dm-ai-edit{min-height:180px;max-height:none;font:inherit;line-height:1.8;padding:14px;background:var(--dm-bg)}\r
-.dsh-mail .dm-body-label{color:var(--dm-muted);font-size:11px;letter-spacing:.05em;margin:4px 0 12px}\r
-.dsh-mail .dm-quoted{margin:18px 0;border:1px solid var(--dm-border);border-left:3px solid #8e95a6;border-radius:5px;background:var(--dm-soft);min-width:0}\r
-.dsh-mail .dm-composer>.dm-quoted{margin:8px 18px 18px}\r
-.dsh-mail .dm-quoted>summary{padding:10px 12px;cursor:pointer;color:var(--dm-muted);font-weight:600;font-size:12px}\r
-.dsh-mail .dm-quoted pre{padding:12px;margin:0;color:var(--dm-muted);white-space:pre-wrap;overflow-wrap:anywhere;max-height:400px;overflow:auto}\r
-.dsh-mail .dm-quoted iframe{display:block;width:100%;height:260px;border:0;border-top:1px solid var(--dm-border)}\r
-.dsh-mail .dm-quoted-message{border-left:4px solid #8b5cf6;margin-block:26px;background:color-mix(in srgb,#8b5cf6 5%,var(--dm-bg))}\r
-.dsh-mail .dm-quoted-message>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));color:color-mix(in srgb,#8b5cf6 45%,var(--dsw-alias-label-primary));border-bottom:1px solid var(--dm-border);padding:12px 14px}\r
-.dsh-mail .dm-quoted-message>summary>span{font-size:11px;font-weight:400;margin-left:auto}\r
-.dsh-mail .dm-quoted-message>summary::before{content:"\u25B8"}.dsh-mail .dm-quoted-message[open]>summary::before{content:"\u25BE"}\r
-.dsh-mail .dm-editor .tiptap blockquote{border-left:3px solid #8e95a6;margin:16px 0;padding:8px 14px;background:var(--dm-soft)}\r
-.dsh-mail .dm-send-limit{font-size:12px;line-height:1.7;color:var(--dm-muted);padding:0 18px 12px;overflow-wrap:anywhere}\r
-.dsh-mail .dm-send-options .dm-field{max-width:100%;flex:1 1 190px}\r
-@container (max-width:759px){.dsh-mail .dm-reader-sticky{max-height:38vh}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:6px 12px}.dsh-mail .dm-reader-sticky h2{font-size:16px}.dsh-mail .dm-reader-title{gap:4px}.dsh-mail .dm-reader>.dm-reader-tags{padding:8px 12px}.dsh-mail .dm-compose-actions{margin-left:0}.dsh-mail .dm-compose-toolbar{position:static}.dsh-mail .dm-quoted iframe{height:210px}}\r
-\r
-/* Compact composer keeps the action dock outside the scrolling content. */\r
-.dsh-mail .dm-composer{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}\r
-.dsh-mail .dm-compose-toolbar{position:relative;flex:none;min-height:44px;padding:6px 14px;background:var(--dm-bg);flex-wrap:nowrap}\r
-.dsh-mail .dm-compose-status{flex:1;flex-wrap:nowrap;overflow:hidden;font-size:12px}\r
-.dsh-mail .dm-compose-status .dm-muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}\r
-.dsh-mail .dm-compose-actions{margin-left:auto;flex-wrap:nowrap}\r
-.dsh-mail .dm-compose-actions button{border-color:transparent;background:transparent}\r
-.dsh-mail .dm-compose-scroll{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin}\r
-.dsh-mail .dm-compose-scroll>*{flex-shrink:0}\r
-.dsh-mail .dm-compose-fields{gap:0;padding:4px 18px 0}\r
-.dsh-mail .dm-compose-fields>.dm-field,.dsh-mail .dm-compose-recipient-row{border-bottom:1px solid var(--dm-border);min-height:36px}\r
-.dsh-mail .dm-compose-fields .dm-field{grid-template-columns:44px minmax(0,1fr);gap:8px}\r
-.dsh-mail .dm-compose-fields input,.dsh-mail .dm-compose-fields select{border-color:transparent;background:transparent;padding:6px;font-size:12px;min-width:0}\r
-.dsh-mail .dm-compose-fields input:focus,.dsh-mail .dm-compose-fields select:focus{border-color:var(--dm-accent)}\r
-.dsh-mail .dm-compose-recipient-row{display:flex;align-items:center;gap:4px}\r
-.dsh-mail .dm-compose-recipient-row>.dm-field{flex:1;min-width:0}\r
-.dsh-mail .dm-compose-recipient-row>button{border:0;background:transparent;font-size:10px;padding:5px;flex:none;color:var(--dm-muted)}\r
-.dsh-mail .dm-compose-people{padding:3px 20px 5px;font-size:10px;color:var(--dm-muted)}\r
-.dsh-mail .dm-compose-people summary{cursor:pointer}\r
-.dsh-mail .dm-composer .dm-editor-toolbar{border-top:0;background:var(--dm-bg);padding:6px 18px;gap:4px}\r
-.dsh-mail .dm-composer .dm-editor-toolbar button,.dsh-mail .dm-composer .dm-editor-toolbar select{border-color:transparent;background:var(--dm-soft);font-size:11px}\r
-.dsh-mail .dm-editor-toolbar{align-items:center}\r
-.dsh-mail .dm-editor-toolbar .dm-format-button,.dsh-mail .dm-format-insert>summary{width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;flex:none}\r
-.dsh-mail .dm-editor-toolbar .dm-format-button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-accent) 35%,transparent)}\r
-.dsh-mail .dm-editor-toolbar .dm-font-family{width:104px;height:28px;padding:4px;font-size:11px}\r
-.dsh-mail .dm-editor-toolbar .dm-font-size{width:54px;height:28px;padding:4px;font-size:11px}\r
-.dsh-mail .dm-format-palette>summary{display:inline-flex;align-items:center;justify-content:center;position:relative;width:28px;height:28px;min-height:28px;padding:5px;border:0;border-radius:5px;cursor:pointer;background:var(--dm-soft)}\r
-.dsh-mail .dm-format-palette>summary::after{content:"";position:absolute;bottom:2px;left:6px;right:6px;height:3px;background:var(--format-color);border-radius:2px}\r
-.dsh-mail .dm-format-palette .dm-menu-panel{width:202px;left:auto;right:0;padding:12px;gap:10px}\r
-.dsh-mail .dm-format-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}\r
-.dsh-mail .dm-format-swatches button{width:24px;height:24px;padding:0;border:1px solid var(--dm-border);border-radius:4px}\r
-.dsh-mail .dm-format-palette .dm-custom-color{display:flex;justify-content:space-between;align-items:center;font-size:11px}\r
-.dsh-mail .dm-format-palette input[type=color]{width:48px;height:28px;padding:2px}\r
-.dsh-mail .dm-format-divider{width:1px;height:18px;margin:0 3px;background:var(--dm-border)}\r
-.dsh-mail .dm-format-insert .dm-menu-panel{width:220px;padding:10px;gap:8px}\r
-.dsh-mail .dm-format-insert select{width:100%}\r
-.dsh-mail .dm-compose-body{flex:1 0 220px;display:flex;flex-direction:column;min-width:0}\r
-.dsh-mail .dm-compose-body .dm-editor{display:flex;flex-direction:column;flex:1;padding:18px 24px;min-height:220px}\r
-.dsh-mail .dm-compose-body .tiptap{flex:1;min-height:180px}\r
-.dsh-mail .dm-compose-body .dm-plain-editor{flex:1;min-height:220px;width:100%;resize:none}\r
-.dsh-mail .dm-compose-scroll>.dm-quoted{margin:6px 18px 12px}\r
-.dsh-mail .dm-compose-footer{flex:none;border-top:1px solid var(--dm-border);background:var(--dm-bg);padding:9px 14px;position:relative;z-index:4;box-shadow:0 -4px 16px #00000005}\r
-.dsh-mail .dm-compose-dock,.dsh-mail .dm-compose-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}\r
-.dsh-mail .dm-compose-dock{justify-content:space-between;gap:8px}\r
-.dsh-mail .dm-compose-tools .dm-file-button,.dsh-mail .dm-compose-tools>button,.dsh-mail .dm-compose-options>summary{font-size:11px;padding:7px 9px;border-radius:8px;gap:5px;min-height:32px}\r
-.dsh-mail .dm-compose-tools .dm-file-button{border-color:transparent;background:var(--dm-soft)}\r
-.dsh-mail .dm-compose-options{position:static}\r
-.dsh-mail .dm-compose-options>summary{cursor:pointer;white-space:nowrap;border-color:var(--dm-border)}\r
-.dsh-mail .dm-compose-options.is-active>summary{color:var(--dm-blue);background:var(--dm-selected);border-color:var(--dm-blue)}\r
-.dsh-mail .dm-compose-send{border-radius:8px;padding:8px 13px;box-shadow:0 2px 5px #2563eb20;font-size:12px;margin-left:auto}\r
-.dsh-mail .dm-compose-options .dm-menu-panel{top:auto;bottom:calc(100% + 10px);left:14px;right:auto;width:320px;max-width:calc(100% - 28px);max-height:50vh;overflow:auto;padding:14px}\r
-.dsh-mail .dm-compose-options .dm-send-options{padding:10px 0;display:grid;gap:12px;border:0}\r
-.dsh-mail .dm-compose-options .dm-send-limit{padding:0;font-size:11px}\r
-.dsh-mail .dm-compose-footer .dm-compose-attachments{padding:0 0 8px;max-height:78px;overflow:auto;gap:5px}\r
-.dsh-mail .dm-compose-footer .dm-chip{border:1px solid var(--dm-border);border-radius:7px;background:var(--dm-soft)}\r
-@container (max-width:759px){.dsh-mail .dm-compose-fields{padding-inline:12px}.dsh-mail .dm-compose-toolbar{padding-inline:8px}.dsh-mail .dm-compose-status .dm-muted{display:none}.dsh-mail .dm-compose-footer{padding:8px}.dsh-mail .dm-compose-tools{gap:3px}.dsh-mail .dm-compose-tools .dm-file-button span,.dsh-mail .dm-compose-tools>.dm-ai-button span{display:none}.dsh-mail .dm-compose-options .dm-menu-panel{left:8px;right:auto;max-width:calc(100% - 16px)}.dsh-mail .dm-compose-body .dm-editor{padding:14px}.dsh-mail .dm-compose-send{padding:7px 9px;font-size:11px}}\r
-\r
-.dm-app{height:100%;width:100%;min-width:0;min-height:0;display:flex;position:relative;overflow:hidden;container-type:inline-size}\r
-.dm-app>.dsh-mail{flex:1;min-width:0}\r
-.dm-agent-panel{flex:0 0 390px;min-width:0;max-width:45%;display:flex;flex-direction:column;border-left:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:13px/1.5 system-ui}\r
-.dm-agent-panel>header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--dsw-alias-border-l2)}\r
-.dm-agent-panel>header strong{display:flex;align-items:center;gap:7px}\r
-.dm-agent-panel>header button{background:transparent;border:0;cursor:pointer;padding:4px;color:inherit}\r
-.dm-agent-context{padding:12px 16px;background:var(--dsw-alias-bg-layer-2);display:grid;gap:4px;font-size:12px}\r
-.dm-agent-context>span,.dm-agent-context>small{color:var(--dsw-alias-label-secondary);font-size:11px}\r
-.dm-agent-context>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\r
-.dm-agent-conversation{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}\r
-.dm-agent-conversation>p{padding:16px;font-size:12px;color:var(--dsw-alias-label-secondary)}\r
-@container (max-width:1000px){.dm-agent-panel{position:absolute;inset:0 0 0 auto;width:min(420px,100%);max-width:100%;z-index:20;box-shadow:-8px 0 30px #0002}}\r
-/* Mailbird-inspired quiet chrome and a readable message surface. */\r
-.dsh-mail .dm-reader-person{display:flex;gap:10px;align-items:center;margin-top:12px}\r
-.dsh-mail .dm-reader-person>.dm-sender-avatar{width:34px;height:34px;flex:none}\r
-.dsh-mail .dm-reader-person>div{flex:1;min-width:0}\r
-.dsh-mail .dm-reader-from{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}\r
-.dsh-mail .dm-reader-from time{font-size:10px;white-space:nowrap}\r
-.dsh-mail .dm-workspace-header{padding:10px 18px;min-height:58px}\r
-.dsh-mail .dm-workspace-header .dm-eyebrow{display:none}\r
-.dsh-mail .dm-workspace-header h1{font-size:15px;font-weight:600}\r
-.dsh-mail .dm-reader-toolbar{background:var(--dm-bg)}\r
-.dsh-mail .dm-reader-sticky{box-shadow:none;max-height:34vh}\r
-.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:12px 24px 14px}\r
-.dsh-mail .dm-reader-sticky h2{font-size:22px;line-height:1.45;font-weight:600;margin:0}\r
-.dsh-mail .dm-reader-sticky .dm-section-label{margin-bottom:6px}\r
-.dsh-mail .dm-reader-heading>p{margin:4px 0;font-size:12px}\r
-.dsh-mail .dm-reader>.dm-reader-tags{padding:7px 20px;gap:5px}\r
-.dsh-mail .dm-reader>.dm-reader-tags .dm-ai-button{border-color:transparent;background:transparent}\r
-.dsh-mail .dm-image-notice{padding-block:5px;font-size:10px;background:var(--dm-soft)}\r
-.dsh-mail .dm-mail-body{padding:18px 24px}\r
-.dsh-mail .dm-reader .dm-body-label{display:none}\r
-.dsh-mail .dm-reader .dm-attachments{margin:12px 24px}\r
-@container (max-width:759px){.dsh-mail .dm-workspace-header{padding:9px 10px}.dsh-mail .dm-workspace-header h1{display:none}.dsh-mail .dm-reader-sticky .dm-reader-heading{padding:10px 14px}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-mail-body{padding:10px}.dsh-mail .dm-reader .dm-attachments{margin:10px}}\r
+.dm-agent-header-actions{display:flex;align-items:center;gap:4px}\r
+.dm-agent-header-actions>button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;padding:6px;background:transparent;color:inherit}\r
+.dm-agent-header-actions>button:hover{background:var(--dsw-alias-bg-layer-2)}\r
+.dm-agent-header-actions>.dm-presentation-toggle[aria-pressed=true]{color:var(--dsw-alias-brand-primary,#2563eb)}\r
 `;
 
 // ui/event-color.mjs
@@ -46495,6 +46554,8 @@ var paths = {
   sync: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M20 8a8 8 0 0 0-14-3L3 8M3 3v5h5M4 16a8 8 0 0 0 14 3l3-3M21 21v-5h-5" })),
   plus: /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 5v14M5 12h14" }),
   close: /* @__PURE__ */ import_react.default.createElement("path", { d: "m6 6 12 12M6 18 18 6" }),
+  expand: /* @__PURE__ */ import_react.default.createElement("path", { d: "M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5" }),
+  collapse: /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 8h5V3M16 3v5h5M21 16h-5v5M8 21v-5H3" }),
   menu: /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 6h16M4 12h16M4 18h16" }),
   more: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "5", cy: "12", r: "1" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "1" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "19", cy: "12", r: "1" })),
   archive: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 8h16v13H4ZM2 3h20v5H2M9 12h6" })),
@@ -46545,6 +46606,14 @@ function reconcileState(previous, next) {
 }
 
 // ui/mail-layout.mjs
+var DEFAULT_ASSISTANT_WIDTH = 390;
+function assistantPaneSizes(preferred, available) {
+  const overlay = available <= 1e3;
+  const max = Math.max(0, Math.min(720, overlay ? available : available - 600));
+  const min = Math.min(300, max);
+  const width = Math.round(Math.max(min, Math.min(max, Number.isFinite(preferred) ? preferred : DEFAULT_ASSISTANT_WIDTH)));
+  return { width, min, max, overlay };
+}
 function mailPaneSizes(width, rootWidth, settings = DEFAULT_SETTINGS) {
   if (rootWidth < 760) return { folder: 0, list: width, reader: 0, handles: 0 };
   const handles = 6, folder = 0;
@@ -46770,6 +46839,11 @@ var EMPTY = { accounts: [], folders: [], drafts: [], rules: [], events: [], prev
 function Button({ children, primary, danger, className = "", ...props }) {
   return /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: `${primary ? "primary" : ""} ${danger ? "danger" : ""} ${className}`, title: typeof children === "string" ? children : props["aria-label"], ...props }, children);
 }
+function PresentationToggle({ presentation, assistant = false }) {
+  if (!presentation) return null;
+  const label = presentation.fullscreen ? assistant ? "\u6536\u56DE\u90AE\u4EF6\u4E0E\u52A9\u624B" : presentation.origin === "sidebar" ? "\u6536\u56DE\u4FA7\u680F" : "\u9000\u51FA\u90AE\u4EF6\u5168\u5C4F" : assistant ? "\u5168\u5C4F\u663E\u793A\u90AE\u4EF6\u4E0E\u52A9\u624B" : "\u5168\u5C4F\u663E\u793A\u90AE\u4EF6";
+  return /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-presentation-toggle", "aria-label": label, "aria-pressed": presentation.fullscreen, "aria-disabled": presentation.transitioning || void 0, onMouseDown: (event) => event.preventDefault(), onClick: presentation.toggle }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: presentation.fullscreen ? "collapse" : "expand", size: 17 }), presentation.fullscreen && !assistant && /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-presentation-label" }, presentation.origin === "sidebar" ? "\u6536\u56DE\u4FA7\u680F" : "\u9000\u51FA\u5168\u5C4F"));
+}
 function Field({ label, children, ...props }) {
   return /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-field" }, /* @__PURE__ */ import_react2.default.createElement("span", null, label), children || /* @__PURE__ */ import_react2.default.createElement("input", { ...props }));
 }
@@ -46814,9 +46888,33 @@ function deliverFile(result) {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 3e4);
 }
-function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, renderSlot, conversationSlot, visible = true }) {
+function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, renderSlot, conversationSlot, visible = true, presentation }) {
   const [assistantOpen, setAssistantOpen] = (0, import_react2.useState)(false), [assistantBinding, setAssistantBinding] = (0, import_react2.useState)(null), [contextReady, setContextReady] = (0, import_react2.useState)("");
   const [assistantError, setAssistantError] = (0, import_react2.useState)(""), [assistantSubject, setAssistantSubject] = (0, import_react2.useState)("");
+  const assistantLayout = (0, import_react2.useRef)(null), assistantId = (0, import_react2.useId)();
+  const [assistantWidth, setAssistantWidth] = (0, import_react2.useState)(() => {
+    try {
+      const value2 = localStorage.getItem("dsh-mail.assistant-width");
+      return value2 === null ? DEFAULT_ASSISTANT_WIDTH : Number(value2);
+    } catch {
+      return DEFAULT_ASSISTANT_WIDTH;
+    }
+  });
+  const [appWidth, setAppWidth] = (0, import_react2.useState)(0), [assistantResizing, setAssistantResizing] = (0, import_react2.useState)(false);
+  (0, import_react2.useEffect)(() => {
+    const element = assistantLayout.current, observer = new ResizeObserver(() => setAppWidth(element.clientWidth));
+    observer.observe(element);
+    setAppWidth(element.clientWidth);
+    return () => observer.disconnect();
+  }, []);
+  const assistantSizes = assistantPaneSizes(assistantWidth, appWidth);
+  const saveAssistantWidth = (width) => {
+    setAssistantWidth(width);
+    try {
+      localStorage.setItem("dsh-mail.assistant-width", String(width));
+    } catch {
+    }
+  };
   const sessionId = assistantOpen ? assistantBinding?.sessionId || ownerSessionId : ownerSessionId;
   const [state, setState] = (0, import_react2.useState)(EMPTY), [tab, setTab] = (0, import_react2.useState)("\u90AE\u4EF6"), [error, setError] = (0, import_react2.useState)(""), [notice, setNotice] = (0, import_react2.useState)(""), [busy, setBusy] = (0, import_react2.useState)(0), [modal, setModal] = (0, import_react2.useState)(null), [selected, setSelected] = (0, import_react2.useState)(null), [compose, setCompose] = (0, import_react2.useState)(null), [query, setQuery] = (0, import_react2.useState)({ inbox: true });
   const contextKey = JSON.stringify([sessionId, tab === "\u90AE\u4EF6" ? compose ? compose.sourceMessageId || null : selected : null, tab === "\u90AE\u4EF6" ? compose?.id : null]);
@@ -46998,13 +47096,13 @@ function App({ sessionId: ownerSessionId, call, assistantHost, SessionProvider, 
     setFolderMenu(false);
   };
   const value = { state, error, request, act, run: run3, refresh, setModal, openMessage, setCompose, setTab, setQuery, query, selected, setSelected, compose, busy, settingsSection, setSettingsSection, navigation, setDraftTouched, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId, showParticipant, newDraft, download: (operation) => run3(async () => deliverFile(await act(operation))), setNotice };
-  return /* @__PURE__ */ import_react2.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react2.default.createElement("div", { className: `dm-app ${assistantOpen ? "has-assistant" : ""}` }, /* @__PURE__ */ import_react2.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
+  return /* @__PURE__ */ import_react2.default.createElement(Ctx.Provider, { value }, /* @__PURE__ */ import_react2.default.createElement("div", { ref: assistantLayout, className: `dm-app ${assistantOpen ? "has-assistant" : ""} ${assistantResizing ? "dm-resizing" : ""} ${presentation?.fullscreen ? "is-workspace-fullscreen" : ""}`, "data-mail-fullscreen": presentation?.fullscreen || void 0, "data-mail-transitioning": presentation?.transitioning || void 0, style: { "--dm-assistant-width": `${assistantSizes.width}px` } }, /* @__PURE__ */ import_react2.default.createElement("main", { ref: root, className: "dsh-mail", "aria-label": "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement("style", null, styles_default), /* @__PURE__ */ import_react2.default.createElement("nav", { className: "dm-rail", "aria-label": "\u529F\u80FD\u5BFC\u822A" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-brand", title: "DSH Mail" }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "mail", size: 24 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages dm-rail-mail" }, [["\u90AE\u4EF6", "\u6536\u4EF6\u7BB1", "inbox", { inbox: true }, false], ["\u5DF2\u53D1\u9001", "\u5DF2\u53D1\u9001", "sent", { sent: true }, false], ["\u661F\u6807\u90AE\u4EF6", "\u661F\u6807", "star", { starred: true }, false], ["\u8349\u7A3F\u4E0E\u53D1\u4EF6\u7BB1", "\u8349\u7A3F", "draft", {}, true]].map(([name, caption, icon, next, showDrafts]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name === "\u90AE\u4EF6" ? "\u7EDF\u4E00\u6536\u4EF6\u7BB1" : name, "aria-current": tab === "\u90AE\u4EF6" && (showDrafts ? drafts : !drafts && query[Object.keys(next)[0]]) ? "page" : void 0, onClick: () => mailbox(next, showDrafts) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, caption), showDrafts && pendingDrafts(state.drafts).length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, pendingDrafts(state.drafts).length))), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", ref: folderTrigger, "aria-label": "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", title: "\u90AE\u7BB1\u4E0E\u6587\u4EF6\u5939", "aria-expanded": folderMenu, "aria-controls": folderId, "aria-haspopup": "dialog", "aria-current": tab === "\u90AE\u4EF6" && query.folderId ? "page" : void 0, onClick: () => {
     setTab("\u90AE\u4EF6");
     setFolderMenu(!folderMenu);
   } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u6587\u4EF6\u5939"))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-pages" }, [["\u65E5\u5386", "calendar"], ["\u5F85\u529E", "task"], ["\u8054\u7CFB\u4EBA", "contacts"], ["\u89C4\u5219", "rules"]].map(([name, icon]) => /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", key: name, "aria-label": name, title: name, "aria-current": tab === name ? "page" : void 0, onClick: () => setTab(name) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: icon, size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, name), name === "\u5F85\u529E" && state.tasks.some((t3) => !t3.done) && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.tasks.filter((t3) => !t3.done).length)))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-rail-bottom" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u901A\u77E5\u4E0E\u4EFB\u52A1", onClick: () => {
     setFolderMenu(false);
     setModal({ type: "activity" });
-  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react2.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "\u90AE\u7BB1 AI \u52A9\u624B", "aria-expanded": assistantOpen, onClick: () => setAssistantOpen(!assistantOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 16 }), "AI \u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: newDraft }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), "\u5199\u90AE\u4EF6"))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react2.default.createElement("span", null, error), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, notice), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react2.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react2.default.createElement(MailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react2.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react2.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react2.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react2.default.createElement(RulesView, null) : /* @__PURE__ */ import_react2.default.createElement(SettingsView, null))), modal && /* @__PURE__ */ import_react2.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5\u4E0E\u64CD\u4F5C\u8BB0\u5F55", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react2.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react2.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react2.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react2.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react2.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react2.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react2.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react2.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react2.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react2.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react2.default.createElement(Activity, null))), assistantOpen && /* @__PURE__ */ import_react2.default.createElement("aside", { className: "dm-agent-panel", "aria-label": "\u90AE\u7BB1 AI \u5BF9\u8BDD" }, /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), "\u90AE\u7BB1\u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u5173\u95ED\u90AE\u7BB1\u52A9\u624B", onClick: () => setAssistantOpen(false) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 18 }))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-context" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5F53\u524D\u4E0A\u4E0B\u6587"), /* @__PURE__ */ import_react2.default.createElement("strong", null, tab === "\u90AE\u4EF6" ? compose ? compose.subject || "\u65B0\u90AE\u4EF6\u8349\u7A3F" : assistantSubject || (selected ? "\u5F53\u524D\u6253\u5F00\u7684\u90AE\u4EF6" : "\u90AE\u7BB1\u5DE5\u4F5C\u53F0") : tab), /* @__PURE__ */ import_react2.default.createElement("small", null, "\u6BCF\u8F6E\u8BFB\u53D6\u5F53\u524D\u90AE\u4EF6\u6B63\u6587\u3001\u5B8C\u6574\u5F15\u7528\u53CA\u5DF2\u4FDD\u5B58\u8349\u7A3F")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-conversation" }, assistantError ? /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert" }, assistantError, " \u5173\u95ED\u4FA7\u680F\u540E\u53EF\u91CD\u65B0\u8FDE\u63A5\u3002") : !assistantHost ? /* @__PURE__ */ import_react2.default.createElement("p", null, "\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002") : assistantBinding && contextReady === contextKey ? /* @__PURE__ */ import_react2.default.createElement(SessionProvider, { session: assistantBinding.reference }, renderSlot(conversationSlot, {})) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u8FDE\u63A5\u90AE\u4EF6\u4E0A\u4E0B\u6587\u2026")))));
+  } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "bell", size: 21 }), state.notifications.length + state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("i", { className: "dm-rail-badge" }, state.notifications.length + state.previews.length)), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u8BBE\u7F6E", title: "\u8BBE\u7F6E", "aria-current": tab === "\u8BBE\u7F6E" ? "page" : void 0, onClick: () => setTab("\u8BBE\u7F6E") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "settings", size: 21 }), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-rail-caption" }, "\u8BBE\u7F6E")))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-workspace" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-workspace-header", hidden: tab === "\u65E5\u5386" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-eyebrow" }, "DSH MAIL"), /* @__PURE__ */ import_react2.default.createElement("h1", null, tab === "\u90AE\u4EF6" ? "\u4F60\u7684\u90AE\u4EF6\u5DE5\u4F5C\u53F0" : tab)), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-top-actions" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-connection" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: `dm-dot ${state.accounts.some((a3) => a3.error) ? "bad" : ""}` }), state.accounts.filter((a3) => a3.enabled && !a3.local).length, " \u4E2A\u90AE\u7BB1 \xB7 ", busy > 0 ? "\u5904\u7406\u4E2D" : "\u672C\u673A\u5B58\u50A8"), /* @__PURE__ */ import_react2.default.createElement(PresentationToggle, { presentation }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: `dm-sync ${busy > 0 ? "is-busy" : ""}`, "aria-label": "\u540C\u6B65\u90AE\u7BB1", onClick: () => run3(() => act({ action: "sync" }, "\u5DF2\u5B89\u6392\u540C\u6B65")) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sync" })), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-ai-button", "aria-label": "\u90AE\u7BB1 AI \u52A9\u624B", "aria-expanded": assistantOpen, onClick: () => setAssistantOpen(!assistantOpen) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "AI \u52A9\u624B")), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, "aria-label": "\u5199\u90AE\u4EF6", onClick: newDraft }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 16 }), /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5199\u90AE\u4EF6")))), error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-alert", role: "alert" }, /* @__PURE__ */ import_react2.default.createElement("span", null, error), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setError("") }, "\u5173\u95ED")), notice && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-notice", role: "status" }, /* @__PURE__ */ import_react2.default.createElement("span", null, notice), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setNotice("") }, "\xD7")), state.previews.length > 0 && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-approval-bar" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u6709 ", state.previews.length, " \u9879\u64CD\u4F5C\u7B49\u5F85\u4F60\u6838\u5BF9"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "preview", value: state.previews[0] }) }, "\u67E5\u770B\u9884\u89C8")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-content" }, /* @__PURE__ */ import_react2.default.createElement("div", { hidden: tab !== "\u90AE\u4EF6", style: { height: "100%" } }, /* @__PURE__ */ import_react2.default.createElement(MailView, { active: visible && tab === "\u90AE\u4EF6", navigation })), tab === "\u90AE\u4EF6" ? null : tab === "\u65E5\u5386" ? /* @__PURE__ */ import_react2.default.createElement(CalendarView, null) : tab === "\u5F85\u529E" ? /* @__PURE__ */ import_react2.default.createElement(TasksView, null) : tab === "\u8054\u7CFB\u4EBA" ? /* @__PURE__ */ import_react2.default.createElement(ContactsView, null) : tab === "\u89C4\u5219" ? /* @__PURE__ */ import_react2.default.createElement(RulesView, null) : /* @__PURE__ */ import_react2.default.createElement(SettingsView, null))), modal && /* @__PURE__ */ import_react2.default.createElement(Modal, { title: modal.title || { account: "\u8FDE\u63A5\u90AE\u7BB1", folder: "\u7BA1\u7406\u6587\u4EF6\u5939", transfer: "\u6574\u7406\u90AE\u4EF6\u5230\u6587\u4EF6\u5939", preview: "\u6838\u5BF9\u64CD\u4F5C", event: "\u65E5\u5386\u4E8B\u4EF6", task: "\u5F85\u529E\u4E8B\u9879", contact: "\u8054\u7CFB\u4EBA", person: "\u8054\u7CFB\u4EBA\u4E0E\u90AE\u4EF6", rule: "\u90AE\u4EF6\u89C4\u5219", activity: "\u901A\u77E5\u4E0E\u64CD\u4F5C\u8BB0\u5F55", resource: "\u7F16\u8F91\u5185\u5BB9", attachment: "\u9644\u4EF6\u9884\u89C8" }[modal.type], close: () => setModal(null) }, modal.type === "account" ? /* @__PURE__ */ import_react2.default.createElement(AccountForm, { value: modal.value }) : modal.type === "folder" ? /* @__PURE__ */ import_react2.default.createElement(FolderForm, { value: modal.value }) : modal.type === "transfer" ? /* @__PURE__ */ import_react2.default.createElement(TransferForm, { message: modal.value }) : modal.type === "preview" ? /* @__PURE__ */ import_react2.default.createElement(Preview, { value: modal.value }) : modal.type === "event" ? /* @__PURE__ */ import_react2.default.createElement(EventForm, { value: modal.value }) : modal.type === "task" ? /* @__PURE__ */ import_react2.default.createElement(TaskForm, { value: modal.value }) : modal.type === "person" ? /* @__PURE__ */ import_react2.default.createElement(ContactCard, { person: modal.value }) : modal.type === "contact" ? /* @__PURE__ */ import_react2.default.createElement(ContactForm, { value: modal.value }) : modal.type === "rule" ? /* @__PURE__ */ import_react2.default.createElement(RuleForm, { value: modal.value, initialPreview: modal.preview }) : modal.type === "resource" ? /* @__PURE__ */ import_react2.default.createElement(ResourceForm, { ...modal }) : modal.type === "attachment" ? /* @__PURE__ */ import_react2.default.createElement(AttachmentPreview, { value: modal.value }) : /* @__PURE__ */ import_react2.default.createElement(Activity, null))), assistantOpen && /* @__PURE__ */ import_react2.default.createElement("aside", { id: assistantId, className: "dm-agent-panel", "aria-label": "\u90AE\u7BB1 AI \u5BF9\u8BDD" }, /* @__PURE__ */ import_react2.default.createElement(PaneDivider, { key: assistantSizes.overlay ? "overlay" : "split", name: "\u8C03\u6574 AI \u52A9\u624B\u5BBD\u5EA6", width: assistantSizes.width, min: assistantSizes.min, max: assistantSizes.max, direction: -1, paneId: assistantId, kind: "agent", setResizing: setAssistantResizing, onChange: setAssistantWidth, onSave: saveAssistantWidth, onReset: () => saveAssistantWidth(assistantPaneSizes(DEFAULT_ASSISTANT_WIDTH, appWidth).width) }), /* @__PURE__ */ import_react2.default.createElement("header", null, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 17 }), "\u90AE\u7BB1\u52A9\u624B"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-header-actions" }, /* @__PURE__ */ import_react2.default.createElement(PresentationToggle, { presentation, assistant: true }), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", "aria-label": "\u5173\u95ED\u90AE\u7BB1\u52A9\u624B", onClick: () => setAssistantOpen(false) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "close", size: 18 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-context" }, /* @__PURE__ */ import_react2.default.createElement("span", null, "\u5F53\u524D\u4E0A\u4E0B\u6587"), /* @__PURE__ */ import_react2.default.createElement("strong", null, tab === "\u90AE\u4EF6" ? compose ? compose.subject || "\u65B0\u90AE\u4EF6\u8349\u7A3F" : assistantSubject || (selected ? "\u5F53\u524D\u6253\u5F00\u7684\u90AE\u4EF6" : "\u90AE\u7BB1\u5DE5\u4F5C\u53F0") : tab), /* @__PURE__ */ import_react2.default.createElement("small", null, "\u6BCF\u8F6E\u8BFB\u53D6\u5F53\u524D\u90AE\u4EF6\u6B63\u6587\u3001\u5B8C\u6574\u5F15\u7528\u53CA\u5DF2\u4FDD\u5B58\u8349\u7A3F")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-agent-conversation" }, assistantError ? /* @__PURE__ */ import_react2.default.createElement("p", { role: "alert" }, assistantError, " \u5173\u95ED\u4FA7\u680F\u540E\u53EF\u91CD\u65B0\u8FDE\u63A5\u3002") : !assistantHost ? /* @__PURE__ */ import_react2.default.createElement("p", null, "\u90AE\u7BB1\u52A9\u624B\u9700\u8981 DSH \u4F1A\u8BDD\u670D\u52A1\u3002") : assistantBinding && contextReady === contextKey ? /* @__PURE__ */ import_react2.default.createElement(SessionProvider, { session: assistantBinding.reference }, renderSlot(conversationSlot, {})) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B63\u5728\u8FDE\u63A5\u90AE\u4EF6\u4E0A\u4E0B\u6587\u2026")))));
 }
 function Menu({ label, children, className = "", icon = "more", caption, closeOnAction = false, style: style2 }) {
   const ref = (0, import_react2.useRef)(null);
@@ -47038,7 +47136,7 @@ function FolderColorMenu({ folder }) {
     setModal({ type: "folder", value: folder });
   } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), "\u7BA1\u7406\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement("fieldset", { className: "dm-folder-colors" }, /* @__PURE__ */ import_react2.default.createElement("legend", null, "\u6587\u4EF6\u5939\u989C\u8272"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-color-options" }, FOLDER_COLORS.map(([name, color]) => /* @__PURE__ */ import_react2.default.createElement("button", { key: color, type: "button", className: "dm-color-swatch", "aria-label": `\u6587\u4EF6\u5939\u989C\u8272\uFF1A${name}`, title: name, "aria-pressed": folder.color === color, style: { background: color, color: eventAppearance({ color }, []).textColor }, disabled: busy > 0, onClick: () => save(color) }, folder.color === color ? "\u2713" : ""))), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-custom-color" }, "\u81EA\u5B9A\u4E49", /* @__PURE__ */ import_react2.default.createElement("input", { "aria-label": `\u81EA\u5B9A\u4E49\u6587\u4EF6\u5939\u989C\u8272 ${folder.path}`, type: "color", value: custom, onChange: (e3) => setCustom(e3.target.value) })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-inline" }, /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => save(custom) }, "\u5E94\u7528\u989C\u8272"), /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0 || !folder.color, onClick: () => save("") }, "\u6062\u590D\u9ED8\u8BA4")), /* @__PURE__ */ import_react2.default.createElement("p", { className: "dm-muted" }, "\u4EC5\u5728\u672C\u673A\u663E\u793A\uFF0C\u5305\u542B\u5728\u5907\u4EFD\u4E2D\u3002")));
 }
-function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResizing, paneId, kind }) {
+function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResizing, paneId, kind, direction = 1 }) {
   const drag = (0, import_react2.useRef)(null);
   (0, import_react2.useEffect)(() => () => {
     if (drag.current) setResizing(false);
@@ -47077,7 +47175,7 @@ function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResi
       onPointerMove: (event) => {
         const current = drag.current;
         if (!current || current.pointerId !== event.pointerId) return;
-        current.value = Math.round(Math.max(min, Math.min(max, current.width + event.clientX - current.x)));
+        current.value = Math.round(Math.max(min, Math.min(max, current.width + direction * (event.clientX - current.x))));
         onChange(current.value);
       },
       onPointerUp: (event) => finish(event),
@@ -47085,7 +47183,7 @@ function PaneDivider({ name, width, min, max, onChange, onSave, onReset, setResi
       onLostPointerCapture: (event) => finish(event, true),
       onDoubleClick: onReset,
       onKeyDown: (event) => {
-        const step = event.shiftKey ? 50 : 10, next = { ArrowLeft: width - step, ArrowRight: width + step, Home: min, End: max }[event.key];
+        const step = event.shiftKey ? 50 : 10, next = { ArrowLeft: width - step * direction, ArrowRight: width + step * direction, Home: min, End: max }[event.key];
         if (next === void 0) return;
         event.preventDefault();
         const value = Math.max(min, Math.min(max, next));
@@ -47420,13 +47518,13 @@ function Reader({ id, active }) {
   const action = (operation, value) => run3(() => act({ action: "messages.action", ids: [id], operation, value }));
   const reply = (mode, ai = false) => run3(async () => setCompose({ ...await act({ action: "drafts.reply", id, mode }), ...ai ? { aiStart: "reply" } : {} }));
   const threadItems = [...new Map([...thread.items, ...thread.current ? [thread.current] : []].map((m3) => [m3.id, m3])).values()].sort((a3, b3) => Date.parse(b3.date) - Date.parse(a3.date) || a3.id.localeCompare(b3.id));
-  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-toolbar" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more", closeOnAction: true }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react2.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
+  return /* @__PURE__ */ import_react2.default.createElement("article", { className: "dm-reader" }, /* @__PURE__ */ import_react2.default.createElement("header", { className: "dm-reader-sticky" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-heading" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-topline" }, /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u8FD4\u56DE\u90AE\u4EF6\u5217\u8868", onClick: () => setSelected(null) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "back", size: 16 })), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-title" }, /* @__PURE__ */ import_react2.default.createElement("h2", null, message.subject || "\uFF08\u65E0\u4E3B\u9898\uFF09"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-location-tags", "aria-label": "\u90AE\u4EF6\u6240\u5728\u6587\u4EF6\u5939" }, messageFolderLocations(message, state.folders).map((location) => {
     const folder = location.folder;
     return /* @__PURE__ */ import_react2.default.createElement(Button, { key: folder.id, className: "dm-location-chip", title: folder.path, style: { "--folder-color": folderAppearance(folder).color }, onClick: () => {
       setQuery({ accountId: message.accountId, folderId: folder.id });
       setSelected(location.id);
     } }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 13 }), folder.name || folder.path);
-  }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-person" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": senderAppearance(message).color }, "aria-hidden": "true" }, senderAppearance(message).text), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-from" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.from })), /* @__PURE__ */ import_react2.default.createElement("time", { className: "dm-muted", dateTime: message.date }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.cc }))))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), label))), headers && /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), thread.total > 1 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react2.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react2.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
+  }), /* @__PURE__ */ import_react2.default.createElement(Button, { className: "dm-add-location", "aria-label": "\u6DFB\u52A0\u6216\u79FB\u52A8\u5230\u6587\u4EF6\u5939", onClick: () => setModal({ type: "transfer", value: message }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "folder", size: 16 }), /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "plus", size: 12 })))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-actions", role: "group", "aria-label": "\u90AE\u4EF6\u64CD\u4F5C" }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("reply") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "reply", size: 16 }), "\u56DE\u590D"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("replyAll") }, "\u56DE\u590D\u5168\u90E8"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => reply("forward") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "forward", size: 16 }), "\u8F6C\u53D1"), /* @__PURE__ */ import_react2.default.createElement(Button, { "aria-label": "\u5F52\u6863\u90AE\u4EF6", onClick: () => action("archive") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "archive", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Button, { danger: true, "aria-label": "\u5220\u9664\u90AE\u4EF6", onClick: () => action("trash") }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "trash", size: 16 })), /* @__PURE__ */ import_react2.default.createElement(Menu, { label: "\u66F4\u591A\u90AE\u4EF6\u64CD\u4F5C", className: "dm-reader-more", closeOnAction: true }, /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => download({ action: "mail.export", ids: [id] }) }, "\u5BFC\u51FA\u90AE\u4EF6"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setPlain(!plain) }, plain ? "\u663E\u793A HTML" : "\u663E\u793A\u7EAF\u6587\u672C"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setHeaders(!headers) }, headers ? "\u9690\u85CF\u90AE\u4EF6\u5934" : "\u663E\u793A\u90AE\u4EF6\u5934"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("read", false) }, "\u6807\u4E3A\u672A\u8BFB"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("star", !message.starred) }, message.starred ? "\u53D6\u6D88\u661F\u6807" : "\u6DFB\u52A0\u661F\u6807"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("junk") }, "\u79FB\u5230\u5783\u573E\u90AE\u4EF6"), message.previousFolderId && /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => action("restore") }, "\u6062\u590D\u5230\u539F\u6587\u4EF6\u5939"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "task", value: { title: message.subject, sourceMessageId: id, evidence: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "task", size: 14 }), "\u5F85\u529E"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "event", value: { title: message.subject, sourceMessageId: id, description: message.text.slice(0, 500) } }) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "calendar", size: 14 }), "\u65E5\u5386"), /* @__PURE__ */ import_react2.default.createElement(Button, { onClick: () => setModal({ type: "resource", kind: "labels", value: { name: "", messageId: id }, title: "\u8BBE\u7F6E\u90AE\u4EF6\u672C\u5730\u6807\u7B7E" }) }, "\u6807\u7B7E"), /* @__PURE__ */ import_react2.default.createElement("label", { className: "dm-snooze-label" }, "\u5EF6\u540E\u81F3", /* @__PURE__ */ import_react2.default.createElement("input", { type: "datetime-local", "aria-label": "\u5EF6\u540E\u5904\u7406\u81F3", onChange: (e3) => e3.target.value && action("snooze", new Date(e3.target.value).toISOString()) }))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-person" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-sender-avatar", style: { "--avatar-color": senderAppearance(message).color }, "aria-hidden": "true" }, senderAppearance(message).text), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-from" }, /* @__PURE__ */ import_react2.default.createElement("strong", null, /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.from })), /* @__PURE__ */ import_react2.default.createElement("time", { className: "dm-muted", dateTime: message.date }, date(message.date), " \xB7 \u5317\u4EAC\u65F6\u95F4")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-muted dm-address-line" }, "\u6536\u4EF6\u4EBA\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.to }), message.cc?.length > 0 && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " \xB7 \u6284\u9001\uFF1A", /* @__PURE__ */ import_react2.default.createElement(AddressButtons, { value: message.cc }))))))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-reader-tags" }, [["translateMessage", "\u7FFB\u8BD1\u672C\u90AE\u4EF6"], ["summary", "\u603B\u7ED3\u90AE\u4EF6"], ["reply", "AI \u56DE\u590D"]].map(([task, label]) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: task, className: "dm-ai-button", onClick: () => task === "reply" ? reply("reply", true) : setAiTask(task) }, /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "sparkle", size: 14 }), label))), headers && /* @__PURE__ */ import_react2.default.createElement("pre", { className: "dm-raw-headers" }, message.rawHeaders), message.bodyTruncated && /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-warning" }, "\u6B63\u6587\u8D85\u8FC7 2 MiB\uFF0C\u7F13\u5B58\u5185\u5BB9\u5DF2\u622A\u65AD\u3002\u5BFC\u51FA EML \u53EF\u53D6\u5F97\u5B8C\u6574\u539F\u4EF6\u3002"), thread.total > 1 && /* @__PURE__ */ import_react2.default.createElement("details", { className: "dm-conversation", open: conversationOpen, onToggle: (e3) => setConversationOpen(e3.currentTarget.open) }, /* @__PURE__ */ import_react2.default.createElement("summary", null, "\u90AE\u4EF6\u5F80\u6765 \xB7 \u5171 ", thread.total, " \u5C01", /* @__PURE__ */ import_react2.default.createElement("span", null, "\u542B\u5F53\u524D\u90AE\u4EF6\uFF0C\u6587\u4EF6\u5939\u526F\u672C\u5DF2\u5408\u5E76")), /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-conversation-items" }, threadItems.map((m3) => /* @__PURE__ */ import_react2.default.createElement(Button, { key: m3.id, "aria-current": m3.id === id ? "true" : void 0, onClick: () => m3.id !== id && setSelected(m3.id) }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-sender" }, personLabel(m3.from?.[0])), /* @__PURE__ */ import_react2.default.createElement("span", { className: "dm-conversation-subject", title: m3.subject }, m3.subject), /* @__PURE__ */ import_react2.default.createElement("time", { dateTime: m3.date }, date(m3.date)), m3.id === id && /* @__PURE__ */ import_react2.default.createElement("small", null, "\u5F53\u524D\u90AE\u4EF6")))), thread.nextOffset !== null && /* @__PURE__ */ import_react2.default.createElement(Button, { disabled: busy > 0, onClick: () => run3(async () => {
     const more = await act({ action: "thread.read", id, offset: thread.nextOffset });
     setThread((previous) => ({ ...more, items: [...previous.items, ...more.items] }));
   }) }, "\u52A0\u8F7D\u66F4\u65E9\u7684\u90AE\u4EF6")), aiTask && /* @__PURE__ */ import_react2.default.createElement(AiPanel, { key: `${id}:${aiTask}`, task: aiTask, messageId: id, active, close: () => setAiTask(null), apply: async (result) => {
@@ -48032,8 +48130,162 @@ function AttachmentPreview({ value }) {
   return /* @__PURE__ */ import_react2.default.createElement("div", { className: "dm-form" }, /* @__PURE__ */ import_react2.default.createElement("p", null, value.filename), supportedImage ? /* @__PURE__ */ import_react2.default.createElement("img", { className: "dm-image-preview", src: `data:${value.contentType};base64,${value.base64}`, alt: value.filename }) : isPdf ? /* @__PURE__ */ import_react2.default.createElement("iframe", { className: "dm-pdf-preview", title: value.filename, sandbox: "", src: `data:application/pdf;base64,${value.base64}` }) : /* @__PURE__ */ import_react2.default.createElement("p", null, "\u6B64\u7C7B\u578B\u4E0D\u5728\u5E94\u7528\u5185\u9884\u89C8\uFF0C\u8BF7\u4FDD\u5B58\u540E\u7528\u5BF9\u5E94\u5E94\u7528\u6253\u5F00\u3002"), /* @__PURE__ */ import_react2.default.createElement(Button, { primary: true, onClick: () => deliverFile(value) }, "\u4E0B\u8F7D\u6587\u4EF6"));
 }
 
+// ui/presentation.css
+var presentation_default = ".dm-live-surface{box-sizing:border-box;position:relative;width:100%;height:100%;min-width:0;min-height:0;max-width:none;max-height:none;margin:0;border:0;border-radius:0;padding:0;overflow:hidden;color:inherit;background:transparent}\n.dm-live-surface[open]{display:block}\n.dm-live-surface[data-workspace-fullscreen]{pointer-events:auto;position:fixed;inset:var(--dsh-frame-chrome-top,0px) 0 0;width:100vw;height:calc(100dvh - var(--dsh-frame-chrome-top,0px));background:var(--dsw-alias-bg-layer-1,#fff);color:var(--dsw-alias-label-primary,#17212b)}\n.dm-live-surface::backdrop{background:transparent}\n.dm-live-surface:focus{outline:none}\n[data-dockkit-pane]:has(.dm-live-surface[data-mail-visible=true]) [data-sidebar-right-mode]{display:none}\n@media(prefers-reduced-motion:reduce){.dm-live-surface{view-transition-name:none!important}}\n";
+
+// ui/presentation.jsx
+var surfaceSequence = 0;
+var reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+function retainInteraction(surface) {
+  const focus2 = surface.contains(document.activeElement) ? document.activeElement : null;
+  const ranges = [], selection = document.getSelection();
+  if (selection) for (let i4 = 0; i4 < selection.rangeCount; i4++) {
+    const range = selection.getRangeAt(i4);
+    if (surface.contains(range.commonAncestorContainer)) ranges.push(range.cloneRange());
+  }
+  const input = focus2 && typeof focus2.selectionStart === "number" ? { start: focus2.selectionStart, end: focus2.selectionEnd, direction: focus2.selectionDirection } : null;
+  const scrolls = [surface, ...surface.querySelectorAll("*")].filter((element) => element.scrollTop || element.scrollLeft).map((element) => ({ element, top: element.scrollTop, left: element.scrollLeft }));
+  const restoreScroll = () => {
+    for (const { element, top, left } of scrolls) if (element.isConnected) {
+      element.scrollTop = top;
+      element.scrollLeft = left;
+    }
+  };
+  const restore = () => {
+    if (focus2?.isConnected) focus2.focus({ preventScroll: true });
+    if (input && focus2?.isConnected) focus2.setSelectionRange(input.start, input.end, input.direction);
+    if (!input && ranges.length && selection) {
+      try {
+        selection.removeAllRanges();
+        for (const range of ranges) selection.addRange(range);
+      } catch {
+      }
+    }
+    restoreScroll();
+  };
+  restore.scroll = restoreScroll;
+  return restore;
+}
+function createMailPresentationHost() {
+  const surfaces = /* @__PURE__ */ new Map();
+  let active = null, transition = null, busy = false;
+  const notify = (record, fullscreen, transitioning = false) => record?.onChange({ fullscreen, transitioning });
+  const restore = (id, notifyOwner = true) => {
+    const record = surfaces.get(id);
+    if (!record || active !== id) return;
+    const interaction = retainInteraction(record.surface);
+    record.surface.close();
+    delete record.surface.dataset.workspaceFullscreen;
+    record.surface.open = true;
+    active = null;
+    if (notifyOwner) notify(record, false, busy);
+    interaction();
+    return interaction;
+  };
+  const change = (record, update) => {
+    busy = true;
+    let interaction;
+    const perform = () => {
+      interaction = update();
+    };
+    notify(record, active === record.id, true);
+    const name = record.surface.style.viewTransitionName;
+    const rules = document.createElement("style");
+    rules.textContent = `::view-transition-group(${name}){animation-duration:180ms;animation-timing-function:cubic-bezier(.2,.7,.2,1)}::view-transition-old(${name}),::view-transition-new(${name}){animation-duration:180ms}html[data-dm-mail-transition]::view-transition-group(root),html[data-dm-mail-transition]::view-transition-old(root),html[data-dm-mail-transition]::view-transition-new(root){animation:none}`;
+    const finish = () => {
+      interaction?.scroll();
+      rules.remove();
+      delete document.documentElement.dataset.dmMailTransition;
+      transition = null;
+      busy = false;
+      notify(surfaces.get(record.id), active === record.id);
+    };
+    if (!reducedMotion() && typeof document.startViewTransition === "function") {
+      document.documentElement.dataset.dmMailTransition = name;
+      document.head.appendChild(rules);
+      try {
+        transition = document.startViewTransition(perform);
+        transition.ready.catch(() => {
+        });
+        transition.finished.catch(() => {
+        }).finally(finish);
+        return;
+      } catch {
+      }
+    }
+    perform();
+    if (!reducedMotion() && typeof record.surface.animate === "function") {
+      const animation = record.surface.animate([{ opacity: 0.85 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
+      animation.finished.catch(() => {
+      }).finally(finish);
+    } else finish();
+  };
+  return {
+    register(record) {
+      surfaces.set(record.id, record);
+      return () => {
+        transition?.skipTransition();
+        if (active === record.id) {
+          record.surface.close();
+          active = null;
+        }
+        surfaces.delete(record.id);
+      };
+    },
+    toggle(id) {
+      const record = surfaces.get(id);
+      if (!record || busy) return;
+      if (active === id) {
+        change(record, () => restore(id));
+        return;
+      }
+      if (active) restore(active);
+      const interaction = retainInteraction(record.surface);
+      change(record, () => {
+        record.surface.close();
+        record.surface.dataset.workspaceFullscreen = "true";
+        record.surface.showModal();
+        active = id;
+        notify(record, true, true);
+        interaction();
+        return interaction;
+      });
+    },
+    exit(id, animate = false) {
+      if (active !== id) return;
+      transition?.skipTransition();
+      const record = surfaces.get(id);
+      if (animate && !busy && record) change(record, () => restore(id));
+      else restore(id);
+    },
+    dismiss() {
+      if (active && !busy) this.exit(active, true);
+    },
+    dispose() {
+      transition?.skipTransition();
+      if (active) restore(active, false);
+      surfaces.clear();
+    }
+  };
+}
+function MailFullscreenLayer() {
+  return /* @__PURE__ */ import_react3.default.createElement("style", null, presentation_default);
+}
+function MailSurface({ presentationHost, origin = "main", ...props }) {
+  const root = (0, import_react3.useRef)(null), [id] = (0, import_react3.useState)(() => `dm-mail-surface-${++surfaceSequence}`);
+  const [presentation, setPresentation] = (0, import_react3.useState)({ fullscreen: false, transitioning: false });
+  (0, import_react3.useLayoutEffect)(() => presentationHost.register({ id, surface: root.current, onChange: setPresentation }), [presentationHost, id]);
+  (0, import_react3.useEffect)(() => {
+    if (props.visible === false) presentationHost.exit(id);
+  }, [props.visible, presentationHost, id]);
+  return /* @__PURE__ */ import_react3.default.createElement("dialog", { ref: root, open: true, className: "dm-live-surface dm-workspace-fullscreen", role: presentation.fullscreen ? "dialog" : "group", "aria-modal": presentation.fullscreen || void 0, "aria-label": presentation.fullscreen ? "DSH Mail \u5168\u5C4F\u5DE5\u4F5C\u533A" : "DSH Mail \u5DE5\u4F5C\u533A", "data-mail-origin": origin, "data-mail-visible": props.visible === false ? void 0 : "true", style: { viewTransitionName: id }, onCancel: (event) => {
+    event.preventDefault();
+    presentationHost.dismiss();
+  } }, /* @__PURE__ */ import_react3.default.createElement(App, { ...props, presentation: { ...presentation, origin, toggle: () => presentationHost.toggle(id) } }));
+}
+
 // ui/assistant.jsx
-var import_react3 = __toESM(require("react"), 1);
+var import_react4 = __toESM(require("react"), 1);
 function ChatView({ renderSlot }) {
   return renderSlot("conversation.session", { view: "chat" });
 }
@@ -48078,11 +48330,11 @@ function createMailAssistant(ctx, globalCall) {
 
 // ui/plugin.jsx
 function Opener({ sessionId, open }) {
-  return /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail" }));
+  return /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", title: "\u6253\u5F00 DSH Mail", "aria-label": "\u6253\u5F00 DSH Mail", onClick: () => open(sessionId), style: { border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer", padding: 6 } }, /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail" }));
 }
 function Presence({ useMailMounted, useSessions, open, call }) {
   const sessionId = useMailMounted((x4) => x4), preset = useSessions((s4) => s4.byId[sessionId]?.projectionValues?.agentPreset);
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     if (preset !== "dsh-mail" || !sessionId) return;
     open(sessionId);
     let cancelled = false, running = false, lastId;
@@ -48112,14 +48364,14 @@ function Presence({ useMailMounted, useSessions, open, call }) {
 }
 function Tab(props) {
   const { tab } = props.useTabInfo();
-  return /* @__PURE__ */ import_react4.default.createElement(App, { ...props, visible: tab.visible });
+  return /* @__PURE__ */ import_react5.default.createElement(MailSurface, { ...props, origin: "sidebar", visible: tab.visible });
 }
 function Title({ useTabInfo }) {
   const { tab } = useTabInfo();
-  return /* @__PURE__ */ import_react4.default.createElement("span", null, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
+  return /* @__PURE__ */ import_react5.default.createElement("span", null, /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail", size: 16 }), " ", tab.title);
 }
 function MailIcon({ size = 18 }) {
-  return /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "mail", size });
+  return /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "mail", size });
 }
 var plugin_default = {
   inject: ["slots", "locale", "remote", "remote.session", "sessions", "workspaces", "uiWorkspace", "sidebarRight", "sidebarRightTabs"],
@@ -48145,6 +48397,9 @@ var plugin_default = {
         return r3.value;
       };
       const assistantHost = createMailAssistant(ctx2, globalCall);
+      const presentationHost = createMailPresentationHost();
+      ctx2.effect(() => () => presentationHost.dispose());
+      ctx2.slots.inject("shell.overlay", () => ctx2.slots.register({ name: "shell.overlay", id: "dsh-mail-fullscreen", inject: () => ({ presentationHost }) }, MailFullscreenLayer));
       const children = (name) => ({ [name]: { kind: "single", scope: "session" } });
       for (const name of ["dsh-mail.main.conversation", "dsh-mail.sidebar.conversation"]) ctx2.slots.inject(name, () => ctx2.slots.register({ name }, MailConversation));
       const open = (sessionId) => {
@@ -48156,9 +48411,9 @@ var plugin_default = {
         } else ctx2.sidebarRight.openTab("dsh-mail");
       };
       ctx2.effect(() => ctx2.sidebarRightTabs.register({ id: "dsh-mail", kind: "dsh-mail", title: () => "DSH Mail", keepMounted: true }));
-      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.main.conversation"), inject: () => ({ call: globalCall, assistantHost, conversationSlot: "dsh-mail.main.conversation" }) }, App));
+      ctx2.slots.inject("main", () => ctx2.slots.register({ name: "main", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.main.conversation"), inject: () => ({ call: globalCall, assistantHost, presentationHost, conversationSlot: "dsh-mail.main.conversation" }) }, MailSurface));
       ctx2.slots.inject("sidebar.panellist", () => ctx2.slots.register({ name: "sidebar.panellist", id: "dsh-mail", order: 20, label: "DSH Mail", locale: "dsh-mail" }, MailIcon));
-      ctx2.slots.inject("sidebar.right.pane.tab", () => ctx2.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.sidebar.conversation"), inject: () => ({ call, assistantHost, conversationSlot: "dsh-mail.sidebar.conversation" }) }, Tab));
+      ctx2.slots.inject("sidebar.right.pane.tab", () => ctx2.slots.register({ name: "sidebar.right.pane.tab", key: "dsh-mail", locale: "dsh-mail", children: children("dsh-mail.sidebar.conversation"), inject: () => ({ call, assistantHost, presentationHost, conversationSlot: "dsh-mail.sidebar.conversation" }) }, Tab));
       ctx2.slots.inject("sidebar.right.pane.tab.title", () => ctx2.slots.register({ name: "sidebar.right.pane.tab.title", key: "dsh-mail", locale: "dsh-mail" }, Title));
       ctx2.slots.inject("shell.overlay", () => ctx2.slots.register({ name: "shell.overlay", id: "dsh-mail-auto-open", inject: () => ({ hooks: { mailMounted: ctx2.sidebarRight.mounted }, open, call }) }, Presence));
       ctx2.slots.inject("conversation.session.header.utilities", () => ctx2.slots.register({ name: "conversation.session.header.utilities", id: "dsh-mail-open", locale: "dsh-mail", inject: () => ({ open }) }, Opener));

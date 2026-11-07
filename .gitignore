@@ -12,3 +12,5 @@ data/
 mail-attachments/
 playwright-report/
 test-results/
+.playwright-cli/
+output/playwright/

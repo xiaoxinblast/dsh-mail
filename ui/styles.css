@@ -481,7 +481,8 @@
 .dsh-mail .dm-reader-actions{display:flex;align-items:center;justify-content:flex-end;gap:3px;flex-wrap:wrap;min-width:0}
 .dsh-mail .dm-reader-actions>button{font-size:11px;padding:5px 7px;border-color:transparent;background:transparent}
 .dsh-mail .dm-reader-actions .dm-reader-more{margin-left:0}
-.dsh-mail .dm-reader-more .dm-menu-panel{max-width:calc(100cqw - 28px);max-height:min(60vh,440px);overflow:auto}
+.dsh-mail .dm-reader-more .dm-menu-panel,.dsh-mail .dm-reader-ai .dm-menu-panel{max-width:calc(100cqw - 28px);max-height:min(60vh,440px);overflow:auto}
+.dsh-mail .dm-reader-ai>summary{gap:4px;font-size:11px;font-weight:600;color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary))}
 @container dm-reader (max-width:700px){.dsh-mail .dm-reader-topline{grid-template-columns:auto minmax(0,1fr);gap:7px}.dsh-mail .dm-reader-actions{grid-column:1/-1}.dsh-mail .dm-reader-sticky h2{font-size:18px}.dsh-mail .dm-reader-actions>button{padding:5px 6px}}
 /* The right pane uses the same captured-pointer divider as the mail list. */
 .dm-agent-panel>.dm-agent-divider{position:absolute;inset:0 auto 0 -3px;width:6px;z-index:2;cursor:col-resize;touch-action:none;outline-offset:-2px}

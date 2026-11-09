@@ -14,7 +14,7 @@ const shot = (name) => page.locator(".dm-app").screenshot({ path: `.cache/screen
 try {
   await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
   await mail.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }).click();
-  await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
+  await mail.getByLabel("邮件 AI 工具", { exact: true }).click(); await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
   await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/最早报价 12345/);
   await expect(quick.getByLabel("快捷 AI 工具进度")).toContainText("查找往来邮件");
   await quick.getByRole("button", { name: "在助手中查看" }).click(); await expect(panel).toContainText("邮件快捷任务");
@@ -30,8 +30,8 @@ try {
   checks.push("quick actions can create a requested task without navigating away from their source mail");
   await quick.getByLabel("写作或处理要求（可选）").fill("[pause] 检查跨邮件上下文"); await quick.getByRole("button", { name: "重新生成", exact: true }).click();
   await page.waitForTimeout(300); await mail.getByRole("heading", { name: "[验收] 另一封上下文邮件", exact: true }).click();
-  await mail.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(quick).toContainText("邮箱助手正在处理任务");
-  await mail.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }).click(); await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
+  await mail.getByLabel("邮件 AI 工具", { exact: true }).click(); await mail.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(quick).toContainText("邮箱助手正在处理任务");
+  await mail.getByRole("heading", { name: "[验收] 联系人与内置 AI", exact: true }).click(); await mail.getByLabel("邮件 AI 工具", { exact: true }).click(); await mail.getByRole("button", { name: "总结邮件", exact: true }).click();
   await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/最早报价 12345/);
   assert.doesNotMatch(await quick.getByLabel("AI 生成正文（可编辑）").inputValue(), /第二封邮件的专属信息/);
   checks.push("switching mail keeps the original task running and restores its candidate; a competing quick task is rejected instead of interrupting the sidebar");
@@ -39,7 +39,7 @@ try {
   await expect(quick.getByRole("button", { name: "取消生成" })).toBeVisible(); await page.waitForTimeout(700); await quick.getByRole("button", { name: "取消生成" }).click();
   await expect(quick).toContainText("已取消生成");
   await quick.getByRole("button", { name: "关闭邮件内 AI" }).click();
-  await mail.getByRole("button", { name: "AI 回复", exact: true }).click();
+  await mail.getByLabel("邮件 AI 工具", { exact: true }).click(); await mail.getByRole("button", { name: "AI 回复", exact: true }).click();
   await quick.getByLabel("回复要求（可选）").fill("查找往来后回复，并生成发送预览"); await quick.getByRole("button", { name: "生成", exact: true }).click();
   await expect(quick.getByLabel("AI 生成正文（可编辑）")).toHaveValue(/确认周五交付/);
   await expect(mail.locator(".dm-approval-bar")).toBeVisible();

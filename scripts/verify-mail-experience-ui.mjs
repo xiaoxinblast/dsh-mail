@@ -99,12 +99,36 @@ try {
   await expect(root.locator(".dm-reader-heading")).toContainText("client@example.invalid"); await expect(root.locator(".dm-reader-heading")).toContainText("me@example.invalid"); await expect(root.locator(".dm-reader-heading")).toContainText("Doe, Jane");
   const header = root.locator(".dm-reader-sticky"), top = (await header.boundingBox()).y;
   await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = 900); assert.ok(Math.abs((await header.boundingBox()).y - top) < 2);
+  const aiMenu = root.getByLabel("邮件 AI 工具", { exact: true }), readerPane = root.locator(".dm-detail-pane");
+  for (const width of [1440, 1024, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const position of [900, "bottom"]) {
+      await readerPane.evaluate((el, value) => el.scrollTop = value === "bottom" ? el.scrollHeight : value, position);
+      assert.ok(await readerPane.evaluate((el) => el.scrollTop > 500), "long mail actually scrolled");
+      await expect(aiMenu).toBeInViewport(); await aiMenu.click();
+      const menu = root.locator(".dm-reader-ai .dm-menu-panel"), menuBounds = await menu.boundingBox(), paneBounds = await readerPane.boundingBox();
+      assert.ok(menuBounds.x >= paneBounds.x && menuBounds.x + menuBounds.width <= paneBounds.x + paneBounds.width && menuBounds.y + menuBounds.height <= 900, "AI menu fits the reading viewport");
+      await expect(menu.getByRole("button")).toHaveCount(3); await shot(`ai-menu-${width}-${position}`);
+      await menu.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(root.locator(".dm-reader-ai")).not.toHaveAttribute("open");
+      await expect(panel).toBeVisible(); await expect.poll(async () => (await panel.boundingBox()).y - ((await header.boundingBox()).y + (await header.boundingBox()).height)).toBeGreaterThanOrEqual(0);
+      await expect(panel.getByLabel("AI 操作")).toBeFocused(); await expect(panel.getByLabel("AI 操作")).toBeInViewport(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
+      await shot(`ai-summary-${width}-${position}`);
+    }
+    await panel.getByRole("button", { name: "关闭邮件内 AI" }).click();
+    await aiMenu.focus(); await aiMenu.press("Enter"); await expect(root.locator(".dm-reader-ai")).toHaveAttribute("open");
+    await aiMenu.press("Escape"); await expect(root.locator(".dm-reader-ai")).not.toHaveAttribute("open"); await expect(aiMenu).toBeFocused();
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 }); await readerPane.evaluate((el) => el.scrollTop = el.scrollHeight);
+  await aiMenu.click(); await root.getByRole("button", { name: "翻译本邮件", exact: true }).click();
+  await expect(panel.getByLabel("AI 操作")).toHaveValue("translateMessage"); await expect(panel.getByLabel("AI 操作")).toBeInViewport(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
+  await panel.getByRole("button", { name: "关闭邮件内 AI" }).click(); await readerPane.evaluate((el) => el.scrollTop = 900);
+  checks.push("AI menu stays reachable after middle/end scrolling at three widths, fits the viewport, reveals new/existing results and supports keyboard open/Escape");
   const frame = root.frameLocator('iframe[title="邮件正文"]'); await expect(frame.locator("[data-mail-history]")).toContainText("更早回复"); assert.equal(await page.evaluate(() => window.emailScriptRan), undefined);
   await shot("reader-sticky-light");
   await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = 0);
   await root.getByLabel("更多邮件操作").click(); await root.getByRole("button", { name: "显示纯文本", exact: true }).click(); await expect(root.locator(".dm-mail-body .dm-quoted")).toContainText("上一轮回复");
   checks.push("address fallbacks, quoted comma name, sticky heading, preserved HTML/plain quotation and script isolation");
-  await root.getByRole("button", { name: "AI 回复", exact: true }).click(); await expect(composer).toBeVisible();
+  await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name: "AI 回复", exact: true }).click(); await expect(composer).toBeVisible();
   await expect(composer.getByLabel("收件人", { exact: true })).toHaveValue("client@example.invalid"); await expect(composer.locator(".tiptap")).not.toContainText("上一轮回复");
   await panel.getByLabel("回复要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await composer.locator(".tiptap").fill("较新的用户输入"); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
   await panel.getByRole("button", { name: "应用正文", exact: true }).click(); await expect(panel.getByRole("alert")).toContainText("草稿已经改变"); await expect(composer.locator(".tiptap")).toHaveText("较新的用户输入");
@@ -211,7 +235,7 @@ try {
     await page.waitForTimeout(200);
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 900 }); await shot(`read-${theme}-${width}`); assert.ok((await header.boundingBox()).height < 900 * .43); }
   }
-  await root.getByRole("button", { name: "AI 回复", exact: true }).focus(); await expect(root.getByRole("button", { name: "AI 回复", exact: true })).toBeFocused();
+  await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name: "AI 回复", exact: true }).focus(); await expect(root.getByRole("button", { name: "AI 回复", exact: true })).toBeFocused();
   assert.deepEqual(errors, []); assert.equal(sends, 0); checks.push("light/dark desktop and narrow rendering, keyboard AI focus, zero browser errors, zero SMTP calls");
   await writeFile(join(cache, "mail-experience-ui-verification.json"), JSON.stringify({ checks, pageErrors: errors, smtpCalls: sends }, null, 2)); console.log(JSON.stringify({ checks, pageErrors: errors, smtpCalls: sends }));
 } catch (e) { await shot("failure"); await writeFile(join(cache, "experience-failure.txt"), await page.locator("body").innerText()); throw e; }

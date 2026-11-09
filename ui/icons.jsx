@@ -30,6 +30,7 @@ const paths = {
   trash: <><path d="M3 6h18M8 6V3h8v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></>,
   read: <><path d="m3 10 9-7 9 7v11H3Z" /><path d="m3 10 9 6 9-6" /></>,
   reply: <><path d="m9 5-7 7 7 7M2 12h12a7 7 0 0 1 7 7" /></>,
+  replyAll: <path d="m8 5-7 7 7 7m7-14-7 7 7 7M8 12h7a7 7 0 0 1 7 7" />,
   forward: <><path d="m15 5 7 7-7 7M22 12H10a7 7 0 0 0-7 7" /></>,
   back: <path d="m14 5-7 7 7 7" />,
   next: <path d="m10 5 7 7-7 7" />,

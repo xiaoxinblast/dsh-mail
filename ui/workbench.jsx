@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useId, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useReducer, useRef, useCallback, useId, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
@@ -27,6 +27,7 @@ import { downloadableAttachments } from "../src/attachments.mjs";
 import { addressPeople, displayName, personLabel, quotedTextSections, draftTextParts, textHtml, pendingDrafts } from "../src/message-format.mjs";
 import { decorateHtmlQuotes, splitReplyHtml, QUOTE_FRAME_CSS } from "./mail-quotes.mjs";
 import { scheduledInstant, sendTimeLabel } from "../src/send-options.mjs";
+import { initialSendFeedback, sendFeedback } from "./send-feedback.mjs";
 
 const Ctx = createContext(null);
 export const useMail = () => useContext(Ctx);
@@ -123,7 +124,8 @@ export function App({ sessionId: ownerSessionId, call, assistantHost, SessionPro
     refreshing.current = work.finally(() => { refreshing.current = null; }); return refreshing.current;
   }, [request, resourcesKey]);
   useEffect(() => { live.current = true; return () => { live.current = false; }; }, []);
-  useEffect(() => { if (!visible || !foreground) return; const run = async () => { if (tick.current) return; tick.current = true; try { await refresh(); } catch (e) { if (live.current) setError(e.message); } finally { tick.current = false; } }; run(); const timer = setInterval(run, 5000); return () => { clearInterval(timer); }; }, [refresh, visible, foreground]);
+  const sendingSoon = state.drafts.some((draft) => draft.status === "sending" || (draft.status === "queued" && Date.parse(draft.sendAt) <= Date.now() + 60000));
+  useEffect(() => { if (!visible || !foreground) return; const run = async () => { if (tick.current) return; tick.current = true; try { await refresh(); } catch (e) { if (live.current) setError(e.message); } finally { tick.current = false; } }; run(); const timer = setInterval(run, sendingSoon ? 1000 : 5000); return () => { clearInterval(timer); }; }, [refresh, visible, foreground, sendingSoon]);
   useEffect(() => { const update = (event) => { if (visible && foreground && event.detail?.sessionId === sessionId) refresh().catch((e) => setError(e.message)); }; window.addEventListener("dsh-mail:workbench", update); return () => window.removeEventListener("dsh-mail:workbench", update); }, [refresh, visible, foreground, sessionId]);
   useEffect(() => {
     const view = state.workbench;
@@ -149,7 +151,7 @@ export function App({ sessionId: ownerSessionId, call, assistantHost, SessionPro
     return () => { cancelled = true; };
   }, [state.workbench, visible, sessionId, compose, draftTouched, modal, request]);
   useEffect(() => { setDraftTouched(false); }, [compose?.id]);
-  useEffect(() => { if (compose && state.drafts.find((d) => d.id === compose.id)?.status === "sent") { setCompose(null); setNotice("已发送"); } }, [state.drafts, compose?.id]);
+  useEffect(() => { if (compose && state.drafts.find((d) => d.id === compose.id)?.status === "sent") setCompose(null); }, [state.drafts, compose?.id]);
   useEffect(() => { if (!navigation?.entityId) return; const frame = requestAnimationFrame(() => { for (const item of root.current?.querySelectorAll("[data-mail-entity]") || []) item.dataset.agentSelected = String(item.dataset.mailEntity === navigation.entityId); root.current?.querySelector(`[data-mail-entity="${CSS.escape(navigation.entityId)}"]`)?.scrollIntoView({ block: "nearest" }); }); return () => cancelAnimationFrame(frame); }, [navigation, tab, state.tasks, state.contacts, state.rules, state.signatures, state.templates, state.labels, state["saved-searches"]]);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(""), 4500); return () => clearTimeout(timer); }, [notice]);
   const act = async (operation, success) => { setError(""); setBusy((n) => n + 1); try { const value = await request(operation); await refresh(); if (success) setNotice(success); return value; } catch (e) { setError(e.message); throw e; } finally { setBusy((n) => n - 1); } };
@@ -171,9 +173,72 @@ export function App({ sessionId: ownerSessionId, call, assistantHost, SessionPro
     {notice && <div className="dm-notice" role="status"><span>{notice}</span><Button onClick={() => setNotice("")}>×</Button></div>}
     {state.previews.length > 0 && <div className="dm-approval-bar"><span>有 {state.previews.length} 项操作等待你核对</span><Button onClick={() => setModal({ type: "preview", value: state.previews[0] })}>查看预览</Button></div>}
     <div className="dm-content"><div hidden={tab !== "邮件"} style={{ height: "100%" }}><StableMailView active={visible && tab === "邮件"} navigation={navigation} /></div>{tab === "邮件" ? null : tab === "日历" ? <CalendarView /> : tab === "待办" ? <TasksView /> : tab === "联系人" ? <ContactsView /> : tab === "规则" ? <RulesView /> : <SettingsCenter />}</div>
+    <SendFeedback />
     </div>
     {modal && <Modal title={modal.title || ({ account: "连接邮箱", folder: "管理文件夹", transfer: "整理邮件到文件夹", preview: "核对操作", event: "日历事件", task: "待办事项", contact: "联系人", person: "联系人与邮件", rule: "邮件规则", activity: "通知", resource: "编辑内容", attachment: "附件预览" })[modal.type]} close={() => setModal(null)}>{modal.type === "account" ? <AccountForm value={modal.value} /> : modal.type === "folder" ? <FolderForm value={modal.value} /> : modal.type === "transfer" ? <TransferForm message={modal.value} /> : modal.type === "preview" ? <Preview value={modal.value} /> : modal.type === "event" ? <EventForm value={modal.value} /> : modal.type === "task" ? <TaskForm value={modal.value} /> : modal.type === "person" ? <ContactCard person={modal.value} /> : modal.type === "contact" ? <ContactForm value={modal.value} /> : modal.type === "rule" ? <RuleForm value={modal.value} initialPreview={modal.preview} /> : modal.type === "resource" ? <ResourceForm {...modal} /> : modal.type === "attachment" ? <AttachmentPreview value={modal.value} /> : <Activity />}</Modal>}
   </main>{assistantOpen && <aside id={assistantId} className="dm-agent-panel" aria-label="邮箱 AI 对话"><PaneDivider key={assistantSizes.overlay ? "overlay" : "split"} name="调整 AI 助手宽度" width={assistantSizes.width} min={assistantSizes.min} max={assistantSizes.max} direction={-1} paneId={assistantId} kind="agent" setResizing={setAssistantResizing} onChange={setAssistantWidth} onSave={saveAssistantWidth} onReset={() => saveAssistantWidth(assistantPaneSizes(DEFAULT_ASSISTANT_WIDTH, appWidth).width)} /><header><strong><Icon name="sparkle" size={17} />邮箱助手</strong><div className="dm-agent-header-actions"><PresentationToggle presentation={presentation} assistant /><button type="button" aria-label="关闭邮箱助手" onClick={() => setAssistantOpen(false)}><Icon name="close" size={18} /></button></div></header><div className="dm-agent-context"><span>当前上下文</span><strong>{tab === "邮件" ? compose ? compose.subject || "新邮件草稿" : assistantSubject || (selected ? "当前打开的邮件" : "邮箱工作台") : tab}</strong><small>每轮读取当前邮件正文、完整引用及已保存草稿</small></div><div className="dm-agent-conversation">{assistantError ? <p role="alert">{assistantError} 关闭侧栏后可重新连接。</p> : !assistantHost ? <p>邮箱助手需要 DSH 会话服务。</p> : assistantBinding && contextReady === contextKey ? <SessionProvider session={assistantBinding.reference}>{renderSlot(conversationSlot, {})}</SessionProvider> : <p>正在连接邮件上下文…</p>}</div></aside>}</div></Ctx.Provider>;
+}
+
+function SendFeedback() {
+  const { state, act, run, request, setCompose, setTab, setDrafts, setModal, busy } = useMail();
+  const [feedback, dispatch] = useReducer(sendFeedback, initialSendFeedback);
+  useEffect(() => { if (state.settings) dispatch({ type: "sync", drafts: state.drafts, now: Date.now() }); }, [state.drafts, state.settings]);
+  useEffect(() => {
+    const deadlines = feedback.toasts.map((item) => item.expiresAt).filter(Boolean);
+    if (!deadlines.length) return;
+    const timer = setTimeout(() => dispatch({ type: "expire", now: Date.now() }), Math.max(0, Math.min(...deadlines) - Date.now()));
+    return () => clearTimeout(timer);
+  }, [feedback.toasts]);
+  return <div className="dm-send-toasts" aria-label="邮件发送进度">{feedback.toasts.map(({ id, draft, status }) => {
+    const warning = ["failed", "uncertain", "needs-confirmation"].includes(status) || draft.rejected?.length > 0 || draft.sentCopyStatus === "failed";
+    const detail = status === "queued" ? `${draft.scheduledAt ? "计划发送：" : "发送时间："}${sendTimeLabel(draft.sendAt, draft.sendTimeZone)}` : status === "sending" ? "正在提交到邮件服务器…" : status === "cancelled" ? "邮件已保留为草稿" : status === "sent" ? draft.rejected?.length ? `有 ${draft.rejected.length} 位收件人未被服务器接受，请查看详情。` : draft.sentCopyStatus === "failed" ? "邮件已发送，但保存已发送副本失败，请查看详情。" : "邮件服务器已接受发送" : (draft.error?.message || draft.error || "请查看邮件详情后再处理。");
+    return <div key={id} className={`dm-send-toast ${warning ? "is-warning" : ""}`} data-status={status}>
+      <span className={`dm-send-toast-icon ${status === "sending" ? "is-sending" : ""}`}><Icon name={warning ? "activity" : status === "sending" ? "sync" : status === "queued" ? "sent" : "check"} size={20} /></span>
+      <div className="dm-send-toast-content"><div role={warning ? "alert" : "status"} aria-atomic="true"><strong>{status === "cancelled" ? "已取消发送" : statusText[status]}</strong><p title={draft.subject}>{draft.subject || "（无主题）"}</p><small>{detail}</small></div><div className="dm-send-toast-actions">{status === "queued" && <Button disabled={busy > 0} onClick={() => run(() => act({ action: "drafts.cancel", id }))}>取消发送</Button>}<Button onClick={() => run(async () => { if (status === "sent") setModal({ type: "activity" }); else { const value = await request({ action: "drafts.read", id }); setTab("邮件"); setDrafts(true); setCompose(value); } })}>查看详情</Button></div></div>
+      <Button className="dm-send-toast-close" aria-label={`关闭发送提示 ${draft.subject || "（无主题）"}`} onClick={() => dispatch({ type: "dismiss", id })}><Icon name="close" size={15} /></Button>
+    </div>;
+  })}</div>;
+}
+
+function MessageContextMenu({ target, message, close }) {
+  const { act, run, setSelected, setCompose, setModal } = useMail(), ref = useRef(null);
+  const dismiss = (restore = false) => { if (restore && target.anchor.isConnected) target.anchor.focus({ preventScroll: true }); close(); };
+  useLayoutEffect(() => {
+    const menu = ref.current, bounds = menu.closest(".dsh-mail").getBoundingClientRect();
+    const left = Math.max(0, bounds.left) + 8, top = Math.max(0, bounds.top) + 8;
+    const right = Math.min(innerWidth, bounds.right) - 8, bottom = Math.min(innerHeight, bounds.bottom) - 8;
+    menu.style.width = `${Math.min(236, right - left)}px`; menu.style.maxHeight = `${bottom - top}px`;
+    menu.showPopover();
+    const box = menu.getBoundingClientRect();
+    menu.style.left = `${Math.max(left, Math.min(target.x, right - box.width))}px`; menu.style.top = `${Math.max(top, Math.min(target.y, bottom - box.height))}px`;
+    menu.querySelector('[role="menuitem"]')?.focus({ preventScroll: true });
+    const anchorBounds = target.anchor.getBoundingClientRect();
+    const outside = (event) => { if (menu.contains(event.target)) return; if (event.type === "scroll") { const current = target.anchor.getBoundingClientRect(); if (current.x === anchorBounds.x && current.y === anchorBounds.y) return; } dismiss(); };
+    const resize = () => dismiss();
+    const keydown = (event) => {
+      if (event.key === "Escape" || event.key === "Tab") { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); } dismiss(true); return; }
+      const items = [...menu.querySelectorAll('[role="menuitem"]')], index = items.indexOf(document.activeElement);
+      const next = ({ ArrowDown: (index + 1) % items.length, ArrowUp: (index - 1 + items.length) % items.length, Home: 0, End: items.length - 1 })[event.key];
+      if (next !== undefined) { event.preventDefault(); items[next]?.focus(); }
+    };
+    document.addEventListener("pointerdown", outside, true); document.addEventListener("scroll", outside, true); document.addEventListener("keydown", keydown, true); window.addEventListener("resize", resize); window.addEventListener("blur", resize);
+    return () => { document.removeEventListener("pointerdown", outside, true); document.removeEventListener("scroll", outside, true); document.removeEventListener("keydown", keydown, true); window.removeEventListener("resize", resize); window.removeEventListener("blur", resize); if (menu.matches(":popover-open")) menu.hidePopover(); };
+  }, [target]);
+  const choose = (fn) => { dismiss(true); run(fn); };
+  const operation = (name, value) => choose(() => act({ action: "messages.action", ids: [message.id], operation: name, value }));
+  return <div ref={ref} popover="manual" role="menu" aria-label="邮件操作" className="dm-message-context" onContextMenu={(event) => event.preventDefault()}>
+    <div className="dm-context-subject" title={message.subject}>{message.subject || "（无主题）"}</div>
+    <Button role="menuitem" onClick={() => choose(() => { setSelected(message.id); setCompose(null); })}><Icon name="mail" size={16} />打开邮件</Button>
+    {[["reply", "回复"], ["replyAll", "回复全部"], ["forward", "转发"]].map(([mode, label]) => <Button key={mode} role="menuitem" onClick={() => choose(async () => setCompose(await act({ action: "drafts.reply", id: message.id, mode })))}><Icon name={mode} size={16} />{label}</Button>)}
+    <div role="separator" />
+    <Button role="menuitem" onClick={() => operation("read", !message.seen)}><Icon name={message.seen ? "mail" : "read"} size={16} />{message.seen ? "标为未读" : "标为已读"}</Button>
+    <Button role="menuitem" onClick={() => operation("star", !message.starred)}><Icon name="star" size={16} />{message.starred ? "取消星标" : "添加星标"}</Button>
+    <Button role="menuitem" onClick={() => operation("archive")}><Icon name="archive" size={16} />归档</Button>
+    <Button role="menuitem" onClick={() => choose(() => setModal({ type: "transfer", value: message }))}><Icon name="folder" size={16} />移动／复制到文件夹…</Button>
+    <div role="separator" />
+    <Button role="menuitem" onClick={() => operation("junk")}><Icon name="archive" size={16} />移到垃圾邮件</Button>
+    <Button role="menuitem" danger onClick={() => operation("trash")}><Icon name="trash" size={16} />删除</Button>
+  </div>;
 }
 
 function Menu({ label, children, className = "", icon = "more", caption, closeOnAction = false, style }) {
@@ -208,9 +273,12 @@ function MailView({ active, navigation }) {
   const { state, query, setQuery, selected, setSelected, compose, setCompose, setModal, act, run, request, download, setTab, setSettingsSection, folderMenu, setFolderMenu, drafts, setDrafts, folderTrigger, folderId } = useMail();
   const [result, setResult] = useState({ items: [], total: 0 }), [checked, setChecked] = useState([]), [q, setQ] = useState(""), [advanced, setAdvanced] = useState(false), [destination, setDestination] = useState(""), [groupThreads, setGroupThreads] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false), [searchError, setSearchError] = useState(""), [searchRetry, setSearchRetry] = useState(0);
+  const [contextMenu, setContextMenu] = useState(null);
+  const openContextMenu = (event, message) => { event.preventDefault(); event.stopPropagation(); const anchor = event.currentTarget.querySelector("button.dm-message"), box = anchor.getBoundingClientRect(); setContextMenu({ id: message.id, anchor, x: event.type === "keydown" ? box.left + 20 : event.clientX, y: event.type === "keydown" ? box.top + 20 : event.clientY }); };
   const pageSize = state.settings?.pageSize || 50;
   useEffect(() => setGroupThreads(state.settings?.groupThreads ?? false), [state.settings?.groupThreads]);
   const activeQuery = JSON.stringify(query), folderScope = JSON.stringify(state.folders.map(({ id, path, role, missing, deleted }) => [id, path, role, missing, deleted]));
+  useEffect(() => { setContextMenu(null); }, [active, activeQuery, drafts, selected, compose?.id, folderMenu]);
   const [folderQuery, setFolderQuery] = useState(""), [folderSort, setFolderSort] = useState(state.settings?.folderSort || DEFAULT_SETTINGS.folderSort), [sorting, setSorting] = useState(false);
   const folderPanel = useRef(null), folderSearch = useRef(null);
   const layout = useRef(null), layoutId = useId(), [dimensions, setDimensions] = useState({ width: 1000, root: 1064 }), [paneWidths, setPaneWidths] = useState(DEFAULT_SETTINGS), [resizing, setResizing] = useState(false);
@@ -231,9 +299,10 @@ function MailView({ active, navigation }) {
   const filter = (next) => { setDrafts(false); setCompose(null); setSelected(null); setQuery(next); setQ(next.q || ""); if (folderMenu) closeFolders(); };
   const operate = (operation, value) => run(async () => { const r = await act({ action: "messages.action", ids: checked, operation, value, destinationId: destination || undefined }); if (r.kind === "purge") setModal({ type: "preview", value: r }); setChecked([]); });
   const shown = useMemo(() => groupThreads ? result.items.filter((m, i, all) => all.findIndex((x) => x.accountId === m.accountId && x.threadId === m.threadId) === i) : result.items, [groupThreads, result.items]);
-  const messageRows = useMemo(() => shown.map((m) => { const avatar = senderAppearance(m), positions = messageFolderLocations(m, state.folders), attachments = downloadableAttachments(m); return <div key={m.id} className={`dm-message-row ${selected === m.id ? "selected" : ""} ${!m.seen ? "unread" : ""}`}>{positions.length > 0 && <span className="dm-folder-corner" role="img" aria-label={`所在文件夹：${positions.map(({ folder }) => folder.path).join("、")}`} title={`${state.accounts.find((a) => a.id === m.accountId)?.name || ""} / ${positions.map(({ folder }) => folder.path).join("、")}`} style={{ "--folder-color": `linear-gradient(135deg, ${positions.map(({ folder }, i) => `${folderAppearance(folder).color} ${i / positions.length * 100}% ${(i + 1) / positions.length * 100}%`).join(", ")})` }} />}<input type="checkbox" aria-label={`选择 ${m.subject}`} checked={checked.includes(m.id)} onChange={(e) => setChecked(e.target.checked ? [...checked, m.id] : checked.filter((k) => k !== m.id))} /><span className="dm-sender-avatar" style={{ "--avatar-color": avatar.color }} aria-hidden="true">{avatar.text}</span><button className="dm-message" onClick={() => { setSelected(m.id); setCompose(null); }}><div className="dm-message-top"><strong>{personLabel(m.from?.[0])}</strong><small>{date(m.date)}</small></div><h3>{m.subject || "（无主题）"}</h3><p>{m.snippet || (m.bodyLoaded ? "无纯文本正文" : "正文等待同步")}</p><div className="dm-message-bottom"><span>{state.accounts.find((a) => a.id === m.accountId)?.name}</span>{!!attachments.length && <span><Icon name="attachment" size={12} /> {attachments.length}</span>}{m.labels?.map((x) => <span key={x} style={{color:state.labels.find((label) => label.name === x)?.color || "var(--dm-accent)",border:"1px solid currentColor",padding:"0 4px",borderRadius:3}}>{x}</span>)}</div></button><div className="dm-row-actions"><Button className={`dm-star ${m.starred ? "is-starred" : ""}`} aria-label={`${m.starred ? "取消星标" : "添加星标"} ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "star", value: !m.starred }))}><Icon name="star" size={16} /></Button><div className="dm-row-quick"><Button aria-label={`${m.seen ? "标为未读" : "标为已读"} ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "read", value: !m.seen }))}><Icon name={m.seen ? "mail" : "read"} size={16} /></Button><Button aria-label={`归档 ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "archive" }))}><Icon name="archive" size={16} /></Button></div></div></div>; }), [shown, checked, selected, state.folders, state.accounts, state.labels, request]);
+  const messageRows = useMemo(() => shown.map((m) => { const avatar = senderAppearance(m), positions = messageFolderLocations(m, state.folders), attachments = downloadableAttachments(m); return <div key={m.id} onContextMenu={(event) => openContextMenu(event, m)} onKeyDown={(event) => { if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) openContextMenu(event, m); }} className={`dm-message-row ${selected === m.id ? "selected" : ""} ${!m.seen ? "unread" : ""}`}>{positions.length > 0 && <span className="dm-folder-corner" role="img" aria-label={`所在文件夹：${positions.map(({ folder }) => folder.path).join("、")}`} title={`${state.accounts.find((a) => a.id === m.accountId)?.name || ""} / ${positions.map(({ folder }) => folder.path).join("、")}`} style={{ "--folder-color": `linear-gradient(135deg, ${positions.map(({ folder }, i) => `${folderAppearance(folder).color} ${i / positions.length * 100}% ${(i + 1) / positions.length * 100}%`).join(", ")})` }} />}<input type="checkbox" aria-label={`选择 ${m.subject}`} checked={checked.includes(m.id)} onChange={(e) => setChecked(e.target.checked ? [...checked, m.id] : checked.filter((k) => k !== m.id))} /><span className="dm-sender-avatar" style={{ "--avatar-color": avatar.color }} aria-hidden="true">{avatar.text}</span><button className="dm-message" onClick={() => { setSelected(m.id); setCompose(null); }}><div className="dm-message-top"><strong>{personLabel(m.from?.[0])}</strong><small>{date(m.date)}</small></div><h3>{m.subject || "（无主题）"}</h3><p>{m.snippet || (m.bodyLoaded ? "无纯文本正文" : "正文等待同步")}</p><div className="dm-message-bottom"><span>{state.accounts.find((a) => a.id === m.accountId)?.name}</span>{!!attachments.length && <span><Icon name="attachment" size={12} /> {attachments.length}</span>}{m.labels?.map((x) => <span key={x} style={{color:state.labels.find((label) => label.name === x)?.color || "var(--dm-accent)",border:"1px solid currentColor",padding:"0 4px",borderRadius:3}}>{x}</span>)}</div></button><div className="dm-row-actions"><Button className={`dm-star ${m.starred ? "is-starred" : ""}`} aria-label={`${m.starred ? "取消星标" : "添加星标"} ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "star", value: !m.starred }))}><Icon name="star" size={16} /></Button><div className="dm-row-quick"><Button aria-label={`${m.seen ? "标为未读" : "标为已读"} ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "read", value: !m.seen }))}><Icon name={m.seen ? "mail" : "read"} size={16} /></Button><Button aria-label={`归档 ${m.subject}`} onClick={() => run(() => act({ action: "messages.action", ids: [m.id], operation: "archive" }))}><Icon name="archive" size={16} /></Button></div></div></div>; }), [shown, checked, selected, state.folders, state.accounts, state.labels, request]);
   const source = query.folderId ? state.folders.find((f) => f.id === query.folderId)?.path : query.sent ? "已发送" : query.starred ? "星标邮件" : query.inbox ? "统一收件箱" : "搜索结果";
   return <div ref={layout} style={{ "--dm-folder-width": `${sizes.folder}px`, "--dm-list-width": `${sizes.list}px` }} className={`dm-mail-layout ${selected || compose ? "has-detail" : ""} ${folderMenu ? "show-folders" : ""} ${resizing ? "dm-resizing" : ""}`}>
+    {contextMenu && active && !drafts && shown.some((message) => message.id === contextMenu.id) && <MessageContextMenu target={contextMenu} message={shown.find((message) => message.id === contextMenu.id)} close={() => setContextMenu(null)} />}
     {folderMenu && <button type="button" className="dm-folder-backdrop" aria-label="关闭文件夹列表" tabIndex={-1} onClick={closeFolders} />}
     <aside id={folderId} ref={folderPanel} className="dm-folders" aria-label="邮箱与文件夹" role={folderMenu ? "dialog" : undefined} aria-modal={folderMenu || undefined} inert={!folderMenu}><div className="dm-section-label">邮箱与文件夹<Button className="dm-folder-close" aria-label="关闭文件夹面板" onClick={closeFolders}><Icon name="close" size={16} /></Button></div>
       <div className="dm-section-label">管理文件夹<Button aria-label="新建文件夹" onClick={() => setModal({ type: "folder" })}>＋</Button></div>
@@ -556,7 +625,7 @@ function Preview({ value }) {
   const { act, run, setModal, setCompose, state } = useMail();
   const p = state.previews.find((p) => p.id === value.id) || value, detail = p.details;
   return <div className="dm-form"><p className="dm-muted">请核对以下具体内容。确认仅对当前预览有效。</p>{p.kind === "send" ? <><dl><dt>发件人</dt><dd>{detail.from}</dd><dt>收件人</dt><dd>{addr(detail.to)}</dd><dt>抄送 / 密送</dt><dd>{addr(detail.cc)} / {addr(detail.bcc)}</dd><dt>主题</dt><dd>{detail.subject || "（无主题）"}</dd><dt>发送时间</dt><dd>{detail.scheduledAt ? sendTimeLabel(detail.scheduledAt, detail.sendTimeZone) : "确认后 10 秒"}</dd></dl><h3>纯文本正文</h3><pre className="dm-preview-body">{detail.text || "（无纯文本）"}</pre>{detail.html && <><h3>HTML 正文</h3><iframe title="发送 HTML 预览" sandbox="" style={{width:"100%",height:220,border:"1px solid var(--dm-border)"}} srcDoc={`<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.6 system-ui;color:#17212b;background:white;overflow-wrap:anywhere}img{max-width:100%}</style>${DOMPurify.sanitize(detail.html,{FORBID_TAGS:["script","form","iframe","object","embed","svg","math"]})}`} /></>}<p>附件：{detail.attachments?.map((a) => a.filename).join("、") || "无"}</p>{detail.calendarEvents?.map((event,i) => <div className="dm-warning" key={i}><div>会议：{event.title}<p>{event.start} — {event.end} · {event.timeZone}</p><p>组织者：{event.organizer} · 与会者：{addr(event.attendees)} · {event.method}</p></div></div>)}</> : <><h3>{p.kind === "purge" ? "永久删除邮件" : p.kind === "folder-delete" ? "永久删除文件夹" : "对历史邮件应用规则"}</h3><p>{detail.folder || ""} · {detail.count} 封邮件</p>{detail.samples?.map((m) => <p key={m.id}>{m.subject}</p>)}{detail.rule && <p>规则：{detail.rule.name}</p>}</>}
-    <p className="dm-warning">{detail.warning || "操作将按以上目标执行，请核对账号与范围。"}</p><footer><Button primary danger={p.kind.includes("delete") || p.kind === "purge"} onClick={() => run(async () => { await act({ action: "preview.confirm", id: p.id }, p.kind === "send" ? "已进入发件箱，可在投递前取消" : "已开始执行"); setModal(null); setCompose(null); })}>确认{p.kind === "send" ? "发送" : "执行"}</Button><Button onClick={() => run(async () => { await act({ action: "preview.reject", id: p.id }); setModal(null); })}>取消操作</Button></footer>
+    <p className="dm-warning">{detail.warning || "操作将按以上目标执行，请核对账号与范围。"}</p><footer><Button primary danger={p.kind.includes("delete") || p.kind === "purge"} onClick={() => run(async () => { await act({ action: "preview.confirm", id: p.id }, p.kind === "send" ? undefined : "已开始执行"); setModal(null); setCompose(null); })}>确认{p.kind === "send" ? "发送" : "执行"}</Button><Button onClick={() => run(async () => { await act({ action: "preview.reject", id: p.id }); setModal(null); })}>取消操作</Button></footer>
   </div>;
 }
 

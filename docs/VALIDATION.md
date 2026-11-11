@@ -1,5 +1,15 @@
 # 验收记录
 
+## 0.1.26 发送气泡与邮件右键菜单（2026-11-12）
+
+- 新增 8 项发送反馈状态测试，覆盖历史结果不重放、排队／投递／完成、轮询跳过中间状态、关闭后的更新、取消后再发送、多封独立提示、部分拒收／已发送副本失败与失败草稿重新编辑。
+- `npm test` 的 131 项中 129 通过、0 失败、2 项环境检查跳过；随后设置 `DSH_RUNTIME_MODULES=.cache/dsh-sdk-rc2/node_modules` 和 `DSH_TEST_DESKTOP_IDENTITY=1`，单独运行兼容与通知测试文件，10 项全部通过，补齐上述 2 项实际 SDK／Windows 身份检查。
+- `scripts/serve-mail-feedback-ui.mjs` 在独立临时数据库运行真实 React App 和 MailService，使用受控的合成邮件传输；通过 Playwright CLI 的 `run-code --filename=scripts/verify-mail-feedback-ui.js` 验证实际界面。右键不打开／读信，另一封已勾选时仍只操作右键目标；打开、回复、回复全部、转发、已读／星标切换、复制、移动、归档、垃圾邮件和删除均已执行验证。
+- 验证 Shift+F10、方向键循环、End、Escape 焦点恢复、Tab／点击外部／滚动关闭；延迟到达但未移动目标的滚动事件不再误关菜单。1440、768、390px 深浅主题及下边缘菜单均在窗口内。
+- 确认发送后展示等待气泡，排队取消保留草稿；切换到待办页后仍能看到实际投递、成功、失败和结果未知。成功提示自动消失，失败／未知保留并可打开对应草稿；定时气泡显示计划时间，390px 下不覆盖左侧导航。
+- 已实际查看深浅主题、发送中、失败／未知和窄屏气泡截图；最终浏览器验收 8 组检查通过，页面异常为 0。`npm run build`、`npm run check`、`git diff --check` 通过。
+- 界面结果保存在 `.cache/mail-feedback-ui-result.log`，截图在 `output/playwright/mail-feedback/`；不纳入提交。验收未向真实邮箱发信，未更新日常 DSH 安装。
+
 ## 0.1.25 DSH 0.2.2-rc.2 兼容验收（2026-11-11）
 
 - 同步 `engines.dsh`、四个 DSH peerDependencies 及锁文件；运行时和“关于”页继续读取 `package.json` 的 0.1.25。

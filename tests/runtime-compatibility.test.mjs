@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import packageInfo from "../package.json" with { type: "json" };
 
-test("plugin metadata supports DSH 0.2.2-rc.1 and its Node minimum without version exemption", () => {
-  assert.equal(packageInfo.engines.dsh, "0.2.2-rc.1");
+test("plugin metadata supports DSH 0.2.2-rc.2 and its Node minimum without version exemption", () => {
+  assert.equal(packageInfo.engines.dsh, "0.2.2-rc.2");
   assert.equal(packageInfo.engines.node, ">=24.9.0");
   for (const range of Object.values(packageInfo.peerDependencies)) assert.equal(range, packageInfo.engines.dsh);
 });
@@ -16,6 +16,15 @@ test("native plugin and Agent load with the actual target DSH packages", { skip:
   const require = createRequire(join(process.env.DSH_RUNTIME_MODULES, "@deepseek-ai/dsh/package.json"));
   const runtime = JSON.parse(await readFile(require.resolve("@deepseek-ai/dsh/package.json"), "utf8"));
   assert.equal(runtime.version, packageInfo.engines.dsh);
+  const { evaluatePluginCompatibility, getDshRuntimeVersion } = await import(pathToFileURL(require.resolve("@deepseek-ai/dsh-app-boot")));
+  assert.equal(getDshRuntimeVersion(), packageInfo.engines.dsh);
+  assert.equal(evaluatePluginCompatibility(packageInfo), undefined);
+  const { engines, ...peerManifest } = packageInfo;
+  assert.equal(evaluatePluginCompatibility(peerManifest), undefined);
+  for (const name of Object.keys(packageInfo.peerDependencies)) {
+    const peer = JSON.parse(await readFile(join(process.env.DSH_RUNTIME_MODULES, name, "package.json"), "utf8"));
+    assert.equal(peer.version, packageInfo.engines.dsh, name);
+  }
   const aliases = new Map(["@deepseek-ai/dsh-home-paths", "@deepseek-ai/dsh-tools", "@deepseek-ai/dsh-typert-protocol", "@deepseek-ai/dsh-llm"].map((name) => [name, pathToFileURL(require.resolve(name)).href]));
   const hook = registerHooks({ resolve(specifier, context, next) { return next(aliases.get(specifier) || specifier, context); } });
   try {

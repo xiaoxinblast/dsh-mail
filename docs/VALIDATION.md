@@ -1,5 +1,14 @@
 # 验收记录
 
+## 0.1.25 DSH 0.2.2-rc.2 兼容验收（2026-11-11）
+
+- 同步 `engines.dsh`、四个 DSH peerDependencies 及锁文件；运行时和“关于”页继续读取 `package.json` 的 0.1.25。
+- 使用已安装 DSH 提取的 `.cache/dsh-sdk-rc2/node_modules`，设置 `DSH_RUNTIME_MODULES` 后运行完整测试：123 项中 122 通过、0 失败、1 项 Windows 通知身份环境检查跳过。实际 SDK 回归同时核对四个 peer 的版本，调用 rc.2 官方 `evaluatePluginCompatibility` 验证宿主声明和独立 peer 声明均无需豁免，并验证原生插件、Agent、快捷 AI 和 UI RPC。
+- `npm run build`、`npm run check`、`git diff --check` 及 `npm pack --dry-run --json` 通过。检查同时保证锁文件与包清单的宿主、peer 元数据一致；发行包不含缓存、运行数据或截图。
+- 在仓库 `.cache/dsh-home` 启动 rc.2 隔离 web Host，未设置版本豁免。现有 `verify-mail-assistant-ui.mjs` 和 `verify-quick-agent-ui.mjs` 全部通过：原生多步工具、完整引用、回复草稿、发送预览、待办、取消、会话恢复、跨邮件任务及明暗主题和多尺寸布局。
+- 已实际查看阅读、摘要、1440px 深色及 390px 窄屏截图；两组原生界面回归的浏览器错误均为 0，确认发送次数为 0。验收仅使用合成邮件和本机模型，不更新日常 DSH 安装。
+- 本机测试日志、界面结果和截图保存在 `.cache/`，不纳入提交；该验收不代替真实邮箱与真实模型联调。
+
 ## 0.1.18 Mailbird 布局与内嵌 Agent 验收（2026-11-06）
 
 - 完整 104 项测试：103 通过、0 失败、1 项 Windows 通知身份环境检查跳过。覆盖实际 DSH 0.2.2-rc.1 SDK、完整 HTML/纯文本引用、会话上下文隔离、仅真人绑定、逐轮上下文注入、发送预览保留草稿和既有发送确认权限。

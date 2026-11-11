@@ -336,20 +336,21 @@
 .dsh-mail .dm-compose-people{padding:0 18px 8px;font-size:12px}
 .dsh-mail .dm-person-card{padding:0 18px 18px;overflow-wrap:anywhere}
 .dsh-mail .dm-person-card .dm-form{padding:16px 0 0}
-.dsh-mail .dm-person-actions,.dsh-mail .dm-ai-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.dsh-mail .dm-ai-panel{margin:12px 22px;padding:14px;border:1px solid var(--dm-border);border-radius:10px;background:var(--dm-soft);min-width:0}
-.dsh-mail .dm-ai-panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.dsh-mail .dm-ai-panel>header strong{display:flex;align-items:center;gap:6px}
-.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;gap:10px}
-.dsh-mail .dm-ai-controls .dm-field{flex:1 1 140px;min-width:0}
-.dsh-mail .dm-ai-panel .dm-field{margin-bottom:10px}
-.dsh-mail .dm-ai-panel textarea{min-height:64px;resize:vertical}
-.dsh-mail .dm-ai-panel input,.dsh-mail .dm-ai-panel select,.dsh-mail .dm-ai-panel textarea{width:100%;box-sizing:border-box;min-width:0}
-.dsh-mail .dm-ai-result{margin-top:14px;border-top:1px solid var(--dm-border);padding-top:12px}
-.dsh-mail .dm-ai-result h4{margin:8px 0;overflow-wrap:anywhere}
-.dsh-mail .dm-ai-result pre{font:inherit;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;background:var(--dm-bg);padding:12px;border-radius:6px}
-.dsh-mail .dm-ai-actions small{font-size:11px}
-@container (max-width:759px){.dsh-mail .dm-ai-panel{margin-inline:14px}.dsh-mail .dm-ai-controls{gap:6px}}
+.dsh-mail .dm-person-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dsh-mail .dm-ai-toolbar{padding:8px 0 12px;border-bottom:1px solid var(--dm-border);margin-bottom:16px;min-width:0}
+.dsh-mail .dm-compose-scroll>.dm-ai-toolbar{margin:0 18px 8px}
+.dsh-mail .dm-ai-controls{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
+.dsh-mail .dm-ai-controls strong{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--dm-ai-color);white-space:nowrap}
+.dsh-mail .dm-ai-controls input,.dsh-mail .dm-ai-controls select{width:auto;min-width:0;max-width:100%;font:inherit;padding:6px 8px}
+.dsh-mail .dm-ai-controls .dm-ai-instruction{flex:1 1 150px}
+.dsh-mail .dm-ai-controls .dm-ai-language{flex:0 1 110px}
+.dsh-mail .dm-ai-controls button{padding:6px 8px;flex:none}
+.dsh-mail .dm-ai-toolbar>p{font-size:11px;margin:7px 0 0}
+.dsh-mail .dm-body-views{display:flex;gap:5px;padding:0 20px 8px;flex:none}
+.dsh-mail .dm-body-views button{border:0;background:transparent;color:var(--dm-muted);padding:5px 12px}
+.dsh-mail .dm-body-views button[aria-pressed=true]{color:var(--dm-accent);background:var(--dm-selected);font-weight:600}
+.dsh-mail .dm-ai-reading pre{font:inherit;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+@container (max-width:759px){.dsh-mail .dm-compose-scroll>.dm-ai-toolbar{margin-inline:12px}.dsh-mail .dm-body-views{padding-inline:12px}}
 .dsh-mail .dm-reader-sticky{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;background:var(--dm-bg);border-bottom:1px solid var(--dm-border);max-height:42vh;overflow:visible;box-shadow:0 3px 8px #00000008;scrollbar-width:thin}
 .dsh-mail .dm-reader-sticky .dm-reader-toolbar{position:static;min-height:40px;padding-block:6px}
 .dsh-mail .dm-reader-sticky .dm-reader-heading{padding:8px 20px 10px;overflow:auto;min-height:0;flex:1 1 auto}
@@ -361,8 +362,6 @@
 .dsh-mail .dm-ai-button{color:color-mix(in srgb,#8b5cf6 55%,var(--dsw-alias-label-primary));background:color-mix(in srgb,#8b5cf6 12%,var(--dm-bg));border-color:color-mix(in srgb,#8b5cf6 48%,var(--dm-border));font-weight:600}
 .dsh-mail .dm-ai-button:hover{background:color-mix(in srgb,#8b5cf6 22%,var(--dm-bg))}
 .dsh-mail .dm-ai-button:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}
-.dsh-mail .dm-ai-panel{border-color:color-mix(in srgb,#8b5cf6 35%,var(--dm-border));background:color-mix(in srgb,#8b5cf6 4%,var(--dm-bg))}
-.dsh-mail .dm-ai-panel .dm-ai-edit{min-height:180px;max-height:none;font:inherit;line-height:1.8;padding:14px;background:var(--dm-bg)}
 .dsh-mail .dm-body-label{color:var(--dm-muted);font-size:11px;letter-spacing:.05em;margin:4px 0 12px}
 .dsh-mail .dm-quoted{margin:18px 0;border:1px solid var(--dm-border);border-left:3px solid #8e95a6;border-radius:5px;background:var(--dm-soft);min-width:0}
 .dsh-mail .dm-composer>.dm-quoted{margin:8px 18px 18px}

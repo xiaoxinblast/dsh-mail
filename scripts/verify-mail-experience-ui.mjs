@@ -11,11 +11,13 @@ import { normalizeAccount, composeDraft } from "../src/mail.mjs";
 import { simpleParser } from "mailparser";
 const cache = resolve(".cache"); await mkdir(cache, { recursive: true });
 const directory = await mkdtemp(join(cache, "experience-ui-"));
+const native = process.argv.includes("--native"), aiInputs = [];
 let sends = 0;
-const service = new MailService({ directory, transport: { close: async () => {}, send: async () => { sends++; throw new Error("No SMTP in UI verification"); } }, ai: async ({ instruction, signal }) => {
+const service = new MailService({ directory, transport: { close: async () => {}, send: async () => { sends++; throw new Error("No SMTP in UI verification"); } }, ai: async ({ instruction, signal, task, source, language }) => {
+  aiInputs.push({ instruction, task, source, language });
   if (instruction.includes("[slow]")) await new Promise((done, reject) => { const timer = setTimeout(done, 800); signal.addEventListener("abort", () => { clearTimeout(timer); reject(signal.reason); }, { once: true }); });
   if (instruction.includes("[fail]")) throw new Error("合成模型失败");
-  return { subject: "AI 合成主题", text: "AI 合成正文\n请核对后应用。", model: "isolated/fixture" };
+  return { subject: "AI 合成主题", text: "AI 合成正文\n请核对后发送。", model: "isolated/fixture" };
 } });
 service.store.put("accounts", { ...normalizeAccount({ id: "me", email: "me@example.invalid", imapHost: "127.0.0.1", smtpHost: "127.0.0.1" }), authFailed: true });
 service.store.put("folders", { id: "inbox", accountId: "me", path: "INBOX", role: "\\Inbox" });
@@ -31,7 +33,7 @@ const flatFixtures = [
 const legacyDraft = service.saveDraft({ accountId: "me", to: "client@example.invalid", subject: "[验收] 旧回复草稿边界", sourceMessageId: flatFixtures[0].id, text: flatText, html: flatFixtures[0].html });
 for (const status of ["sent", "failed", "uncertain", "discarded"]) service.store.put("drafts", { id: `fixture-${status}`, accountId: "me", to: "client@example.invalid", subject: `fixture ${status}`, text: "synthetic", status });
 const entry = join(cache, "experience-entry.jsx");
-await writeFile(entry, `import React from 'react';import{createRoot}from'react-dom/client';import{App}from'../ui/workbench.jsx';createRoot(document.getElementById('root')).render(<App call={async(_id,operation,signal)=>{const r=await fetch('/api',{method:'POST',body:JSON.stringify(operation),signal});const v=await r.json();if(v.error)throw new Error(v.error);return v;} } prompt={async()=>''}/>);`);
+await writeFile(entry, `import React from 'react';import{createRoot}from'react-dom/client';import{App}from'../ui/workbench.jsx';const assistantHost = { connect: async () => ({ sessionId: 'ui-fixture', reference: { release() {} } }) };createRoot(document.getElementById('root')).render(<App assistantHost={${native ? 'assistantHost' : 'undefined'}} call={async(_id,operation,signal)=>{const r=await fetch('/api',{method:'POST',body:JSON.stringify(operation),signal});const v=await r.json();if(v.error)throw new Error(v.error);return v;} } prompt={async()=>''}/>);`);
 const built = await build({ entryPoints: [entry], bundle: true, write: false, format: "iife", platform: "browser", loader: { ".css": "text" }, define: { "process.env.NODE_ENV": '"production"' } });
 const client = built.outputFiles[0].text;
 const server = createServer(async (req, res) => {
@@ -39,18 +41,18 @@ const server = createServer(async (req, res) => {
   if (req.url === "/api") {
     const chunks = []; for await (const chunk of req) chunks.push(chunk);
     const controller = new AbortController(); res.on("close", () => { if (!res.writableEnded) controller.abort(); });
-    try { const result = await service.invoke(JSON.parse(Buffer.concat(chunks)), { kind: "human", signal: controller.signal }); res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(result)); } catch (e) { res.end(JSON.stringify({ error: e.message })); } return;
+    try { const result = await service.invoke(JSON.parse(Buffer.concat(chunks)), { kind: "human", sessionId: "ui-fixture", signal: controller.signal }); res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(result)); } catch (e) { res.end(JSON.stringify({ error: e.message })); } return;
   }
   res.setHeader("Content-Type", "text/html; charset=utf-8"); res.end(`<!doctype html><style>:root{--dsw-alias-bg-layer-1:#fff;--dsw-alias-bg-layer-2:#f5f6fa;--dsw-alias-border-l2:#d7dce5;--dsw-alias-label-primary:#17212b;--dsw-alias-label-secondary:#5a6675;--dsw-alias-brand-primary:#2563eb;--dsw-alias-state-error-primary:#b91c1c}body{margin:0;font:14px system-ui}#root{height:100vh}body.dark{--dsw-alias-bg-layer-1:#191c24;--dsw-alias-bg-layer-2:#252a36;--dsw-alias-border-l2:#444c60;--dsw-alias-label-primary:#f1f3fa;--dsw-alias-label-secondary:#aeb8ce;color-scheme:dark}</style><div id="root"></div><script src="/client.js"></script>`);
 });
 await new Promise((done) => server.listen(0, "127.0.0.1", done));
 const browser = await chromium.launch({ channel: "msedge", headless: true }), page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 page.setDefaultTimeout(10000); const errors = [], checks = []; page.on("pageerror", (e) => errors.push(e.message));
-const shots = join(cache, "screenshots"); await mkdir(shots, { recursive: true });
-const root = page.locator(".dsh-mail"), composer = root.locator(".dm-composer"), panel = root.getByRole("region", { name: "邮件内 AI" });
+const shots = resolve("output/playwright", native ? "mail-ai-native" : "mail-ai"); await mkdir(shots, { recursive: true });
+const root = page.locator(".dsh-mail"), composer = root.locator(".dm-composer"), panel = root.getByRole("region", { name: "正文 AI 工具" });
 const shot = (name) => page.screenshot({ path: join(shots, `experience-${name}.png`), fullPage: true });
 const open = async (subject = message.subject) => { await root.getByRole("button", { name: "邮件", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: subject }).click(); await expect(root.locator(".dm-reader h2")).toHaveText(subject); };
-const generate = async (instruction = "") => { await panel.getByLabel("写作或处理要求（可选）").or(panel.getByLabel("回复要求（可选）")).fill(instruction); await panel.getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible(); };
+const generate = async (instruction = "") => { await panel.getByLabel("写作或处理要求（可选）").or(panel.getByLabel("回复要求（可选）")).fill(instruction); await panel.getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(panel).toHaveAttribute("aria-busy", "false"); await expect(panel.getByRole("status")).toContainText("已写入邮件正文"); await expect(composer.locator(".tiptap")).toContainText("AI 合成正文"); };
 try {
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   await open(linkedMessage.subject);
@@ -103,6 +105,7 @@ try {
   for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const position of [900, "bottom"]) {
+      const original = root.getByRole("button", { name: "原文", exact: true }); if (await original.count()) await original.click();
       await readerPane.evaluate((el, value) => el.scrollTop = value === "bottom" ? el.scrollHeight : value, position);
       assert.ok(await readerPane.evaluate((el) => el.scrollTop > 500), "long mail actually scrolled");
       await expect(aiMenu).toBeInViewport(); await aiMenu.click();
@@ -111,18 +114,26 @@ try {
       await expect(menu.getByRole("button")).toHaveCount(3); await shot(`ai-menu-${width}-${position}`);
       await menu.getByRole("button", { name: "总结邮件", exact: true }).click(); await expect(root.locator(".dm-reader-ai")).not.toHaveAttribute("open");
       await expect(panel).toBeVisible(); await expect.poll(async () => (await panel.boundingBox()).y - ((await header.boundingBox()).y + (await header.boundingBox()).height)).toBeGreaterThanOrEqual(0);
-      await expect(panel.getByLabel("AI 操作")).toBeFocused(); await expect(panel.getByLabel("AI 操作")).toBeInViewport(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
+      await expect(root.getByRole("button", { name: "摘要", exact: true })).toBeFocused(); await expect(root.getByLabel("邮件摘要", { exact: true })).toContainText("AI 合成正文");
+      await expect(root.locator(".dm-ai-panel, .dm-ai-result")).toHaveCount(0); await expect(root.locator('iframe[title="邮件正文"]')).toHaveCount(0);
       await shot(`ai-summary-${width}-${position}`);
     }
-    await panel.getByRole("button", { name: "关闭邮件内 AI" }).click();
+    await root.getByRole("button", { name: "原文", exact: true }).click();
     await aiMenu.focus(); await aiMenu.press("Enter"); await expect(root.locator(".dm-reader-ai")).toHaveAttribute("open");
     await aiMenu.press("Escape"); await expect(root.locator(".dm-reader-ai")).not.toHaveAttribute("open"); await expect(aiMenu).toBeFocused();
   }
   await page.setViewportSize({ width: 1440, height: 1000 }); await readerPane.evaluate((el) => el.scrollTop = el.scrollHeight);
   await aiMenu.click(); await root.getByRole("button", { name: "翻译本邮件", exact: true }).click();
-  await expect(panel.getByLabel("AI 操作")).toHaveValue("translateMessage"); await expect(panel.getByLabel("AI 操作")).toBeInViewport(); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
-  await panel.getByRole("button", { name: "关闭邮件内 AI" }).click(); await readerPane.evaluate((el) => el.scrollTop = 900);
+  await expect(root.getByLabel("邮件译文", { exact: true })).toContainText("AI 合成正文"); await expect(root.locator(".dm-reader h2")).toHaveText("AI 合成主题");
+  await root.getByRole("button", { name: "原文", exact: true }).click(); await expect(root.locator(".dm-reader h2")).toHaveText(message.subject); await readerPane.evaluate((el) => el.scrollTop = 900);
   checks.push("AI menu stays reachable after middle/end scrolling at three widths, fits the viewport, reveals new/existing results and supports keyboard open/Escape");
+  if (native) {
+    await root.getByRole("button", { name: "摘要", exact: true }).click(); await panel.getByLabel("写作或处理要求（可选）").fill("[slow] 切换邮件验收"); await panel.getByRole("button", { name: "重新生成", exact: true }).click();
+    await expect.poll(() => aiInputs.at(-1).instruction).toContain("切换邮件验收"); await open(linkedMessage.subject); await expect(root.locator(".dm-ai-reading")).toHaveCount(0);
+    await expect.poll(() => service.quickAi.active.size).toBe(0); await open(); await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name: "总结邮件", exact: true }).click();
+    await expect(root.getByLabel("邮件摘要", { exact: true })).toContainText("AI 合成正文"); assert.equal(aiInputs.at(-1).source.subject, message.subject); await root.getByRole("button", { name: "原文", exact: true }).click();
+    checks.push("native quick start/read resumes the original result after switching mail, without writing it to the other message");
+  }
   const frame = root.frameLocator('iframe[title="邮件正文"]'); await expect(frame.locator("[data-mail-history]")).toContainText("更早回复"); assert.equal(await page.evaluate(() => window.emailScriptRan), undefined);
   await shot("reader-sticky-light");
   await root.locator(".dm-detail-pane").evaluate((e) => e.scrollTop = 0);
@@ -130,32 +141,39 @@ try {
   checks.push("address fallbacks, quoted comma name, sticky heading, preserved HTML/plain quotation and script isolation");
   await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name: "AI 回复", exact: true }).click(); await expect(composer).toBeVisible();
   await expect(composer.getByLabel("收件人", { exact: true })).toHaveValue("client@example.invalid"); await expect(composer.locator(".tiptap")).not.toContainText("上一轮回复");
-  await panel.getByLabel("回复要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await composer.locator(".tiptap").fill("较新的用户输入"); await expect(panel.getByLabel("AI 生成正文（可编辑）")).toBeVisible();
-  await panel.getByRole("button", { name: "应用正文", exact: true }).click(); await expect(panel.getByRole("alert")).toContainText("草稿已经改变"); await expect(composer.locator(".tiptap")).toHaveText("较新的用户输入");
-  await generate(); await panel.getByLabel("AI 生成正文（可编辑）").fill("编辑后的 AI 回复"); await shot("ai-reply-edit-light");
-  await panel.getByRole("button", { name: "应用正文", exact: true }).click(); await expect(composer.locator(".tiptap")).toHaveText("编辑后的 AI 回复");
+  await panel.getByLabel("回复要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await composer.locator(".tiptap").fill("较新的用户输入");
+  await expect(panel.getByRole("alert")).toContainText("草稿已经改变"); await expect(composer.locator(".tiptap")).toHaveText("较新的用户输入"); await expect(panel.getByRole("button", { name: "复制生成内容" })).toBeVisible();
+  await generate(); await expect(composer.getByLabel("主题", { exact: true })).toHaveValue("AI 合成主题"); await expect(panel.getByRole("button", { name: "应用正文", exact: true })).toHaveCount(0);
+  await composer.locator(".tiptap").fill("编辑后的 AI 回复"); await shot("ai-reply-edit-light");
+  await panel.getByRole("button", { name: "关闭正文 AI 工具" }).click(); await composer.getByRole("button", { name: "AI 写信", exact: true }).click(); await expect(composer.locator(".tiptap")).toHaveText("编辑后的 AI 回复");
   await expect(composer.frameLocator('iframe[title="回复引用原文"]').locator("body")).toContainText("更早回复");
   await composer.getByRole("button", { name: "纯文本", exact: true }).click(); await expect(composer.getByLabel("邮件纯文本正文")).toHaveValue("编辑后的 AI 回复"); await composer.getByLabel("邮件纯文本正文").fill("第一行\n> 本次输入符号\n第二行\n");
   await composer.getByRole("button", { name: "保存草稿", exact: true }).click();
+  await expect.poll(() => service.store.list("drafts").find((d) => d.sourceMessageId === message.id)?.text).toMatch(/第一行\n> 本次输入符号\n第二行\n/);
   const saved = service.store.list("drafts").find((d) => d.sourceMessageId === message.id); assert.match(saved.text, /第一行\n> 本次输入符号\n第二行\n/); assert.equal(saved.text.split("——").length, 3);
-  checks.push("AI reply shares composer, edited results apply explicitly, newer user input protected, quote preserved across rich/plain saves");
+  checks.push("AI reply writes directly to the existing subject/body without an apply step; newer input is protected and reopening AI keeps edits; quotes survive rich/plain saves");
   await composer.getByLabel("发送选项", { exact: true }).click();
   await composer.getByLabel("发送方式").selectOption("scheduled"); await composer.getByLabel("发送时区").selectOption("Asia/Tokyo");
   const local = DateTime.now().setZone("Asia/Tokyo").plus({ days: 2 }).toFormat("yyyy-MM-dd'T'HH:mm"); await composer.getByLabel("计划发送时间").fill(local);
   await composer.getByRole("button", { name: "保存草稿", exact: true }).click(); await composer.getByRole("button", { name: "← 关闭", exact: true }).click();
   await root.getByRole("button", { name: "草稿与发件箱", exact: true }).click(); await expect(root.locator(".dm-message-list")).not.toContainText("fixture sent"); await expect(root.locator(".dm-message-list")).not.toContainText("fixture discarded"); await expect(root.locator(".dm-message-list")).toContainText("fixture failed"); await expect(root.locator(".dm-message-list")).toContainText("fixture uncertain");
-  await root.locator("button.dm-message").filter({ hasText: "Re: " + message.subject }).click(); await expect(composer.getByLabel("计划发送时间")).toHaveValue(local); await expect(composer.getByLabel("发送时区")).toHaveValue("Asia/Tokyo");
+  await root.locator("button.dm-message").filter({ hasText: "AI 合成主题" }).click(); await expect(composer.getByLabel("计划发送时间")).toHaveValue(local); await expect(composer.getByLabel("发送时区")).toHaveValue("Asia/Tokyo");
   await composer.getByRole("button", { name: "预览并发送 →", exact: true }).click(); const dialog = root.getByRole("dialog"); await expect(dialog).toContainText("Asia/Tokyo"); await expect(dialog).toContainText("错过时间后须重新确认");
   await dialog.getByRole("button", { name: "确认发送", exact: true }).click();
-  await root.locator("button.dm-message").filter({ hasText: "Re: " + message.subject }).click(); await expect(composer).toContainText("已排队");
+  await root.locator("button.dm-message").filter({ hasText: "AI 合成主题" }).click(); await expect(composer).toContainText("已排队");
   await composer.getByRole("button", { name: "取消发送", exact: true }).click(); await expect(composer.getByLabel("发送方式")).toHaveValue("now");
   const completed = service.store.get("drafts", saved.id); service.store.put("drafts", { ...completed, status: "sent", accepted: ["client@example.invalid"] });
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("dsh-mail:workbench", { detail: {} })));
-  await expect(composer).toHaveCount(0); await expect(root.locator(".dm-message-list")).not.toContainText("Re: " + message.subject);
-  await root.getByRole("button", { name: "通知与任务", exact: true }).click(); await expect(root.getByRole("dialog")).toContainText("已发送"); await root.getByRole("dialog").getByText("发送记录与回执", { exact: true }).click(); await expect(root.getByRole("dialog")).toContainText("已完成发送"); await expect(root.getByRole("dialog")).toContainText("Re: " + message.subject); await root.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
+  await page.evaluate((sessionId) => window.dispatchEvent(new CustomEvent("dsh-mail:workbench", { detail: { sessionId } })), native ? "ui-fixture" : undefined);
+  await expect(composer).toHaveCount(0); await expect(root.locator(".dm-message-list")).not.toContainText("AI 合成主题");
+  await root.getByRole("button", { name: "通知与任务", exact: true }).click(); await expect(root.getByRole("dialog")).toContainText("已发送"); await root.getByRole("dialog").getByText("发送记录与回执", { exact: true }).click(); await expect(root.getByRole("dialog")).toContainText("已完成发送"); await expect(root.getByRole("dialog")).toContainText("AI 合成主题"); await root.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
   await root.getByRole("button", { name: "写邮件", exact: true }).click(); await composer.getByLabel("主题", { exact: true }).fill("[验收] 手工新草稿"); await composer.getByRole("button", { name: "纯文本", exact: true }).click(); await composer.getByLabel("邮件纯文本正文").fill("> 手工正文，不是回复引用"); await composer.getByRole("button", { name: "保存草稿", exact: true }).click(); await composer.getByRole("button", { name: "← 关闭", exact: true }).click(); await root.locator("button.dm-message").filter({ hasText: "[验收] 手工新草稿" }).click(); await expect(composer.getByLabel("邮件纯文本正文")).toHaveValue("> 手工正文，不是回复引用"); await composer.getByRole("button", { name: "富文本", exact: true }).click(); await expect(composer.locator(".tiptap")).toContainText("> 手工正文，不是回复引用"); await expect(composer.locator(".dm-quoted")).toHaveCount(0);
-  await composer.getByRole("button", { name: "AI 写信", exact: true }).click(); await panel.getByLabel("写作或处理要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await panel.getByRole("button", { name: "取消生成", exact: true }).click(); await expect(panel.locator(".dm-ai-result")).toHaveCount(0);
+  await composer.getByRole("button", { name: "AI 写信", exact: true }).click(); await panel.getByLabel("写作或处理要求（可选）").fill("[slow]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await panel.getByRole("button", { name: "取消生成", exact: true }).click(); await expect(panel).toHaveAttribute("aria-busy", "false"); await expect(composer.locator(".tiptap")).toContainText("> 手工正文，不是回复引用");
   await panel.getByLabel("写作或处理要求（可选）").fill("[fail]"); await panel.getByRole("button", { name: "生成", exact: true }).click(); await expect(panel.getByRole("alert")).toContainText("合成模型失败"); await generate();
+  for (const task of ["polish", "translateDraft"]) { await panel.getByLabel("AI 操作").selectOption(task); await generate(); }
+  await panel.getByLabel("AI 操作").selectOption("translateDraft"); await composer.getByRole("button", { name: "纯文本", exact: true }).click();
+  await panel.getByLabel("写作或处理要求（可选）").fill(""); await panel.getByRole("button", { name: /^(生成|重新生成)$/ }).click(); await expect(panel).toHaveAttribute("aria-busy", "false");
+  await expect(composer.getByLabel("邮件纯文本正文")).toHaveValue(/AI 合成正文/); await composer.getByRole("button", { name: "富文本", exact: true }).click();
+  await composer.getByLabel("主题", { exact: true }).fill("[验收] 手工新草稿");
   checks.push("persistent zoned schedule, preview and queue status, cancel before delivery, sent excluded while failed/uncertain retained");
   await composer.getByRole("button", { name: "AI 写信", exact: true }).click();
   await composer.getByRole("button", { name: "抄送 / 密送", exact: true }).click();
@@ -164,6 +182,8 @@ try {
   await composer.getByRole("button", { name: "抄送 / 密送", exact: true }).click();
   await composer.getByLabel("添加附件", { exact: true }).setInputFiles({ name: "合成交付说明.txt", mimeType: "text/plain", buffer: Buffer.from("synthetic attachment") });
   await expect(composer.locator(".dm-compose-attachments")).toContainText("合成交付说明.txt");
+  await composer.getByRole("button", { name: "AI 写信", exact: true }).click(); await generate("保留附件及收件人"); await expect(composer.getByLabel("收件人", { exact: true })).toHaveValue(""); await expect(composer.locator(".dm-compose-attachments")).toContainText("合成交付说明.txt");
+  await composer.getByLabel("主题", { exact: true }).fill("[验收] 手工新草稿"); await composer.getByRole("button", { name: "AI 写信", exact: true }).click();
   await composer.getByRole("button", { name: "保存草稿", exact: true }).click();
   const attachmentDraft = service.store.list("drafts").find((d) => d.subject === "[验收] 手工新草稿");
   assert.equal(attachmentDraft.cc, "copy@example.invalid"); assert.equal(attachmentDraft.bcc, "hidden@example.invalid"); assert.equal(attachmentDraft.attachments.length, 1);
@@ -207,6 +227,7 @@ try {
   await composer.getByRole("button", { name: "富文本", exact: true }).click();
   await composer.getByLabel("模板与签名", { exact: true }).click(); await expect(composer.getByLabel("插入模板")).toBeVisible(); await composer.getByLabel("插入签名").press("Escape");
   checks.push("icon formatting controls expose hover labels and active states; fonts, size, color, highlight and marks survive save/reopen and MIME; clear/undo/redo, lists and plain-text disabling work");
+  await composer.getByRole("button", { name: "AI 写信", exact: true }).click();
   for (const theme of ["light", "dark"]) {
     await page.evaluate((dark) => document.body.classList.toggle("dark", dark), theme === "dark");
     await page.waitForTimeout(200);
@@ -235,8 +256,15 @@ try {
     await page.waitForTimeout(200);
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 900 }); await shot(`read-${theme}-${width}`); assert.ok((await header.boundingBox()).height < 900 * .43); }
   }
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate((dark) => document.body.classList.toggle("dark", dark), theme === "dark");
+    for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 900 }); for (const [task, name] of [["translateMessage", "翻译本邮件"], ["summary", "总结邮件"]]) {
+      await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name, exact: true }).click(); await expect(root.locator(".dm-ai-reading")).toContainText("AI 合成正文"); await shot(`body-${task}-${theme}-${width}`);
+      assert.ok(await root.evaluate((e) => e.scrollWidth <= e.clientWidth), "inline AI does not overflow");
+    } }
+  }
   await root.getByLabel("邮件 AI 工具", { exact: true }).click(); await root.getByRole("button", { name: "AI 回复", exact: true }).focus(); await expect(root.getByRole("button", { name: "AI 回复", exact: true })).toBeFocused();
   assert.deepEqual(errors, []); assert.equal(sends, 0); checks.push("light/dark desktop and narrow rendering, keyboard AI focus, zero browser errors, zero SMTP calls");
-  await writeFile(join(cache, "mail-experience-ui-verification.json"), JSON.stringify({ checks, pageErrors: errors, smtpCalls: sends }, null, 2)); console.log(JSON.stringify({ checks, pageErrors: errors, smtpCalls: sends }));
+  await writeFile(join(cache, native ? "mail-ai-native-verification.json" : "mail-experience-ui-verification.json"), JSON.stringify({ nativeQuickPath: native, checks, pageErrors: errors, smtpCalls: sends }, null, 2)); console.log(JSON.stringify({ nativeQuickPath: native, checks, pageErrors: errors, smtpCalls: sends }));
 } catch (e) { await shot("failure"); await writeFile(join(cache, "experience-failure.txt"), await page.locator("body").innerText()); throw e; }
 finally { await browser.close(); await new Promise((done) => server.close(done)); await service.close(); }

@@ -7,7 +7,7 @@ const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
 assert.equal(lock.version, pkg.version); assert.equal(lock.packages[""].version, pkg.version);
 assert.deepEqual(lock.packages[""].engines, pkg.engines);
 assert.deepEqual(lock.packages[""].peerDependencies, pkg.peerDependencies);
-assert.equal(pkg.dsh.bundle.patch, "./cordis.patch.yml"); assert.equal(pkg.engines.dsh, "0.2.2-rc.3"); assert.equal(pkg.engines.node, ">=24.9.0");
+assert.equal(pkg.dsh.bundle.patch, "./cordis.patch.yml"); assert.equal(pkg.engines.dsh, ">=0.2.2-rc.2 <0.2.3-0"); assert.equal(pkg.engines.node, ">=24.9.0");
 for (const range of Object.values(pkg.peerDependencies)) assert.equal(range, pkg.engines.dsh);
 const bundle = await readFile("dist/client.js", "utf8"); assert.ok(bundle.startsWith('window.__ModuleLoader__.load({id:"dsh-mail",factory(require)')); assert.ok(!bundle.includes('chunk:"client.js"'));
 assert.ok((await stat("dist/client.js")).size < 15 * 1024 * 1024);

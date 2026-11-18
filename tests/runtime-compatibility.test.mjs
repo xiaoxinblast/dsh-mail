@@ -5,9 +5,10 @@ import { createRequire, registerHooks } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import packageInfo from "../package.json" with { type: "json" };
+import { inRange } from "../scripts/ci/contracts.mjs";
 
-test("plugin metadata supports DSH 0.2.2-rc.3 and its Node minimum without version exemption", () => {
-  assert.equal(packageInfo.engines.dsh, "0.2.2-rc.3");
+test("plugin metadata has a bounded DSH compatibility range without version exemption", () => {
+  assert.equal(packageInfo.engines.dsh, ">=0.2.2-rc.2 <0.2.3-0");
   assert.equal(packageInfo.engines.node, ">=24.9.0");
   for (const range of Object.values(packageInfo.peerDependencies)) assert.equal(range, packageInfo.engines.dsh);
 });
@@ -15,19 +16,20 @@ test("plugin metadata supports DSH 0.2.2-rc.3 and its Node minimum without versi
 test("native plugin and Agent load with the actual target DSH packages", { skip: !process.env.DSH_RUNTIME_MODULES }, async () => {
   const require = createRequire(join(process.env.DSH_RUNTIME_MODULES, "@deepseek-ai/dsh/package.json"));
   const runtime = JSON.parse(await readFile(require.resolve("@deepseek-ai/dsh/package.json"), "utf8"));
-  assert.equal(runtime.version, packageInfo.engines.dsh);
+  assert.ok(inRange(runtime.version, packageInfo.engines.dsh));
   const { evaluatePluginCompatibility, getDshRuntimeVersion } = await import(pathToFileURL(require.resolve("@deepseek-ai/dsh-app-boot")));
-  assert.equal(getDshRuntimeVersion(), packageInfo.engines.dsh);
+  assert.equal(getDshRuntimeVersion(), runtime.version);
   assert.equal(evaluatePluginCompatibility(packageInfo), undefined);
-  const previous = evaluatePluginCompatibility({ ...packageInfo, engines: { ...packageInfo.engines, dsh: "0.2.2-rc.2" } });
-  assert.deepEqual(previous.requirements, { "engines.dsh": "0.2.2-rc.2" });
-  assert.equal(previous.runtimeVersion, packageInfo.engines.dsh);
+  const previous = evaluatePluginCompatibility({ ...packageInfo, engines: { ...packageInfo.engines, dsh: ">=0.2.3-0" } });
+  assert.deepEqual(previous.requirements, { "engines.dsh": ">=0.2.3-0" });
+  assert.equal(previous.runtimeVersion, runtime.version);
   assert.equal(previous.exempted, false);
   const { engines, ...peerManifest } = packageInfo;
   assert.equal(evaluatePluginCompatibility(peerManifest), undefined);
   for (const name of Object.keys(packageInfo.peerDependencies)) {
     const peer = JSON.parse(await readFile(join(process.env.DSH_RUNTIME_MODULES, name, "package.json"), "utf8"));
-    assert.equal(peer.version, packageInfo.engines.dsh, name);
+    assert.equal(peer.version, runtime.version, name);
+    assert.ok(inRange(peer.version, packageInfo.peerDependencies[name]), name);
   }
   const aliases = new Map(["@deepseek-ai/dsh-home-paths", "@deepseek-ai/dsh-tools", "@deepseek-ai/dsh-typert-protocol", "@deepseek-ai/dsh-llm"].map((name) => [name, pathToFileURL(require.resolve(name)).href]));
   const hook = registerHooks({ resolve(specifier, context, next) { return next(aliases.get(specifier) || specifier, context); } });

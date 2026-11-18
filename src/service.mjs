@@ -13,7 +13,7 @@ import { DEFAULT_SETTINGS, CALENDAR_VIEWS, preferredAccount, validateExperienceS
 import { QuickAi } from "./quick-ai.mjs";
 import { uiState, resourcePage } from "./ui-state.mjs";
 import { storageInfo, cleanupPreview, cleanupConfirm, diagnosticInfo } from "./management.mjs";
-import { acknowledgeMail } from "./mail-notifications.mjs";
+import { acknowledgeMail, reconcileMailReminders, unreadReminderIds } from "./mail-notifications.mjs";
 import { FOLDER_SORTS, sentFolders } from "./folders.mjs";
 import { validateRule, matches } from "./rules.mjs";
 import { id, now, digest, errorInfo, requireValue, cleanFilename, inside, bounded, validateAddresses, addresses } from "./util.mjs";
@@ -257,6 +257,7 @@ export class MailService {
     throw Object.assign(new Error(`不支持的操作：${action}`), { code: "UNKNOWN_ACTION" });
   }
   state() {
+    reconcileMailReminders(this);
     const resource = (kind) => publicValue(this.store.list(kind).filter((x) => !x.deleted));
     return { version: packageInfo.version, mailVersion: this.store.mailVersion(), accounts: resource("accounts").map((a) => ({ ...a, credentialConfigured: !!this.store.get("credentials", a.id) })), folders: resource("folders"), drafts: resource("drafts").filter((d) => d.status !== "discarded"), rules: resource("rules"), events: resource("events"), previews: resource("previews").filter((p) => p.status === "pending"), jobs: resource("jobs").slice(0, 50), notifications: resource("notifications").filter((n) => !n.dismissed).slice(0, 30), logs: this.store.logs(100), settings: this.settings(), ...Object.fromEntries([...SAFE_RESOURCES].map((kind) => [kind, resource(kind)])) };
   }
@@ -611,7 +612,7 @@ export class MailService {
   }
   addNotification(kind, title, data) {
     if (kind === "new-mail" && Array.isArray(data?.messageIds)) {
-      data = { ...data, messageIds: data.messageIds.filter((id) => !this.openedNotificationMails?.has(id)) };
+      data = { ...data, messageIds: unreadReminderIds(this, data) };
       if (!data.messageIds.length) return null;
       title = `未读邮件 · ${data.messageIds.length} 封`;
     }

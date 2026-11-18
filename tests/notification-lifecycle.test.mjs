@@ -50,3 +50,53 @@ test("app-only reminders clear without launching native notification work", asyn
   await service.invoke({ action: "message.read", id: "m0", acknowledge: true }, human);
   assert.equal(service.store.get("notifications", notice.id).dismissed, true); assert.deepEqual(removed, []); assert.equal(service.notificationWork.size, 0);
 });
+
+test("notification deltas shrink or dismiss stale batches after mail moves, deletions and read flag changes", async (t) => {
+  const { service, removed } = await fixture(t);
+  const poll = (previous = {}) => service.invoke({ action: "ui.state", resources: ["notifications"], epoch: previous.epoch, versions: previous.versions }, human);
+  const batch = service.addNotification("new-mail", "batch", { accountId: "a", messageIds: ["m1", "m0"] });
+  const other = service.addNotification("new-mail", "other", { accountId: "b", messageIds: ["m2"] });
+  const task = service.addNotification("task", "Task", { taskId: "task" }), event = service.addNotification("event", "Event", { eventId: "event" });
+  const initial = await poll();
+  assert.equal(initial.changes.notifications.find((notice) => notice.id === batch.id).data.messageId, "m1");
+  service.store.put("folders", { id: "archive", accountId: "a", path: "Archive", role: "\\Archive" });
+  service.store.upsertMessage({ ...service.message("m1"), folderId: "archive" });
+  const partial = await poll(initial);
+  assert.deepEqual(partial.changes.notifications?.find((notice) => notice.id === batch.id)?.data, { accountId: "a", messageId: "m0", count: 1 });
+  assert.deepEqual((await poll(partial)).changes, {});
+  await service.messageAction("m0", { operation: "purge" });
+  assert.deepEqual(new Set(service.state().notifications.map((notice) => notice.id)), new Set([other.id, task.id, event.id]));
+  service.store.upsertMessage({ ...service.message("m2"), flags: ["\\Seen"] });
+  const final = await poll(partial);
+  assert.deepEqual(new Set(final.changes.notifications.map((notice) => notice.id)), new Set([task.id, event.id]));
+  await Promise.all(service.notificationWork);
+  assert.deepEqual(removed.sort(), [batch.id, other.id].sort());
+});
+
+test("first refresh repairs stored reminders without borrowing newer mail or mail from another account", async (t) => {
+  const { service } = await fixture(t);
+  for (const data of [{ accountId: "a", messageIds: ["gone", "m2"] }, { accountId: "a" }, { accountId: "a" }]) {
+    service.store.put("notifications", { kind: "new-mail", data, createdAt: "2000-01-01T00:00:00Z", nativeNotification: false });
+  }
+  const delta = await service.invoke({ action: "ui.state", resources: ["notifications"] }, human);
+  assert.deepEqual(delta.changes.notifications, []);
+  assert.equal(delta.summary.unread, 3);
+  assert.ok(service.store.list("notifications").every((notice) => notice.dismissed));
+});
+
+test("only unread mail in an available inbox can enter a batch, and folder-only changes invalidate it", async (t) => {
+  const { service } = await fixture(t);
+  const folder = service.folder("a-inbox");
+  service.store.put("folders", { ...folder, role: null, path: "inbox" });
+  service.store.upsertMessage({ ...service.message("m1"), flags: ["\\Seen"] });
+  const batch = service.addNotification("new-mail", "late", { accountId: "a", messageIds: ["m1", "gone", "m0", "m2"] });
+  assert.deepEqual(batch.data.messageIds, ["m0"]);
+  const legacy = service.store.put("notifications", { kind: "new-mail", data: { accountId: "a" }, createdAt: service.message("m0").date, nativeNotification: false });
+  const first = await service.invoke({ action: "ui.state", resources: ["notifications"] }, human);
+  assert.equal(first.changes.notifications.length, 2);
+  assert.deepEqual(service.store.get("notifications", legacy.id).data, { accountId: "a" });
+  service.store.put("folders", { ...folder, missing: true });
+  const next = await service.invoke({ action: "ui.state", resources: ["notifications"], epoch: first.epoch, versions: first.versions }, human);
+  assert.deepEqual(next.changes.notifications, []);
+  assert.equal(service.addNotification("new-mail", "late", { accountId: "a", messageIds: ["m0"] }), null);
+});

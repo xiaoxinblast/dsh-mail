@@ -1,9 +1,11 @@
 import { requireValue } from "./util.mjs";
+import { reconcileMailReminders } from "./mail-notifications.mjs";
 
 const RESOURCES = new Set(["accounts", "folders", "settings", "drafts", "previews", "notifications", "tasks", "contacts", "calendars", "events", "rules", "labels", "saved-searches", "signatures", "templates", "jobs", "logs"]);
 export function uiState(service, args, context, publicValue) {
   const { store } = service, versions = store.resourceVersions(), changes = {}, known = args.epoch === service.viewEpoch ? args.versions || {} : {};
   requireValue(Array.isArray(args.resources) && args.resources.every((key) => RESOURCES.has(key)), "INVALID_RESOURCES", "界面资源请求无效。");
+  if (args.resources.includes("notifications")) reconcileMailReminders(service, versions);
   for (const key of new Set(args.resources)) {
     const version = key === "accounts" ? `${versions.accounts || 0}:${versions.credentials || 0}` : versions[key] || 0;
     versions[key] = version;

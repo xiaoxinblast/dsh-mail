@@ -37,6 +37,13 @@ try {
     service.store.put("settings", { id: "reading-ui-seeded", ids });
     console.log("Reading, legacy phantom attachments and real image/document thumbnail fixtures ready.");
   }
+  if (!service.store.get("settings", "reading-ui-remote-seeded")) {
+    const remoteHtml = '<h1>远程图片正文</h1>' + Array.from({ length: 8 }, (_, i) => `<p>第 ${i + 1} 段：用于验证远程图片尚未加载时，正文已按完整高度展开。</p>`).join("") + '<img src="https://slow.example.invalid/logo.png" width="120" height="40" alt="远程标志"><img src="https://slow.example.invalid/pixel.gif" width="1" height="1" alt="">';
+    const compiled = await composeDraft({ to: "reader@example.invalid", subject: "[验收] 远程图片正文", text: "用于验证远程图片加载前的正文高度。", html: remoteHtml }, { email: "team@example.invalid", name: "项目团队" }, () => {});
+    const imported = await service.importMail({ base64: compiled.raw.toString("base64"), folderName: "[验收] 阅读与附件" });
+    service.store.put("settings", { id: "reading-ui-remote-seeded", messageId: imported.ids[0] });
+    console.log("Remote image reading fixture ready.");
+  }
   if (!service.store.get("settings", "reading-ui-failure-seeded")) {
     const broken = await service.upload({ filename: "无法解码的图片.png", contentType: "image/png", base64: Buffer.from("Synthetic invalid image bytes").toString("base64") }), unknown = await service.upload({ filename: "项目交付资料_需要保留完整名称的附件_十一月第一批_术语与质量检查结果_最终确认版本.custom", contentType: "application/octet-stream", base64: Buffer.from("Synthetic unknown document type").toString("base64") });
     const compiled = await composeDraft({ to: "reader@example.invalid", subject: "[验收] 附件异常与长文件名", text: "用于验证损坏图片与长文件名。", html: "<h2>附件回退显示</h2><p>图片无法解码时仍可预览或下载，长文件名可换行。</p>", attachments: [{ id: broken.id }, { id: unknown.id }] }, { email: "team@example.invalid", name: "项目团队" }, (id) => service.ensureAttachment(id));

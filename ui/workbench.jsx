@@ -486,30 +486,46 @@ function Reader({ id, active, cache }) {
 }
 
 function MailBodyFrame({ html, onMailLink }) {
-  const { state } = useMail(), bodyFrame = useRef(null), readingSize = state.settings?.readingSize || 14;
-  useEffect(() => { if (bodyFrame.current?.contentDocument?.body) bodyFrame.current.contentDocument.body.style.fontSize = `${readingSize}px`; }, [readingSize]);
-  const cleanup = useRef(null), openDraft = useRef(onMailLink);
+  const { state } = useMail(), bodyFrame = useRef(null), [ready, setReady] = useState(false);
+  const cleanup = useRef(null), openDraft = useRef(onMailLink), readingSize = useRef(state.settings?.readingSize || 14);
+  readingSize.current = state.settings?.readingSize || 14;
   useEffect(() => { openDraft.current = onMailLink; }, [onMailLink]);
-  useEffect(() => () => cleanup.current?.(), []);
-  // Same-origin access lets the parent measure static content. Email scripts
-  // remain disabled by both sandbox and CSP; never add allow-scripts here.
-  const loaded = (event) => {
-    cleanup.current?.();
-    const frame = event.currentTarget, doc = frame.contentDocument;
-    if (!doc?.body) return;
-    doc.body.style.fontSize = `${readingSize}px`;
-    let raf = 0;
-    const measure = () => { raf = 0; const style = getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom), height = `${Math.min(100000, Math.max(180, Math.ceil(doc.body.scrollHeight + margins)))}px`; if (frame.style.height !== height) frame.style.height = height; };
-    const resize = () => { if (!raf) raf = requestAnimationFrame(measure); };
-    const click = (event) => {
-      const address = event.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
-      if (address) openDraft.current({ address });
+  useEffect(() => { if (bodyFrame.current?.contentDocument?.body) bodyFrame.current.contentDocument.body.style.fontSize = `${readingSize.current}px`; }, [state.settings?.readingSize]);
+  // Same-origin access lets the parent measure static content before the
+  // frame's load event, which waits for remote images and tracking pixels.
+  // Email scripts remain disabled by both sandbox and CSP; never add allow-scripts here.
+  useEffect(() => {
+    const frame = bodyFrame.current;
+    if (!frame) return;
+    let poll = 0, polls = 0, bound = null;
+    const bind = () => {
+      const doc = frame.contentDocument;
+      if (!doc?.body) return false;
+      if (doc === bound) return true;
+      if (doc.URL !== "about:srcdoc") return false;
+      cleanup.current?.();
+      bound = doc;
+      doc.body.style.fontSize = `${readingSize.current}px`;
+      let raf = 0;
+      const measure = () => { raf = 0; const style = getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom), height = `${Math.min(100000, Math.max(180, Math.ceil(doc.body.scrollHeight + margins)))}px`; if (frame.style.height !== height) frame.style.height = height; setReady(true); };
+      const resize = () => { if (!raf) raf = requestAnimationFrame(measure); };
+      const click = (event) => {
+        const address = event.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
+        if (address) openDraft.current({ address });
+      };
+      const observer = new ResizeObserver(resize); observer.observe(doc.body);
+      doc.addEventListener("load", resize, true);
+      doc.addEventListener("click", click);
+      cleanup.current = () => { cancelAnimationFrame(raf); observer.disconnect(); doc.removeEventListener("load", resize, true); doc.removeEventListener("click", click); };
+      resize();
+      return true;
     };
-    const observer = new ResizeObserver(resize); observer.observe(doc.body); resize();
-    doc.addEventListener("click", click);
-    cleanup.current = () => { cancelAnimationFrame(raf); observer.disconnect(); doc.removeEventListener("click", click); };
-  };
-  return <iframe ref={bodyFrame} title="邮件正文" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcDoc={html} onLoad={loaded} />;
+    const start = () => { poll = 0; if (!bind() && ++polls < 120) poll = requestAnimationFrame(start); };
+    frame.addEventListener("load", bind);
+    start();
+    return () => { cancelAnimationFrame(poll); frame.removeEventListener("load", bind); cleanup.current?.(); cleanup.current = null; };
+  }, []);
+  return <iframe ref={bodyFrame} title="邮件正文" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcDoc={html} style={{ visibility: ready ? "visible" : "hidden" }} />;
 }
 
 function safeQuoteDocument(html) {

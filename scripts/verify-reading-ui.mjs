@@ -13,6 +13,9 @@ try {
   page = await browser.newPage({ viewport: { width: 2100, height: 1300 } }); page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(url); await page.getByRole("navigation", { name: "全局面板", exact: true }).waitFor(); await page.keyboard.press("Escape");
   await page.getByRole("navigation", { name: "全局面板", exact: true }).getByRole("button", { name: "DSH Mail", exact: true }).click();
+  await page.waitForTimeout(1200);
+  const onboarding = page.getByRole("dialog");
+  if (await onboarding.count()) await onboarding.getByRole("button", { name: "关闭", exact: true }).click();
   const root = page.locator(".dsh-mail:visible"), rail = root.getByRole("navigation", { name: "功能导航" }), folders = rail.getByRole("button", { name: "邮箱与文件夹", exact: true });
   const resize = async (width, height = 900) => { await root.evaluate((el, size) => { el.style.width = `${size.width}px`; el.style.height = `${size.height}px`; el.style.flex = "none"; }, { width, height }); await expect.poll(() => root.evaluate((el) => el.clientWidth)).toBe(width); };
   const shot = (name) => root.screenshot({ path: `.cache/screenshots/reading-${name}.png` });
@@ -47,6 +50,21 @@ try {
   await resize(768); await expect.poll(height).toBeGreaterThan(normal); await resize(1440);
   for (const width of [1920, 1440, 1100, 1024, 768, 390]) { await resize(width); await noOverflow(); await expect(root.locator(".dm-folders")).toBeHidden(); await expect(root.getByRole("separator")).toHaveCount(width >= 760 ? 1 : 0); await shot(`long-light-${width}`); }
   checks.push("body height fits full content without inner vertical scroll, reflows with width, long mail and layouts at 1920/1440/1100/1024/768/390px");
+
+  await resize(1440);
+  let releaseRemote; const remoteGate = new Promise((resolve) => { releaseRemote = resolve; });
+  await page.route("https://slow.example.invalid/**", async (route) => { await remoteGate; await route.fulfill({ status: 200, contentType: "image/png", body: Buffer.from("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c6360000000020001e221bc330000000049454e44ae426082", "hex") }); });
+  await open("远程图片正文");
+  const imageToggle = root.locator(".dm-image-notice button");
+  if ((await imageToggle.textContent())?.includes("加载图片")) await imageToggle.click();
+  const remoteFrame = root.locator('iframe[title="邮件正文"]');
+  await expect.poll(() => remoteFrame.evaluate((el) => ({ visible: getComputedStyle(el).visibility, imageLoaded: el.contentDocument?.querySelector("img")?.complete }))).toMatchObject({ visible: "visible", imageLoaded: false });
+  const pendingHeight = await remoteFrame.evaluate((el) => el.clientHeight);
+  assert.ok(pendingHeight > 400, `Remote images must not delay body height (${pendingHeight}px)`);
+  await shot("remote-image-pending-light-1440");
+  releaseRemote();
+  await expect.poll(() => remoteFrame.evaluate((el) => el.contentDocument?.querySelector("img")?.complete)).toBe(true);
+  checks.push("full body height is applied before slow remote images and tracking pixels finish loading");
 
   await resize(1440); await open("附件缩略图与文档类型");
   const cards = root.locator(".dm-attachment"); await expect(cards).toHaveCount(5);

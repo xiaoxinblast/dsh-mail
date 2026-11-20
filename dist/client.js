@@ -48278,44 +48278,68 @@ function Reader({ id, active, cache }) {
   }) }, "\u52A0\u8F7D\u66F4\u65E9\u7684\u90AE\u4EF6")), !aiResult && !plain && message.html && /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-image-notice" }, remote ? "\u5DF2\u5141\u8BB8\u672C\u5C01\u90AE\u4EF6\u52A0\u8F7D HTTPS \u8FDC\u7A0B\u56FE\u7247" : "\u8FDC\u7A0B\u56FE\u7247\u5DF2\u963B\u6B62", /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => setRemote(!remote) }, remote ? "\u963B\u6B62\u56FE\u7247" : "\u52A0\u8F7D\u56FE\u7247")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-mail-body" }, aiTask && /* @__PURE__ */ import_react3.default.createElement("div", { hidden: aiView === "original" }, /* @__PURE__ */ import_react3.default.createElement(AiToolbar, { key: `${id}:${aiTask}`, task: aiTask, messageId: id, active, onResult: (result) => setAiResults((previous) => ({ ...previous, [aiTask]: result })) })), aiResult ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-ai-reading", "aria-label": aiView === "summary" ? "\u90AE\u4EF6\u6458\u8981" : "\u90AE\u4EF6\u8BD1\u6587" }, /* @__PURE__ */ import_react3.default.createElement("pre", null, aiResult.text)) : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-body-label" }, "\u5F53\u524D\u90AE\u4EF6\u6B63\u6587"), !plain && message.html ? html2 ? /* @__PURE__ */ import_react3.default.createElement(MailBodyFrame, { key: `${id}:${remote}`, html: html2, onMailLink: newDraft }) : /* @__PURE__ */ import_react3.default.createElement("p", null, "\u6B63\u5728\u6574\u7406\u90AE\u4EF6\u6B63\u6587\u2026") : /* @__PURE__ */ import_react3.default.createElement(PlainMail, { text: message.text || "\uFF08\u65E0\u7EAF\u6587\u672C\u6B63\u6587\uFF09" }))), attachments.length > 0 && /* @__PURE__ */ import_react3.default.createElement("section", { className: `dm-attachments ${attachmentsOpen ? "" : "is-collapsed"}`, "aria-label": "\u90AE\u4EF6\u9644\u4EF6" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "dm-attachment-heading" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, /* @__PURE__ */ import_react3.default.createElement(Button, { className: "dm-attachment-toggle", "aria-label": attachmentsOpen ? "\u6536\u8D77\u9644\u4EF6" : "\u5C55\u5F00\u9644\u4EF6", "aria-expanded": attachmentsOpen, "aria-controls": attachmentsId, onClick: () => setAttachmentsOpen(!attachmentsOpen) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "next", size: 14 }), "\u9644\u4EF6 \xB7 ", attachments.length)), /* @__PURE__ */ import_react3.default.createElement(Button, { onClick: () => download({ action: "attachments.export", ids: attachments.map((a3) => a3.id) }) }, /* @__PURE__ */ import_react3.default.createElement(Icon, { name: "export", size: 14 }), "\u6253\u5305\u4E0B\u8F7D\u5168\u90E8\u9644\u4EF6")), /* @__PURE__ */ import_react3.default.createElement("div", { id: attachmentsId, className: "dm-attachment-grid", hidden: !attachmentsOpen }, attachments.map((a3) => /* @__PURE__ */ import_react3.default.createElement(AttachmentCard, { key: a3.id || a3.part, attachment: a3, messageId: id })))));
 }
 function MailBodyFrame({ html: html2, onMailLink }) {
-  const { state } = useMail(), bodyFrame = (0, import_react3.useRef)(null), readingSize = state.settings?.readingSize || 14;
-  (0, import_react3.useEffect)(() => {
-    if (bodyFrame.current?.contentDocument?.body) bodyFrame.current.contentDocument.body.style.fontSize = `${readingSize}px`;
-  }, [readingSize]);
-  const cleanup = (0, import_react3.useRef)(null), openDraft = (0, import_react3.useRef)(onMailLink);
+  const { state } = useMail(), bodyFrame = (0, import_react3.useRef)(null), [ready, setReady] = (0, import_react3.useState)(false);
+  const cleanup = (0, import_react3.useRef)(null), openDraft = (0, import_react3.useRef)(onMailLink), readingSize = (0, import_react3.useRef)(state.settings?.readingSize || 14);
+  readingSize.current = state.settings?.readingSize || 14;
   (0, import_react3.useEffect)(() => {
     openDraft.current = onMailLink;
   }, [onMailLink]);
-  (0, import_react3.useEffect)(() => () => cleanup.current?.(), []);
-  const loaded = (event) => {
-    cleanup.current?.();
-    const frame = event.currentTarget, doc3 = frame.contentDocument;
-    if (!doc3?.body) return;
-    doc3.body.style.fontSize = `${readingSize}px`;
-    let raf = 0;
-    const measure = () => {
-      raf = 0;
-      const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom), height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
-      if (frame.style.height !== height) frame.style.height = height;
+  (0, import_react3.useEffect)(() => {
+    if (bodyFrame.current?.contentDocument?.body) bodyFrame.current.contentDocument.body.style.fontSize = `${readingSize.current}px`;
+  }, [state.settings?.readingSize]);
+  (0, import_react3.useEffect)(() => {
+    const frame = bodyFrame.current;
+    if (!frame) return;
+    let poll = 0, polls = 0, bound = null;
+    const bind2 = () => {
+      const doc3 = frame.contentDocument;
+      if (!doc3?.body) return false;
+      if (doc3 === bound) return true;
+      if (doc3.URL !== "about:srcdoc") return false;
+      cleanup.current?.();
+      bound = doc3;
+      doc3.body.style.fontSize = `${readingSize.current}px`;
+      let raf = 0;
+      const measure = () => {
+        raf = 0;
+        const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom), height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
+        if (frame.style.height !== height) frame.style.height = height;
+        setReady(true);
+      };
+      const resize = () => {
+        if (!raf) raf = requestAnimationFrame(measure);
+      };
+      const click = (event) => {
+        const address = event.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
+        if (address) openDraft.current({ address });
+      };
+      const observer = new ResizeObserver(resize);
+      observer.observe(doc3.body);
+      doc3.addEventListener("load", resize, true);
+      doc3.addEventListener("click", click);
+      cleanup.current = () => {
+        cancelAnimationFrame(raf);
+        observer.disconnect();
+        doc3.removeEventListener("load", resize, true);
+        doc3.removeEventListener("click", click);
+      };
+      resize();
+      return true;
     };
-    const resize = () => {
-      if (!raf) raf = requestAnimationFrame(measure);
+    const start = () => {
+      poll = 0;
+      if (!bind2() && ++polls < 120) poll = requestAnimationFrame(start);
     };
-    const click = (event2) => {
-      const address = event2.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;
-      if (address) openDraft.current({ address });
+    frame.addEventListener("load", bind2);
+    start();
+    return () => {
+      cancelAnimationFrame(poll);
+      frame.removeEventListener("load", bind2);
+      cleanup.current?.();
+      cleanup.current = null;
     };
-    const observer = new ResizeObserver(resize);
-    observer.observe(doc3.body);
-    resize();
-    doc3.addEventListener("click", click);
-    cleanup.current = () => {
-      cancelAnimationFrame(raf);
-      observer.disconnect();
-      doc3.removeEventListener("click", click);
-    };
-  };
-  return /* @__PURE__ */ import_react3.default.createElement("iframe", { ref: bodyFrame, title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, onLoad: loaded });
+  }, []);
+  return /* @__PURE__ */ import_react3.default.createElement("iframe", { ref: bodyFrame, title: "\u90AE\u4EF6\u6B63\u6587", sandbox: "allow-same-origin allow-popups allow-popups-to-escape-sandbox", srcDoc: html2, style: { visibility: ready ? "visible" : "hidden" } });
 }
 function safeQuoteDocument(html2) {
   const doc3 = new DOMParser().parseFromString(purify_default.sanitize(html2, { FORBID_TAGS: ["script", "form", "iframe", "object", "embed", "svg", "math", "input", "button"] }), "text/html");

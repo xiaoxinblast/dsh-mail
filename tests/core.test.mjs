@@ -85,6 +85,22 @@ test("rules can copy a matched message without removing the source", async (t) =
   assert.ok(service.store.message(message.id));
   assert.deepEqual(service.store.folderMessages("side").map((m) => m.messageId), ["<copy-rule@example.com>"]);
 });
+test("bulk read-all covers the current view or the whole account and leaves read mail alone", async (t) => {
+  const SEEN = String.fromCharCode(92) + "Seen", { service } = await fixture(t), s = service.store;
+  s.put("accounts", { ...service.account("me"), local: true });
+  for (const [id, path] of [["inbox", "INBOX"], ["projects", "Projects"], ["other", "Other"]]) s.put("folders", { id, path, accountId: "me" });
+  const add = (folderId, uid, seen) => s.upsertMessage({ accountId: "me", folderId, uidValidity: "1", uid, messageId: `<read-all-${uid}@example.com>`, subject: `邮件 ${uid}`, from: [{ address: "client@example.com" }], flags: seen ? [SEEN] : [], bodyLoaded: true });
+  const inbox = add("inbox", 1, false), project = add("projects", 2, false), read = add("projects", 3, true), other = add("other", 4, false);
+  assert.deepEqual(await service.invoke({ action: "messages.readAll", preview: true, scope: "view", query: { folderId: "projects" } }, HUMAN), { count: 1 });
+  assert.equal(s.list("jobs").length, 0);
+  const viewJob = await service.invoke({ action: "messages.readAll", scope: "view", query: { folderId: "projects" } }, HUMAN);
+  assert.deepEqual([viewJob.count, viewJob.batches], [1, 1]); await drain(service);
+  assert.equal(s.message(project.id).seen, true); assert.equal(s.message(inbox.id).seen, false); assert.equal(s.message(read.id).seen, true);
+  assert.deepEqual(await service.invoke({ action: "messages.readAll", preview: true, scope: "account", accountId: "me" }, HUMAN), { count: 2 });
+  const accountJob = await service.invoke({ action: "messages.readAll", scope: "account", accountId: "me" }, HUMAN);
+  assert.deepEqual([accountJob.count, accountJob.batches], [2, 1]); await drain(service);
+  for (const message of [inbox, other]) assert.equal(s.message(message.id).seen, true);
+});
 test("concrete preview invalidates on draft edit but survives sync status changes", async (t) => {
   const { service } = await fixture(t), d = await draft(service), p = await service.invoke({ action: "send.preview", id: d.id }, AGENT);
   service.store.put("accounts", { ...service.account("me"), status: "syncing" }); await service.invoke({ action: "preview.confirm", id: p.id }, HUMAN);

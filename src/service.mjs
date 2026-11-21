@@ -101,6 +101,7 @@ export class MailService {
     if (action === "send.preview") return { page: "mail", draftId: args.id, previewId: result.id };
     if (result?.kind && result?.details && result?.status === "pending") return { page: action.startsWith("rules.") ? "rules" : "mail", previewId: result.id };
     if (action === "messages.action") return { page: "mail", activity: true, selectedIds: [...new Set(args.ids || [])] };
+    if (action === "messages.readAll") return { page: "mail", activity: true };
     if (action === "folders.action") return result.kind === "folder-copy" ? { page: "mail", activity: true } : { page: "mail", query: { accountId: result.accountId, folderId: result.id } };
     if (action === "rules.preview") return { page: "rules", rule: validateRule(args.rule), rulePreview: result };
     if (action === "rules.save") return { page: "rules", entityId: result.id };
@@ -221,6 +222,16 @@ export class MailService {
       const ids = [...new Set(args.ids || [])]; requireValue(ids.length && ids.length <= 1000, "SELECTION_REQUIRED", "请选择 1–1000 封邮件。"); ids.forEach((key) => this.message(key));
       if (args.operation === "purge") return this.preview("purge", { ids }, context);
       return this.createJob("messages", ids, { ...args, ids: undefined });
+    }
+    if (action === "messages.readAll") {
+      requireValue(["view", "account"].includes(args.scope), "INVALID_READ_ALL_SCOPE", "请选择全部已读的适用范围。");
+      const filter = args.scope === "account" ? this.readAllAccountFilter(args.accountId) : this.readAllViewFilter(args.query), count = filter ? this.store.search({ ...filter, limit: 1 }).total : 0;
+      if (args.preview) return { count };
+      const ids = [];
+      for (let offset = 0; offset < count; offset += 200) { const page = this.store.search({ ...filter, limit: 200, offset }); ids.push(...page.items.map((m) => m.id)); if (page.items.length < 200) break; }
+      const unique = [...new Set(ids)], jobs = [];
+      for (let i = 0; i < unique.length; i += 1000) jobs.push(this.createJob("messages", unique.slice(i, i + 1000), { operation: "read", value: true }).id);
+      return { count: unique.length, batches: jobs.length, jobs };
     }
     if (action === "folders.action") return this.folderOperation(args, context);
     if (action === "folders.color") {
@@ -495,6 +506,18 @@ export class MailService {
     if (!account.local) this.scheduleSync(account, true);
     if (!targetAccount.local && targetAccount.id !== account.id) this.scheduleSync(targetAccount, true);
     return { status: "completed", operation, destinationId: target.id, messageId: destination.id };
+  }
+  readAllAccountFilter(accountId) {
+    const account = this.account(accountId), folderIds = this.store.list("folders").filter((f) => f.accountId === account.id && !f.missing && !f.deleted).map((f) => f.id);
+    return folderIds.length ? { accountId: account.id, folderIds, seen: false } : null;
+  }
+  readAllViewFilter(input) {
+    const query = this.workbenchQuery(input || {});
+    delete query.limit; delete query.offset; delete query.seen;
+    if (query.folderIds && !query.folderIds.length) return null;
+    if (query.inbox) { const folderIds = this.store.list("folders").filter((f) => f.role === "\\Inbox" || f.path.toUpperCase() === "INBOX").map((f) => f.id); delete query.inbox; if (!folderIds.length) return null; query.folderIds = folderIds; }
+    if (query.sent) { const folderIds = sentFolders(this.store.list("accounts"), this.store.list("folders")).map((f) => f.id); delete query.sent; if (!folderIds.length) return null; query.folderIds = folderIds; }
+    query.seen = false; return query;
   }
   async folderOperation(args, context) {
     const { operation } = args;

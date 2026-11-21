@@ -75,6 +75,16 @@ test("agent cannot confirm, accept credentials, enable rules, or spoof status", 
   const saved = await service.invoke({ action: "drafts.save", draft: { ...d, status: "queued", sendAt: "2000-01-01" } }, AGENT); assert.equal(saved.status, "draft"); assert.equal(saved.sendAt, undefined);
   assert.throws(() => validateRule({ name: "bad", conditions: [{ field: "subject", operator: "contains", value: "x" }], actions: [{ action: "send" }] }), { code: "RULE_ACTION_FORBIDDEN" });
 });
+test("rules can copy a matched message without removing the source", async (t) => {
+  const copied = [], { service } = await fixture(t, { copy: async (_account, _folder, message, target) => { copied.push([message.uid, target.id]); return { uidMap: new Map([[message.uid, 2]]), uidValidity: "1" }; } });
+  for (const [id, path] of [["inbox", "INBOX"], ["side", "Side"]]) service.store.put("folders", { id, path, accountId: "me" });
+  const message = service.store.upsertMessage({ accountId: "me", folderId: "inbox", uidValidity: "1", uid: 1, messageId: "<copy-rule@example.com>", subject: "项目更新", from: [{ name: "客户", address: "client@example.com" }], text: "请在周五前确认。", flags: [], bodyLoaded: true });
+  const rule = validateRule({ name: "客户邮件复制到 Side", accountId: "me", conditions: [{ field: "from", operator: "contains", value: "client@example.com" }], actions: [{ action: "copy", destinationId: "side" }] });
+  await service.runRule(rule, message);
+  assert.deepEqual(copied, [[1, "side"]]);
+  assert.ok(service.store.message(message.id));
+  assert.deepEqual(service.store.folderMessages("side").map((m) => m.messageId), ["<copy-rule@example.com>"]);
+});
 test("concrete preview invalidates on draft edit but survives sync status changes", async (t) => {
   const { service } = await fixture(t), d = await draft(service), p = await service.invoke({ action: "send.preview", id: d.id }, AGENT);
   service.store.put("accounts", { ...service.account("me"), status: "syncing" }); await service.invoke({ action: "preview.confirm", id: p.id }, HUMAN);

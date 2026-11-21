@@ -1,7 +1,7 @@
 import { requireValue } from "./util.mjs";
 
 const FIELDS = new Set(["from", "to", "subject", "text", "hasAttachment", "seen", "starred"]);
-const ACTIONS = new Set(["star", "read", "label", "move", "archive", "task"]);
+const ACTIONS = new Set(["star", "read", "label", "move", "copy", "archive", "task"]);
 export function validateRule(rule) {
   requireValue(rule.name?.trim(), "RULE_NAME_REQUIRED", "请填写规则名称。");
   requireValue(Array.isArray(rule.conditions) && rule.conditions.length > 0 && rule.conditions.length <= 20, "RULE_CONDITIONS", "规则需要 1–20 个条件。");

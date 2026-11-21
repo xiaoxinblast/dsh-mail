@@ -19,6 +19,19 @@ test("experience preferences validate all fields and preserve partial saves", as
   assert.equal(state.changes.settings.theme, "dark");
 });
 
+test("calendar badge summary counts events today in the display timezone", async (t) => {
+  const { service } = await fixture(t);
+  const todayOne = service.saveEvent({ title: "今天上午", start: "2026-11-07T10:00:00+08:00", end: "2026-11-07T11:00:00+08:00" });
+  service.saveEvent({ title: "今天深夜", start: "2026-11-07T23:30:00+08:00", end: "2026-11-07T23:59:00+08:00" });
+  service.saveEvent({ title: "明天", start: "2026-11-08T09:00:00+08:00", end: "2026-11-08T10:00:00+08:00" });
+  service.saveEvent({ title: "全天", start: "2026-11-07", end: "2026-11-08", allDay: true });
+  const state = await service.invoke({ action: "ui.state", resources: ["events"] }, human);
+  assert.equal(state.summary.eventsToday, 3);
+  await service.invoke({ action: "events.delete", id: todayOne.id }, human);
+  const after = await service.invoke({ action: "ui.state", resources: ["events"], epoch: state.epoch, versions: state.versions }, human);
+  assert.equal(after.summary.eventsToday, 2);
+});
+
 test("UI delta versions observe inserts, updates, deletes and rollbacks without sending unused resources", async (t) => {
   const { service } = await fixture(t), read = (previous = {}) => service.invoke({ action: "ui.state", resources: ["tasks", "drafts", "settings"], epoch: previous.epoch, versions: previous.versions }, human);
   service.store.put("drafts", { id: "draft", text: "private large body".repeat(1000), html: "big", status: "draft" });

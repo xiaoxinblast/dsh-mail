@@ -1,5 +1,7 @@
 import { requireValue } from "./util.mjs";
 import { reconcileMailReminders } from "./mail-notifications.mjs";
+import { occurrences } from "./calendar.mjs";
+import { DateTime } from "luxon";
 
 const RESOURCES = new Set(["accounts", "folders", "settings", "drafts", "previews", "notifications", "tasks", "contacts", "calendars", "events", "rules", "labels", "saved-searches", "signatures", "templates", "jobs", "logs"]);
 export function uiState(service, args, context, publicValue) {
@@ -23,10 +25,13 @@ export function uiState(service, args, context, publicValue) {
       changes[key] = items;
     }
   }
-  const summaryKey = JSON.stringify([versions.messages, versions.tasks, versions.folders]);
+  const settings = service.settings(), today = DateTime.fromMillis(service.clock()).setZone(settings.calendarTimeZone).startOf("day"), calendarKey = JSON.stringify([versions.events, settings.calendarTimeZone, today.toISODate()]);
+  if (service.uiCalendar?.key !== calendarKey) service.uiCalendar = { key: calendarKey, count: occurrences(store.list("events").filter((e) => !e.deleted), today.toISO(), today.plus({ days: 1 }).toISO()).length };
+  const summaryKey = JSON.stringify([versions.messages, versions.tasks, versions.folders, calendarKey]);
   if (service.uiSummary?.key !== summaryKey) service.uiSummary = { key: summaryKey, value: {
     ...store.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed,coalesce(sum(starred),0) AS starred,coalesce(sum(seen=0),0) AS unread FROM messages").get(),
-    tasks: store.db.prepare("SELECT count(*) AS n FROM entities WHERE kind='tasks' AND coalesce(json_extract(data,'$.deleted'),0)=0 AND coalesce(json_extract(data,'$.done'),0)=0").get().n
+    tasks: store.db.prepare("SELECT count(*) AS n FROM entities WHERE kind='tasks' AND coalesce(json_extract(data,'$.deleted'),0)=0 AND coalesce(json_extract(data,'$.done'),0)=0").get().n,
+    eventsToday: service.uiCalendar.count
   } };
   return publicValue({ epoch: service.viewEpoch, versions: Object.fromEntries(args.resources.map((key) => [key, versions[key] || 0])), changes, summary: service.uiSummary.value, mailVersion: store.mailVersion(), contactVersion: versions.contacts || 0, workbench: service.workbenchView(context.sessionId) });
 }

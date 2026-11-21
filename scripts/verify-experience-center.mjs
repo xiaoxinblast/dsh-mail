@@ -37,12 +37,17 @@ try {
   const shot = async (name) => { await page.waitForTimeout(200); await page.screenshot({ path: `.cache/screenshots/center-${name}.png` }); };
   const noOverflow = async () => assert.ok(await root.evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && document.documentElement.scrollHeight <= innerHeight + 1), "No outer scrolling or horizontal overflow");
   await expect(root.locator(".dm-message-row")).toHaveCount(50); await shot("overview-light-1440");
+  const railBadge = (name) => rail.getByRole("button", { name, exact: true }).locator(".dm-rail-badge");
+  await expect(railBadge("邮件")).toHaveText("40"); await expect(railBadge("待办")).toHaveText("6");
+  await expect(rail.getByRole("button", { name: "日历", exact: true }).locator(".dm-rail-dot")).toHaveCount(1);
+  await expect(root.locator('.dm-rail-bottom [aria-label="通知与任务"] .dm-rail-dot')).toHaveCount(0);
+  checks.push("persistent counts stay on section icons while the bell marks only time-sensitive items");
   await root.getByRole("button", { name: "通知与任务", exact: true }).click();
   const alerts = root.getByRole("dialog", { name: "通知", exact: true }); await expect(alerts).toContainText("未读邮件 · 2 封"); await expect(alerts.getByRole("button", { name: "已知晓" })).toHaveCount(0); await shot("notifications-simple");
   await alerts.getByRole("button", { name: /未读邮件 · 2 封/ }).click(); await expect(root.locator(".dm-reader h2")).toContainText("十一月项目交付安排 0");
   await expect.poll(() => service.state().notifications[0]?.data.messageIds.length).toBe(1);
   await root.getByRole("button", { name: "通知与任务", exact: true }).click(); await alerts.getByRole("button", { name: /未读邮件 · 1 封/ }).click();
-  await expect.poll(() => service.state().notifications.length).toBe(0); await expect(root.locator('.dm-rail-bottom [aria-label="通知与任务"] .dm-rail-badge')).toHaveCount(0);
+  await expect.poll(() => service.state().notifications.length).toBe(0); await expect(root.locator('.dm-rail-bottom [aria-label="通知与任务"] .dm-rail-dot')).toHaveCount(0); await expect(railBadge("邮件")).toHaveText("38");
   checks.push("compact mail status notifications disappear automatically on successful reading without a manual acknowledgment");
   await rail.getByRole("button", { name: "设置", exact: true }).click(); const nav = root.getByRole("navigation", { name: "设置分类" });
   await expect(nav.getByRole("button")).toHaveCount(9);

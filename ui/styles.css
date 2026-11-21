@@ -40,6 +40,8 @@
 .dsh-mail .dm-rail-caption{font-size:9px;line-height:1.2}
 .dsh-mail .dm-rail button[aria-current]{background:var(--dm-selected);color:var(--dm-blue);box-shadow:inset 3px 0 var(--dm-accent)}
 .dsh-mail .dm-rail-badge{position:absolute;right:0;top:0;border:2px solid var(--dm-bg);border-radius:10px;background:#2563eb;color:#fff;font-size:9px;font-style:normal;padding:0 4px;min-width:17px;line-height:15px}
+.dsh-mail .dm-rail-dot{position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:var(--dm-accent);box-shadow:0 0 0 2px var(--dm-bg)}
+.dsh-mail .dm-rail-dot.is-alert{background:#d97706}
 .dsh-mail .dm-workspace{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .dsh-mail .dm-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;border-bottom:1px solid var(--dm-border);flex:none;background:var(--dm-bg)}
 .dsh-mail .dm-workspace-header>div:first-child{min-width:0}

@@ -70,11 +70,11 @@ export function decorateHtmlQuotes(doc) {
 }
 
 export const QUOTE_FRAME_CSS = `
-[data-mail-history]{display:block!important;border:1px solid #b8c1d3!important;border-left:4px solid #7c3aed!important;border-radius:8px!important;background:#f4f5fa!important;margin:28px 0!important;padding:0!important;overflow-wrap:anywhere;clear:both}
-.dm-quote-heading{display:block!important;margin:0!important;padding:13px 16px!important;background:#ede9fe!important;border-bottom:1px solid #c4b5fd!important;color:#472178!important;font:600 14px/1.6 system-ui!important}
-.dm-quote-heading strong{font:700 14px/1.6 system-ui!important;color:#472178!important}
-.dm-quote-source{margin-top:4px!important;font:12px/1.65 system-ui!important;overflow-wrap:anywhere;color:#4b4562!important}
+[data-mail-history]{display:block!important;border:1px solid #d5dde8!important;border-left:4px solid #93a4b8!important;border-radius:8px!important;background:#f6f8fa!important;margin:28px 0!important;padding:0!important;overflow-wrap:anywhere;clear:both}
+.dm-quote-heading{display:block!important;margin:0!important;padding:13px 16px!important;background:#edf1f7!important;border-bottom:1px solid #dde5ef!important;color:#354255!important;font:600 14px/1.6 system-ui!important}
+.dm-quote-heading strong{font:700 14px/1.6 system-ui!important;color:#354255!important}
+.dm-quote-source{margin-top:4px!important;font:12px/1.65 system-ui!important;overflow-wrap:anywhere;color:#5d6a7c!important}
 .dm-quote-source *{font:inherit!important;color:inherit!important;background:transparent!important}
 .dm-quote-body{padding:4px 16px 14px!important;color:#30394c}
-blockquote:not([data-mail-history]){border-left:2px solid #a8b2c5;margin:12px 0;padding-left:14px}
+blockquote:not([data-mail-history]){border-left:2px solid #b3bfce;margin:12px 0;padding-left:14px}
 `;

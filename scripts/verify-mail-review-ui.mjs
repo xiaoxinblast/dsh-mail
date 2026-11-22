@@ -16,7 +16,7 @@ for (const [id, path, role] of [["inbox", "INBOX", "\\Inbox"], ["sent", "已发�
 let uid = 0;
 const add = (id, folderId, value = {}) => service.store.upsertMessage({ id, accountId: "demo", folderId, uid: ++uid, uidValidity: "1", messageId: `<${id}@review.invalid>`, date: new Date(Date.now() - (40 - uid * 10) * 3600000).toISOString(), subject: "项目交付确认", text: "合成正文", html: "<p>合成正文</p>", bodyLoaded: true, from: [{ name: "客户", address: "client@example.invalid" }], to: [{ name: "我", address: "me@example.invalid" }], cc: [], attachments: [], flags: [], ...value });
 const root = add("root", "project", { date: "2026-11-20T08:00:00.000Z", flags: ["\\Seen", "\\Flagged"], text: "这是最初的原始邮件正文。", html: "<p>这是最初的原始邮件正文。</p>" });
-const reply1 = add("reply1", "sent", { messageId: "<reply1@review.invalid>", inReplyTo: "<root@review.invalid>", references: ["<root@review.invalid>"], date: "2026-11-20T09:00:00.000Z", from: [{ name: "我", address: "me@example.invalid" }], to: [{ name: "客户", address: "client@example.invalid" }], flags: ["\\Seen"], text: "这是我第一次回复的正文。", html: "<p>这是我第一次回复的正文。</p>" });
+const reply1 = add("reply1", "sent", { messageId: "<reply1@review.invalid>", inReplyTo: "<root@review.invalid>", references: ["<root@review.invalid>"], date: "2026-11-20T09:00:00.000Z", from: [{ name: "我", address: "me@example.invalid" }], to: [{ name: "客户", address: "client@example.invalid" }], flags: ["\\Seen"], text: "这是我第一次回复的正文。", html: "<p>这是我第一次回复的正文。</p><blockquote data-mail-quote='true'><p>—— 2026-11-20T08:00:00.000Z client@example.invalid ——</p><p>这是最初的原始邮件正文。</p></blockquote>" });
 const reply2 = add("reply2", "inbox", { messageId: "<reply2@review.invalid>", inReplyTo: "<reply1@review.invalid>", references: ["<root@review.invalid>", "<reply1@review.invalid>"], date: "2026-11-20T10:00:00.000Z", text: "客户后续回复的最新正文。", html: "<p>客户后续回复的最新正文。</p>" });
 add("inbox-read", "inbox", { subject: "收件箱已读邮件", messageId: "<read@review.invalid>", date: "2026-11-19T08:00:00.000Z", flags: ["\\Seen"], text: "已读邮件", html: "<p>已读邮件</p>" });
 add("archive-unread", "archive", { subject: "归档中的未读邮件", messageId: "<archive@review.invalid>", date: "2026-11-19T09:00:00.000Z", text: "归档未读", html: "<p>归档未读</p>" });
@@ -99,6 +99,11 @@ try {
   assert.ok((await rootLocator().locator(".dm-message-row").innerText()).includes("这是我第一次回复的正文"), "sent view lists the mail I sent");
   await rootLocator().locator(".dm-message-row .dm-message").click();
   await expect(rootLocator().locator(".dm-reader h2")).toHaveText("项目交付确认");
+  const quoteFrame = rootLocator().locator(".dm-mail-body iframe");
+  await expect(quoteFrame).toHaveCount(1);
+  await expect.poll(async () => quoteFrame.evaluate((el) => [...(el.contentDocument?.querySelectorAll("[data-mail-history]") || [])].map((section) => section.querySelector(".dm-quote-heading strong")?.textContent || "")), { timeout: 8000 }).toEqual(["引用邮件 · 1"]);
+  await shot("quote-single");
+  checks.push("阅读带引用的已发送回复时只显示一层带编号的引用卡片，不再出现空的「引用邮件」卡片");
   await rootLocator().getByRole("button", { name: "回复", exact: true }).click();
   await expect(rootLocator().getByLabel("收件人", { exact: true })).toHaveValue('"客户" <client@example.invalid>');
   await shot("reply-recipient");

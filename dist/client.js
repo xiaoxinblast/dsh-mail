@@ -47224,6 +47224,7 @@ function splitReplyHtml(doc3) {
   return { current: current.innerHTML, quoted: quoted.innerHTML };
 }
 function decorateHtmlQuotes(doc3) {
+  for (let quote = doc3.querySelector("[data-mail-quote]"); quote; quote = doc3.querySelector("[data-mail-quote]")) quote.replaceWith(...quote.childNodes);
   const markers = markerLines(doc3);
   if (markers.length) {
     const result = doc3.createDocumentFragment();

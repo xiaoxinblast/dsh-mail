@@ -44,6 +44,9 @@ export function splitReplyHtml(doc) {
 }
 
 export function decorateHtmlQuotes(doc) {
+  // [data-mail-quote] 是 DSH Mail 回复时插入的引用容器，不是一层历史邮件；
+  // 解包后交给下方按分隔行/原生引用分节的逻辑，避免多出一张空的「引用邮件」卡片。
+  for (let quote = doc.querySelector("[data-mail-quote]"); quote; quote = doc.querySelector("[data-mail-quote]")) quote.replaceWith(...quote.childNodes);
   const markers = markerLines(doc);
   if (markers.length) {
     const result = doc.createDocumentFragment(); result.append(fragment(doc, bodyStart(doc), markers[0].start));

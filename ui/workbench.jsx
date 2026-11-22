@@ -511,7 +511,8 @@ function MailBodyFrame({ html, onMailLink }) {
       bound = doc;
       doc.body.style.fontSize = `${readingSize.current}px`;
       let raf = 0;
-      const measure = () => { raf = 0; const style = getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom), height = `${Math.min(100000, Math.max(180, Math.ceil(doc.body.scrollHeight + margins)))}px`; if (frame.style.height !== height) frame.style.height = height; setReady(true); };
+      // 以文档完整滚动高度贴合，避免 iframe 内部残留几点像素的滚动区域：鼠标在正文上滚动时会先被这段内部滚动截住，产生“滚不动、卡住”的感觉。
+      const measure = () => { raf = 0; const style = getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom), contentHeight = () => Math.max(doc.body.scrollHeight + margins, doc.documentElement.scrollHeight); let height = contentHeight(); for (let i = 0; i < 3 && height > frame.clientHeight; i++) { frame.style.height = `${Math.min(100000, Math.max(180, Math.ceil(height)))}px`; height = contentHeight(); } const next = `${Math.min(100000, Math.max(180, Math.ceil(height)))}px`; if (frame.style.height !== next) frame.style.height = next; setReady(true); };
       const resize = () => { if (!raf) raf = requestAnimationFrame(measure); };
       const click = (event) => {
         const address = event.target.closest?.("button[data-mail-recipient]")?.dataset.mailRecipient;

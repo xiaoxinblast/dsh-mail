@@ -18,6 +18,8 @@ const add = (id, folderId, value = {}) => service.store.upsertMessage({ id, acco
 const root = add("root", "project", { date: "2026-11-20T08:00:00.000Z", flags: ["\\Seen", "\\Flagged"], text: "这是最初的原始邮件正文。", html: "<p>这是最初的原始邮件正文。</p>" });
 const reply1 = add("reply1", "sent", { messageId: "<reply1@review.invalid>", inReplyTo: "<root@review.invalid>", references: ["<root@review.invalid>"], date: "2026-11-20T09:00:00.000Z", from: [{ name: "我", address: "me@example.invalid" }], to: [{ name: "客户", address: "client@example.invalid" }], flags: ["\\Seen"], text: "这是我第一次回复的正文。", html: "<p>这是我第一次回复的正文。</p><blockquote data-mail-quote='true'><p>—— 2026-11-20T08:00:00.000Z client@example.invalid ——</p><p>这是最初的原始邮件正文。</p></blockquote>" });
 const reply2 = add("reply2", "inbox", { messageId: "<reply2@review.invalid>", inReplyTo: "<reply1@review.invalid>", references: ["<root@review.invalid>", "<reply1@review.invalid>"], date: "2026-11-20T10:00:00.000Z", text: "客户后续回复的最新正文。", html: "<p>客户后续回复的最新正文。</p>" });
+const longHtml = `<div style="font-size:14px;line-height:1.7">${Array.from({ length: 40 }, (_, i) => `<p style="margin:0 0 12px">第 ${i + 1} 段：这是一段用于验证阅读滚动行为的合成正文，内容足够长以产生外层滚动。</p>`).join("")}<table style="width:100%;border-collapse:collapse;margin-bottom:30px"><tbody><tr><td style="border:1px solid #ccc;padding:8px">表格中的合成内容</td><td style="border:1px solid #ccc;padding:8px">表格中的合成内容</td></tr></tbody></table></div>`;
+add("long-body", "inbox", { subject: "长正文滚动验收", messageId: "<long@review.invalid>", date: "2026-11-21T09:00:00.000Z", flags: ["\\Seen"], text: "长正文滚动验收。", html: longHtml });
 add("inbox-read", "inbox", { subject: "收件箱已读邮件", messageId: "<read@review.invalid>", date: "2026-11-19T08:00:00.000Z", flags: ["\\Seen"], text: "已读邮件", html: "<p>已读邮件</p>" });
 add("archive-unread", "archive", { subject: "归档中的未读邮件", messageId: "<archive@review.invalid>", date: "2026-11-19T09:00:00.000Z", text: "归档未读", html: "<p>归档未读</p>" });
 await service.invoke({ action: "settings.save", value: { theme: "light", groupThreads: false, pageSize: 50 } }, { kind: "human" });
@@ -110,6 +112,30 @@ try {
   checks.push("回复自己发出的已发送邮件时，默认收件人是原收件人而不是自己");
 
   await rootLocator().getByRole("button", { name: "← 关闭", exact: true }).click();
+  // 长正文滚动验收：正文 iframe 贴合文档高度，滚轮直接滚动外层阅读区。
+  await rail().getByRole("button", { name: "邮件", exact: true }).click();
+  await page.waitForTimeout(700);
+  const longRow = rootLocator().locator(".dm-message-row").filter({ hasText: "长正文滚动验收" });
+  await longRow.first().locator(".dm-message").click();
+  await page.waitForTimeout(1400);
+  const longFrame = rootLocator().locator(".dm-mail-body iframe");
+  await expect(longFrame).toHaveCount(1);
+  let longMetrics = null;
+  for (let i = 0; i < 25; i++) {
+    longMetrics = await longFrame.evaluate((frame) => { const doc = frame.contentDocument; if (!doc?.body) return null; const style = doc.defaultView.getComputedStyle(doc.body), margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom); return { client: frame.clientHeight, html: doc.documentElement.scrollHeight, body: Math.ceil(doc.body.scrollHeight + margins) }; });
+    if (longMetrics && longMetrics.client >= longMetrics.html - 1) break;
+    await page.waitForTimeout(250);
+  }
+  assert.ok(longMetrics && longMetrics.client >= longMetrics.html - 1 && longMetrics.client >= longMetrics.body - 1, `长正文 iframe 未贴合文档高度：${JSON.stringify(longMetrics)}`);
+  const box = await longFrame.boundingBox();
+  assert.ok(box && box.height > 500, `长正文 iframe 高度不足：${box?.height}`);
+  await page.mouse.move(box.x + box.width / 2, box.y + 200);
+  await page.mouse.wheel(0, 320);
+  await page.waitForTimeout(500);
+  const wheel = await page.evaluate(() => ({ pane: document.querySelector(".dm-detail-pane")?.scrollTop || 0, frame: document.querySelector(".dm-mail-body iframe")?.contentDocument?.documentElement?.scrollTop || 0 }));
+  assert.ok(wheel.pane > 0 && wheel.frame === 0, `正文滚动未传递给外层：${JSON.stringify(wheel)}`);
+  await shot("scroll-body");
+  checks.push("长正文 iframe 贴合文档高度，鼠标在正文上滚动直接滚动外层阅读区，不出现内部滚动卡住");
   await rail().getByRole("button", { name: "邮件", exact: true }).click();
   await rootLocator().getByRole("button", { name: "写邮件", exact: true }).click();
   const font = rootLocator().locator(".dm-font-family");

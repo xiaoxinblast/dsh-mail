@@ -48324,8 +48324,14 @@ function MailBodyFrame({ html: html2, onMailLink }) {
       let raf = 0;
       const measure = () => {
         raf = 0;
-        const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom), height = `${Math.min(1e5, Math.max(180, Math.ceil(doc3.body.scrollHeight + margins)))}px`;
-        if (frame.style.height !== height) frame.style.height = height;
+        const style2 = getComputedStyle(doc3.body), margins = parseFloat(style2.marginTop) + parseFloat(style2.marginBottom), contentHeight = () => Math.max(doc3.body.scrollHeight + margins, doc3.documentElement.scrollHeight);
+        let height = contentHeight();
+        for (let i4 = 0; i4 < 3 && height > frame.clientHeight; i4++) {
+          frame.style.height = `${Math.min(1e5, Math.max(180, Math.ceil(height)))}px`;
+          height = contentHeight();
+        }
+        const next = `${Math.min(1e5, Math.max(180, Math.ceil(height)))}px`;
+        if (frame.style.height !== next) frame.style.height = next;
         setReady(true);
       };
       const resize = () => {

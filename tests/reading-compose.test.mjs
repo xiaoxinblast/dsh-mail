@@ -18,6 +18,21 @@ async function fixture(t, send) {
   service.store.put("accounts", { ...normalizeAccount({ id: "me", email: "me@example.invalid", imapHost: "127.0.0.1", smtpHost: "127.0.0.1" }), authFailed: true, folders: {} });
   return { service, advance: (ms) => time += ms, calls: () => calls };
 }
+test("replying to an own sent message targets the original recipients instead of myself", async (t) => {
+  const { service } = await fixture(t);
+  let uid = 0;
+  const add = (id, value) => service.store.upsertMessage({ id, accountId: "me", folderId: "inbox", uid: ++uid, uidValidity: "1", messageId: `<${id}@example.invalid>`, date: "2026-11-05T09:00:00.000Z", subject: "项目确认", text: "合成正文", html: "<p>合成正文</p>", bodyLoaded: true, from: [], to: [], cc: [], attachments: [], flags: ["\\Seen"], ...value });
+  add("incoming", { date: "2026-11-05T08:00:00.000Z", from: [{ name: "客户", address: "Client@Example.invalid" }], to: [{ address: "me@example.invalid" }] });
+  add("own", { inReplyTo: "<incoming@example.invalid>", references: ["<incoming@example.invalid>"], from: [{ name: "我", address: "ME@example.invalid" }], to: [{ name: "客户", address: "Client@Example.invalid" }], cc: [{ address: "team@example.invalid" }] });
+  const reply = await service.invoke({ action: "drafts.reply", id: "own", mode: "reply" }, human);
+  assert.deepEqual(reply.to.map((a) => a.address.toLowerCase()), ["client@example.invalid"]);
+  const all = await service.invoke({ action: "drafts.reply", id: "own", mode: "replyAll" }, human);
+  assert.deepEqual(all.to.map((a) => a.address.toLowerCase()), ["client@example.invalid"]);
+  assert.deepEqual(all.cc.map((a) => a.address.toLowerCase()), ["team@example.invalid"]);
+  const normal = await service.invoke({ action: "drafts.reply", id: "incoming", mode: "reply" }, human);
+  assert.deepEqual(normal.to.map((a) => a.address.toLowerCase()), ["client@example.invalid"]);
+});
+
 test("empty quoted names fall back to addresses; quoted commas keep one recipient", () => {
   for (const name of ["", '""', '" "', '“”', "''"]) { assert.equal(displayName(name), ""); assert.equal(personLabel({ name, address: "a@example.com" }), "a@example.com"); }
   const value = '"Doe, Jane" <jane@example.com>; "" <empty@example.com>；中文 <cn@example.com>';

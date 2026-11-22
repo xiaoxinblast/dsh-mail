@@ -91,3 +91,20 @@ test("rolled-back reply headers never leave unrelated conversations joined", asy
   assert.throws(() => service.store.transaction(() => { add("bridge", { references: [a.messageId, b.messageId] }); assert.equal(service.store.conversationId(a), service.store.conversationId(b)); throw new Error("rollback"); }), /rollback/);
   assert.equal((await thread(a.id)).total, 1); assert.equal((await thread(b.id)).total, 1);
 });
+
+test("conversation view merges a folder page row into the latest mail from any valid folder", async (t) => {
+  const { service, add } = await fixture(t), root = add("root", { flags: ["\\Flagged"] }), reply = add("reply", { folderId: "me-sent", references: ["<root@example.invalid>"] });
+  const search = (query) => service.invoke({ action: "search", ...query, limit: 50 }, { kind: "human" });
+  const plain = await search({ folderIds: ["me-inbox"] });
+  assert.deepEqual(plain.items.map((m) => m.id), [root.id]); assert.equal(plain.items[0].threadCount, undefined);
+  const merged = await search({ folderIds: ["me-inbox"], groupThreads: true });
+  assert.deepEqual(merged.items.map((m) => m.id), [reply.id]);
+  assert.equal(merged.items[0].threadCount, 2);
+  assert.equal(merged.items[0].locations.length, 1);
+  assert.equal(merged.items[0].folderId, "me-sent");
+  const starred = await search({ starred: true, groupThreads: true });
+  assert.deepEqual(starred.items.map((m) => m.id), [reply.id]); assert.equal(starred.items[0].threadCount, 2);
+  const starredPlain = await search({ starred: true });
+  assert.deepEqual(starredPlain.items.map((m) => m.id), [root.id]);
+  assert.equal((await search({ folderIds: ["me-inbox"], groupThreads: true, limit: 1 })).items[0].threadCount, 2);
+});

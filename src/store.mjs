@@ -147,8 +147,31 @@ export class Store {
     const coverage = this.coverageCache.value;
     const threads = (rows.length || current) && (conversation || query.groupThreads) ? this.conversations(threadAccount).byMessage : null;
     const summary = ({ html, text, rawHeaders, ...m }) => ({ ...m, threadId: threads?.get(m.id) || m.threadId, snippet: (text || "").slice(0, 180) });
-    const items = rows.map((r) => summary(JSON.parse(r.data))), locations = this.messageLocationMap([...new Set([...items.map((m) => m.id), ...(current ? [current.id] : [])])]);
+    const summaries = rows.map((r) => summary(JSON.parse(r.data))), items = query.groupThreads && !conversation ? this.mergeThreadPage(summaries, threadAccount, summary) : summaries, locations = this.messageLocationMap([...new Set([...items.map((m) => m.id), ...(current ? [current.id] : [])])]);
     return { items: items.map((m) => ({ ...m, locations: locations.get(m.id) })), total, offset, limit, nextOffset: offset + limit < total ? offset + limit : null, coverage, ...(conversation ? { threadId: query.threadId, current: current ? { ...summary(current), locations: locations.get(current.id) } : undefined } : {}) };
+  }
+  // 会话视图：命中会话的当前页邮件合并为一行，行内容取该会话在有效文件夹中的最新邮件，后续回复不在当前文件夹时也能直接看到。
+  mergeThreadPage(items, accountId, summarize) {
+    const conversations = this.conversations(accountId), threadIds = [...new Set(items.map((m) => conversations.byMessage.get(m.id)).filter(Boolean))];
+    if (!threadIds.length) return items;
+    const ids = [...new Set(threadIds.flatMap((threadId) => conversations.groups.get(threadId) || []))];
+    const messages = this.db.prepare(`SELECT m.data FROM messages m JOIN entities f ON f.kind='folders' AND f.id=m.folder_id WHERE m.id IN (${ids.map(() => "?").join(",")}) AND coalesce(json_extract(f.data,'$.missing'),0)=0 AND coalesce(json_extract(f.data,'$.deleted'),0)=0 ORDER BY m.date DESC,m.id`).all(...ids).map((row) => JSON.parse(row.data));
+    const latest = new Map(), counts = new Map(), addresses = new Map();
+    for (const message of messages) {
+      const threadId = conversations.byMessage.get(message.id); if (!threadId) continue;
+      if (!latest.has(threadId)) latest.set(threadId, message);
+      const seen = addresses.get(threadId) || new Set(); seen.add(message.messageId || message.id); addresses.set(threadId, seen); counts.set(threadId, seen.size);
+    }
+    const merged = [], used = new Set();
+    for (const item of items) {
+      const threadId = conversations.byMessage.get(item.id);
+      if (!threadId) { merged.push(item); continue; }
+      if (used.has(threadId)) continue;
+      used.add(threadId);
+      const message = latest.get(threadId);
+      merged.push(message ? { ...summarize(message), threadCount: counts.get(threadId) || 1 } : item);
+    }
+    return merged;
   }
   folderMessages(folderId) { return this.db.prepare("SELECT data FROM messages WHERE folder_id=? ORDER BY uid").all(folderId).map((r) => JSON.parse(r.data)); }
   async backup(path) { await backup(this.db, path); return path; }

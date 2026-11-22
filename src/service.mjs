@@ -194,7 +194,7 @@ export class MailService {
     if (action === "sync") { const accounts = args.accountId ? [this.account(args.accountId)] : this.store.list("accounts").filter((a) => a.enabled && !a.local); return accounts.map((a) => { this.scheduleSync(a, true); return { accountId: a.id, status: "queued" }; }); }
     if (action === "search") {
       if (args.participant !== undefined) { const list = validateAddresses(args.participant, true); requireValue(list.length === 1, "INVALID_PARTICIPANT", "请选择一个往来邮箱地址。"); args.participant = list[0].address; }
-      if (args.inbox) args.folderIds = this.store.list("folders").filter((f) => f.role === "\\Inbox" || f.path.toUpperCase() === "INBOX").map((f) => f.id);
+      if (args.inbox) args.folderIds = this.store.list("folders").filter((f) => !f.missing && !f.deleted && f.selectable !== false && (f.role === "\\Inbox" || f.path.toUpperCase() === "INBOX")).map((f) => f.id);
       if (args.sent) args.folderIds = sentFolders(this.store.list("accounts"), this.store.list("folders")).map((f) => f.id);
       if ((args.inbox || args.sent) && !args.folderIds.length) return { items: [], total: 0, coverage: { total: 0, indexed: 0 } };
       return publicValue(this.store.search(args));
@@ -397,9 +397,11 @@ export class MailService {
     return draftView(this.store.put("drafts", next, input.revision));
   }
   async replyDraft({ id: messageId, mode = "reply", accountId }) {
-    const m = await this.loadMessage(messageId), account = this.account(accountId || m.accountId), allMine = new Set(this.store.list("accounts").map((a) => a.email));
-    const to = mode === "forward" ? [] : m.replyTo?.length ? m.replyTo : m.from;
-    const cc = mode === "replyAll" ? [...m.to, ...m.cc].filter((a) => !allMine.has(a.address) && !to.some((t) => t.address === a.address)) : [];
+    const m = await this.loadMessage(messageId), account = this.account(accountId || m.accountId), mine = new Set(this.store.list("accounts").filter((a) => !a.deleted).map((a) => String(a.email).toLowerCase())), isMine = (a) => mine.has(String(a?.address || "").toLowerCase());
+    // 回复自己发出的邮件时原发件人是自己；改用原收件人，避免默认把自己填成收件人。
+    const primary = (mode === "forward" ? [] : m.replyTo?.length ? m.replyTo : m.from) || [], others = primary.filter((a) => !isMine(a)), originalRecipients = (m.to || []).filter((a) => !isMine(a));
+    const to = mode === "forward" ? [] : others.length ? others : originalRecipients.length ? originalRecipients : primary;
+    const cc = mode === "replyAll" ? [...(m.to || []), ...(m.cc || [])].filter((a) => !isMine(a) && !to.some((t) => String(t.address).toLowerCase() === String(a.address).toLowerCase())) : [];
     const signature = account.signatureId ? this.store.get("signatures", account.signatureId) : null;
     const heading = `—— ${m.date} ${m.from.map((a) => a.address).join(", ")} ——`, signatureText = !signature?.deleted ? signature?.text || "" : "";
     return this.saveDraft({ accountId: account.id, to, cc, subject: `${mode === "forward" ? "Fwd" : "Re"}: ${m.subject}`, text: `${signatureText}\n\n${heading}\n${m.text || ""}`, quotedText: `${heading}\n${m.text || ""}`, html: `${!signature?.deleted && signature?.html || textHtml(signatureText)}<blockquote data-mail-quote="true">${textHtml(heading)}${m.html || textHtml(m.text)}</blockquote>`, inReplyTo: mode === "forward" ? undefined : m.messageId, references: mode === "forward" ? [] : [...(m.references || []), ...(m.messageId ? [m.messageId] : [])], sourceMessageId: m.id, attachments: m.attachments.filter((a) => mode === "forward" || a.cid).map(({ id, filename, cid }) => ({ id, filename, cid })) });

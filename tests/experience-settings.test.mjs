@@ -32,6 +32,24 @@ test("calendar badge summary counts events today in the display timezone", async
   assert.equal(after.summary.eventsToday, 2);
 });
 
+test("inbox badge counts only unread mail in valid inbox folders and dedupes folder copies", async (t) => {
+  const { service } = await fixture(t);
+  service.store.put("folders", { id: "inbox", accountId: "one", path: "INBOX", role: "\\Inbox" });
+  service.store.put("folders", { id: "sent", accountId: "one", path: "已发送", role: "\\Sent" });
+  service.store.put("folders", { id: "archive", accountId: "one", path: "归档" });
+  service.store.put("folders", { id: "gone", accountId: "one", path: "重建中", missing: true });
+  let uid = 0;
+  const add = (id, folderId, messageId, flags = []) => service.store.upsertMessage({ id, accountId: "one", folderId, uid: ++uid, uidValidity: "1", messageId, date: "2026-11-07T08:00:00.000Z", subject: "未读", text: "", bodyLoaded: true, from: [], to: [], cc: [], attachments: [], flags });
+  add("inbox-unread", "inbox", "<a@example.invalid>"); add("inbox-copy", "inbox", "<a@example.invalid>");
+  add("inbox-seen", "inbox", "<b@example.invalid>", ["\\Seen"]);
+  add("sent-unread", "sent", "<c@example.invalid>"); add("archive-unread", "archive", "<d@example.invalid>"); add("gone-unread", "gone", "<e@example.invalid>");
+  const before = await service.invoke({ action: "ui.state", resources: ["settings"] }, human);
+  assert.equal(before.summary.unread, 1); assert.equal(before.summary.total, 6);
+  for (const id of ["inbox-unread", "inbox-copy"]) service.store.upsertMessage({ ...service.store.message(id), flags: ["\\Seen"] });
+  const after = await service.invoke({ action: "ui.state", resources: ["settings"], epoch: before.epoch, versions: before.versions }, human);
+  assert.equal(after.summary.unread, 0);
+});
+
 test("UI delta versions observe inserts, updates, deletes and rollbacks without sending unused resources", async (t) => {
   const { service } = await fixture(t), read = (previous = {}) => service.invoke({ action: "ui.state", resources: ["tasks", "drafts", "settings"], epoch: previous.epoch, versions: previous.versions }, human);
   service.store.put("drafts", { id: "draft", text: "private large body".repeat(1000), html: "big", status: "draft" });

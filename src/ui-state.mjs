@@ -29,7 +29,8 @@ export function uiState(service, args, context, publicValue) {
   if (service.uiCalendar?.key !== calendarKey) service.uiCalendar = { key: calendarKey, count: occurrences(store.list("events").filter((e) => !e.deleted), today.toISO(), today.plus({ days: 1 }).toISO()).length };
   const summaryKey = JSON.stringify([versions.messages, versions.tasks, versions.folders, calendarKey]);
   if (service.uiSummary?.key !== summaryKey) service.uiSummary = { key: summaryKey, value: {
-    ...store.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed,coalesce(sum(starred),0) AS starred,coalesce(sum(seen=0),0) AS unread FROM messages").get(),
+    ...store.db.prepare("SELECT count(*) AS total,coalesce(sum(body_loaded),0) AS indexed,coalesce(sum(starred),0) AS starred FROM messages").get(),
+    unread: store.db.prepare("SELECT count(DISTINCT CASE WHEN m.message_id<>'' THEN m.account_id||':'||m.message_id ELSE m.account_id||':'||m.id END) AS n FROM messages m JOIN entities f ON f.kind='folders' AND f.id=m.folder_id WHERE m.seen=0 AND coalesce(json_extract(f.data,'$.missing'),0)=0 AND coalesce(json_extract(f.data,'$.deleted'),0)=0 AND (json_extract(f.data,'$.role')='\\Inbox' OR upper(json_extract(f.data,'$.path'))='INBOX')").get().n,
     tasks: store.db.prepare("SELECT count(*) AS n FROM entities WHERE kind='tasks' AND coalesce(json_extract(data,'$.deleted'),0)=0 AND coalesce(json_extract(data,'$.done'),0)=0").get().n,
     eventsToday: service.uiCalendar.count
   } };

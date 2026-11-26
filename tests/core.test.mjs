@@ -85,6 +85,17 @@ test("rules can copy a matched message without removing the source", async (t) =
   assert.ok(service.store.message(message.id));
   assert.deepEqual(service.store.folderMessages("side").map((m) => m.messageId), ["<copy-rule@example.com>"]);
 });
+test("a rule copying mail into its current folder is a no-op and the mail still opens", async (t) => {
+  const { service } = await fixture(t);
+  service.store.put("folders", { id: "side", path: "Side", accountId: "me" });
+  const message = service.store.upsertMessage({ accountId: "me", folderId: "side", uidValidity: "1", uid: 1, messageId: "<same-folder@example.com>", subject: "已在 Side", from: [{ name: "客户", address: "client@example.com" }], text: "正文", flags: [], bodyLoaded: true, rulesPending: true });
+  const rule = service.store.put("rules", { ...validateRule({ name: "客户邮件复制到 Side", accountId: "me", conditions: [{ field: "from", operator: "contains", value: "client@example.com" }], actions: [{ action: "copy", destinationId: "side" }] }), enabled: true });
+  const loaded = await service.loadMessage(message.id);
+  assert.equal(loaded.rulesPending, false);
+  assert.equal(service.store.folderMessages("side").length, 1);
+  assert.ok(service.store.get("rule-runs", `${rule.id}:${rule.revision}:${message.id}`));
+  assert.equal(service.store.logs(1)[0].kind, "rule-applied");
+});
 test("bulk read-all covers the current view or the whole account and leaves read mail alone", async (t) => {
   const SEEN = String.fromCharCode(92) + "Seen", { service } = await fixture(t), s = service.store;
   s.put("accounts", { ...service.account("me"), local: true });

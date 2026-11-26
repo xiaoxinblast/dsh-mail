@@ -570,7 +570,19 @@ export class MailService {
     const copies = read().copies; return { folderId: folder.id, copied: copies.filter((c) => c.status === "done").length, unknown: copies.filter((c) => c.status !== "done").length };
   }
   async applyRules(message) { for (const rule of this.store.list("rules").filter((r) => r.enabled).sort((a, b) => a.priority - b.priority)) { if (!this.store.message(message.id)) break; if (!matches(rule, message)) continue; const key = `${rule.id}:${rule.revision}:${message.id}`; if (this.store.get("rule-runs", key)) continue; await this.runRule(rule, message); this.store.put("rule-runs", { id: key, ruleId: rule.id, messageId: message.id }); if (rule.stop) break; } }
-  async runRule(rule, message) { const results = []; for (const action of rule.actions) { if (action.action === "task") results.push(this.saveResource("tasks", { title: action.title || message.subject, sourceMessageId: message.id, evidence: message.text?.slice(0, 300), priority: "normal" })); else results.push(await this.messageAction(message.id, { operation: action.action, value: action.value ?? true, destinationId: action.destinationId })); if (["move", "archive"].includes(action.action)) break; } this.store.log("rule-applied", { ruleId: rule.id, messageId: message.id }); return { actions: results.length }; }
+  async runRule(rule, message) {
+    const results = [];
+    for (const action of rule.actions) {
+      if (action.action === "task") results.push(this.saveResource("tasks", { title: action.title || message.subject, sourceMessageId: message.id, evidence: message.text?.slice(0, 300), priority: "normal" }));
+      else {
+        try { results.push(await this.messageAction(message.id, { operation: action.action, value: action.value ?? true, destinationId: action.destinationId })); }
+        // Imported filters often copy or move mail into a folder it already lives in; that is already done, not a failure.
+        catch (error) { if (error.code !== "SAME_FOLDER") throw error; results.push({ status: "unchanged", operation: action.action, destinationId: action.destinationId }); }
+      }
+      if (["move", "archive"].includes(action.action)) break;
+    }
+    this.store.log("rule-applied", { ruleId: rule.id, messageId: message.id }); return { actions: results.length };
+  }
   saveResource(kind, value) {
     requireValue(value && typeof value === "object", "INVALID_VALUE", "记录无效。");
     if (kind === "tasks") { if (!value.id && value.priority === undefined) value = { ...value, priority: this.settings().taskPriority }; requireValue(value.title?.trim(), "TITLE_REQUIRED", "请填写待办名称。"); if (value.due) requireValue(Number.isFinite(Date.parse(value.due)), "INVALID_DATE", "截止日期无效。"); }
